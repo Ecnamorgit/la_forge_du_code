@@ -1,26 +1,438 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ── NEBULA COMMAND PALETTE ── */
+  --bg-darkest: #03060d;
+  --bg-dark: #080d18;
+  --bg-mid: #0c1220;
+  --bg-panel: #0a1628;
+  --bg-editor: #050a14;
+  --border: #1a2744;
+  --border-glow: #0e4d8f;
+  --cyan: #00f0ff;
+  --cyan-dim: #004d55;
+  --cyan-faint: rgba(0, 240, 255, 0.06);
+  --orange: #ff6b2c;
+  --orange-dim: #6b2d13;
+  --orange-faint: rgba(255, 107, 44, 0.07);
+  --red: #ff2d55;
+  --red-dim: #661224;
+  --green: #00ff88;
+  --green-dim: #004d28;
+  --green-faint: rgba(0, 255, 136, 0.05);
+  --blue: #3d7eff;
+  --blue-dim: #1a3366;
+  --text: #c8d6e5;
+  --text-secondary: #6b7d99;
+  --text-dim: #2a3a55;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-tech: var(--font-tech);
+  --font-body: var(--font-body);
+  --font-code: var(--font-code);
+
+  --color-nebula-bg-darkest: var(--bg-darkest);
+  --color-nebula-bg-dark: var(--bg-dark);
+  --color-nebula-bg-mid: var(--bg-mid);
+  --color-nebula-bg-panel: var(--bg-panel);
+  --color-nebula-bg-editor: var(--bg-editor);
+  --color-nebula-border: var(--border);
+  --color-nebula-border-glow: var(--border-glow);
+  --color-nebula-cyan: var(--cyan);
+  --color-nebula-cyan-dim: var(--cyan-dim);
+  --color-nebula-cyan-faint: var(--cyan-faint);
+  --color-nebula-orange: var(--orange);
+  --color-nebula-orange-dim: var(--orange-dim);
+  --color-nebula-orange-faint: var(--orange-faint);
+  --color-nebula-red: var(--red);
+  --color-nebula-red-dim: var(--red-dim);
+  --color-nebula-green: var(--green);
+  --color-nebula-green-dim: var(--green-dim);
+  --color-nebula-green-faint: var(--green-faint);
+  --color-nebula-blue: var(--blue);
+  --color-nebula-blue-dim: var(--blue-dim);
+  --color-nebula-text: var(--text);
+  --color-nebula-text-secondary: var(--text-secondary);
+  --color-nebula-text-dim: var(--text-dim);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── FONT UTILITY CLASSES ── */
+.font-tech {
+  font-family: var(--font-tech), monospace;
+}
+.font-body {
+  font-family: var(--font-body), sans-serif;
+}
+.font-code {
+  font-family: var(--font-code), monospace;
+}
+
+/* ── NEBULA STARFIELD ── */
+.bg-nebula-bg {
+  background-image: url("/Space Background8.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-darkest);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-glow);
+  border-radius: 3px;
+}
+
+/* ── CRT EFFECT ── */
+.crt-overlay {
+  position: relative;
+  overflow: hidden;
+}
+.crt-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 240, 255, 0.03) 2px,
+    rgba(0, 240, 255, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+.crt-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  pointer-events: none;
+  z-index: 11;
+}
+
+@keyframes crt-flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.98;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.crt-flicker {
+  animation: crt-flicker 8s ease-in-out infinite;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes station-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.6));
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes scan-ring {
+  0% {
+    stroke-dashoffset: 157;
+    opacity: 0.3;
+  }
+  50% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -157;
+    opacity: 0.3;
+  }
+}
+
+@keyframes flash-seq {
+  0% {
+    opacity: 0;
+    background: rgba(0, 240, 255, 0);
+  }
+  15% {
+    opacity: 1;
+    background: rgba(0, 240, 255, 0.15);
+  }
+  60% {
+    opacity: 0.6;
+    background: rgba(0, 240, 255, 0.05);
+  }
+  100% {
+    opacity: 0;
+    background: rgba(0, 240, 255, 0);
+  }
+}
+
+@keyframes teleport-flash {
+  0% {
+    opacity: 0;
+    background: rgba(0, 240, 255, 0);
+  }
+  20% {
+    opacity: 1;
+    background: rgba(0, 240, 255, 0.12);
+  }
+  100% {
+    opacity: 0;
+    background: rgba(0, 240, 255, 0);
+  }
+}
+
+@keyframes particle-fly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes btn-appear {
+  from {
+    transform: scale(0) rotate(-5deg);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes fb-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes float-gentle {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes orbit-spin {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes data-stream {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 -20px;
+  }
+}
+
+.animate-station-pulse {
+  animation: station-pulse 4s ease-in-out infinite;
+}
+.animate-blink {
+  animation: blink 2s steps(1) infinite;
+}
+.animate-flash-seq {
+  animation: flash-seq 0.7s ease forwards;
+}
+.animate-teleport-flash {
+  animation: teleport-flash 0.4s ease forwards;
+}
+.animate-btn-appear {
+  animation: btn-appear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.animate-fb-in {
+  animation: fb-in 0.35s ease both;
+}
+.animate-float-gentle {
+  animation: float-gentle 0.6s ease infinite alternate;
+}
+.animate-orbit-spin {
+  animation: orbit-spin 3s ease-in-out infinite;
+}
+.animate-scan-ring {
+  animation: scan-ring 3s linear infinite;
+}
+
+/* ── SPRITE ANIMATIONS ── */
+
+/* Planet slow rotation (celestial-objects background) */
+@keyframes planet-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-planet-rotate {
+  animation: planet-rotate 120s linear infinite;
+}
+
+/* Turret appear — teleport in (scale 0→1 + cyan flash) */
+@keyframes turret-appear {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+    filter: brightness(3) drop-shadow(0 0 8px #00f0ff);
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+    filter: brightness(2) drop-shadow(0 0 12px #00f0ff);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    filter: brightness(1) drop-shadow(0 0 4px rgba(0, 240, 255, 0.3));
+  }
+}
+.animate-turret-appear {
+  animation: turret-appear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Turret frame animation — 4 frames, loops */
+/* Frame width = 704, display = 28px, scale = 28/704 ≈ 0.03977 */
+/* total bg width = 2816 * scale ≈ 112px, so frame step = 28px */
+.sprite-turret-anim {
+  animation: sprite-turret-frames 0.8s steps(4) infinite;
+}
+@keyframes sprite-turret-frames {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -112px;
+  }
+}
+
+/* Enemy frame animation — 4 frames */
+/* Frame width = 704, display = 36px, scale = 36/704 */
+/* total bg width = 2816 * (36/704) ≈ 144px, frame step = 36px */
+.sprite-enemy-anim {
+  animation: sprite-enemy-frames 0.6s steps(4) infinite;
+}
+@keyframes sprite-enemy-frames {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -144px;
+  }
+}
+
+/* Enemy fly across (error feedback) — right to left */
+@keyframes enemy-fly {
+  0% {
+    right: -40px;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    right: calc(100% + 40px);
+    opacity: 0;
+  }
+}
+.animate-enemy-fly {
+  animation:
+    enemy-fly 2s ease-in-out forwards,
+    sprite-enemy-frames 0.6s steps(4) infinite;
+}
+
+/* Enemy explode (success) — scale up + flash + fade */
+@keyframes enemy-explode {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    filter: brightness(1);
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 1;
+    filter: brightness(3) drop-shadow(0 0 12px #00f0ff);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+    filter: brightness(5) drop-shadow(0 0 20px #00f0ff);
+  }
+}
+.animate-enemy-explode {
+  animation:
+    enemy-explode 0.6s ease-out forwards,
+    sprite-enemy-frames 0.6s steps(4) infinite;
+}
+
+/* VFX expanding ring on banner */
+@keyframes vfx-ring {
+  0% {
+    width: 40px;
+    height: 40px;
+    opacity: 0.8;
+    border-width: 2px;
+  }
+  100% {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+.animate-vfx-ring {
+  animation: vfx-ring 0.7s ease-out forwards;
 }
