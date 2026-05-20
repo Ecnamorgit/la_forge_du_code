@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import DashboardNav from "../DashboardNav";
 import { useUser } from "@/lib/use-user";
+import { useSoundPreference } from "@/lib/use-sound";
 import {
   getCompletedSteps,
   isChapterComplete,
@@ -476,7 +477,53 @@ export default function ProfilPage() {
             })}
           </div>
         </section>
+
+        {/* Settings */}
+        <section className="mb-10 animate-fade-up">
+          <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
+            {"> "}Préférences
+          </h2>
+          <div className="rounded-sm border border-nebula-border/60 bg-nebula-bg-panel/70 p-5 backdrop-blur-md">
+            <SoundToggleRow />
+          </div>
+        </section>
       </main>
+    </div>
+  );
+}
+
+function SoundToggleRow() {
+  const { enabled, toggle } = useSoundPreference();
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <div>
+        <div className="font-tech text-sm uppercase tracking-widest text-nebula-text">
+          Effets sonores
+        </div>
+        <p className="mt-1 font-body text-xs text-nebula-text-dim">
+          Bips de déploiement, jingle de validation, alarme d&apos;erreur, fanfare de fin de chapitre.
+        </p>
+      </div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={enabled}
+        onClick={toggle}
+        className={`relative h-7 w-12 shrink-0 rounded-full border transition-colors ${
+          enabled
+            ? "border-nebula-cyan bg-nebula-cyan/30"
+            : "border-nebula-border bg-nebula-bg-darkest/60"
+        }`}
+      >
+        <span className="sr-only">{enabled ? "Couper le son" : "Activer le son"}</span>
+        <span
+          className={`absolute top-0.5 h-5 w-5 rounded-full transition-all ${
+            enabled
+              ? "left-[calc(100%-1.4rem)] bg-nebula-cyan shadow-[0_0_8px_rgba(0,240,255,0.6)]"
+              : "left-0.5 bg-nebula-text-dim"
+          }`}
+        />
+      </button>
     </div>
   );
 }
