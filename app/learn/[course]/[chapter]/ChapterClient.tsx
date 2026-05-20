@@ -122,6 +122,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
   const [flashTrigger, setFlashTrigger] = useState(0);
   const [teleportFlash, setTeleportFlash] = useState(0);
   const [bannerVfxTrigger, setBannerVfxTrigger] = useState(0);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const hintTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const xpPopupTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -142,6 +143,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
 
   const handleStepSuccess = useCallback(() => {
     const alreadyDone = stepDone[currentStep];
+    setSaveError(null);
 
     setFlashTrigger((p) => p + 1);
     spawnParticles();
@@ -156,6 +158,11 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
       );
 
       void completeStep(course, chapter.slug, currentStep).catch((err) => {
+        const message =
+          err instanceof Error
+            ? err.message
+            : "Sauvegarde impossible. Reessaie dans quelques secondes.";
+        setSaveError(message);
         console.error("Step completion failed:", err);
       });
     }
@@ -340,6 +347,11 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
               💡 Indice
             </button>
           </div>
+          {saveError && (
+            <div className="mt-4 rounded-sm border border-nebula-red/70 bg-nebula-red/15 px-4 py-3 font-tech text-[11px] uppercase tracking-wider text-nebula-red">
+              Sauvegarde echouee : {saveError}
+            </div>
+          )}
         </main>
 
         {/* RIGHT — workspace */}

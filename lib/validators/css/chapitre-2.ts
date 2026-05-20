@@ -1,0 +1,94 @@
+import type { Validator } from "@/data/courses/html/types";
+import { extractStyleContent, hasProperty, hasPropertyWithValue } from "./_utils";
+
+export const validators: Validator[] = [
+  // Step 1: .alert { color: ... }
+  (code) => {
+    const css = extractStyleContent(code);
+    if (css === null) {
+      return { ok: false, msg: "La balise <style> est manquante." };
+    }
+    if (!hasProperty(css, ".alert", "color")) {
+      return {
+        ok: false,
+        msg: "Ajoute une regle .alert { color: ... } pour cibler la classe.",
+      };
+    }
+    return {
+      ok: true,
+      msg: "Classe ciblee.",
+      objList: ["o1a", "o1b"],
+    };
+  },
+  // Step 2: #status { color: ... }
+  (code) => {
+    const css = extractStyleContent(code);
+    if (css === null) {
+      return { ok: false, msg: "La balise <style> est manquante." };
+    }
+    if (!hasProperty(css, "#status", "color")) {
+      return {
+        ok: false,
+        msg: "Ajoute une regle #status { color: ... } pour cibler l'id.",
+      };
+    }
+    return {
+      ok: true,
+      msg: "Identifiant unique cible.",
+      objList: ["o2a", "o2b"],
+    };
+  },
+  // Step 3: h1 { color: hex | rgb }
+  (code) => {
+    const css = extractStyleContent(code);
+    if (css === null) {
+      return { ok: false, msg: "La balise <style> est manquante." };
+    }
+    // Hex: #rgb / #rrggbb / #rrggbbaa. RGB: each channel 0-255 (1-3 digits).
+    const hex = /#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})\b/i;
+    const channel = "(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)";
+    const rgb = new RegExp(
+      `rgba?\\s*\\(\\s*${channel}\\s*,\\s*${channel}\\s*,\\s*${channel}(?:\\s*,\\s*[\\d.]+)?\\s*\\)`,
+      "i"
+    );
+    if (
+      !hasPropertyWithValue(css, "h1", "color", hex) &&
+      !hasPropertyWithValue(css, "h1", "color", rgb)
+    ) {
+      return {
+        ok: false,
+        msg: "La couleur du <h1> doit etre un hex (#xxxxxx) valide ou rgb(0-255, 0-255, 0-255).",
+      };
+    }
+    return {
+      ok: true,
+      msg: "Teinte personnalisee.",
+      objList: ["o3a", "o3b"],
+    };
+  },
+  // Step 4: h1 { text-align: ... } AND .alert { font-weight: ... }
+  (code) => {
+    const css = extractStyleContent(code);
+    if (css === null) {
+      return { ok: false, msg: "La balise <style> est manquante." };
+    }
+    if (!hasProperty(css, "h1", "text-align")) {
+      return {
+        ok: false,
+        msg: "Ajoute text-align sur le <h1>.",
+      };
+    }
+    if (!hasProperty(css, ".alert", "font-weight")) {
+      return {
+        ok: false,
+        msg: "Ajoute font-weight sur .alert.",
+      };
+    }
+    return {
+      ok: true,
+      msg: "Typographie tactique en place.",
+      objList: ["o4a", "o4b"],
+      final: true,
+    };
+  },
+];

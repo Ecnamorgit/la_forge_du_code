@@ -1,0 +1,137 @@
+import type { Validator } from "@/data/courses/html/types";
+
+function stripHtmlComments(code: string): string {
+  return code.replace(/<!--[\s\S]*?-->/g, "");
+}
+
+function hasInputOfType(code: string, type: string): boolean {
+  const re = new RegExp(`<input\\b[^>]*type\\s*=\\s*["']${type}["'][^>]*>`, "i");
+  return re.test(code);
+}
+
+function findFormInner(code: string): string | null {
+  const cleaned = stripHtmlComments(code);
+  const match = cleaned.match(/<form\b[^>]*>([\s\S]*?)<\/form>/i);
+  return match ? match[1] : null;
+}
+
+export const validators: Validator[] = [
+  // Step 1: <form> + <input type="text"> + <label for=...>
+  (code) => {
+    const inner = findFormInner(code);
+    if (inner === null) {
+      return { ok: false, msg: "Encadre les champs dans une balise <form>." };
+    }
+    // type="text" or default <input> (no type attribute) both count as text.
+    const hasTextInput =
+      hasInputOfType(inner, "text") ||
+      /<input\b(?![^>]*\btype\s*=)[^>]*>/i.test(inner);
+    if (!hasTextInput) {
+      return {
+        ok: false,
+        msg: 'Ajoute un <input type="text"> dans le formulaire.',
+      };
+    }
+    const labelMatch = inner.match(
+      /<label\b[^>]*\bfor\s*=\s*["']([^"']+)["'][^>]*>[\s\S]*?<\/label>/i
+    );
+    if (!labelMatch) {
+      return {
+        ok: false,
+        msg: 'Le champ a besoin d\'un <label for="..."> associe.',
+      };
+    }
+    const targetId = labelMatch[1];
+    const idRe = new RegExp(
+      `<input\\b[^>]*\\bid\\s*=\\s*["']${targetId}["'][^>]*>`,
+      "i"
+    );
+    if (!idRe.test(inner)) {
+      return {
+        ok: false,
+        msg: `Le label pointe vers id="${targetId}" mais aucun input ne porte cet id.`,
+      };
+    }
+    return {
+      ok: true,
+      msg: "Premier champ etiquete.",
+      objList: ["o1a", "o1b"],
+    };
+  },
+  // Step 2: <input type="email"> + <input type="password">
+  (code) => {
+    const inner = findFormInner(code);
+    if (inner === null) {
+      return { ok: false, msg: "Le <form> est manquant." };
+    }
+    if (!hasInputOfType(inner, "email")) {
+      return {
+        ok: false,
+        msg: 'Ajoute un <input type="email">.',
+      };
+    }
+    if (!hasInputOfType(inner, "password")) {
+      return {
+        ok: false,
+        msg: 'Ajoute un <input type="password">.',
+      };
+    }
+    return {
+      ok: true,
+      msg: "Types specialises ajoutes.",
+      objList: ["o2a", "o2b"],
+    };
+  },
+  // Step 3: <textarea> + <button type="submit">
+  (code) => {
+    const inner = findFormInner(code);
+    if (inner === null) {
+      return { ok: false, msg: "Le <form> est manquant." };
+    }
+    if (!/<textarea\b[^>]*>[\s\S]*?<\/textarea>/i.test(inner)) {
+      return {
+        ok: false,
+        msg: "Ajoute une balise <textarea> dans le formulaire.",
+      };
+    }
+    const submit = inner.match(
+      /<button\b[^>]*type\s*=\s*["']submit["'][^>]*>[\s\S]*?<\/button>/i
+    );
+    if (!submit) {
+      return {
+        ok: false,
+        msg: 'Ajoute un <button type="submit"> pour envoyer le formulaire.',
+      };
+    }
+    return {
+      ok: true,
+      msg: "Rapport pret a etre transmis.",
+      objList: ["o3a", "o3b"],
+    };
+  },
+  // Step 4: <select> with >= 2 <option>
+  (code) => {
+    const inner = findFormInner(code);
+    if (inner === null) {
+      return { ok: false, msg: "Le <form> est manquant." };
+    }
+    const selectMatch = inner.match(/<select\b[^>]*>([\s\S]*?)<\/select>/i);
+    if (!selectMatch) {
+      return { ok: false, msg: "Ajoute une balise <select>." };
+    }
+    const options =
+      selectMatch[1].match(/<option\b[^>]*>[\s\S]*?<\/option>/gi) ?? [];
+    if (options.length < 2) {
+      return {
+        ok: false,
+        msg: `Le menu doit proposer au moins deux <option> (actuellement ${options.length}).`,
+      };
+    }
+    return {
+      ok: true,
+      msg: "Console operationnelle.",
+      objList: ["o4a", "o4b"],
+      final: true,
+    };
+  },
+];

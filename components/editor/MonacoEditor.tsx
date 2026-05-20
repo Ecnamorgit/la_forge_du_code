@@ -8,12 +8,14 @@ interface MonacoEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  language?: "html" | "javascript";
 }
 
 export default function MonacoEditor({
   value,
   onChange,
   placeholder,
+  language = "html",
 }: MonacoEditorProps) {
   return (
     <div className="flex-1 min-h-0 relative crt-overlay crt-flicker">
@@ -24,7 +26,7 @@ export default function MonacoEditor({
       )}
       <Editor
         height="100%"
-        defaultLanguage="html"
+        language={language}
         value={value}
         onChange={(v) => onChange(v ?? "")}
         theme="nebula-dark"

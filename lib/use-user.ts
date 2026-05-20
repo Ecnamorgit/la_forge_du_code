@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 import { DEFAULT_USER, type UserState } from "./user-store";
 
@@ -27,6 +27,13 @@ export interface UseUserReturn {
   renameUser: (newUsername: string) => Promise<UserState>;
   /** Wipe all progression (XP, badges, completedSteps, streak). */
   reset: () => Promise<UserState>;
+}
+
+function toNetworkMessage(): string {
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    return "Connexion perdue. Verifie ton internet puis reessaie.";
+  }
+  return "Impossible de contacter le serveur. Reessaie dans quelques secondes.";
 }
 
 async function readJson<T>(res: Response): Promise<T> {
@@ -57,6 +64,13 @@ export function useUser(): UseUserReturn {
     const promise = (async () => {
       try {
         const res = await fetch("/api/me", { cache: "no-store" });
+        if (res.status === 401) {
+          // JWT is signed-valid but the user row is gone (deleted in DB).
+          // Sign out to clear the stale cookie and redirect to login.
+          setState(DEFAULT_USER);
+          void signOut({ callbackUrl: "/login" });
+          return;
+        }
         if (!res.ok) {
           setState(DEFAULT_USER);
           return;
@@ -89,11 +103,20 @@ export function useUser(): UseUserReturn {
       chapter: string,
       stepIndex: number
     ): Promise<CompleteStepResponse> => {
-      const res = await fetch("/api/me/step", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ course, chapter, stepIndex }),
-      });
+      let res: Response;
+      try {
+        res = await fetch("/api/me/step", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ course, chapter, stepIndex }),
+        });
+      } catch {
+        throw new Error(toNetworkMessage());
+      }
+      if (res.status === 401) {
+        void signOut({ callbackUrl: "/login" });
+        throw new Error("Session expiree. Reconnecte-toi.");
+      }
       if (!res.ok) {
         const err = await readJson<{ error?: string }>(res);
         throw new Error(err.error ?? "Échec de l'enregistrement");
@@ -106,11 +129,20 @@ export function useUser(): UseUserReturn {
   );
 
   const renameUser = useCallback(async (newUsername: string) => {
-    const res = await fetch("/api/me/username", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: newUsername }),
-    });
+    let res: Response;
+    try {
+      res = await fetch("/api/me/username", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: newUsername }),
+      });
+    } catch {
+      throw new Error(toNetworkMessage());
+    }
+    if (res.status === 401) {
+      void signOut({ callbackUrl: "/login" });
+      throw new Error("Session expiree. Reconnecte-toi.");
+    }
     if (!res.ok) {
       const err = await readJson<{ error?: string }>(res);
       throw new Error(err.error ?? "Renommage impossible");
@@ -121,7 +153,16 @@ export function useUser(): UseUserReturn {
   }, []);
 
   const reset = useCallback(async () => {
-    const res = await fetch("/api/me/reset", { method: "POST" });
+    let res: Response;
+    try {
+      res = await fetch("/api/me/reset", { method: "POST" });
+    } catch {
+      throw new Error(toNetworkMessage());
+    }
+    if (res.status === 401) {
+      void signOut({ callbackUrl: "/login" });
+      throw new Error("Session expiree. Reconnecte-toi.");
+    }
     if (!res.ok) {
       const err = await readJson<{ error?: string }>(res);
       throw new Error(err.error ?? "Réinitialisation impossible");

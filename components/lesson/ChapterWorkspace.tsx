@@ -109,12 +109,12 @@ export default function ChapterWorkspace({
     [onTeleportFlash, isJs]
   );
 
-  const runCode = useCallback(() => {
+  const runCode = useCallback(async () => {
     onDeploy?.();
     let result: ValidationResult;
 
     if (isJs) {
-      const exec = runJs(code);
+      const exec = await runJs(code);
       const entries: ConsoleEntry[] = exec.logs.map((text) => ({
         type: "log",
         text,
