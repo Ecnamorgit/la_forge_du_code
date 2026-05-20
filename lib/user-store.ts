@@ -7,6 +7,8 @@ export interface UserState {
   // key = `${course}/${chapter}`, value = sorted step indexes done
   completedSteps: Record<string, number[]>;
   joinedAt: string;
+  // ISO date string when the user dismissed the first-login briefing; null until then.
+  onboardedAt: string | null;
 }
 
 export const DEFAULT_USER: UserState = {
@@ -17,6 +19,7 @@ export const DEFAULT_USER: UserState = {
   badges: [],
   completedSteps: {},
   joinedAt: "",
+  onboardedAt: null,
 };
 
 /** Compute level from XP (every 100 XP = 1 level) */

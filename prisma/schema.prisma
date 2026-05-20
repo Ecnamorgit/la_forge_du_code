@@ -20,17 +20,35 @@ model User {
   image         String?
 
   // App-specific fields
-  username  String   @unique
-  password  String? // hashed (credentials provider); null for OAuth-only users
-  joinedAt  DateTime @default(now())
-  totalXp   Int      @default(0)
-  streak    Int      @default(1)
-  lastVisit String   @default("") // ISO date (yyyy-mm-dd)
+  username     String    @unique
+  password     String? // hashed (credentials provider); null for OAuth-only users
+  joinedAt     DateTime  @default(now())
+  totalXp      Int       @default(0)
+  streak       Int       @default(1)
+  lastVisit    String    @default("") // ISO date (yyyy-mm-dd)
+  onboardedAt  DateTime? // null until the user finishes the first-login briefing
 
   accounts        Account[]
   sessions        Session[]
   badges          UserBadge[]
   stepCompletions StepCompletion[]
+  oneTimeTokens   OneTimeToken[]
+}
+
+// Single-use tokens for email verification + password reset.
+// `kind` discriminates the purpose; `usedAt` enforces single-use semantics.
+model OneTimeToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  userId    String
+  kind      String // "email_verify" | "password_reset"
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind])
 }
 
 model Account {

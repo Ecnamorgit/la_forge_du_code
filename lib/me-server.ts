@@ -22,6 +22,7 @@ interface RawUserBundle {
   streak: number;
   lastVisit: string;
   joinedAt: Date;
+  onboardedAt: Date | null;
   badges: { badgeId: string }[];
   stepCompletions: {
     course: string;
@@ -48,23 +49,27 @@ function shape(bundle: RawUserBundle): UserState {
     badges: bundle.badges.map((b) => b.badgeId),
     completedSteps,
     joinedAt: bundle.joinedAt.toISOString().slice(0, 10),
+    onboardedAt: bundle.onboardedAt ? bundle.onboardedAt.toISOString() : null,
   };
 }
+
+const USER_BUNDLE_SELECT = {
+  username: true,
+  totalXp: true,
+  streak: true,
+  lastVisit: true,
+  joinedAt: true,
+  onboardedAt: true,
+  badges: { select: { badgeId: true } },
+  stepCompletions: {
+    select: { course: true, chapter: true, stepIndex: true },
+  },
+} as const;
 
 async function fetchBundle(userId: string): Promise<RawUserBundle | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: {
-      username: true,
-      totalXp: true,
-      streak: true,
-      lastVisit: true,
-      joinedAt: true,
-      badges: { select: { badgeId: true } },
-      stepCompletions: {
-        select: { course: true, chapter: true, stepIndex: true },
-      },
-    },
+    select: USER_BUNDLE_SELECT,
   });
   return user;
 }
@@ -92,17 +97,7 @@ export async function getUserState(userId: string): Promise<UserState | null> {
   const updated = await prisma.user.update({
     where: { id: userId },
     data: { streak: nextStreak, lastVisit: today },
-    select: {
-      username: true,
-      totalXp: true,
-      streak: true,
-      lastVisit: true,
-      joinedAt: true,
-      badges: { select: { badgeId: true } },
-      stepCompletions: {
-        select: { course: true, chapter: true, stepIndex: true },
-      },
-    },
+    select: USER_BUNDLE_SELECT,
   });
 
   return shape(updated);
@@ -245,6 +240,32 @@ export async function completeStep(
   if (!state) throw new UserNotFoundError();
 
   return { state, awardedXp, newBadge, alreadyDone };
+}
+
+/**
+ * Mark the first-login briefing as seen. Idempotent: only writes the timestamp
+ * the first time, so we don't lose the original first-connect signal.
+ */
+export async function markOnboarded(userId: string): Promise<UserState> {
+  const current = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { onboardedAt: true },
+  });
+  if (!current) {
+    throw new UserNotFoundError(
+      "Compte introuvable. La session est obsolete, reconnecte-toi."
+    );
+  }
+  if (!current.onboardedAt) {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { onboardedAt: new Date() },
+    });
+  }
+
+  const state = await getUserState(userId);
+  if (!state) throw new UserNotFoundError();
+  return state;
 }
 
 export async function resetProgress(userId: string): Promise<UserState> {
