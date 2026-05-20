@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Share_Tech_Mono, Exo_2, JetBrains_Mono } from "next/font/google";
+import AuthSessionProvider from "@/components/auth/SessionProvider";
 import "./globals.css";
 
 const shareTechMono = Share_Tech_Mono({
@@ -35,10 +36,11 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${shareTechMono.variable} ${exo2.variable} ${jetbrainsMono.variable} h-full`}
+      //AJout : W full pour la largeur garantie
+      className={`${shareTechMono.variable} ${exo2.variable} ${jetbrainsMono.variable} h-full w-full`}
     >
-      <body className="h-full overflow-hidden bg-nebula-bg-darkest text-nebula-text font-body text-base m-0 p-0">
-        {children}
+      <body className="min-h-full w-full bg-nebula-bg-darkest text-nebula-text font-body text-base m-0 p-0">
+        <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>
     </html>
   );

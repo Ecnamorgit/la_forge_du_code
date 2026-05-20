@@ -1,69 +1,90 @@
-"use client";
-
-import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import Image from "next/image";
 
-import { unlockAudio } from "@/lib/audio";
+import BrandLogo from "@/components/ui/BrandLogo";
 
-const COURSES = [
-  {
-    slug: "html",
-    title: "HTML",
-    subtitle: "Structure des pages web",
-    icon: "📡",
-    chapters: 1,
-    color: "cyan",
-    description:
-      "Maîtrise les fondations du web : balises, structure, sémantique. Construis ta première station orbitale.",
-    status: "available" as const,
-  },
-  {
-    slug: "css",
-    title: "CSS",
-    subtitle: "Design & mise en forme",
-    icon: "🎨",
-    chapters: 0,
-    color: "blue",
-    description:
-      "Habille ta station avec des styles, couleurs et animations. Bientôt disponible.",
-    status: "locked" as const,
-  },
-  {
-    slug: "javascript",
-    title: "JavaScript",
-    subtitle: "Logique & interactivité",
-    icon: "⚡",
-    chapters: 0,
-    color: "orange",
-    description:
-      "Programme les systèmes de défense automatisés. Bientôt disponible.",
-    status: "locked" as const,
-  },
-];
-
-export default function Home() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
+export default function LandingPage() {
   return (
-    <div className="relative h-full overflow-hidden">
-      <div className="fixed inset-0 bg-nebula-bg z-0 pointer-events-none" />
+    <div className="relative min-h-screen w-full overflow-x-hidden overflow-y-auto">
+      {/* Background layers */}
+      <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-bg" />
+      <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-stars opacity-30" />
+      <div className="fixed inset-0 z-0 pointer-events-none bg-[rgba(3,6,13,0.55)]" />
 
-      <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">
-        <div
-          className="text-center mb-12"
-          style={{
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? "translateY(0)" : "translateY(-20px)",
-            transition: "all 0.8s ease",
-          }}
-        >
+      {/* Decorative planets — hidden under md to keep mobile clean */}
+      <div className="pointer-events-none fixed left-[6%] top-[24%] z-[5] hidden opacity-50 md:block">
+        <Image
+          src="/planet-gas.png"
+          alt=""
+          width={140}
+          height={140}
+          className="animate-planet-rotate drop-shadow-[0_0_30px_rgba(0,240,255,0.2)]"
+          style={{ imageRendering: "pixelated" }}
+        />
+      </div>
+      <div className="pointer-events-none fixed right-[5%] top-[55%] z-[5] hidden opacity-50 md:block">
+        <Image
+          src="/planet-dry.png"
+          alt=""
+          width={170}
+          height={170}
+          className="animate-planet-rotate drop-shadow-[0_0_30px_rgba(255,107,44,0.2)]"
+          style={{ imageRendering: "pixelated" }}
+        />
+      </div>
+      <div className="pointer-events-none fixed left-[10%] bottom-[8%] z-[5] hidden opacity-35 lg:block">
+        <Image
+          src="/planet-red.png"
+          alt=""
+          width={90}
+          height={90}
+          className="drop-shadow-[0_0_20px_rgba(255,107,44,0.2)]"
+          style={{ imageRendering: "pixelated" }}
+        />
+      </div>
+
+      {/* Nav */}
+      <header className="relative z-50 flex h-16 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/80 px-4 backdrop-blur-md sm:px-6">
+        <div className="flex items-center gap-3">
+          <BrandLogo size={36} />
+          <div className="font-tech text-base tracking-widest">
+            <span className="text-nebula-cyan">NEBULA</span>
+            <span className="ml-1 text-nebula-text-secondary">COMMAND</span>
+          </div>
+        </div>
+
+        <nav className="flex items-center gap-3 sm:gap-6">
+          <Link
+            href="/login"
+            className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan sm:text-sm"
+          >
+            Se connecter
+          </Link>
+          <Link
+            href="/signup"
+            className="rounded-sm bg-nebula-cyan px-3 py-2 font-tech text-xs font-bold uppercase tracking-widest text-nebula-bg-darkest shadow-[0_3px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_2px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-4 sm:text-sm"
+          >
+            S&apos;inscrire
+          </Link>
+        </nav>
+      </header>
+
+      {/*
+        Content wrapper :
+        - min-h-[calc(100%-4rem)] occupies remaining viewport below the nav
+        - flex column distributes hero, features, footer along the height
+      */}
+      <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col px-4 py-8 sm:px-6 sm:py-10 lg:min-h-[calc(100vh-4rem)]">
+        {/* Hero — takes the slack so the screen feels balanced */}
+        <section className="flex flex-1 flex-col items-center justify-center py-8 text-center animate-fade-down">
+          <BrandLogo
+            size={104}
+            priority
+            className="mb-6 drop-shadow-[0_0_30px_rgba(0,240,255,0.3)]"
+          />
+
           <h1
-            className="font-tech text-5xl md:text-6xl tracking-[0.3em] text-nebula-cyan mb-2"
+            className="mb-5 font-tech text-3xl tracking-[0.25em] text-nebula-cyan sm:text-5xl lg:text-6xl"
             style={{
               textShadow:
                 "0 0 30px rgba(0, 240, 255, 0.4), 0 0 60px rgba(0, 240, 255, 0.15)",
@@ -71,217 +92,88 @@ export default function Home() {
           >
             NEBULA COMMAND
           </h1>
-          <div className="h-px w-48 mx-auto bg-gradient-to-r from-transparent via-nebula-cyan to-transparent mb-4" />
-          <p className="font-body text-nebula-text-secondary text-lg tracking-widest uppercase">
-            Centre de formation galactique
+
+          <div className="mb-6 h-px w-48 bg-gradient-to-r from-transparent via-nebula-cyan to-transparent sm:w-72" />
+
+          <p className="mb-3 max-w-2xl font-body text-base leading-relaxed text-nebula-text-secondary sm:text-lg lg:text-xl">
+            Apprends à coder dans un univers spatial gamifié. HTML, CSS,
+            JavaScript — débloque tes protocoles et construis ta station
+            orbitale.
           </p>
-        </div>
+          <p className="mb-10 font-tech text-[10px] uppercase tracking-[0.35em] text-nebula-text-dim sm:text-xs sm:tracking-[0.4em]">
+            [ Plateforme d&apos;apprentissage pour cadets de la flotte ]
+          </p>
 
-        <div
-          className="flex flex-wrap items-start gap-10 justify-center max-w-4xl"
-          style={{
-            opacity: mounted ? 1 : 0,
-            transform: mounted ? "translateY(0)" : "translateY(20px)",
-            transition: "all 0.8s ease 0.3s",
-          }}
-        >
-          {COURSES.map((course) => (
-            <CourseCard key={course.slug} course={course} />
-          ))}
-        </div>
+          <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+            <Link
+              href="/signup"
+              className="rounded-sm bg-nebula-cyan px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-8 sm:py-4 sm:text-base"
+            >
+              {"> "}Démarrer la mission
+            </Link>
+            <Link
+              href="/login"
+              className="rounded-sm border border-nebula-cyan-dim bg-transparent px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-cyan transition-all hover:border-nebula-cyan hover:bg-nebula-cyan-faint sm:px-8 sm:py-4 sm:text-base"
+            >
+              J&apos;ai déjà un compte
+            </Link>
+          </div>
+        </section>
 
-        <p
-          className="mt-16 font-tech text-nebula-text-dim text-xs tracking-[0.4em] uppercase"
-          style={{
-            opacity: mounted ? 1 : 0,
-            transition: "opacity 1s ease 0.8s",
-          }}
-        >
-          [ Sélectionne un cursus pour commencer ]
-        </p>
+        {/* Features — band at bottom of the viewport */}
+        <section className="mx-auto grid w-full max-w-5xl shrink-0 grid-cols-1 gap-5 animate-fade-up md:grid-cols-3 lg:gap-6">
+          <FeatureCard
+            icon="/planet-green.png"
+            title="Cursus structurés"
+            description="Des protocoles progressifs : HTML, CSS et JavaScript. Chaque chapitre est une mission."
+          />
+          <FeatureCard
+            icon="/planet-red.png"
+            title="XP & badges"
+            description="Gagne de l'expérience, débloque des badges, monte en grade. Ta progression est sauvegardée."
+          />
+          <FeatureCard
+            icon="/planet-ring.png"
+            title="Éditeur intégré"
+            description="Code directement dans le navigateur avec un éditeur professionnel et un feedback instantané."
+          />
+        </section>
+
+        <footer className="mt-6 mb-2 shrink-0 text-center font-tech text-[10px] uppercase tracking-[0.35em] text-nebula-text-dim sm:mt-8 sm:text-xs sm:tracking-[0.4em]">
+          © {new Date().getFullYear()} Nebula Command
+        </footer>
       </div>
     </div>
   );
 }
 
-function CourseCard({ course }: { course: (typeof COURSES)[number] }) {
-  const isLocked = course.status === "locked";
-
-  const colorMap: Record<
-    string,
-    { border: string; glow: string; text: string; bg: string }
-  > = {
-    cyan: {
-      border: "border-nebula-cyan/30",
-      glow: "hover:shadow-[0_0_30px_rgba(0,240,255,0.15)]",
-      text: "text-nebula-cyan",
-      bg: "bg-nebula-cyan-faint",
-    },
-    blue: {
-      border: "border-nebula-blue/20",
-      glow: "hover:shadow-[0_0_30px_rgba(61,126,255,0.15)]",
-      text: "text-nebula-blue",
-      bg: "bg-nebula-blue-dim/10",
-    },
-    orange: {
-      border: "border-nebula-orange/20",
-      glow: "hover:shadow-[0_0_30px_rgba(255,107,44,0.15)]",
-      text: "text-nebula-orange",
-      bg: "bg-nebula-orange-faint",
-    },
-  };
-
-  const c = colorMap[course.color] ?? colorMap.cyan;
-
-  const featuredVisuals: Partial<
-    Record<(typeof COURSES)[number]["slug"], { src: string; size: number }>
-  > = {
-    html: { src: "/3306622555 (2).gif", size: 80 },
-    css: { src: "/galaxi.gif", size: 88 },
-    javascript: { src: "/black_hole.gif", size: 88 },
-  };
-
-  const featuredVisual = featuredVisuals[course.slug];
-
-  if (featuredVisual) {
-    const featuredCard = (
-      <div className="group relative h-24 w-24">
-        <div className="flex h-24 w-24 items-center justify-center">
-          <Image
-            src={featuredVisual.src}
-            alt={`Visuel ${course.title}`}
-            width={featuredVisual.size}
-            height={featuredVisual.size}
-            className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
-          />
-        </div>
-
-        <div
-          className={`
-            pointer-events-none absolute left-1/2 top-full z-20 mt-4 w-72 -translate-x-1/2
-            rounded-lg border ${c.border} bg-nebula-bg-panel/95 p-6 opacity-0 shadow-[0_0_30px_rgba(0,240,255,0.12)]
-            backdrop-blur-sm transition-all duration-300 group-hover:pointer-events-auto
-            group-hover:translate-y-1 group-hover:opacity-100
-          `}
-        >
-          <div className="absolute top-3 right-3">
-            {isLocked ? (
-              <span className="font-tech text-[10px] tracking-widest text-nebula-text-dim border border-nebula-text-dim/30 rounded px-2 py-0.5">
-                VERROUILLE
-              </span>
-            ) : (
-              <span
-                className={`font-tech text-[10px] tracking-widest ${c.text} border ${c.border} rounded px-2 py-0.5`}
-              >
-                DISPONIBLE
-              </span>
-            )}
-          </div>
-
-          <h2 className={`font-tech text-2xl tracking-wider ${c.text} mb-1`}>
-            {course.title}
-          </h2>
-          <p className="font-body text-nebula-text-secondary text-sm mb-3">
-            {course.subtitle}
-          </p>
-
-          <div className={`h-px w-full ${c.bg} mb-3`} />
-
-          <p className="font-body text-nebula-text-dim text-xs leading-relaxed mb-4">
-            {course.description}
-          </p>
-
-          <div className="flex items-center justify-between">
-            <span className="font-tech text-[11px] text-nebula-text-dim tracking-wider">
-              {course.chapters > 0
-                ? `${course.chapters} CHAPITRE${course.chapters > 1 ? "S" : ""}`
-                : "BIENTOT"}
-            </span>
-            {!isLocked && (
-              <span className={`font-tech text-xs ${c.text} tracking-wider`}>
-                ENTRER {"->"}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-
-    if (isLocked) return featuredCard;
-
-    return (
-      <Link href={`/learn/${course.slug}`} onClick={() => unlockAudio()}>
-        {featuredCard}
-      </Link>
-    );
-  }
-
-  const inner = (
-    <div
-      className={`
-        relative w-72 rounded-lg border ${c.border} bg-nebula-bg-panel/80 backdrop-blur-sm
-        p-6 transition-all duration-300
-        ${
-          isLocked
-            ? "opacity-40 cursor-not-allowed"
-            : `cursor-pointer ${c.glow} hover:border-opacity-60 hover:-translate-y-1`
-        }
-      `}
-    >
-      <div className="absolute top-3 right-3">
-        {isLocked ? (
-          <span className="font-tech text-[10px] tracking-widest text-nebula-text-dim border border-nebula-text-dim/30 rounded px-2 py-0.5">
-            VERROUILLE
-          </span>
-        ) : (
-          <span
-            className={`font-tech text-[10px] tracking-widest ${c.text} border ${c.border} rounded px-2 py-0.5`}
-          >
-            DISPONIBLE
-          </span>
-        )}
-      </div>
-
-      <div className="mb-4 flex flex-col items-start">
-        <div className="mb-3 text-4xl">{course.icon}</div>
-
-        <h2 className={`font-tech text-2xl tracking-wider ${c.text} mb-1`}>
-          {course.title}
-        </h2>
-
-        <div className="overflow-hidden transition-all duration-300 max-h-32 opacity-100">
-          <p className="font-body text-nebula-text-secondary text-sm mb-3">
-            {course.subtitle}
-          </p>
-
-          <div className={`h-px w-full ${c.bg} mb-3`} />
-
-          <p className="font-body text-nebula-text-dim text-xs leading-relaxed mb-4">
-            {course.description}
-          </p>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <span className="font-tech text-[11px] text-nebula-text-dim tracking-wider">
-          {course.chapters > 0
-            ? `${course.chapters} CHAPITRE${course.chapters > 1 ? "S" : ""}`
-            : "BIENTOT"}
-        </span>
-        {!isLocked && (
-          <span className={`font-tech text-xs ${c.text} tracking-wider`}>
-            ENTRER {"->"}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-
-  if (isLocked) return inner;
-
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: string;
+  title: string;
+  description: string;
+}) {
   return (
-    <Link href={`/learn/${course.slug}`} onClick={() => unlockAudio()}>
-      {inner}
-    </Link>
+    <article className="rounded-sm border border-nebula-cyan/30 bg-nebula-bg-panel/90 p-5 backdrop-blur-md shadow-[0_0_20px_rgba(0,240,255,0.06)] transition-colors hover:border-nebula-cyan/60 lg:p-6">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center">
+        <Image
+          src={icon}
+          alt=""
+          width={64}
+          height={64}
+          className="h-full w-full object-contain"
+          style={{ imageRendering: "pixelated" }}
+        />
+      </div>
+      <h3 className="mb-2 font-tech text-base tracking-wider text-nebula-cyan lg:text-lg">
+        {title}
+      </h3>
+      <p className="font-body text-sm leading-relaxed text-nebula-text-secondary">
+        {description}
+      </p>
+    </article>
   );
 }

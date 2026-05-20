@@ -1,5 +1,3 @@
-"use client";
-
 interface XPBarProps {
   xp: number;
   maxXp: number;

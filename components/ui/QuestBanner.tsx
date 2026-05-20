@@ -1,71 +1,71 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import BrandLogo from "@/components/ui/BrandLogo";
+import Sprite from "@/components/ui/Sprite";
+import { BANNER_ICONS } from "@/lib/sprite-config";
 
 interface QuestBannerProps {
   show: boolean;
-  icon: string;
   title: string;
   subtitle: string;
   xpLabel: string;
   buttonLabel: string;
+  /** Optional frame in /sprites/banner-icons.png. Falls back to BrandLogo. */
+  bannerFrame?: number;
   onNext: () => void;
   onDimClick: () => void;
 }
 
 export default function QuestBanner({
   show,
-  icon,
   title,
   subtitle,
   xpLabel,
   buttonLabel,
+  bannerFrame,
   onNext,
   onDimClick,
 }: QuestBannerProps) {
+  if (!show) return null;
+
   return (
-    <AnimatePresence>
-      {show && (
-        <>
-          <motion.div
-            className="fixed inset-0 bg-[rgba(3,6,13,0.85)] z-[399]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onDimClick}
-          />
-          <motion.div
-            className="fixed top-1/2 left-1/2 bg-nebula-bg-panel border border-nebula-cyan px-12 py-8 text-center z-[400] min-w-[340px] rounded-sm shadow-[0_0_60px_rgba(0,240,255,0.15),0_0_120px_rgba(0,240,255,0.05)]"
-            initial={{ opacity: 0, scale: 0.8, x: "-50%", y: "-50%" }}
-            animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
-            exit={{ opacity: 0, scale: 0.8, x: "-50%", y: "-50%" }}
-            transition={{ type: "spring", damping: 15, stiffness: 200 }}
-          >
-            <div className="w-20 h-20 mx-auto mb-4 animate-float-gentle flex items-center justify-center">
-              {icon.startsWith("/") ? (
-                <img src={icon} alt="Banner Icon" className="w-full h-full object-contain" />
-              ) : (
-                <span className="text-5xl block">{icon}</span>
-              )}
-            </div>
-            <div className="font-tech text-lg text-nebula-cyan leading-relaxed mb-2.5 tracking-wider [text-shadow:0_0_20px_rgba(0,240,255,0.4)]">
-              {title}
-            </div>
-            <div className="font-body text-base text-nebula-text-secondary mb-5 leading-normal">
-              {subtitle}
-            </div>
-            <div className="font-tech text-sm text-nebula-green mb-5 tracking-wider">
-              {xpLabel}
-            </div>
-            <button
-              onClick={onNext}
-              className="font-tech text-xs px-5 py-2 bg-nebula-cyan text-nebula-bg-darkest border-none cursor-pointer relative rounded-sm shadow-[0_4px_0_var(--cyan-dim)] hover:top-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:top-1 active:shadow-none tracking-widest uppercase animate-btn-appear"
-            >
-              {buttonLabel}
-            </button>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+    <>
+      <div
+        className="fixed inset-0 z-[399] bg-[rgba(3,6,13,0.85)] animate-overlay-in"
+        onClick={onDimClick}
+      />
+      <div className="fixed left-1/2 top-1/2 z-[400] min-w-[340px] -translate-x-1/2 -translate-y-1/2 rounded-sm border border-nebula-cyan bg-nebula-bg-panel px-12 py-8 text-center shadow-[0_0_60px_rgba(0,240,255,0.15),0_0_120px_rgba(0,240,255,0.05)] animate-modal-pop-in">
+        <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center animate-float-gentle">
+          {bannerFrame !== undefined ? (
+            <Sprite
+              sheet={BANNER_ICONS}
+              frame={bannerFrame}
+              displaySize={80}
+              title={title}
+            />
+          ) : (
+            <BrandLogo
+              size={80}
+              className="drop-shadow-[0_0_24px_rgba(0,240,255,0.28)]"
+            />
+          )}
+        </div>
+        <div className="mb-2.5 font-tech text-lg leading-relaxed tracking-wider text-nebula-cyan [text-shadow:0_0_20px_rgba(0,240,255,0.4)]">
+          {title}
+        </div>
+        <div className="mb-5 font-body text-base leading-normal text-nebula-text-secondary">
+          {subtitle}
+        </div>
+        <div className="mb-5 font-tech text-sm tracking-wider text-nebula-green">
+          {xpLabel}
+        </div>
+        <button
+          onClick={onNext}
+          className="relative rounded-sm border-none bg-nebula-cyan px-5 py-2 font-tech text-xs uppercase tracking-widest text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)] animate-btn-appear hover:top-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:top-1 active:shadow-none"
+        >
+          {buttonLabel}
+        </button>
+      </div>
+    </>
   );
 }

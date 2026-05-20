@@ -1,9 +1,26 @@
 import type { Metadata } from "next";
+import { getChapterData } from "@/lib/courses-registry";
 
-export const metadata: Metadata = {
-  title: "Nebula Command — Protocole 01 : Initialisation de la Station",
-  description: "Déploie les systèmes de défense de ta station orbitale",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ course: string; chapter: string }>;
+}): Promise<Metadata> {
+  const { course, chapter } = await params;
+  const data = getChapterData(course, chapter);
+
+  if (!data) {
+    return {
+      title: "Nebula Command — Chapitre introuvable",
+    };
+  }
+
+  const cleanTitle = data.title.replace(/\n/g, " ");
+  return {
+    title: `Nebula Command — ${data.tag} : ${cleanTitle}`,
+    description: data.subtitle,
+  };
+}
 
 export default function ChapterLayout({
   children,
