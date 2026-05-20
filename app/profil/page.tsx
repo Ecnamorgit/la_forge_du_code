@@ -288,7 +288,7 @@ export default function ProfilPage() {
                   </div>
                 </div>
               ) : (
-                <h1 className="mb-2 font-tech text-4xl tracking-wider text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)]">
+                <h1 className="mb-2 break-all font-tech text-2xl tracking-wider text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)] sm:text-3xl lg:text-4xl">
                   {"> @"}{username}<span className="terminal-cursor">_</span>
                 </h1>
               )}

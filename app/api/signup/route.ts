@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
+import { sendVerificationEmail } from "@/lib/email";
+import { createToken } from "@/lib/tokens";
 
 const signupSchema = z.object({
   email: z.string().email().max(254),
@@ -56,7 +58,7 @@ export async function POST(request: Request) {
 
   const hashed = await bcrypt.hash(password, 10);
 
-  await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       email: emailLower,
       username,
@@ -64,7 +66,15 @@ export async function POST(request: Request) {
       name: username,
       lastVisit: new Date().toISOString().slice(0, 10),
     },
+    select: { id: true, email: true },
   });
 
-  return NextResponse.json({ ok: true });
+  const token = await createToken({ userId: user.id, kind: "email_verify" });
+  const mailRes = await sendVerificationEmail({ to: user.email, token });
+
+  return NextResponse.json({
+    ok: true,
+    emailSent: mailRes.ok,
+    emailError: mailRes.ok ? null : mailRes.error ?? "Envoi du mail impossible",
+  });
 }

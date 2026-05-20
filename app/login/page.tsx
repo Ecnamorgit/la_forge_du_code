@@ -23,11 +23,16 @@ function LoginPageContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [unverified, setUnverified] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
   const [pending, setPending] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setUnverified(false);
+    setResent(false);
     setPending(true);
 
     const res = await signIn("credentials", {
@@ -39,12 +44,48 @@ function LoginPageContent() {
     setPending(false);
 
     if (!res || res.error) {
+      // Auth.js v5 doesn't reliably surface the CredentialsSignin code through
+      // signIn({ redirect: false }), so we follow up with our own check to
+      // distinguish "wrong password" from "email unverified".
+      try {
+        const check = await fetch("/api/auth/check-verification", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = (await check.json().catch(() => ({}))) as { unverified?: boolean };
+        if (data.unverified) {
+          setUnverified(true);
+          setError("Ton email n'est pas encore vérifié. Clique sur le lien envoyé à l'inscription.");
+          return;
+        }
+      } catch {
+        // Ignore — fall through to the generic error message below.
+      }
       setError("Email ou mot de passe invalide");
       return;
     }
 
     router.push(callbackUrl);
     router.refresh();
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    setResent(false);
+    try {
+      await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      setResent(true);
+    } catch {
+      // Silent on the server side already; we just acknowledge here.
+      setResent(true);
+    } finally {
+      setResending(false);
+    }
   };
 
   return (
@@ -99,6 +140,25 @@ function LoginPageContent() {
                 </p>
               )}
 
+              {unverified && (
+                <div className="rounded-sm border border-nebula-orange-dim bg-nebula-orange-faint/20 p-3">
+                  {resent ? (
+                    <p className="font-tech text-[11px] uppercase tracking-wider text-nebula-green">
+                      ✓ Si l&apos;adresse existe, un nouveau lien vient d&apos;être envoyé. Vérifie ta boîte (et le spam).
+                    </p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleResend}
+                      disabled={resending || !email}
+                      className="font-tech text-[11px] uppercase tracking-wider text-nebula-orange transition-colors hover:text-nebula-cyan disabled:opacity-50"
+                    >
+                      {resending ? "Envoi..." : "→ Renvoyer le lien de vérification"}
+                    </button>
+                  )}
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={pending}
@@ -106,6 +166,15 @@ function LoginPageContent() {
               >
                 {pending ? "Connexion..." : "> Se connecter"}
               </button>
+
+              <div className="text-center">
+                <Link
+                  href="/forgot-password"
+                  className="font-tech text-[11px] uppercase tracking-wider text-nebula-text-dim transition-colors hover:text-nebula-cyan"
+                >
+                  Mot de passe oublié ?
+                </Link>
+              </div>
             </form>
 
             <div className="mt-6 text-center font-tech text-xs uppercase tracking-widest text-nebula-text-secondary">

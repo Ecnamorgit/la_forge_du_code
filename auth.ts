@@ -1,4 +1,5 @@
 import NextAuth, { type DefaultSession } from "next-auth";
+import { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
@@ -51,6 +52,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return null;
+
+        // Block login until the email is verified. We throw a CredentialsSignin
+        // error with a tag in the URL so /login can show a specific message and
+        // a "resend verification" button.
+        if (!user.emailVerified) {
+          throw new CredentialsSignin("email_unverified");
+        }
 
         return {
           id: user.id,

@@ -194,7 +194,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
   const [mobileTab, setMobileTab] = useState<"lesson" | "editor" | "output">("lesson");
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden">
+    <div className="flex h-dvh flex-col overflow-hidden">
       {/* Background */}
       <div
         className="fixed inset-0 pointer-events-none z-0 bg-center bg-cover bg-no-repeat"
@@ -374,16 +374,16 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
       </div>
 
       {/* Footer */}
-      <footer className="relative z-50 flex h-16 shrink-0 items-center justify-between border-t border-nebula-border/70 bg-nebula-bg-darkest/70 px-6 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <span className="font-tech text-sm uppercase tracking-widest text-nebula-text-secondary">
-            Etape {currentStep + 1} / {chapter.steps.length}
+      <footer className="relative z-50 flex h-14 shrink-0 items-center justify-between gap-2 border-t border-nebula-border/70 bg-nebula-bg-darkest/70 px-3 backdrop-blur-md lg:h-16 lg:px-6">
+        <div className="flex min-w-0 items-center gap-2 lg:gap-3">
+          <span className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary lg:text-sm">
+            {currentStep + 1} / {chapter.steps.length}
           </span>
-          <div className="ml-3 flex items-center gap-2">
+          <div className="ml-1 hidden items-center gap-2 sm:flex">
             {chapter.steps.map((_, i) => (
               <div
                 key={i}
-                className={`h-2 w-8 rounded-full transition-all duration-300 ${
+                className={`h-2 w-6 rounded-full transition-all duration-300 lg:w-8 ${
                   i === currentStep
                     ? "bg-nebula-cyan shadow-[0_0_10px_rgba(0,240,255,0.5)]"
                     : stepDone[i]
@@ -395,18 +395,19 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 lg:gap-3">
           <button
             onClick={() => currentStep > 0 && setCurrentStep(currentStep - 1)}
             disabled={currentStep === 0}
-            className="rounded-sm border border-nebula-border bg-transparent px-5 py-2.5 font-tech text-sm uppercase tracking-widest text-nebula-text-secondary transition-all hover:border-nebula-cyan hover:text-nebula-cyan disabled:opacity-30 disabled:hover:border-nebula-border disabled:hover:text-nebula-text-secondary"
+            className="rounded-sm border border-nebula-border bg-transparent px-3 py-2 font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-all hover:border-nebula-cyan hover:text-nebula-cyan disabled:opacity-30 disabled:hover:border-nebula-border disabled:hover:text-nebula-text-secondary lg:px-5 lg:py-2.5 lg:text-sm"
           >
-            ← Précédent
+            <span aria-hidden>←</span>
+            <span className="ml-1 hidden sm:inline">Précédent</span>
           </button>
           <button
             onClick={goNextStep}
             disabled={!isStepDone}
-            className={`rounded-sm px-7 py-3 font-tech text-base font-bold uppercase tracking-[0.18em] transition-all ${
+            className={`rounded-sm px-4 py-2 font-tech text-sm font-bold uppercase tracking-[0.18em] transition-all lg:px-7 lg:py-3 lg:text-base ${
               isStepDone
                 ? "bg-nebula-cyan text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)] hover:translate-y-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none"
                 : "cursor-not-allowed border border-nebula-border bg-transparent text-nebula-text-dim"

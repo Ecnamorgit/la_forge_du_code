@@ -27,6 +27,8 @@ export interface UseUserReturn {
   renameUser: (newUsername: string) => Promise<UserState>;
   /** Wipe all progression (XP, badges, completedSteps, streak). */
   reset: () => Promise<UserState>;
+  /** Persist that the first-login briefing has been dismissed. */
+  markOnboarded: () => Promise<UserState>;
 }
 
 function toNetworkMessage(): string {
@@ -152,6 +154,26 @@ export function useUser(): UseUserReturn {
     return next;
   }, []);
 
+  const markOnboarded = useCallback(async () => {
+    let res: Response;
+    try {
+      res = await fetch("/api/me/onboarded", { method: "POST" });
+    } catch {
+      throw new Error(toNetworkMessage());
+    }
+    if (res.status === 401) {
+      void signOut({ callbackUrl: "/login" });
+      throw new Error("Session expiree. Reconnecte-toi.");
+    }
+    if (!res.ok) {
+      const err = await readJson<{ error?: string }>(res);
+      throw new Error(err.error ?? "Impossible d'enregistrer le briefing");
+    }
+    const next = await readJson<UserState>(res);
+    setState(next);
+    return next;
+  }, []);
+
   const reset = useCallback(async () => {
     let res: Response;
     try {
@@ -182,5 +204,6 @@ export function useUser(): UseUserReturn {
     completeStep,
     renameUser,
     reset,
+    markOnboarded,
   };
 }

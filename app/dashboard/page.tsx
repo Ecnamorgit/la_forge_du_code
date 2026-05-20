@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { useSession } from "next-auth/react";
 
 import BrandLogo from "@/components/ui/BrandLogo";
+import OnboardingOverlay from "@/components/onboarding/OnboardingOverlay";
 import DashboardNav from "../DashboardNav";
 import StatsCard from "../StatsCard";
 import ExploreSection from "../ExploreSection";
@@ -41,6 +42,8 @@ export default function DashboardPage() {
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-bg" />
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-stars opacity-25" />
       <div className="fixed inset-0 z-0 pointer-events-none bg-[rgba(3,6,13,0.5)]" />
+
+      <OnboardingOverlay />
 
       <DashboardNav userName={username} />
 
