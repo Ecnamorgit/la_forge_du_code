@@ -8,12 +8,29 @@ function getAudio(): AudioContext {
   return audioCtx;
 }
 
+const SOUND_PREF_KEY = "nebula-sound-enabled-v1";
+
+/** True iff the user hasn't muted sound. Default: enabled. */
+export function isSoundEnabled(): boolean {
+  if (typeof window === "undefined") return true;
+  return localStorage.getItem(SOUND_PREF_KEY) !== "false";
+}
+
+export function setSoundEnabled(enabled: boolean): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(SOUND_PREF_KEY, enabled ? "true" : "false");
+  // Other tabs / components that subscribe to changes get notified.
+  window.dispatchEvent(new CustomEvent("nebula:sound-changed", { detail: enabled }));
+}
+
 export function unlockAudio(): void {
+  if (!isSoundEnabled()) return;
   getAudio();
 }
 
 /** Micro bip SF de déploiement — joué à chaque balise fermée en temps réel */
 export function playDeployBip(): void {
+  if (!isSoundEnabled()) return;
   try {
     const ctx = getAudio();
     const osc = ctx.createOscillator();
@@ -34,6 +51,7 @@ export function playDeployBip(): void {
 
 /** System online — jingle de validation d'étape (montée SF) */
 export function playSystemOnline(): void {
+  if (!isSoundEnabled()) return;
   try {
     const ctx = getAudio();
     // Rising sci-fi arpeggio: E5 → G#5 → B5 → E6
@@ -76,6 +94,7 @@ export function playSystemOnline(): void {
 
 /** Brèche détectée — alarm buzz descendant */
 export function playBreach(): void {
+  if (!isSoundEnabled()) return;
   try {
     const ctx = getAudio();
     // Two-tone alarm
@@ -100,6 +119,7 @@ export function playBreach(): void {
 
 /** Fanfare finale de chapitre — victoire SF épique */
 export function playFanfare(): void {
+  if (!isSoundEnabled()) return;
   try {
     const ctx = getAudio();
     const melody = [659, 784, 988, 1319, 988, 1319, 1568, 1976];

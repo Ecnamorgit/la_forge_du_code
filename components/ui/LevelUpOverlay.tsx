@@ -1,0 +1,51 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+interface LevelUpOverlayProps {
+  /** Incremented each time a level-up should be displayed. */
+  trigger: number;
+  /** The level the user just reached. */
+  level: number;
+}
+
+/**
+ * Big "LEVEL UP" celebration overlay. Auto-dismisses after ~2.4s.
+ * Mounted high in the tree so it covers the whole screen.
+ */
+export default function LevelUpOverlay({ trigger, level }: LevelUpOverlayProps) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (trigger === 0) return;
+    setShow(true);
+    const id = setTimeout(() => setShow(false), 2400);
+    return () => clearTimeout(id);
+  }, [trigger]);
+
+  if (!show) return null;
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none fixed inset-0 z-[450] flex items-center justify-center animate-level-up-in"
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,240,255,0.18)_0%,rgba(0,240,255,0.04)_35%,transparent_70%)]" />
+      <div className="relative text-center">
+        <div className="mb-2 font-tech text-xs uppercase tracking-[0.6em] text-nebula-text-secondary [text-shadow:0_0_12px_rgba(0,240,255,0.4)]">
+          ★ NIVEAU FRANCHI ★
+        </div>
+        <div
+          className="font-tech text-7xl font-bold uppercase tracking-[0.15em] text-nebula-cyan [text-shadow:0_0_28px_rgba(0,240,255,0.7),0_0_56px_rgba(0,240,255,0.35)] sm:text-8xl"
+          style={{ animation: "level-up-pulse 1.6s ease-out forwards" }}
+        >
+          LEVEL UP
+        </div>
+        <div className="mt-3 font-tech text-2xl tracking-[0.3em] text-nebula-green [text-shadow:0_0_18px_rgba(0,255,136,0.5)] sm:text-3xl">
+          ▲ NIVEAU {level}
+        </div>
+      </div>
+    </div>
+  );
+}

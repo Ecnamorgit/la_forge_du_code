@@ -16,11 +16,15 @@ export default function ParticleLayer() {
   );
 }
 
-export function spawnParticles() {
+export function spawnParticles(): void {
+  spawnBurst(40);
+}
+
+function spawnBurst(count: number): void {
   const layer = document.getElementById("particles-layer");
   if (!layer) return;
 
-  for (let i = 0; i < 22; i++) {
+  for (let i = 0; i < count; i++) {
     const el = document.createElement("div");
     el.className = "particle";
     el.textContent = SHAPES[Math.floor(Math.random() * SHAPES.length)];
@@ -41,6 +45,40 @@ export function spawnParticles() {
     `;
     layer.appendChild(el);
     setTimeout(() => el.remove(), 1500);
+  }
+}
+
+/**
+ * Big celebratory burst for level-up moments. Wider spread, more particles,
+ * larger shapes that float upward like fireworks.
+ */
+export function spawnLevelUpBurst(): void {
+  const layer = document.getElementById("particles-layer");
+  if (!layer) return;
+
+  const SHAPES_BIG = ["⚡", "★", "✦", "✧", "◆", "✨"];
+  for (let i = 0; i < 90; i++) {
+    const el = document.createElement("div");
+    el.textContent = SHAPES_BIG[Math.floor(Math.random() * SHAPES_BIG.length)];
+    el.style.cssText = `
+      position:absolute;
+      left:${10 + Math.random() * 80}%;
+      top:${30 + Math.random() * 50}%;
+      font-size:${14 + Math.random() * 22}px;
+      color:${COLORS[Math.floor(Math.random() * COLORS.length)]};
+      text-shadow:0 0 12px currentColor;
+      --dx:${(Math.random() - 0.5) * 600}px;
+      --dy:${-120 - Math.random() * 320}px;
+      animation-delay:${Math.random() * 0.4}s;
+      animation-duration:${1.1 + Math.random() * 0.6}s;
+      opacity:0;
+      animation-name:particle-fly;
+      animation-fill-mode:forwards;
+      width:8px;height:8px;
+      pointer-events:none;
+    `;
+    layer.appendChild(el);
+    setTimeout(() => el.remove(), 2000);
   }
 }
 

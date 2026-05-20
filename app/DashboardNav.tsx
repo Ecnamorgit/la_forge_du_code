@@ -29,11 +29,14 @@ export default function DashboardNav({ userName }: DashboardNavProps) {
         >
           Cursus
         </Link>
+        <Link
+          href="/leaderboard"
+          className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan lg:text-sm"
+        >
+          Classement
+        </Link>
         <span className="hidden font-tech text-xs uppercase tracking-widest text-nebula-text-dim cursor-not-allowed lg:inline lg:text-sm">
           Pratique
-        </span>
-        <span className="hidden font-tech text-xs uppercase tracking-widest text-nebula-text-dim cursor-not-allowed lg:inline lg:text-sm">
-          Communauté
         </span>
       </nav>
 

@@ -12,11 +12,12 @@ import CompletionScreen from "@/components/ui/CompletionScreen";
 import HintBox from "@/components/ui/HintBox";
 import SuccessFlash from "@/components/ui/SuccessFlash";
 import BrandLogo from "@/components/ui/BrandLogo";
-import ParticleLayer, { spawnParticles } from "@/components/ui/ParticleLayer";
+import ParticleLayer, { spawnParticles, spawnLevelUpBurst } from "@/components/ui/ParticleLayer";
 import VFXBurst from "@/components/ui/VFXBurst";
+import LevelUpOverlay from "@/components/ui/LevelUpOverlay";
 import { unlockAudio, playFanfare } from "@/lib/audio";
 import { useUser } from "@/lib/use-user";
-import { getCompletedSteps } from "@/lib/user-store";
+import { getCompletedSteps, levelFromXp } from "@/lib/user-store";
 import { xpForStep } from "@/lib/xp";
 import { getChapterBackground } from "@/lib/sprite-config";
 
@@ -123,6 +124,8 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
   const [teleportFlash, setTeleportFlash] = useState(0);
   const [bannerVfxTrigger, setBannerVfxTrigger] = useState(0);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [levelUp, setLevelUp] = useState({ trigger: 0, level: 1 });
+  const previousLevelRef = useRef<number>(levelFromXp(state.totalXp));
 
   const hintTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const xpPopupTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -157,14 +160,25 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
         2400
       );
 
-      void completeStep(course, chapter.slug, currentStep).catch((err) => {
-        const message =
-          err instanceof Error
-            ? err.message
-            : "Sauvegarde impossible. Reessaie dans quelques secondes.";
-        setSaveError(message);
-        console.error("Step completion failed:", err);
-      });
+      void completeStep(course, chapter.slug, currentStep)
+        .then((result) => {
+          const newLevel = levelFromXp(result.state.totalXp);
+          if (newLevel > previousLevelRef.current) {
+            previousLevelRef.current = newLevel;
+            spawnLevelUpBurst();
+            setLevelUp((p) => ({ trigger: p.trigger + 1, level: newLevel }));
+          } else {
+            previousLevelRef.current = newLevel;
+          }
+        })
+        .catch((err) => {
+          const message =
+            err instanceof Error
+              ? err.message
+              : "Sauvegarde impossible. Reessaie dans quelques secondes.";
+          setSaveError(message);
+          console.error("Step completion failed:", err);
+        });
     }
 
     setTimeout(() => {
@@ -212,6 +226,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
       <ParticleLayer />
       <XPPopup show={xpPopup.show} label={xpPopup.label} />
       <VFXBurst trigger={bannerVfxTrigger} />
+      <LevelUpOverlay trigger={levelUp.trigger} level={levelUp.level} />
       <QuestBanner
         show={showBanner}
         title={step.bannerTtl}

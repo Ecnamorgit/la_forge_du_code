@@ -362,6 +362,23 @@
 .animate-scan-ring {
   animation: scan-ring 3s linear infinite;
 }
+.animate-level-up-in {
+  animation: level-up-fade 2.4s ease-in-out both;
+}
+
+@keyframes level-up-fade {
+  0%   { opacity: 0; }
+  10%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes level-up-pulse {
+  0%   { transform: scale(0.6); filter: blur(8px); opacity: 0; }
+  25%  { transform: scale(1.15); filter: blur(0); opacity: 1; }
+  50%  { transform: scale(0.96); }
+  70%  { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
 
 @keyframes fade-down {
   from {
