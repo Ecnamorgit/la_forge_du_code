@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 /**
  * Animated enemy sprite from enemy-sprites.png
  * Sheet: 2816x1536, 4 cols x 3 rows → frame = 704x512
@@ -17,18 +15,7 @@ interface EnemySpriteProps {
 }
 
 export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
-  const [active, setActive] = useState(false);
-
-  useEffect(() => {
-    if (trigger > 0 && type !== "none") {
-      setActive(true);
-      const duration = type === "fly" ? 2000 : 600;
-      const t = setTimeout(() => setActive(false), duration);
-      return () => clearTimeout(t);
-    }
-  }, [trigger, type]);
-
-  if (!active) return null;
+  if (trigger <= 0 || type === "none") return null;
 
   const fw = 704;
   const displaySize = 36;
@@ -37,6 +24,7 @@ export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
   if (type === "fly") {
     return (
       <div
+        key={trigger}
         className="absolute top-1/2 -translate-y-1/2 z-10 pointer-events-none animate-enemy-fly sprite-enemy-anim"
         style={{
           width: displaySize,
@@ -53,6 +41,7 @@ export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
   // explode
   return (
     <div
+      key={trigger}
       className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none animate-enemy-explode sprite-enemy-anim"
       style={{
         width: displaySize,

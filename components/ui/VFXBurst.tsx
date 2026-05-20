@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 /**
  * VFX burst on quest banner success.
  * Uses a CSS-only cyan explosion since we don't have a VFX sprite sheet.
@@ -13,20 +11,13 @@ interface VFXBurstProps {
 }
 
 export default function VFXBurst({ trigger }: VFXBurstProps) {
-  const [active, setActive] = useState(false);
-
-  useEffect(() => {
-    if (trigger > 0) {
-      setActive(true);
-      const t = setTimeout(() => setActive(false), 800);
-      return () => clearTimeout(t);
-    }
-  }, [trigger]);
-
-  if (!active) return null;
+  if (trigger <= 0) return null;
 
   return (
-    <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[398] pointer-events-none">
+    <div
+      key={trigger}
+      className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[398] pointer-events-none"
+    >
       {/* Expanding rings */}
       {[0, 1, 2].map((i) => (
         <div

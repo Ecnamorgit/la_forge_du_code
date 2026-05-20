@@ -1,25 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 interface SuccessFlashProps {
   trigger: number;
 }
 
 export default function SuccessFlash({ trigger }: SuccessFlashProps) {
-  const [firing, setFiring] = useState(false);
-
-  useEffect(() => {
-    if (trigger > 0) {
-      setFiring(true);
-      const t = setTimeout(() => setFiring(false), 700);
-      return () => clearTimeout(t);
-    }
-  }, [trigger]);
+  if (trigger <= 0) return null;
 
   return (
     <div
-      className={`fixed inset-0 pointer-events-none z-[200] ${firing ? "animate-flash-seq" : "opacity-0"}`}
+      key={trigger}
+      className="fixed inset-0 pointer-events-none z-[200] animate-flash-seq"
     />
   );
 }
