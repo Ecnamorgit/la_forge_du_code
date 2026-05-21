@@ -1,117 +1,100 @@
 import type { Validator } from "@/data/courses/html/types";
 
-export const validators: Validator[] = [
-  (code) => {
-    const linkMatch = code.match(
-      /<a\b[^>]*href\s*=\s*["'][^"']+["'][^>]*>[\s\S]*?<\/a>/i
-    );
-    if (!linkMatch) {
-      return {
-        ok: false,
-        msg: "Ajoute un lien <a> avec un href et un texte cliquable.",
-      };
-    }
-    if (!/href\s*=\s*["'][^"']+["']/i.test(code)) {
-      return {
-        ok: false,
-        msg: "Le lien a besoin d'une destination dans href.",
-      };
-    }
-    return {
-      ok: true,
-      msg: "Passerelle externe confirmee.",
-      objList: ["o1a", "o1b"],
-    };
-  },
-  (code) => {
-    if (!/href\s*=\s*["']index\.html["']/i.test(code)) {
-      return {
-        ok: false,
-        msg: 'Un lien doit mener vers "index.html".',
-      };
-    }
-    if (!/href\s*=\s*["']missions\.html["']/i.test(code)) {
-      return {
-        ok: false,
-        msg: 'Ajoute aussi un lien vers "missions.html".',
-      };
-    }
-    const links =
-      code.match(
-        /<a\b[^>]*href\s*=\s*["'][^"']+["'][^>]*>[\s\S]*?<\/a>/gi
-      ) ?? [];
-    if (links.length < 2) {
-      return {
-        ok: false,
-        msg: "Deux liens distincts sont attendus pour cette etape.",
-      };
-    }
-    return {
-      ok: true,
-      msg: "Navigation interne activee.",
-      objList: ["o2a", "o2b"],
-    };
-  },
-  (code) => {
-    const externalBlank =
-      code.match(
-        /<a\b[^>]*href\s*=\s*["']https?:\/\/[^"']+["'][^>]*target\s*=\s*["']_blank["'][^>]*>[\s\S]*?<\/a>/i
-      ) ||
-      code.match(
-        /<a\b[^>]*target\s*=\s*["']_blank["'][^>]*href\s*=\s*["']https?:\/\/[^"']+["'][^>]*>[\s\S]*?<\/a>/i
-      );
-    if (!externalBlank) {
-      return {
-        ok: false,
-        msg: 'Ajoute un lien externe avec target="_blank".',
-      };
-    }
-    return {
-      ok: true,
-      msg: "Canal externe valide.",
-      objList: ["o3a", "o3b"],
-    };
-  },
-  (code) => {
-    const navMatch = code.match(/<nav\b[^>]*>([\s\S]*?)<\/nav>/i);
-    if (!navMatch) {
-      return {
-        ok: false,
-        msg: "Une zone <nav> est attendue pour regrouper les liens.",
-      };
-    }
+function stripHtmlComments(code: string): string {
+  return code.replace(/<!--[\s\S]*?-->/g, "");
+}
 
-    const navContent = navMatch[1];
-    const requiredHrefs = ["index.html", "missions.html", "contact.html"];
-    for (const href of requiredHrefs) {
-      const hrefRegex = new RegExp(
-        `href\\s*=\\s*["']${href.replace(".", "\\.")}["']`,
-        "i"
-      );
-      if (!hrefRegex.test(navContent)) {
+function tagInner(code: string, tag: string): string | null {
+  const re = new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*?)<\\/${tag}>`, "i");
+  const m = code.match(re);
+  return m ? m[1] : null;
+}
+
+export const validators: Validator[] = [
+  // Step 1: external <a> with href + target="_blank"
+  (code) => {
+    const clean = stripHtmlComments(code);
+    const link = clean.match(
+      /<a\b[^>]*href\s*=\s*["']https?:\/\/[^"']+["'][^>]*>[\s\S]*?<\/a>/i
+    );
+    if (!link) {
+      return {
+        ok: false,
+        msg: "Ajoute une balise <a> avec un href qui commence par http(s)://.",
+      };
+    }
+    if (!/\btarget\s*=\s*["']_blank["']/i.test(link[0])) {
+      return { ok: false, msg: 'Configure target="_blank" pour ouvrir dans un nouvel onglet.' };
+    }
+    return { ok: true, msg: "Passerelle externe ouverte.", objList: ["o1a", "o1b"] };
+  },
+  // Step 2: two <section id="..."> with different ids
+  (code) => {
+    const clean = stripHtmlComments(code);
+    const sections = [
+      ...clean.matchAll(/<section\b[^>]*\bid\s*=\s*["']([^"']+)["'][^>]*>/gi),
+    ];
+    if (sections.length < 2) {
+      return {
+        ok: false,
+        msg: `Cree au moins 2 balises <section> avec id (actuellement ${sections.length}).`,
+      };
+    }
+    const ids = sections.map((m) => m[1]);
+    const unique = new Set(ids);
+    if (unique.size < 2) {
+      return { ok: false, msg: "Les deux <section> doivent avoir des id differents." };
+    }
+    return { ok: true, msg: "Reperes etablis.", objList: ["o2a", "o2b"] };
+  },
+  // Step 3: at least 2 internal anchor links href="#..." pointing to existing ids
+  (code) => {
+    const clean = stripHtmlComments(code);
+    const anchorLinks = [
+      ...clean.matchAll(/<a\b[^>]*href\s*=\s*["']#([^"']+)["'][^>]*>/gi),
+    ];
+    if (anchorLinks.length < 2) {
+      return {
+        ok: false,
+        msg: `Ajoute au moins 2 liens internes <a href="#id"> (actuellement ${anchorLinks.length}).`,
+      };
+    }
+    const ids = [
+      ...clean.matchAll(/\bid\s*=\s*["']([^"']+)["']/gi),
+    ].map((m) => m[1]);
+    const idSet = new Set(ids);
+    for (const link of anchorLinks) {
+      if (!idSet.has(link[1])) {
         return {
           ok: false,
-          msg: `Le lien vers "${href}" doit se trouver dans la navigation.`,
+          msg: `Le lien #${link[1]} ne correspond a aucun id present sur la page.`,
         };
       }
     }
-
-    const navLinks =
-      navContent.match(
-        /<a\b[^>]*href\s*=\s*["'][^"']+["'][^>]*>[\s\S]*?<\/a>/gi
-      ) ?? [];
-    if (navLinks.length < 3) {
+    return { ok: true, msg: "Saut verifie.", objList: ["o3a", "o3b"] };
+  },
+  // Step 4: <nav> with >= 3 links, keeping external + 2 anchors
+  (code) => {
+    const clean = stripHtmlComments(code);
+    const navInner = tagInner(clean, "nav");
+    if (navInner === null) {
+      return { ok: false, msg: "Encapsule les liens dans une balise <nav>." };
+    }
+    const links = navInner.match(/<a\b[^>]*href\s*=\s*["'][^"']+["'][^>]*>/gi) ?? [];
+    if (links.length < 3) {
       return {
         ok: false,
-        msg: "La navigation finale doit contenir trois liens.",
+        msg: `La <nav> doit contenir au moins 3 liens (actuellement ${links.length}).`,
       };
     }
-
-    return {
-      ok: true,
-      msg: "Navigation principale operationnelle.",
-      objList: ["o4a", "o4b"],
-      final: true,
-    };
+    const hasExternal = links.some((l) => /href\s*=\s*["']https?:\/\//i.test(l));
+    const anchorCount = links.filter((l) => /href\s*=\s*["']#/i.test(l)).length;
+    if (!hasExternal) {
+      return { ok: false, msg: "Garde le lien externe (MDN) dans la <nav>." };
+    }
+    if (anchorCount < 2) {
+      return { ok: false, msg: "Garde au moins 2 liens internes (#missions, #contact) dans la <nav>." };
+    }
+    return { ok: true, msg: "Navigation complete.", objList: ["o4a", "o4b"], final: true };
   },
 ];

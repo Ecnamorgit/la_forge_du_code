@@ -148,6 +148,12 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
     const alreadyDone = stepDone[currentStep];
     setSaveError(null);
 
+    // Pin the current step so the auto-advance (driven by completedSteps state)
+    // doesn't jump the user to the next step *before* they click SUIVANT on the
+    // banner. Without this, the banner and the editor below would already be
+    // showing step N+1 while the user is still celebrating step N.
+    setManualStepByChapter((prev) => ({ ...prev, [chapter.slug]: currentStep }));
+
     setFlashTrigger((p) => p + 1);
     spawnParticles();
 
@@ -234,6 +240,8 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
         xpLabel={step.bannerXp}
         buttonLabel={isLastStep ? "TERMINER LE PROTOCOLE ->" : "SYSTEME SUIVANT ->"}
         bannerFrame={step.bannerFrame}
+        progressNow={currentStep + 1}
+        progressTotal={chapter.steps.length}
         onNext={goNextStep}
         onDimClick={() => setShowBanner(false)}
       />
@@ -392,6 +400,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
       <footer className="relative z-50 flex h-14 shrink-0 items-center justify-between gap-2 border-t border-nebula-border/70 bg-nebula-bg-darkest/70 px-3 backdrop-blur-md lg:h-16 lg:px-6">
         <div className="flex min-w-0 items-center gap-2 lg:gap-3">
           <span className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary lg:text-sm">
+            <span className="hidden sm:inline">Etape </span>
             {currentStep + 1} / {chapter.steps.length}
           </span>
           <div className="ml-1 hidden items-center gap-2 sm:flex">

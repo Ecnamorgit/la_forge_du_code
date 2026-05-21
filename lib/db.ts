@@ -1,3 +1,4 @@
+import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "./generated/prisma/client";
 
@@ -10,7 +11,8 @@ function createClient(): PrismaClient {
   if (!url) {
     throw new Error("DATABASE_URL manquante. Configure une URL PostgreSQL.");
   }
-  const adapter = new PrismaPg({ connectionString: url });
+  const pool = new Pool({ connectionString: url });
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
