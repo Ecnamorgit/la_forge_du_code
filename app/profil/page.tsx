@@ -116,6 +116,87 @@ const ALL_BADGES: BadgeDef[] = [
     label: "Architecte Logiciel",
     description: "Objets et méthodes",
   },
+  // --- HTML 6-8 ---
+  {
+    id: "html-architect",
+    icon: "🏗",
+    label: "Architecte Sémantique",
+    description: "Sémantique HTML5 et accessibilité",
+  },
+  {
+    id: "html-signals",
+    icon: "📡",
+    label: "Ingénieur de Signaux",
+    description: "Métadonnées et SEO",
+  },
+  {
+    id: "html-media",
+    icon: "🎥",
+    label: "Opérateur Multimédia",
+    description: "Vidéo, audio et images optimisées",
+  },
+  // --- CSS 6-10 ---
+  {
+    id: "css-anchor",
+    icon: "🧲",
+    label: "Verrouilleur Orbital",
+    description: "Positionnement relative/absolute/fixed/sticky",
+  },
+  {
+    id: "css-invoker",
+    icon: "🪄",
+    label: "Invocateur de Styles",
+    description: "Pseudo-classes et pseudo-éléments",
+  },
+  {
+    id: "css-adaptive",
+    icon: "📱",
+    label: "Ingénieur Adaptatif",
+    description: "Responsive design et media queries",
+  },
+  {
+    id: "css-animator",
+    icon: "💫",
+    label: "Animateur de Pixels",
+    description: "Transitions et animations",
+  },
+  {
+    id: "css-system",
+    icon: "🧩",
+    label: "Architecte de Design",
+    description: "Variables CSS et theming",
+  },
+  // --- JS 6-10 ---
+  {
+    id: "js-data",
+    icon: "🧮",
+    label: "Analyste de Données",
+    description: "Map, filter, reduce, find",
+  },
+  {
+    id: "js-dom",
+    icon: "🧰",
+    label: "Ingénieur d'Interface",
+    description: "DOM manipulation",
+  },
+  {
+    id: "js-events",
+    icon: "⚡",
+    label: "Opérateur Réactif",
+    description: "Événements et listeners",
+  },
+  {
+    id: "js-async",
+    icon: "🌐",
+    label: "Opérateur Asynchrone",
+    description: "Promises et async/await",
+  },
+  {
+    id: "js-storage",
+    icon: "💾",
+    label: "Gardien des Données",
+    description: "localStorage et persistance",
+  },
 ];
 
 const COURSES_LIST = [

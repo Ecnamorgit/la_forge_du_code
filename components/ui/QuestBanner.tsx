@@ -12,6 +12,10 @@ interface QuestBannerProps {
   buttonLabel: string;
   /** Optional frame in /sprites/banner-icons.png. Falls back to BrandLogo. */
   bannerFrame?: number;
+  /** 1-based index of the step just completed. */
+  progressNow?: number;
+  /** Total number of steps in the chapter. */
+  progressTotal?: number;
   onNext: () => void;
   onDimClick: () => void;
 }
@@ -23,10 +27,17 @@ export default function QuestBanner({
   xpLabel,
   buttonLabel,
   bannerFrame,
+  progressNow,
+  progressTotal,
   onNext,
   onDimClick,
 }: QuestBannerProps) {
   if (!show) return null;
+
+  const showProgress =
+    typeof progressNow === "number" && typeof progressTotal === "number";
+  const isLast = showProgress && progressNow === progressTotal;
+  const remaining = showProgress ? progressTotal! - progressNow! : 0;
 
   return (
     <>
@@ -50,6 +61,22 @@ export default function QuestBanner({
             />
           )}
         </div>
+        {showProgress && (
+          <div className="mb-2 font-tech text-[11px] uppercase tracking-[0.32em] text-nebula-text-dim">
+            {isLast ? (
+              <span className="text-nebula-orange">
+                ★ ETAPE {progressNow} / {progressTotal} · CHAPITRE TERMINE ★
+              </span>
+            ) : (
+              <>
+                ETAPE {progressNow} / {progressTotal}
+                <span className="ml-2 text-nebula-cyan">
+                  · {remaining} restante{remaining > 1 ? "s" : ""}
+                </span>
+              </>
+            )}
+          </div>
+        )}
         <div className="mb-2.5 font-tech text-lg leading-relaxed tracking-wider text-nebula-cyan [text-shadow:0_0_20px_rgba(0,240,255,0.4)]">
           {title}
         </div>
