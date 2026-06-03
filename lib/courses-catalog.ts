@@ -162,3 +162,15 @@ export function getCourseInfo(slug: string): CourseInfo | null {
 export function getCourseChaptersCount(slug: string): number {
   return CHAPTER_SUMMARIES[slug]?.length ?? 0;
 }
+
+const ICON_FRAME_BY_SLUG: Record<string, number> = Object.fromEntries(
+  COURSES_CATALOG.map((c, i) => [c.slug, i])
+);
+
+/**
+ * Frame index of a course in /sprites/mission-icons.png. Matches the
+ * COURSES_CATALOG order (see docs/PIXEL_ART_GUIDE.md §3A).
+ */
+export function getCourseIconFrame(slug: string): number {
+  return ICON_FRAME_BY_SLUG[slug] ?? 0;
+}

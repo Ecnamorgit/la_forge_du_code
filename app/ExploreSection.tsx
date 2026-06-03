@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { COURSES_CATALOG } from "@/lib/courses-catalog";
+import CourseIcon from "@/components/ui/CourseIcon";
 
 const COLOR_MAP: Record<string, { border: string; text: string }> = {
   cyan: { border: "border-nebula-cyan/30", text: "text-nebula-cyan" },
@@ -37,7 +38,9 @@ export default function ExploreSection({ activeCourseSlug }: Props) {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="shrink-0 text-3xl">{course.icon}</div>
+                  <div className="shrink-0">
+                    <CourseIcon slug={course.slug} emoji={course.icon} size={32} className="text-3xl" />
+                  </div>
                   <div className="min-w-0 flex-1">
                     <h3 className={`mb-1 font-tech text-xl ${c.text} tracking-wider`}>
                       {course.title}

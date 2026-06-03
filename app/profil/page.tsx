@@ -16,190 +16,12 @@ import {
 } from "@/lib/user-store";
 import { CSS_CHAPTERS_META, HTML_CHAPTERS_META, JS_CHAPTERS_META } from "@/lib/courses-meta";
 import Sprite from "@/components/ui/Sprite";
-import { BADGE_ICONS } from "@/lib/sprite-config";
+import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
+import { BADGES } from "@/lib/badges-catalog";
 
-interface BadgeDef {
-  id: string;
-  icon: string;
-  label: string;
-  description: string;
-  /** Optional frame in /sprites/badges.png. Falls back to icon emoji. */
-  badgeFrame?: number;
-}
-
-const ALL_BADGES: BadgeDef[] = [
-  {
-    id: "selene",
-    icon: "🌕",
-    label: "Ingénieur Séléné",
-    description: "Premier protocole HTML complété",
-  },
-  {
-    id: "relay",
-    icon: "🛰",
-    label: "Opérateur de Relais",
-    description: "Maîtrise les liens HTML",
-  },
-  {
-    id: "archivist",
-    icon: "📸",
-    label: "Archiviste Visuel",
-    description: "Images et médias HTML",
-  },
-  {
-    id: "logistician",
-    icon: "📋",
-    label: "Logisticien",
-    description: "Listes et tableaux HTML",
-  },
-  {
-    id: "operator",
-    icon: "🎛",
-    label: "Opérateur de Console",
-    description: "Formulaires HTML",
-  },
-  {
-    id: "css-initiate",
-    icon: "🎨",
-    label: "Initiateur Graphique",
-    description: "Premier protocole CSS complété",
-  },
-  {
-    id: "css-palette",
-    icon: "🌈",
-    label: "Opérateur Palette",
-    description: "Sélecteurs & formats de couleur",
-  },
-  {
-    id: "css-modular",
-    icon: "📦",
-    label: "Ingénieur Modulaire",
-    description: "Maîtrise du box model",
-  },
-  {
-    id: "css-pilot",
-    icon: "🛸",
-    label: "Pilote de Formation",
-    description: "Maîtrise de Flexbox",
-  },
-  {
-    id: "css-cartographer",
-    icon: "🗺",
-    label: "Cartographe",
-    description: "Maîtrise de CSS Grid",
-  },
-  {
-    id: "js-radio",
-    icon: "📟",
-    label: "Opérateur Radio",
-    description: "Premier signal JavaScript",
-  },
-  {
-    id: "js-analyst",
-    icon: "🧮",
-    label: "Analyste Tactique",
-    description: "Conditions et opérations",
-  },
-  {
-    id: "js-engineer",
-    icon: "⚙",
-    label: "Ingénieur Fonctionnel",
-    description: "Maîtrise des fonctions",
-  },
-  {
-    id: "js-quartermaster",
-    icon: "📚",
-    label: "Gestionnaire d'Inventaire",
-    description: "Tableaux et boucles",
-  },
-  {
-    id: "js-architect",
-    icon: "🛠",
-    label: "Architecte Logiciel",
-    description: "Objets et méthodes",
-  },
-  // --- HTML 6-8 ---
-  {
-    id: "html-architect",
-    icon: "🏗",
-    label: "Architecte Sémantique",
-    description: "Sémantique HTML5 et accessibilité",
-  },
-  {
-    id: "html-signals",
-    icon: "📡",
-    label: "Ingénieur de Signaux",
-    description: "Métadonnées et SEO",
-  },
-  {
-    id: "html-media",
-    icon: "🎥",
-    label: "Opérateur Multimédia",
-    description: "Vidéo, audio et images optimisées",
-  },
-  // --- CSS 6-10 ---
-  {
-    id: "css-anchor",
-    icon: "🧲",
-    label: "Verrouilleur Orbital",
-    description: "Positionnement relative/absolute/fixed/sticky",
-  },
-  {
-    id: "css-invoker",
-    icon: "🪄",
-    label: "Invocateur de Styles",
-    description: "Pseudo-classes et pseudo-éléments",
-  },
-  {
-    id: "css-adaptive",
-    icon: "📱",
-    label: "Ingénieur Adaptatif",
-    description: "Responsive design et media queries",
-  },
-  {
-    id: "css-animator",
-    icon: "💫",
-    label: "Animateur de Pixels",
-    description: "Transitions et animations",
-  },
-  {
-    id: "css-system",
-    icon: "🧩",
-    label: "Architecte de Design",
-    description: "Variables CSS et theming",
-  },
-  // --- JS 6-10 ---
-  {
-    id: "js-data",
-    icon: "🧮",
-    label: "Analyste de Données",
-    description: "Map, filter, reduce, find",
-  },
-  {
-    id: "js-dom",
-    icon: "🧰",
-    label: "Ingénieur d'Interface",
-    description: "DOM manipulation",
-  },
-  {
-    id: "js-events",
-    icon: "⚡",
-    label: "Opérateur Réactif",
-    description: "Événements et listeners",
-  },
-  {
-    id: "js-async",
-    icon: "🌐",
-    label: "Opérateur Asynchrone",
-    description: "Promises et async/await",
-  },
-  {
-    id: "js-storage",
-    icon: "💾",
-    label: "Gardien des Données",
-    description: "localStorage et persistance",
-  },
-];
+// Single source of truth lives in lib/badges-catalog.ts (synced with
+// BADGE_BY_CHAPTER). Frame index in badges.png = position in this array.
+const ALL_BADGES = BADGES;
 
 const COURSES_LIST = [
   { slug: "html", title: "HTML", available: true },
@@ -526,7 +348,7 @@ export default function ProfilPage() {
             {"> "}Badges
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {ALL_BADGES.map((badge) => {
+            {ALL_BADGES.map((badge, i) => {
               const unlocked = state.badges.includes(badge.id);
               return (
                 <article
@@ -542,10 +364,10 @@ export default function ProfilPage() {
                       unlocked ? "" : "opacity-25 grayscale"
                     }`}
                   >
-                    {badge.badgeFrame !== undefined ? (
+                    {SPRITE_SHEETS_READY.badges ? (
                       <Sprite
                         sheet={BADGE_ICONS}
-                        frame={badge.badgeFrame}
+                        frame={i}
                         displaySize={64}
                         title={badge.label}
                       />

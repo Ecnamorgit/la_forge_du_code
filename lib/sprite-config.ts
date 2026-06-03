@@ -12,6 +12,17 @@ import type { SpriteSheet } from "@/components/ui/Sprite";
 // for the full frame-index → meaning tables and palette.
 
 /**
+ * Drop-in switches. Each stays `false` until the corresponding PNG ships in
+ * public/sprites/. While false, consuming components render the emoji fallback,
+ * so there is zero visual change until the art is ready — then flip the flag.
+ */
+export const SPRITE_SHEETS_READY = {
+  mission: false,
+  banner: false,
+  badges: false,
+} as const;
+
+/**
  * Course/mission icons. Frame order MUST follow COURSES_CATALOG
  * (lib/courses-catalog.ts): 0=html, 1=css, 2=javascript, 3=react,
  * 4=typescript, 5=git, 6=sql, 7=nodejs, 8=tests, 9=devops, 10=mongodb,

@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 
 import BrandLogo from "@/components/ui/BrandLogo";
+import CourseIcon from "@/components/ui/CourseIcon";
 import CourseCardLink from "../CourseCardLink";
 import {
   COURSES_CATALOG,
@@ -238,7 +239,9 @@ function CourseCard({ course }: { course: CourseEntry }) {
       </div>
 
       <div className="mb-4 flex flex-col items-start">
-        <div className="mb-3 text-4xl">{course.icon}</div>
+        <div className="mb-3">
+          <CourseIcon slug={course.slug} emoji={course.icon} size={40} className="text-4xl" />
+        </div>
 
         <h2 className={`font-tech text-2xl tracking-wider ${c.text} mb-1`}>
           {course.title}

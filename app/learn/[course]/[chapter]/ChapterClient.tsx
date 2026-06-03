@@ -19,7 +19,9 @@ import { unlockAudio, playFanfare } from "@/lib/audio";
 import { useUser } from "@/lib/use-user";
 import { getCompletedSteps, levelFromXp } from "@/lib/user-store";
 import { xpForStep } from "@/lib/xp";
-import { getChapterBackground } from "@/lib/sprite-config";
+import { getChapterBackground, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
+import { getBadgeForChapter } from "@/lib/courses-meta";
+import { badgeFrameById } from "@/lib/badges-catalog";
 
 function parseBriefing(content: string) {
   if (!content) return "";
@@ -256,6 +258,11 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
         totalXp={xp}
         badgeIcon={chapter.completionBadge}
         badgeLabel={chapter.completionBadgeLabel}
+        badgeFrame={
+          SPRITE_SHEETS_READY.badges
+            ? badgeFrameById(getBadgeForChapter(course, chapter.slug) ?? "") ?? undefined
+            : undefined
+        }
         href={`/learn/${course}`}
       />
       <HintBox show={showHint} html={step.hint} />

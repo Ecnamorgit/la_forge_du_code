@@ -43,9 +43,12 @@ export default function Sprite({
   const size = displaySize ?? Math.max(frameWidth, frameHeight);
   const scaleX = size / frameWidth;
   const scaleY = size / frameHeight;
-  // Use the smaller scale so the frame fits inside `size` x `size` while
-  // staying square pixels.
-  const scale = Math.min(scaleX, scaleY);
+  // Use the smaller scale so the frame fits inside `size` x `size`.
+  const rawScale = Math.min(scaleX, scaleY);
+  // Snap to an INTEGER multiple when upscaling so pixels stay crisp (no shimmer
+  // from fractional scaling). Downscaling keeps the fractional value — you can't
+  // integer-scale below native, and the alternative would collapse the sprite.
+  const scale = rawScale >= 1 ? Math.floor(rawScale) : rawScale;
 
   return (
     <span

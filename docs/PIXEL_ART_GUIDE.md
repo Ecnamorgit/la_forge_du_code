@@ -4,11 +4,12 @@ Gabarit prêt-à-dessiner pour produire les sprites manquants et **tuer les emoj
 Tout ce qui suit est tiré du code (sources de vérité citées). Respecte les tailles
 et l'ordre des frames : le drop-in marchera sans retoucher le code.
 
-> ⚠️ **Rappel architecture** : aujourd'hui les 3 spritesheets sont *déclarées* mais
-> **débranchées** — seul `bannerFrame` est lu, et il n'est jamais renseigné dans les
-> données. Donc dessiner ne suffit pas : il faut **(1)** poser les PNG, **(2)** câbler
-> les index de frames (voir §6). Je peux faire le (2) une fois l'art prêt, ou pré-câbler
-> avec des index provisoires.
+> ✅ **Le câblage code est fait** (voir §6) : `mission-icons` et `badges` sont branchés,
+> avec **fallback emoji** tant que le PNG n'est pas là. Il te reste donc seulement à
+> **(1)** dessiner et déposer les PNG dans `public/sprites/`, puis **(2)** passer le flag
+> correspondant à `true` dans `SPRITE_SHEETS_READY` (`lib/sprite-config.ts`).
+> `banner-icons` est volontairement laissé en emoji pour l'instant (mapping par archétype
+> à décider).
 
 ---
 
@@ -115,22 +116,22 @@ un **multiple entier** : afficher une frame 32 px à 32 (×1) ou 64 (×2), jamai
 
 ## 6. Contrat de câblage (ce que je fais, côté code)
 
-| Sheet | Lu par | Champ qui déclenche le sprite | État actuel |
+| Sheet | Lu par | Frame résolue par | État |
 |---|---|---|---|
-| `banner-icons` | `components/ui/QuestBanner.tsx` | `step.bannerFrame` | câblé, mais `bannerFrame` jamais défini dans les data |
-| `mission-icons` | *(rien)* | `step.missionFrame` existe dans le type mais n'est lu nulle part | **à câbler** |
-| `badges` | `app/profil/page.tsx`, `components/ui/CompletionScreen.tsx` | `badge.badgeFrame` | câblé, mais `badgeFrame` jamais défini |
+| `mission-icons` | `components/ui/CourseIcon.tsx` (utilisé dans ExploreSection + carte `/learn`) | `getCourseIconFrame(slug)` (ordre `COURSES_CATALOG`) | ✅ câblé, gardé par `SPRITE_SHEETS_READY.mission` |
+| `badges` | `app/profil/page.tsx` (par index) + `CompletionScreen` (via `badgeFrameById`) | index dans `lib/badges-catalog.ts` | ✅ câblé, gardé par `SPRITE_SHEETS_READY.badges` |
+| `banner-icons` | `components/ui/QuestBanner.tsx` | `step.bannerFrame` | ⏸️ laissé en emoji (archétypes à décider) |
 
-**Plan de câblage** (je m'en occupe quand tu valides) :
-1. Resync `ALL_BADGES` ↔ `BADGE_BY_CHAPTER`, ajouter `badgeFrame: i` à chaque badge.
-2. Brancher `mission-icons` : afficher `MISSION_ICONS[frameDuCours]` dans le dashboard,
-   la carte de cours et l'entête de mission, avec fallback emoji si le sprite manque.
-3. Renseigner `bannerFrame`/`missionFrame` dans les données de chapitres (mapping
-   cours/archétype) — ou résoudre l'index dynamiquement par cours pour éviter 64 éditions.
-4. Activer le scaling entier dans `Sprite.tsx`.
+**Câblage réalisé :**
+1. ✅ `lib/badges-catalog.ts` créé (44 badges, synchronisé avec `BADGE_BY_CHAPTER`),
+   `ALL_BADGES` de profil y pointe désormais.
+2. ✅ `mission-icons` branché via `CourseIcon` (fallback emoji intégré).
+3. ✅ `CompletionScreen` reçoit la frame du badge gagné (`badgeFrameById`).
+4. ✅ Scaling entier activé dans `Sprite.tsx` (snap au multiple ≥1).
 
-Le fallback emoji reste en place tant qu'un PNG manque → aucune régression pendant la
-transition.
+**Pour activer une fois le PNG dessiné :** dépose le fichier dans `public/sprites/`
+puis passe le flag à `true` dans `SPRITE_SHEETS_READY` (`lib/sprite-config.ts`).
+Le fallback emoji reste en place tant que le flag est `false` → zéro régression.
 
 ---
 
