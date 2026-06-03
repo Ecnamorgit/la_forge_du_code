@@ -62,16 +62,21 @@ Sur Vercel : connecter le repo GitHub → chaque push sur `main` déclenche un d
 
 ## 5. Checklist sécurité (déjà en place dans le code)
 
-- [x] Mots de passe hashés (bcrypt).
+- [x] Mots de passe hashés (bcrypt, cost **12**).
+- [x] Politique de mot de passe : ≥ 8 caractères, au moins une lettre + un chiffre (signup & reset) + champ de confirmation au signup.
 - [x] Tokens email/reset à usage unique, TTL, consommation atomique.
 - [x] Anti-énumération (login & forgot-password neutres).
 - [x] Toutes les routes `/api/me/*` exigent une session.
 - [x] Exécution du code élève isolée en iframe `sandbox="allow-scripts"`.
 - [x] **Rate limiting** sur login, signup, forgot-password, resend-verification, check-verification (`lib/rate-limit.ts`).
-- [ ] **Headers de sécurité** (CSP, HSTS, X-Frame-Options) — à ajouter dans `next.config.ts` via `headers()` (recommandé, non bloquant).
-- [ ] Politique de mot de passe renforcée + champ confirmation au signup (amélioration UX/sécu).
+- [x] **Headers de sécurité** dans `next.config.ts` : CSP (prod), HSTS, X-Frame-Options: DENY, X-Content-Type-Options, Referrer-Policy, Permissions-Policy ; `X-Powered-By` désactivé.
+- [ ] (Optionnel) CSP par nonces pour retirer `'unsafe-inline'` du `script-src` — non trivial avec Monaco (CDN + workers) et Next/Turbopack.
+
+> ⚠️ **À vérifier en navigateur avant de déployer** : la CSP n'est active qu'en production. Lance `npm run build && npm start`, ouvre une mission (ex. `/learn/javascript/chapitre-1`) avec la console DevTools, et confirme que l'éditeur Monaco se charge, que « Déployer » exécute le code, et qu'il n'y a **aucune erreur `Content-Security-Policy`**. Si Monaco est bloqué, ajuste `script-src`/`worker-src`/`connect-src` (domaine `cdn.jsdelivr.net` + `blob:`).
 
 > ⚠️ **Rate limiting** : l'implémentation actuelle est en mémoire (per-instance). Sur un déploiement serverless multi-instances (Vercel), la limite effective est multipliée par le nombre d'instances. Pour une garantie stricte, brancher `lib/rate-limit.ts` sur un store partagé (Upstash Redis ou une table Postgres). Suffisant en l'état pour un déploiement mono-instance ou un trafic modéré.
+
+> ✅ **Vérifié automatiquement** (serveur de prod local) : `/api/me` sans session → 401 ; signup mot de passe faible → 400 ; rate limit signup → 429 après 5 requêtes/IP ; tous les headers de sécurité présents dans la réponse HTTP.
 
 ---
 
