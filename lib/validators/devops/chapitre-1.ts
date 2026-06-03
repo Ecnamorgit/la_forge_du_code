@@ -26,14 +26,19 @@ export const validators: Validator[] = [
     }
     return pass("En ligne.", ["o2a", "o2b"]);
   },
-  // Step 3: .env with vars + gitignore + .env.example
+  // Step 3: .env with vars + gitignore entries + .env.example.
+  // NOTE: no comment-stripping here — in this step the `#` lines are section
+  // labels that are part of the expected answer. We key on `.env.local`, which
+  // only appears in a real .gitignore (never in the French instructions).
   (code) => {
-    const c = strip(code);
-    if (!/API_URL\s*=/.test(c) || !/DB_PASSWORD\s*=/.test(c)) {
+    if (!/API_URL\s*=/.test(code) || !/DB_PASSWORD\s*=/.test(code)) {
       return fail("Cree un .env avec API_URL=... et DB_PASSWORD=...");
     }
-    if (!/\.env\.example/.test(c) || !/gitignore/i.test(c)) {
-      return fail("Ajoute .env au .gitignore et cree un .env.example sans les vraies valeurs.");
+    if (!/\.env\.local/.test(code)) {
+      return fail("Ignore les .env dans .gitignore (.env, .env.local, .env.*.local).");
+    }
+    if (!/\.env\.example/.test(code)) {
+      return fail("Cree aussi un .env.example (commite) sans les vraies valeurs.");
     }
     return pass("Config securisee.", ["o3a", "o3b"]);
   },

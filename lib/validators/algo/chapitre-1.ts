@@ -31,7 +31,9 @@ export const validators: Validator[] = [
     if (countMatches(c, /for\s*\(/) < 2) {
       return fail("Le tri a bulles a besoin de DEUX boucles for imbriquees.");
     }
-    if (!/\[[^\]]+\]\s*=\s*\[[^\]]+\]/.test(c)) {
+    // Destructuring swap, e.g. [a[j], a[j + 1]] = [a[j + 1], a[j]]. The signature
+    // is a closing bracket, '=', opening bracket (tolerant of nested indexing).
+    if (!/\]\s*=\s*\[/.test(c)) {
       return fail("Echange deux elements avec le destructuring : [a[j], a[j+1]] = [a[j+1], a[j]].");
     }
     return pass("Donnees ordonnees.", ["o3a", "o3b"]);

@@ -29,11 +29,13 @@ export const validators: Validator[] = [
   // Step 3: dynamic route :id + useParams
   (code) => {
     const c = strip(code);
-    if (!/path=['"][^'"]*:id['"]/.test(c)) {
-      return fail("Definis une route dynamique avec :id (path='/vaisseaux/:id').");
+    // The <Route path="/vaisseaux/:id"> line lives in App (shown as guidance in
+    // a comment), so the verifiable signal here is reading the URL param.
+    if (!/useParams\s*\(\s*\)/.test(c)) {
+      return fail("Recupere les params de l'URL avec const { id } = useParams().");
     }
-    if (!/useParams\s*\(\s*\)/.test(c) || !/\{\s*id\s*\}/.test(c)) {
-      return fail("Lis l'id avec const { id } = useParams() et affiche-le.");
+    if (!/\{\s*id\s*\}/.test(c)) {
+      return fail("Affiche l'id lu depuis l'URL : <div>Vaisseau : {id}</div>.");
     }
     return pass("URL decodee.", ["o3a", "o3b"]);
   },
