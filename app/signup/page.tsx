@@ -115,7 +115,7 @@ export default function SignupPage() {
               <>
                 <div className="mb-6 flex flex-col items-center text-center">
                   <BrandLogo size={64} className="mb-3" />
-                  <h1 className="font-tech text-2xl tracking-[0.2em] text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)]">
+                  <h1 className="font-display text-xl tracking-[0.06em] text-nebula-cyan [text-shadow:0_0_16px_rgba(0,240,255,0.28)] sm:text-2xl">
                     INSCRIPTION
                   </h1>
                   <p className="mt-1 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">

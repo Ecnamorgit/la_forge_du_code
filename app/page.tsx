@@ -45,18 +45,18 @@ export default function LandingPage() {
 
       {/* Nav */}
       <header className="relative z-50 flex h-16 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/80 px-4 backdrop-blur-md sm:px-6">
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <BrandLogo size={36} />
-          <div className="font-tech text-base tracking-widest">
+          <div className="truncate font-tech text-sm tracking-widest sm:text-base">
             <span className="text-nebula-cyan">NEBULA</span>
-            <span className="ml-1 text-nebula-text-secondary">COMMAND</span>
+            <span className="ml-1 hidden text-nebula-text-secondary sm:inline">COMMAND</span>
           </div>
         </div>
 
-        <nav className="flex items-center gap-3 sm:gap-6">
+        <nav className="flex shrink-0 items-center gap-3 sm:gap-6">
           <Link
             href="/login"
-            className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan sm:text-sm"
+            className="whitespace-nowrap font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan sm:text-sm"
           >
             Se connecter
           </Link>
@@ -84,10 +84,10 @@ export default function LandingPage() {
           />
 
           <h1
-            className="mb-5 font-tech text-3xl tracking-[0.25em] text-nebula-cyan sm:text-5xl lg:text-6xl"
+            className="mb-5 font-display text-2xl tracking-[0.06em] text-nebula-cyan sm:text-4xl lg:text-5xl"
             style={{
               textShadow:
-                "0 0 30px rgba(0, 240, 255, 0.4), 0 0 60px rgba(0, 240, 255, 0.15)",
+                "0 0 24px rgba(0, 240, 255, 0.35), 0 0 50px rgba(0, 240, 255, 0.12)",
             }}
           >
             NEBULA COMMAND

@@ -31,6 +31,7 @@
   --font-tech: var(--font-tech);
   --font-body: var(--font-body);
   --font-code: var(--font-code);
+  --font-display: var(--font-display);
 
   --color-nebula-bg-darkest: var(--bg-darkest);
   --color-nebula-bg-dark: var(--bg-dark);
@@ -67,6 +68,10 @@
 .font-code {
   font-family: var(--font-code), monospace;
 }
+/* Pixel/bitmap display face — short uppercase headings only. */
+.font-display {
+  font-family: var(--font-display), "Share Tech Mono", monospace;
+}
 
 /* ── NEBULA STARFIELD ── */
 .bg-nebula-bg {
@@ -75,6 +80,10 @@
   background-position: center;
   background-repeat: no-repeat;
   image-rendering: pixelated;
+  /* The source nebula is very busy/saturated and fights the foreground.
+     Darken + desaturate it so panels and text read clearly and the look feels
+     deliberate rather than "generated wallpaper". */
+  filter: brightness(0.42) saturate(0.55);
 }
 
 /* ── SCROLLBAR ── */
