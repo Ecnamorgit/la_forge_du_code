@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { sendVerificationEmail } from "@/lib/email";
 import { createToken } from "@/lib/tokens";
+import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 
 const signupSchema = z.object({
   email: z.string().email().max(254),
@@ -17,6 +18,13 @@ const signupSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  // Throttle account creation per IP to curb spam / mass signups.
+  const limit = rateLimit(`signup:${getClientIp(request)}`, {
+    limit: 5,
+    windowMs: 60 * 60 * 1000, // 5 accounts / hour / IP
+  });
+  if (!limit.ok) return tooManyRequests(limit.retryAfter);
+
   let body: unknown;
   try {
     body = await request.json();

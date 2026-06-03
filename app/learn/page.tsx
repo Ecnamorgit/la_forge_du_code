@@ -5,57 +5,21 @@ import type { CSSProperties } from "react";
 import BrandLogo from "@/components/ui/BrandLogo";
 import CourseCardLink from "../CourseCardLink";
 import {
-  CSS_CHAPTERS_META,
-  HTML_CHAPTERS_META,
-  JS_CHAPTERS_META,
-} from "@/lib/courses-meta";
+  COURSES_CATALOG,
+  getCourseChaptersCount,
+  type CourseInfo,
+} from "@/lib/courses-catalog";
 
-interface CourseEntry {
-  slug: string;
-  title: string;
-  subtitle: string;
-  icon: string;
+interface CourseEntry extends CourseInfo {
   chapters: number;
-  color: string;
-  description: string;
   status: "available" | "locked";
 }
 
-const COURSES: CourseEntry[] = [
-  {
-    slug: "html",
-    title: "HTML",
-    subtitle: "Structure des pages web",
-    icon: "📡",
-    chapters: HTML_CHAPTERS_META.length,
-    color: "cyan",
-    description:
-      "Maîtrise les fondations du web : balises, structure, sémantique. Construis ta première station orbitale.",
-    status: "available",
-  },
-  {
-    slug: "css",
-    title: "CSS",
-    subtitle: "Design & mise en forme",
-    icon: "🎨",
-    chapters: CSS_CHAPTERS_META.length,
-    color: "blue",
-    description:
-      "Habille ta station : sélecteurs, box model, Flexbox et Grid. Donne vie à ton interface.",
-    status: "available",
-  },
-  {
-    slug: "javascript",
-    title: "JavaScript",
-    subtitle: "Logique & interactivité",
-    icon: "⚡",
-    chapters: JS_CHAPTERS_META.length,
-    color: "orange",
-    description:
-      "Programme les systèmes de la flotte : variables, conditions, fonctions, tableaux et objets.",
-    status: "available",
-  },
-];
+const COURSES: CourseEntry[] = COURSES_CATALOG.map((c) => ({
+  ...c,
+  chapters: getCourseChaptersCount(c.slug),
+  status: "available",
+}));
 
 export default function LearnPage() {
   return (

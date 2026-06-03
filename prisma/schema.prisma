@@ -25,8 +25,14 @@ model User {
   joinedAt     DateTime  @default(now())
   totalXp      Int       @default(0)
   streak       Int       @default(1)
-  lastVisit    String    @default("") // ISO date (yyyy-mm-dd)
-  onboardedAt  DateTime? // null until the user finishes the first-login briefing
+  lastVisit         String    @default("") // ISO date (yyyy-mm-dd)
+  lastVisitedCourse String? // slug of the last course the user actively interacted with
+  onboardedAt       DateTime? // null until the user finishes the first-login briefing
+
+  // Avatar (purely cosmetic). All null until first configuration on /avatar.
+  species      String? // "humain" | "cyborg" | "synthetique" | "hybride" | "inconnue"
+  uniformColor String? // "cyan" | "orange" | "green" | "purple" | "gold"
+  role         String? // "pilote" | "ingenieur" | "tacticien" | "explorateur"
 
   accounts        Account[]
   sessions        Session[]

@@ -9,6 +9,10 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    // Prefer DIRECT_URL for the CLI (migrate, generate). It points at the
+    // Supabase Session Pooler / direct connection which supports prepared
+    // statements. Fall back to DATABASE_URL if DIRECT_URL is unset.
+    // At app runtime we still read DATABASE_URL directly in lib/db.ts.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });

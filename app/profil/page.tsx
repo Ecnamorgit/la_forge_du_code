@@ -6,6 +6,8 @@ import { useState } from "react";
 import DashboardNav from "../DashboardNav";
 import { useUser } from "@/lib/use-user";
 import { useSoundPreference } from "@/lib/use-sound";
+import AvatarBadge from "@/components/avatar/AvatarBadge";
+import { getRole, getSpecies, getUniformColor } from "@/lib/avatar";
 import {
   getCompletedSteps,
   isChapterComplete,
@@ -312,9 +314,17 @@ export default function ProfilPage() {
         <section className="mb-10 rounded-sm border border-nebula-cyan/40 bg-nebula-bg-panel/85 p-8 backdrop-blur-md shadow-[0_0_40px_rgba(0,240,255,0.08)] animate-fade-down">
           <div className="flex flex-wrap items-center gap-8">
             <div className="relative shrink-0">
-              <div className="flex h-28 w-28 items-center justify-center rounded-full border-2 border-nebula-cyan bg-nebula-bg-darkest font-tech text-5xl font-bold text-nebula-cyan shadow-[0_0_30px_rgba(0,240,255,0.3)]">
-                {username.slice(0, 1).toUpperCase()}
-              </div>
+              {state.species ? (
+                <AvatarBadge
+                  species={state.species}
+                  uniformColor={state.uniformColor}
+                  size={112}
+                />
+              ) : (
+                <div className="flex h-28 w-28 items-center justify-center rounded-full border-2 border-nebula-cyan bg-nebula-bg-darkest font-tech text-5xl font-bold text-nebula-cyan shadow-[0_0_30px_rgba(0,240,255,0.3)]">
+                  {username.slice(0, 1).toUpperCase()}
+                </div>
+              )}
               <div className="absolute -bottom-2 -right-2 rounded-sm border border-nebula-orange bg-nebula-bg-darkest px-2.5 py-1 font-tech text-xs uppercase tracking-widest text-nebula-orange shadow-[0_0_10px_rgba(255,107,44,0.3)]">
                 LV {level}
               </div>
@@ -556,6 +566,47 @@ export default function ProfilPage() {
                 </article>
               );
             })}
+          </div>
+        </section>
+
+        {/* Personnalisation */}
+        <section className="mb-10 animate-fade-up">
+          <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
+            {"> "}Personnalisation
+          </h2>
+          <div className="rounded-sm border border-nebula-border/60 bg-nebula-bg-panel/70 p-5 backdrop-blur-md">
+            <div className="flex flex-wrap items-center gap-4">
+              <AvatarBadge
+                species={state.species}
+                uniformColor={state.uniformColor}
+                size={80}
+              />
+              <div className="min-w-0 flex-1">
+                <div className="font-tech text-sm uppercase tracking-widest text-nebula-text">
+                  Identite visuelle
+                </div>
+                <p className="mt-1 font-body text-xs text-nebula-text-dim">
+                  {state.species ? (
+                    <>
+                      {getSpecies(state.species)?.label ?? state.species}
+                      <span className="mx-2 text-nebula-text-dim/60">·</span>
+                      Uniforme{" "}
+                      {getUniformColor(state.uniformColor)?.label ?? state.uniformColor}
+                      <span className="mx-2 text-nebula-text-dim/60">·</span>
+                      {getRole(state.role)?.label ?? state.role}
+                    </>
+                  ) : (
+                    <>Pas encore configure — clique pour personnaliser ton avatar.</>
+                  )}
+                </p>
+              </div>
+              <Link
+                href="/avatar?from=/profil"
+                className="rounded-sm border border-nebula-cyan-dim bg-transparent px-4 py-2 font-tech text-xs uppercase tracking-widest text-nebula-cyan transition-all hover:border-nebula-cyan hover:bg-nebula-cyan-faint"
+              >
+                Modifier
+              </Link>
+            </div>
           </div>
         </section>
 

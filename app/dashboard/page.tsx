@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 import BrandLogo from "@/components/ui/BrandLogo";
@@ -12,16 +14,29 @@ import StatsCard from "../StatsCard";
 import ExploreSection from "../ExploreSection";
 import { useUser } from "@/lib/use-user";
 import {
+  getActiveCourseSlug,
   getCourseProgress,
   getNextStep,
+  hasAvatar,
   levelFromXp,
   rankFromXp,
 } from "@/lib/user-store";
-import { HTML_CHAPTERS_META } from "@/lib/courses-meta";
+import { getChaptersMeta } from "@/lib/courses-meta";
+import { COURSES_CATALOG, getCourseInfo } from "@/lib/courses-catalog";
+import { CHAPTER_SUMMARIES } from "@/lib/chapter-summaries";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { data: session } = useSession();
-  const { state } = useUser();
+  const { state, hydrated } = useUser();
+
+  // First-time gate: send the user to /avatar before they can use the dashboard.
+  useEffect(() => {
+    if (!hydrated) return;
+    if (!hasAvatar(state)) {
+      router.replace("/avatar?from=/dashboard");
+    }
+  }, [hydrated, state, router]);
 
   const username = session?.user?.username || state.username || "Cadet";
   const totalXp = state.totalXp;
@@ -30,12 +45,32 @@ export default function DashboardPage() {
   const streak = state.streak || 1;
   const badges = state.badges.length;
 
-  const courseProgress = getCourseProgress(state, "html", HTML_CHAPTERS_META);
-  const nextStep = getNextStep(state, "html", HTML_CHAPTERS_META);
+  // Pick the user's current course from their progress.
+  const activeCourseSlug = useMemo(() => {
+    const candidateSlugs = COURSES_CATALOG.map((c) => c.slug);
+    const totalStepsByCourse = Object.fromEntries(
+      candidateSlugs.map((slug) => [
+        slug,
+        (CHAPTER_SUMMARIES[slug] ?? []).reduce((s, c) => s + c.totalSteps, 0),
+      ])
+    );
+    return getActiveCourseSlug(state, candidateSlugs, totalStepsByCourse);
+  }, [state]);
+
+  const activeCourse = getCourseInfo(activeCourseSlug);
+  const chaptersMeta = useMemo(
+    () => getChaptersMeta(activeCourseSlug),
+    [activeCourseSlug]
+  );
+
+  const courseProgress = getCourseProgress(state, activeCourseSlug, chaptersMeta);
+  const nextStep = getNextStep(state, activeCourseSlug, chaptersMeta);
 
   const nextChapterMeta = nextStep
-    ? HTML_CHAPTERS_META.find((c) => c.slug === nextStep.chapterSlug)
+    ? chaptersMeta.find((c) => c.slug === nextStep.chapterSlug)
     : null;
+
+  const courseTitle = activeCourse?.title ?? activeCourseSlug.toUpperCase();
 
   return (
     <div className="relative h-full overflow-y-auto">
@@ -108,7 +143,7 @@ export default function DashboardPage() {
                     CURSUS ACTIF
                   </div>
                   <h3 className="mb-3 font-tech text-4xl uppercase tracking-wider text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)]">
-                    HTML
+                    {courseTitle}
                   </h3>
 
                   {nextStep && nextChapterMeta ? (
@@ -127,7 +162,7 @@ export default function DashboardPage() {
                       </p>
 
                       <Link
-                        href={`/learn/html/${nextStep.chapterSlug}`}
+                        href={`/learn/${activeCourseSlug}/${nextStep.chapterSlug}`}
                         className="inline-block rounded-sm bg-nebula-cyan px-7 py-3 font-tech text-base font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none"
                       >
                         {"> "}
@@ -140,10 +175,10 @@ export default function DashboardPage() {
                   ) : (
                     <>
                       <p className="mb-7 font-body text-base leading-relaxed text-nebula-green">
-                        Tous les chapitres HTML sont validés. Bravo, Cadet.
+                        Tous les chapitres {courseTitle} sont validés. Bravo, Cadet.
                       </p>
                       <Link
-                        href="/learn/html"
+                        href={`/learn/${activeCourseSlug}`}
                         className="inline-block rounded-sm border border-nebula-cyan-dim bg-transparent px-7 py-3 font-tech text-base font-bold uppercase tracking-[0.18em] text-nebula-cyan transition-all hover:border-nebula-cyan hover:bg-nebula-cyan-faint"
                       >
                         Voir la carte du cursus →
@@ -154,7 +189,7 @@ export default function DashboardPage() {
               </article>
             </section>
 
-            <ExploreSection />
+            <ExploreSection activeCourseSlug={activeCourseSlug} />
 
             <div className="mt-8 text-center">
               <Link

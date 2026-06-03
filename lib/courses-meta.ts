@@ -1,94 +1,39 @@
-import { chapitre1 as htmlCh1 } from "@/data/courses/html/chapitre-1";
-import { chapitre2 as htmlCh2 } from "@/data/courses/html/chapitre-2";
-import { chapitre3 as htmlCh3 } from "@/data/courses/html/chapitre-3";
-import { chapitre4 as htmlCh4 } from "@/data/courses/html/chapitre-4";
-import { chapitre5 as htmlCh5 } from "@/data/courses/html/chapitre-5";
-import { chapitre6 as htmlCh6 } from "@/data/courses/html/chapitre-6";
-import { chapitre7 as htmlCh7 } from "@/data/courses/html/chapitre-7";
-import { chapitre8 as htmlCh8 } from "@/data/courses/html/chapitre-8";
-import { chapitre1 as cssCh1 } from "@/data/courses/css/chapitre-1";
-import { chapitre2 as cssCh2 } from "@/data/courses/css/chapitre-2";
-import { chapitre3 as cssCh3 } from "@/data/courses/css/chapitre-3";
-import { chapitre4 as cssCh4 } from "@/data/courses/css/chapitre-4";
-import { chapitre5 as cssCh5 } from "@/data/courses/css/chapitre-5";
-import { chapitre6 as cssCh6 } from "@/data/courses/css/chapitre-6";
-import { chapitre7 as cssCh7 } from "@/data/courses/css/chapitre-7";
-import { chapitre8 as cssCh8 } from "@/data/courses/css/chapitre-8";
-import { chapitre9 as cssCh9 } from "@/data/courses/css/chapitre-9";
-import { chapitre10 as cssCh10 } from "@/data/courses/css/chapitre-10";
-import { chapitre1 as jsCh1 } from "@/data/courses/javascript/chapitre-1";
-import { chapitre2 as jsCh2 } from "@/data/courses/javascript/chapitre-2";
-import { chapitre3 as jsCh3 } from "@/data/courses/javascript/chapitre-3";
-import { chapitre4 as jsCh4 } from "@/data/courses/javascript/chapitre-4";
-import { chapitre5 as jsCh5 } from "@/data/courses/javascript/chapitre-5";
-import { chapitre6 as jsCh6 } from "@/data/courses/javascript/chapitre-6";
-import { chapitre7 as jsCh7 } from "@/data/courses/javascript/chapitre-7";
-import { chapitre8 as jsCh8 } from "@/data/courses/javascript/chapitre-8";
-import { chapitre9 as jsCh9 } from "@/data/courses/javascript/chapitre-9";
-import { chapitre10 as jsCh10 } from "@/data/courses/javascript/chapitre-10";
-import type { ChapterData } from "@/data/courses/html/types";
 import type { ChapterMeta } from "./user-store";
+import { CHAPTER_SUMMARIES } from "./chapter-summaries";
 
 export interface ChapterMetaFull extends ChapterMeta {
   title: string;
   label: string;
 }
 
-function toMeta(chapter: ChapterData, index: number): ChapterMetaFull {
-  return {
-    slug: chapter.slug,
-    totalSteps: chapter.steps.length,
-    title: chapter.title.replace(/\n/g, " "),
-    label: `Chapitre ${index + 1}`,
-  };
-}
-
-export const HTML_CHAPTERS_META: ChapterMetaFull[] = [
-  htmlCh1,
-  htmlCh2,
-  htmlCh3,
-  htmlCh4,
-  htmlCh5,
-  htmlCh6,
-  htmlCh7,
-  htmlCh8,
-].map(toMeta);
-
-export const CSS_CHAPTERS_META: ChapterMetaFull[] = [
-  cssCh1,
-  cssCh2,
-  cssCh3,
-  cssCh4,
-  cssCh5,
-  cssCh6,
-  cssCh7,
-  cssCh8,
-  cssCh9,
-  cssCh10,
-].map(toMeta);
-
-export const JS_CHAPTERS_META: ChapterMetaFull[] = [
-  jsCh1,
-  jsCh2,
-  jsCh3,
-  jsCh4,
-  jsCh5,
-  jsCh6,
-  jsCh7,
-  jsCh8,
-  jsCh9,
-  jsCh10,
-].map(toMeta);
-
-const CHAPTERS_BY_COURSE: Record<string, ChapterMetaFull[]> = {
-  html: HTML_CHAPTERS_META,
-  css: CSS_CHAPTERS_META,
-  javascript: JS_CHAPTERS_META,
-};
-
 export function getChaptersMeta(course: string): ChapterMetaFull[] {
-  return CHAPTERS_BY_COURSE[course] ?? [];
+  const summaries = CHAPTER_SUMMARIES[course];
+  if (!summaries) return [];
+
+  return summaries.map((s, i) => ({
+    slug: s.slug,
+    totalSteps: s.totalSteps,
+    title: s.title,
+    label: `Chapitre ${i + 1}`,
+  }));
 }
+
+// Pre-computed per-course exports kept for backward compatibility with callers
+// that prefer destructured imports. These are cheap (just object reshaping).
+export const HTML_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("html");
+export const CSS_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("css");
+export const JS_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("javascript");
+export const REACT_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("react");
+export const TYPESCRIPT_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("typescript");
+export const GIT_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("git");
+export const SQL_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("sql");
+export const NODEJS_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("nodejs");
+export const TESTS_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("tests");
+export const DEVOPS_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("devops");
+export const MONGODB_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("mongodb");
+export const SECURITY_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("security");
+export const PYTHON_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("python");
+export const ALGO_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("algo");
 
 /** Badge unlocked when a chapter is completed (per course). */
 const BADGE_BY_CHAPTER: Record<string, Record<string, string>> = {
@@ -125,7 +70,25 @@ const BADGE_BY_CHAPTER: Record<string, Record<string, string>> = {
     "chapitre-8": "js-events",
     "chapitre-9": "js-async",
     "chapitre-10": "js-storage",
+    "chapitre-11": "js-fetch",
+    "chapitre-12": "js-rest",
   },
+  react: {
+    "chapitre-1": "react-architect",
+    "chapitre-2": "react-state",
+    "chapitre-3": "react-effects",
+    "chapitre-4": "react-router",
+  },
+  typescript: { "chapitre-1": "ts-shield" },
+  git: { "chapitre-1": "git-archivist" },
+  sql: { "chapitre-1": "sql-keeper" },
+  nodejs: { "chapitre-1": "nodejs-builder" },
+  tests: { "chapitre-1": "tests-qa" },
+  devops: { "chapitre-1": "devops-launcher" },
+  mongodb: { "chapitre-1": "mongodb-leaf" },
+  security: { "chapitre-1": "security-shield" },
+  python: { "chapitre-1": "python-serpent" },
+  algo: { "chapitre-1": "algo-strategist" },
 };
 
 export function getBadgeForChapter(course: string, chapter: string): string | null {

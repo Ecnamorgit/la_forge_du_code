@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
+import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
   email: z.string().email().max(254),
@@ -17,6 +18,14 @@ const bodySchema = z.object({
  * when the password is right but the email pending.
  */
 export async function POST(req: Request) {
+  // This endpoint runs bcrypt.compare, so it's a password-guessing vector.
+  // Throttle per IP and short-circuit (keeping the neutral shape) when exceeded.
+  const limit = rateLimit(`checkverif:${getClientIp(req)}`, {
+    limit: 10,
+    windowMs: 5 * 60 * 1000, // 10 attempts / 5 min / IP
+  });
+  if (!limit.ok) return NextResponse.json({ unverified: false });
+
   let raw: unknown;
   try {
     raw = await req.json();

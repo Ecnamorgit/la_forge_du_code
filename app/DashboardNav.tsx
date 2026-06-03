@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import BrandLogo from "@/components/ui/BrandLogo";
+import AvatarBadge from "@/components/avatar/AvatarBadge";
+import { useUser } from "@/lib/use-user";
 
 interface DashboardNavProps {
   userName: string;
@@ -10,6 +12,7 @@ interface DashboardNavProps {
 
 export default function DashboardNav({ userName }: DashboardNavProps) {
   const { data: session } = useSession();
+  const { state } = useUser();
   const displayName = session?.user?.username || userName;
 
   return (
@@ -50,10 +53,20 @@ export default function DashboardNav({ userName }: DashboardNavProps) {
         </button>
         <Link
           href="/profil"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-nebula-cyan/50 bg-nebula-bg-panel/70 font-tech text-sm font-bold uppercase tracking-widest text-nebula-cyan transition-all hover:border-nebula-cyan hover:shadow-[0_0_10px_rgba(0,240,255,0.3)]"
+          className="block rounded-full transition-all hover:scale-105"
           aria-label={`Profil de ${displayName}`}
         >
-          {displayName.slice(0, 1).toUpperCase()}
+          {state.species ? (
+            <AvatarBadge
+              species={state.species}
+              uniformColor={state.uniformColor}
+              size={40}
+            />
+          ) : (
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-nebula-cyan/50 bg-nebula-bg-panel/70 font-tech text-sm font-bold uppercase tracking-widest text-nebula-cyan hover:border-nebula-cyan hover:shadow-[0_0_10px_rgba(0,240,255,0.3)]">
+              {displayName.slice(0, 1).toUpperCase()}
+            </span>
+          )}
         </Link>
       </div>
     </header>

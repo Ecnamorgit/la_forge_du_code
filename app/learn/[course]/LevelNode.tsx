@@ -6,7 +6,7 @@ import Link from "next/link";
 import { unlockAudio } from "@/lib/audio";
 import { useUser } from "@/lib/use-user";
 import { isChapterComplete } from "@/lib/user-store";
-import { getChaptersMeta } from "@/lib/courses-meta";
+import type { ChapterMetaFull } from "@/lib/courses-meta";
 
 export interface LevelNode {
   id: string;
@@ -38,6 +38,7 @@ interface LevelNodeProps {
   node: LevelNode;
   course: string;
   index: number;
+  chaptersMeta: ChapterMetaFull[];
 }
 
 type NodeStatus = "available" | "locked" | "completed";
@@ -46,12 +47,13 @@ export default function LevelNodeComponent({
   node,
   course,
   index,
+  chaptersMeta,
 }: LevelNodeProps) {
   const [hovered, setHovered] = useState(false);
   const { state } = useUser();
 
   const status: NodeStatus = useMemo(() => {
-    const chapters = getChaptersMeta(course);
+    const chapters = chaptersMeta;
     const metaIndex = chapters.findIndex((c) => c.slug === node.slug);
     if (metaIndex === -1) return "locked";
 

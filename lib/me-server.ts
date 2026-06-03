@@ -21,8 +21,12 @@ interface RawUserBundle {
   totalXp: number;
   streak: number;
   lastVisit: string;
+  lastVisitedCourse: string | null;
   joinedAt: Date;
   onboardedAt: Date | null;
+  species: string | null;
+  uniformColor: string | null;
+  role: string | null;
   badges: { badgeId: string }[];
   stepCompletions: {
     course: string;
@@ -46,10 +50,14 @@ function shape(bundle: RawUserBundle): UserState {
     totalXp: bundle.totalXp,
     streak: bundle.streak,
     lastVisit: bundle.lastVisit,
+    lastVisitedCourse: bundle.lastVisitedCourse,
     badges: bundle.badges.map((b) => b.badgeId),
     completedSteps,
     joinedAt: bundle.joinedAt.toISOString().slice(0, 10),
     onboardedAt: bundle.onboardedAt ? bundle.onboardedAt.toISOString() : null,
+    species: bundle.species,
+    uniformColor: bundle.uniformColor,
+    role: bundle.role,
   };
 }
 
@@ -58,8 +66,12 @@ const USER_BUNDLE_SELECT = {
   totalXp: true,
   streak: true,
   lastVisit: true,
+  lastVisitedCourse: true,
   joinedAt: true,
   onboardedAt: true,
+  species: true,
+  uniformColor: true,
+  role: true,
   badges: { select: { badgeId: true } },
   stepCompletions: {
     select: { course: true, chapter: true, stepIndex: true },
@@ -159,7 +171,7 @@ export async function completeStep(
   chapter: string,
   stepIndex: number
 ): Promise<CompleteStepResult> {
-  const chapterData = getChapterData(course, chapter);
+  const chapterData = await getChapterData(course, chapter);
   if (!chapterData) throw new InvalidStepError("Chapitre inconnu");
   if (stepIndex < 0 || stepIndex >= chapterData.steps.length) {
     throw new InvalidStepError("Index d'étape invalide");
@@ -201,7 +213,10 @@ export async function completeStep(
 
     const user = await tx.user.update({
       where: { id: userId },
-      data: { totalXp: { increment: stepXp } },
+      data: {
+        totalXp: { increment: stepXp },
+        lastVisitedCourse: course,
+      },
       select: { totalXp: true },
     });
 
@@ -268,6 +283,59 @@ export async function markOnboarded(userId: string): Promise<UserState> {
   return state;
 }
 
+export class InvalidAvatarError extends Error {}
+
+/**
+ * Save the user's avatar choices. Validates the 3 ids against the constant
+ * lists, then writes them in a single update. Idempotent — calling it twice
+ * with the same values is a no-op write.
+ */
+export async function setAvatar(
+  userId: string,
+  args: { species: string; uniformColor: string; role: string }
+): Promise<UserState> {
+  // Validation happens upstream in the route handler against the constants,
+  // but we keep the assertUserExists guard for stale-JWT protection.
+  await assertUserExists(userId);
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      species: args.species,
+      uniformColor: args.uniformColor,
+      role: args.role,
+    },
+  });
+
+  const state = await getUserState(userId);
+  if (!state) throw new UserNotFoundError();
+  return state;
+}
+
+/**
+ * Mark a course as the user's current focus. Called on chapter page mount
+ * so the dashboard's "Reprendre la mission" follows the user around even
+ * before they complete a step.
+ *
+ * Idempotent: if the slug is already set, the write is a no-op cost-wise
+ * (Prisma still issues an UPDATE, but the row content matches).
+ */
+export async function markCourseVisited(
+  userId: string,
+  course: string
+): Promise<UserState> {
+  await assertUserExists(userId);
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { lastVisitedCourse: course },
+  });
+
+  const state = await getUserState(userId);
+  if (!state) throw new UserNotFoundError();
+  return state;
+}
+
 export async function resetProgress(userId: string): Promise<UserState> {
   await assertUserExists(userId);
 
@@ -280,6 +348,7 @@ export async function resetProgress(userId: string): Promise<UserState> {
         totalXp: 0,
         streak: 1,
         lastVisit: todayIso(),
+        lastVisitedCourse: null,
       },
     }),
   ]);

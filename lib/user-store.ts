@@ -3,12 +3,20 @@ export interface UserState {
   totalXp: number;
   streak: number;
   lastVisit: string;
+  // Slug of the last course the user interacted with (visited or completed a
+  // step in). Used by the dashboard to pre-select the "active" cursus. Null
+  // until the user first opens any chapter.
+  lastVisitedCourse: string | null;
   badges: string[];
   // key = `${course}/${chapter}`, value = sorted step indexes done
   completedSteps: Record<string, number[]>;
   joinedAt: string;
   // ISO date string when the user dismissed the first-login briefing; null until then.
   onboardedAt: string | null;
+  // Avatar customization (purely cosmetic). All null until first /avatar visit.
+  species: string | null;
+  uniformColor: string | null;
+  role: string | null;
 }
 
 export const DEFAULT_USER: UserState = {
@@ -16,11 +24,20 @@ export const DEFAULT_USER: UserState = {
   totalXp: 0,
   streak: 1,
   lastVisit: "",
+  lastVisitedCourse: null,
   badges: [],
   completedSteps: {},
   joinedAt: "",
   onboardedAt: null,
+  species: null,
+  uniformColor: null,
+  role: null,
 };
+
+/** Has the user picked an avatar (all 3 fields populated) ? */
+export function hasAvatar(state: UserState): boolean {
+  return state.species !== null && state.uniformColor !== null && state.role !== null;
+}
 
 /** Compute level from XP (every 100 XP = 1 level) */
 export function levelFromXp(xp: number): number {
@@ -98,4 +115,57 @@ export function getNextStep(
     }
   }
   return null;
+}
+
+function countCompleted(state: UserState, courseSlug: string): number {
+  const prefix = `${courseSlug}/`;
+  let completed = 0;
+  for (const [key, steps] of Object.entries(state.completedSteps)) {
+    if (key.startsWith(prefix)) completed += steps.length;
+  }
+  return completed;
+}
+
+/**
+ * Pick the course the user is most likely working on right now.
+ *
+ * Strategy:
+ * 1. Prefer state.lastVisitedCourse if it's still valid (in the candidate list
+ *    and not 100 % completed). This handles "user just opened React, then went
+ *    back to the dashboard" — we want to show React.
+ * 2. Otherwise pick the candidate with the most completed steps that isn't
+ *    fully done (handles users who came back later with no fresh visit).
+ * 3. Otherwise fall back to the first slug given (a fresh user).
+ */
+export function getActiveCourseSlug(
+  state: UserState,
+  candidateSlugs: string[],
+  totalStepsByCourse: Record<string, number>
+): string {
+  if (candidateSlugs.length === 0) return "";
+
+  const validSet = new Set(candidateSlugs);
+
+  // (1) Honour the explicit lastVisitedCourse if it's still incomplete.
+  if (state.lastVisitedCourse && validSet.has(state.lastVisitedCourse)) {
+    const total = totalStepsByCourse[state.lastVisitedCourse] ?? 0;
+    const done = countCompleted(state, state.lastVisitedCourse);
+    if (total > 0 && done < total) return state.lastVisitedCourse;
+  }
+
+  // (2) Fall back to the most-progressed unfinished course.
+  let bestSlug = candidateSlugs[0];
+  let bestProgress = -1;
+  for (const slug of candidateSlugs) {
+    const total = totalStepsByCourse[slug] ?? 0;
+    if (total === 0) continue;
+    const done = countCompleted(state, slug);
+    if (done >= total) continue;
+    if (done > bestProgress) {
+      bestProgress = done;
+      bestSlug = slug;
+    }
+  }
+
+  return bestSlug;
 }

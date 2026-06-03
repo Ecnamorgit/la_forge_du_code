@@ -9,6 +9,8 @@ import { validators as chapitre7Validators } from "./chapitre-7";
 import { validators as chapitre8Validators } from "./chapitre-8";
 import { validators as chapitre9Validators } from "./chapitre-9";
 import { validators as chapitre10Validators } from "./chapitre-10";
+import { validators as chapitre11Validators } from "./chapitre-11";
+import { validators as chapitre12Validators } from "./chapitre-12";
 
 export const VALIDATORS_BY_CHAPTER: Record<string, Validator[]> = {
   "chapitre-1": chapitre1Validators,
@@ -21,4 +23,6 @@ export const VALIDATORS_BY_CHAPTER: Record<string, Validator[]> = {
   "chapitre-8": chapitre8Validators,
   "chapitre-9": chapitre9Validators,
   "chapitre-10": chapitre10Validators,
+  "chapitre-11": chapitre11Validators,
+  "chapitre-12": chapitre12Validators,
 };

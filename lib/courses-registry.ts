@@ -26,17 +26,45 @@ import { chapitre7 as jsCh7 } from "@/data/courses/javascript/chapitre-7";
 import { chapitre8 as jsCh8 } from "@/data/courses/javascript/chapitre-8";
 import { chapitre9 as jsCh9 } from "@/data/courses/javascript/chapitre-9";
 import { chapitre10 as jsCh10 } from "@/data/courses/javascript/chapitre-10";
+import { chapitre11 as jsCh11 } from "@/data/courses/javascript/chapitre-11";
+import { chapitre12 as jsCh12 } from "@/data/courses/javascript/chapitre-12";
+import { chapitre1 as reactCh1 } from "@/data/courses/react/chapitre-1";
+import { chapitre2 as reactCh2 } from "@/data/courses/react/chapitre-2";
+import { chapitre3 as reactCh3 } from "@/data/courses/react/chapitre-3";
+import { chapitre4 as reactCh4 } from "@/data/courses/react/chapitre-4";
+import { chapitre1 as tsCh1 } from "@/data/courses/typescript/chapitre-1";
+import { chapitre1 as gitCh1 } from "@/data/courses/git/chapitre-1";
+import { chapitre1 as sqlCh1 } from "@/data/courses/sql/chapitre-1";
+import { chapitre1 as nodejsCh1 } from "@/data/courses/nodejs/chapitre-1";
+import { chapitre1 as testsCh1 } from "@/data/courses/tests/chapitre-1";
+import { chapitre1 as devopsCh1 } from "@/data/courses/devops/chapitre-1";
+import { chapitre1 as mongodbCh1 } from "@/data/courses/mongodb/chapitre-1";
+import { chapitre1 as securityCh1 } from "@/data/courses/security/chapitre-1";
+import { chapitre1 as pythonCh1 } from "@/data/courses/python/chapitre-1";
+import { chapitre1 as algoCh1 } from "@/data/courses/algo/chapitre-1";
 import type { ChapterData } from "@/data/courses/html/types";
 
 function toMap(chapters: ChapterData[]): Record<string, ChapterData> {
   return Object.fromEntries(chapters.map((c) => [c.slug, c]));
 }
 
-/** Server-side lookup: full chapter data for a (course, chapter) pair. */
 const REGISTRY: Record<string, Record<string, ChapterData>> = {
   html: toMap([htmlCh1, htmlCh2, htmlCh3, htmlCh4, htmlCh5, htmlCh6, htmlCh7, htmlCh8]),
   css: toMap([cssCh1, cssCh2, cssCh3, cssCh4, cssCh5, cssCh6, cssCh7, cssCh8, cssCh9, cssCh10]),
-  javascript: toMap([jsCh1, jsCh2, jsCh3, jsCh4, jsCh5, jsCh6, jsCh7, jsCh8, jsCh9, jsCh10]),
+  javascript: toMap([
+    jsCh1, jsCh2, jsCh3, jsCh4, jsCh5, jsCh6, jsCh7, jsCh8, jsCh9, jsCh10, jsCh11, jsCh12,
+  ]),
+  react: toMap([reactCh1, reactCh2, reactCh3, reactCh4]),
+  typescript: toMap([tsCh1]),
+  git: toMap([gitCh1]),
+  sql: toMap([sqlCh1]),
+  nodejs: toMap([nodejsCh1]),
+  tests: toMap([testsCh1]),
+  devops: toMap([devopsCh1]),
+  mongodb: toMap([mongodbCh1]),
+  security: toMap([securityCh1]),
+  python: toMap([pythonCh1]),
+  algo: toMap([algoCh1]),
 };
 
 export function getChapterData(course: string, chapter: string): ChapterData | null {

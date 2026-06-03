@@ -8,7 +8,7 @@ export default async function ChapterPage({
   params: Promise<{ course: string; chapter: string }>;
 }) {
   const { course, chapter } = await params;
-  const chapterData = getChapterData(course, chapter);
+  const chapterData = await getChapterData(course, chapter);
 
   if (!chapterData) {
     notFound();

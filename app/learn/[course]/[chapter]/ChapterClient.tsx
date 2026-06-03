@@ -66,8 +66,14 @@ interface ChapterClientProps {
 }
 
 export default function ChapterClient({ course, chapter }: ChapterClientProps) {
-  const { state, completeStep } = useUser();
+  const { state, completeStep, markCourseVisited } = useUser();
   const validators = getValidators(course, chapter.slug);
+
+  // Tag this course as the user's current focus so the dashboard's
+  // "Reprendre la mission" picks it on next render. Fire-and-forget.
+  useEffect(() => {
+    void markCourseVisited(course);
+  }, [course, markCourseVisited]);
 
   // Derived from store
   const completedStepIndexes = useMemo(

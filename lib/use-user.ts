@@ -29,6 +29,19 @@ export interface UseUserReturn {
   reset: () => Promise<UserState>;
   /** Persist that the first-login briefing has been dismissed. */
   markOnboarded: () => Promise<UserState>;
+  /** Save / update the avatar (species + uniformColor + role). */
+  setAvatar: (choices: {
+    species: string;
+    uniformColor: string;
+    role: string;
+  }) => Promise<UserState>;
+  /**
+   * Mark a course as the user's current focus. Called by chapter pages on
+   * mount so the dashboard's "Reprendre la mission" follows the user.
+   * Fire-and-forget on the caller side: errors are swallowed silently because
+   * this is a non-critical UX nicety.
+   */
+  markCourseVisited: (course: string) => Promise<void>;
 }
 
 function toNetworkMessage(): string {
@@ -174,6 +187,48 @@ export function useUser(): UseUserReturn {
     return next;
   }, []);
 
+  const setAvatar = useCallback(
+    async (choices: { species: string; uniformColor: string; role: string }) => {
+      let res: Response;
+      try {
+        res = await fetch("/api/me/avatar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(choices),
+        });
+      } catch {
+        throw new Error(toNetworkMessage());
+      }
+      if (res.status === 401) {
+        void signOut({ callbackUrl: "/login" });
+        throw new Error("Session expiree. Reconnecte-toi.");
+      }
+      if (!res.ok) {
+        const err = await readJson<{ error?: string }>(res);
+        throw new Error(err.error ?? "Sauvegarde impossible");
+      }
+      const next = await readJson<UserState>(res);
+      setState(next);
+      return next;
+    },
+    []
+  );
+
+  const markCourseVisited = useCallback(async (course: string) => {
+    try {
+      const res = await fetch("/api/me/visit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ course }),
+      });
+      if (!res.ok) return;
+      const next = await readJson<UserState>(res);
+      setState(next);
+    } catch {
+      // Best-effort: silently ignore network / server hiccups.
+    }
+  }, []);
+
   const reset = useCallback(async () => {
     let res: Response;
     try {
@@ -205,5 +260,7 @@ export function useUser(): UseUserReturn {
     renameUser,
     reset,
     markOnboarded,
+    setAvatar,
+    markCourseVisited,
   };
 }

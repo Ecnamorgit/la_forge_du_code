@@ -7,7 +7,7 @@ export async function generateMetadata({
   params: Promise<{ course: string; chapter: string }>;
 }): Promise<Metadata> {
   const { course, chapter } = await params;
-  const data = getChapterData(course, chapter);
+  const data = await getChapterData(course, chapter);
 
   if (!data) {
     return {

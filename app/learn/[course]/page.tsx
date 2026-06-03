@@ -194,10 +194,222 @@ const JS_LEVELS: LevelNode[] = [
   },
 ];
 
+const REACT_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "PREMIER COMPOSANT",
+    subtitle: "Protocole 01 — Composants & props",
+    icon: "⚛",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 100,
+    x: 15,
+    y: 65,
+  },
+  {
+    id: "ch2",
+    slug: "chapitre-2",
+    title: "MEMOIRE REACTIVE",
+    subtitle: "Protocole 02 — useState",
+    icon: "🧠",
+    spriteRow: 1,
+    spriteFrame: 1,
+    size: 90,
+    x: 38,
+    y: 38,
+  },
+  {
+    id: "ch3",
+    slug: "chapitre-3",
+    title: "EFFETS DE BORD",
+    subtitle: "Protocole 03 — useEffect",
+    icon: "🔁",
+    spriteRow: 1,
+    spriteFrame: 3,
+    size: 90,
+    x: 62,
+    y: 62,
+  },
+  {
+    id: "ch4",
+    slug: "chapitre-4",
+    title: "NAVIGATION SPA",
+    subtitle: "Protocole 04 — React Router",
+    icon: "🗺",
+    spriteRow: 2,
+    spriteFrame: 0,
+    size: 110,
+    x: 88,
+    y: 30,
+  },
+];
+
+const TYPESCRIPT_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "BLINDAGE DU CODE",
+    subtitle: "Protocole 01 — Typage statique",
+    icon: "🛡",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 110,
+    x: 50,
+    y: 50,
+  },
+];
+
+const GIT_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "JOURNAL DE BORD",
+    subtitle: "Protocole 01 — Versions & collaboration",
+    icon: "🗂",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 110,
+    x: 50,
+    y: 50,
+  },
+];
+
+const SQL_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "ENTREPOT GALACTIQUE",
+    subtitle: "Protocole 01 — Bases de donnees relationnelles",
+    icon: "🗃",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 110,
+    x: 50,
+    y: 50,
+  },
+];
+
+const NODEJS_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "CENTRE DE COMMANDEMENT",
+    subtitle: "Protocole 01 — API Express",
+    icon: "🛸",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 110,
+    x: 50,
+    y: 50,
+  },
+];
+
+const TESTS_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "ASSURANCE QUALITE",
+    subtitle: "Protocole 01 — Vitest & Playwright",
+    icon: "✅",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 110,
+    x: 50,
+    y: 50,
+  },
+];
+
+const DEVOPS_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "MISE EN ORBITE",
+    subtitle: "Protocole 01 — Build, Vercel & Docker",
+    icon: "🚀",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 110,
+    x: 50,
+    y: 50,
+  },
+];
+
+const MONGODB_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "DEPOT FLEXIBLE",
+    subtitle: "Protocole 01 — MongoDB & NoSQL",
+    icon: "🍃",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 110,
+    x: 50,
+    y: 50,
+  },
+];
+
+const SECURITY_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "BLINDAGE ANTI-INTRUSION",
+    subtitle: "Protocole 01 — OWASP, XSS, SQLi, JWT",
+    icon: "🛡",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 110,
+    x: 50,
+    y: 50,
+  },
+];
+
+const PYTHON_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "LANGAGE SERPENT",
+    subtitle: "Protocole 01 — Fondamentaux Python",
+    icon: "🐍",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 110,
+    x: 50,
+    y: 50,
+  },
+];
+
+const ALGO_LEVELS: LevelNode[] = [
+  {
+    id: "ch1",
+    slug: "chapitre-1",
+    title: "CALCUL OPTIMAL",
+    subtitle: "Protocole 01 — Big-O, recursion, tris",
+    icon: "🧮",
+    spriteRow: 0,
+    spriteFrame: 0,
+    size: 110,
+    x: 50,
+    y: 50,
+  },
+];
+
 const LEVELS_BY_COURSE: Record<string, LevelNode[]> = {
   html: HTML_LEVELS,
   css: CSS_LEVELS,
   javascript: JS_LEVELS,
+  react: REACT_LEVELS,
+  typescript: TYPESCRIPT_LEVELS,
+  git: GIT_LEVELS,
+  sql: SQL_LEVELS,
+  nodejs: NODEJS_LEVELS,
+  tests: TESTS_LEVELS,
+  devops: DEVOPS_LEVELS,
+  mongodb: MONGODB_LEVELS,
+  security: SECURITY_LEVELS,
+  python: PYTHON_LEVELS,
+  algo: ALGO_LEVELS,
 };
 
 const COURSE_BACKGROUND = "/space-background-orange.webp";
@@ -213,7 +425,8 @@ export default async function CourseMapPage({
     notFound();
   }
 
-  const playableSlugs = new Set(getChaptersMeta(course).map((c) => c.slug));
+  const chaptersMeta = await getChaptersMeta(course);
+  const playableSlugs = new Set(chaptersMeta.map((c) => c.slug));
 
   return (
     <div className="relative h-full overflow-hidden">
@@ -293,6 +506,7 @@ export default async function CourseMapPage({
             node={node}
             course={course}
             index={i}
+            chaptersMeta={chaptersMeta}
           />
         ))}
       </div>

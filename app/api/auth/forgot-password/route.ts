@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { sendPasswordResetEmail } from "@/lib/email";
 import { createToken } from "@/lib/tokens";
+import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
   email: z.string().email().max(254),
@@ -13,6 +14,13 @@ const bodySchema = z.object({
  * Always returns 200 — never leaks whether the email exists in the system.
  */
 export async function POST(req: Request) {
+  // Throttle to prevent password-reset email spam / enumeration probing.
+  const limit = rateLimit(`forgot:${getClientIp(req)}`, {
+    limit: 5,
+    windowMs: 15 * 60 * 1000, // 5 requests / 15 min / IP
+  });
+  if (!limit.ok) return tooManyRequests(limit.retryAfter);
+
   let raw: unknown;
   try {
     raw = await req.json();
