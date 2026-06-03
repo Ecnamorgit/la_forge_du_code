@@ -8,28 +8,44 @@ import type { SpriteSheet } from "@/components/ui/Sprite";
  * should fall back to their emoji equivalents.
  */
 
-/** 32 mission icons (8 columns × 4 rows × 64×64 = 512×256). */
+// Layout contract for the artist + the wiring code. See docs/PIXEL_ART_GUIDE.md
+// for the full frame-index → meaning tables and palette.
+
+/**
+ * Course/mission icons. Frame order MUST follow COURSES_CATALOG
+ * (lib/courses-catalog.ts): 0=html, 1=css, 2=javascript, 3=react,
+ * 4=typescript, 5=git, 6=sql, 7=nodejs, 8=tests, 9=devops, 10=mongodb,
+ * 11=security, 12=python, 13=algo. Frames 14-31 reserved.
+ * Sheet: 8 columns × 4 rows × 64×64 = 512×256.
+ */
 export const MISSION_ICONS: SpriteSheet = {
   src: "/sprites/mission-icons.png",
-  frameWidth: 64,
-  frameHeight: 64,
+  frameWidth: 32,
+  frameHeight: 32,
   columns: 8,
 };
 
-/** 16 banner-victory icons (4 columns × 4 rows × 96×96 = 384×384). */
+/**
+ * Victory-banner icons (one per achievement archetype). See the BANNER enum in
+ * the guide. Sheet: 4 columns × 4 rows × 48×48 = 192×192.
+ */
 export const BANNER_ICONS: SpriteSheet = {
   src: "/sprites/banner-icons.png",
-  frameWidth: 96,
-  frameHeight: 96,
+  frameWidth: 48,
+  frameHeight: 48,
   columns: 4,
 };
 
-/** 16 badges (4 columns × 4 rows × 128×128 = 512×512). */
+/**
+ * Badge icons. Frame order MUST follow the ALL_BADGES array (app/profil/page.tsx),
+ * which itself must be kept in sync with BADGE_BY_CHAPTER (lib/courses-meta.ts).
+ * Sheet: 8 columns × N rows × 64×64 (e.g. 8×6 = 512×384 covers 48 badges).
+ */
 export const BADGE_ICONS: SpriteSheet = {
   src: "/sprites/badges.png",
-  frameWidth: 128,
-  frameHeight: 128,
-  columns: 4,
+  frameWidth: 64,
+  frameHeight: 64,
+  columns: 8,
 };
 
 /** Per-course chapter background. */

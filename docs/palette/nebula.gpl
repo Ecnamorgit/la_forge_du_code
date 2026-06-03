@@ -1,0 +1,27 @@
+GIMP Palette
+Name: Nebula Command
+Columns: 8
+# Palette source de verite, derivee de app/globals.css (:root).
+# Importable dans Aseprite (Palette > Load) et GIMP/Krita (.gpl).
+# Pour du pixel art propre : derive 2-3 valeurs (ombre/medium/lumiere) par teinte
+# a partir de ces couleurs de base, en gardant une source de lumiere constante.
+  3   6  13	bg-darkest
+  8  13  24	bg-dark
+ 12  18  32	bg-mid
+ 10  22  40	bg-panel
+  5  10  20	bg-editor
+ 26  39  68	border
+ 14  77 143	border-glow
+  0 240 255	cyan
+  0  77  85	cyan-dim
+255 107  44	orange
+107  45  19	orange-dim
+255  45  85	red
+102  18  36	red-dim
+  0 255 136	green
+  0  77  40	green-dim
+ 61 126 255	blue
+ 26  51 102	blue-dim
+200 214 229	text
+107 125 153	text-secondary
+ 42  58  85	text-dim
