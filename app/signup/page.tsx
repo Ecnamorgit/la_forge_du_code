@@ -9,6 +9,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -18,6 +19,17 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
     setEmailWarning(null);
+
+    // Client-side guards (the server re-validates everything).
+    if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+      setError("Le mot de passe doit contenir au moins une lettre et un chiffre.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
     setPending(true);
 
     try {
@@ -134,7 +146,7 @@ export default function SignupPage() {
                     onChange={setUsername}
                   />
                   <Field
-                    label="Mot de passe (min. 8 caractères)"
+                    label="Mot de passe (min. 8, lettre + chiffre)"
                     id="password"
                     type="password"
                     autoComplete="new-password"
@@ -143,6 +155,17 @@ export default function SignupPage() {
                     maxLength={128}
                     value={password}
                     onChange={setPassword}
+                  />
+                  <Field
+                    label="Confirme le mot de passe"
+                    id="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    maxLength={128}
+                    value={confirmPassword}
+                    onChange={setConfirmPassword}
                   />
 
                   {error && (

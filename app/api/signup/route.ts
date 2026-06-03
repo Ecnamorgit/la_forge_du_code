@@ -14,7 +14,12 @@ const signupSchema = z.object({
     .min(2)
     .max(16)
     .regex(/^[a-zA-Z0-9_-]+$/, "Lettres, chiffres, _ et - uniquement"),
-  password: z.string().min(8).max(128),
+  password: z
+    .string()
+    .min(8)
+    .max(128)
+    .regex(/[A-Za-z]/, "Le mot de passe doit contenir au moins une lettre")
+    .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre"),
 });
 
 export async function POST(request: Request) {
@@ -64,7 +69,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const hashed = await bcrypt.hash(password, 10);
+  // Cost 12: the 2026-recommended bcrypt work factor (also taught in the
+  // Security course). Slower than 10 but materially harder to brute-force.
+  const hashed = await bcrypt.hash(password, 12);
 
   const user = await prisma.user.create({
     data: {

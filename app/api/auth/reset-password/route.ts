@@ -7,7 +7,12 @@ import { TokenError, consumeToken } from "@/lib/tokens";
 
 const bodySchema = z.object({
   token: z.string().min(20).max(200),
-  password: z.string().min(8).max(128),
+  password: z
+    .string()
+    .min(8)
+    .max(128)
+    .regex(/[A-Za-z]/, "Le mot de passe doit contenir au moins une lettre")
+    .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre"),
 });
 
 export async function POST(req: Request) {
@@ -31,7 +36,7 @@ export async function POST(req: Request) {
       token: parsed.data.token,
       kind: "password_reset",
     });
-    const hashed = await bcrypt.hash(parsed.data.password, 10);
+    const hashed = await bcrypt.hash(parsed.data.password, 12);
     await prisma.user.update({
       where: { id: userId },
       data: {
