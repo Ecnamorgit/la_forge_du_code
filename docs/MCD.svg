@@ -1,0 +1,266 @@
+<svg viewBox="0 0 1460 1080" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">MCD CodeForge / Nebula Command</title>
+  <desc id="d">Modèle conceptuel de données Merise : utilisateurs, authentification, gamification et contenu pédagogique.</desc>
+
+  <rect x="0" y="0" width="1460" height="1080" fill="#f8fafc"/>
+
+  <!-- ===== TITLE ===== -->
+  <text x="40" y="46" font-size="26" font-weight="700" fill="#0f172a">MCD — CodeForge / Nebula Command</text>
+  <text x="40" y="72" font-size="14" fill="#475569">Modèle Conceptuel de Données (Merise) — base PostgreSQL + domaine pédagogique défini en code/données</text>
+
+  <!-- =========================================================
+       STYLE CONVENTIONS
+       blue  #1d4ed8  = persisté en base (Prisma / PostgreSQL)
+       violet #7c3aed = défini dans le code/données (TypeScript)
+       orange ovale   = association (verbe) + cardinalités (min,max)
+  ========================================================== -->
+
+  <!-- markers / line style defaults via <g> -->
+  <g stroke="#64748b" stroke-width="1.6" fill="none">
+    <!-- POSSEDE links -->
+    <line x1="266" y1="150" x2="300" y2="148"/>
+    <line x1="410" y1="146" x2="475" y2="330"/>
+    <!-- OUVRE links -->
+    <line x1="266" y1="300" x2="300" y2="300"/>
+    <line x1="410" y1="300" x2="475" y2="380"/>
+    <!-- GENERE links -->
+    <line x1="266" y1="432" x2="300" y2="432"/>
+    <line x1="410" y1="432" x2="475" y2="440"/>
+    <!-- DEBLOQUE links (User <-> Badge) -->
+    <line x1="560" y1="530" x2="585" y2="566"/>
+    <line x1="655" y1="604" x2="700" y2="640"/>
+    <!-- COMPLETE links (User <-> Etape) -->
+    <line x1="730" y1="470" x2="870" y2="556"/>
+    <line x1="992" y1="564" x2="1170" y2="620"/>
+    <!-- CONTIENT links (Cours <-> Chapitre) -->
+    <line x1="1277" y1="222" x2="1277" y2="222"/>
+    <!-- vertical cours->contient->chapitre -->
+    <line x1="1277" y1="222" x2="1277" y2="228"/>
+    <line x1="1277" y1="280" x2="1277" y2="292"/>
+    <!-- SE_COMPOSE links (Chapitre <-> Etape) -->
+    <line x1="1277" y1="462" x2="1277" y2="472"/>
+    <line x1="1277" y1="528" x2="1277" y2="542"/>
+    <!-- RECOMPENSE links (Chapitre <-> Badge) -->
+    <line x1="1200" y1="462" x2="1075" y2="566"/>
+    <line x1="955" y1="600" x2="842" y2="690"/>
+  </g>
+
+  <!-- ===================== AUTH ENTITIES (blue) ===================== -->
+  <!-- COMPTE -->
+  <g>
+    <rect x="41" y="90" width="225" height="140" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.8"/>
+    <rect x="41" y="90" width="225" height="28" rx="6" fill="#1d4ed8"/>
+    <rect x="41" y="104" width="225" height="14" fill="#1d4ed8"/>
+    <text x="153" y="109" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">COMPTE (Account)</text>
+    <text x="55" y="138" font-size="12.5" fill="#1e293b" text-decoration="underline"># id</text>
+    <text x="55" y="156" font-size="12.5" fill="#1e293b">provider · providerAccountId</text>
+    <text x="55" y="174" font-size="12.5" fill="#1e293b">type</text>
+    <text x="55" y="192" font-size="12.5" fill="#1e293b">access_token · refresh_token</text>
+    <text x="55" y="210" font-size="12.5" fill="#1e293b">expires_at · scope · id_token</text>
+    <text x="55" y="226" font-size="11.5" fill="#64748b">token_type · session_state</text>
+  </g>
+  <!-- SESSION -->
+  <g>
+    <rect x="41" y="255" width="225" height="90" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.8"/>
+    <rect x="41" y="255" width="225" height="28" rx="6" fill="#1d4ed8"/>
+    <rect x="41" y="269" width="225" height="14" fill="#1d4ed8"/>
+    <text x="153" y="274" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">SESSION</text>
+    <text x="55" y="303" font-size="12.5" fill="#1e293b" text-decoration="underline"># id</text>
+    <text x="55" y="321" font-size="12.5" fill="#1e293b">sessionToken ◆</text>
+    <text x="55" y="339" font-size="12.5" fill="#1e293b">expires</text>
+  </g>
+  <!-- JETON USAGE UNIQUE -->
+  <g>
+    <rect x="41" y="370" width="225" height="125" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.8"/>
+    <rect x="41" y="370" width="225" height="28" rx="6" fill="#1d4ed8"/>
+    <rect x="41" y="384" width="225" height="14" fill="#1d4ed8"/>
+    <text x="153" y="389" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">JETON_USAGE_UNIQUE</text>
+    <text x="55" y="418" font-size="12.5" fill="#1e293b" text-decoration="underline"># id</text>
+    <text x="55" y="436" font-size="12.5" fill="#1e293b">token ◆</text>
+    <text x="55" y="454" font-size="12.5" fill="#1e293b">kind (verify | reset)</text>
+    <text x="55" y="472" font-size="12.5" fill="#1e293b">expiresAt · usedAt</text>
+    <text x="55" y="490" font-size="12.5" fill="#1e293b">createdAt</text>
+  </g>
+  <!-- JETON VERIFICATION (isolated) -->
+  <g>
+    <rect x="41" y="525" width="225" height="92" rx="6" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.8" stroke-dasharray="5 3"/>
+    <rect x="41" y="525" width="225" height="28" rx="6" fill="#1d4ed8"/>
+    <rect x="41" y="539" width="225" height="14" fill="#1d4ed8"/>
+    <text x="153" y="544" font-size="12.5" font-weight="700" fill="#fff" text-anchor="middle">JETON_VERIFICATION</text>
+    <text x="55" y="573" font-size="12.5" fill="#1e293b">identifier</text>
+    <text x="55" y="591" font-size="12.5" fill="#1e293b">token ◆</text>
+    <text x="55" y="609" font-size="12.5" fill="#1e293b">expires</text>
+    <text x="153" y="632" font-size="10.5" fill="#94a3b8" text-anchor="middle" font-style="italic">Auth.js interne — non relié</text>
+  </g>
+
+  <!-- ===================== UTILISATEUR (blue, central) ===================== -->
+  <g>
+    <rect x="475" y="250" width="255" height="285" rx="7" fill="#eff6ff" stroke="#1d4ed8" stroke-width="2.4"/>
+    <rect x="475" y="250" width="255" height="30" rx="7" fill="#1d4ed8"/>
+    <rect x="475" y="265" width="255" height="15" fill="#1d4ed8"/>
+    <text x="602" y="271" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">UTILISATEUR (User)</text>
+    <text x="490" y="301" font-size="12.5" fill="#1e293b" text-decoration="underline"># id</text>
+    <text x="490" y="319" font-size="12.5" fill="#1e293b">email ◆</text>
+    <text x="490" y="337" font-size="12.5" fill="#1e293b">username ◆</text>
+    <text x="490" y="355" font-size="12.5" fill="#1e293b">password (haché)</text>
+    <text x="490" y="373" font-size="12.5" fill="#1e293b">name · image</text>
+    <text x="490" y="391" font-size="12.5" fill="#1e293b">emailVerified</text>
+    <text x="490" y="409" font-size="12.5" fill="#1e293b">totalXp · streak</text>
+    <text x="490" y="427" font-size="12.5" fill="#1e293b">lastVisit</text>
+    <text x="490" y="445" font-size="12.5" fill="#1e293b">lastVisitedCourse ↣ Cours</text>
+    <text x="490" y="463" font-size="12.5" fill="#1e293b">joinedAt · onboardedAt</text>
+    <text x="490" y="481" font-size="12.5" fill="#1e293b">species · uniformColor</text>
+    <text x="490" y="499" font-size="12.5" fill="#1e293b">role</text>
+    <text x="490" y="520" font-size="10.5" fill="#94a3b8" font-style="italic">avatar = species/uniformColor/role</text>
+  </g>
+
+  <!-- ===================== CONTENT ENTITIES (violet) ===================== -->
+  <!-- COURS -->
+  <g>
+    <rect x="1170" y="72" width="215" height="150" rx="6" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="1170" y="72" width="215" height="28" rx="6" fill="#7c3aed"/>
+    <rect x="1170" y="86" width="215" height="14" fill="#7c3aed"/>
+    <text x="1277" y="91" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">COURS (Course)</text>
+    <text x="1184" y="120" font-size="12.5" fill="#1e293b" text-decoration="underline"># slug</text>
+    <text x="1184" y="138" font-size="12.5" fill="#1e293b">title</text>
+    <text x="1184" y="156" font-size="12.5" fill="#1e293b">subtitle</text>
+    <text x="1184" y="174" font-size="12.5" fill="#1e293b">icon · color</text>
+    <text x="1184" y="192" font-size="12.5" fill="#1e293b">description</text>
+    <text x="1184" y="212" font-size="10.5" fill="#94a3b8" font-style="italic">14 cursus (catalogue)</text>
+  </g>
+  <!-- CHAPITRE -->
+  <g>
+    <rect x="1170" y="292" width="215" height="170" rx="6" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="1170" y="292" width="215" height="28" rx="6" fill="#7c3aed"/>
+    <rect x="1170" y="306" width="215" height="14" fill="#7c3aed"/>
+    <text x="1277" y="311" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">CHAPITRE (Chapter)</text>
+    <text x="1184" y="340" font-size="12.5" fill="#1e293b" text-decoration="underline"># slug</text>
+    <text x="1184" y="358" font-size="12.5" fill="#1e293b">tag</text>
+    <text x="1184" y="376" font-size="12.5" fill="#1e293b">title · subtitle</text>
+    <text x="1184" y="394" font-size="12.5" fill="#1e293b">totalXp</text>
+    <text x="1184" y="412" font-size="12.5" fill="#1e293b">completionBadge</text>
+    <text x="1184" y="430" font-size="12.5" fill="#1e293b">completionBadgeLabel</text>
+    <text x="1184" y="450" font-size="10.5" fill="#94a3b8" font-style="italic">data/courses/&lt;cours&gt;/chapitre-N.ts</text>
+  </g>
+  <!-- ETAPE -->
+  <g>
+    <rect x="1170" y="542" width="215" height="225" rx="6" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="1170" y="542" width="215" height="28" rx="6" fill="#7c3aed"/>
+    <rect x="1170" y="556" width="215" height="14" fill="#7c3aed"/>
+    <text x="1277" y="561" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">ÉTAPE (Step)</text>
+    <text x="1184" y="590" font-size="12.5" fill="#1e293b" text-decoration="underline"># stepIndex (position)</text>
+    <text x="1184" y="608" font-size="12.5" fill="#1e293b">narrator · hint</text>
+    <text x="1184" y="626" font-size="12.5" fill="#1e293b">briefing (title · content)</text>
+    <text x="1184" y="644" font-size="12.5" fill="#1e293b">objectives [ ]</text>
+    <text x="1184" y="662" font-size="12.5" fill="#1e293b">startCode · placeholder</text>
+    <text x="1184" y="680" font-size="12.5" fill="#1e293b">bannerXp · missionTag</text>
+    <text x="1184" y="698" font-size="12.5" fill="#1e293b">bannerIcon · missionIcon</text>
+    <text x="1184" y="724" font-size="11" fill="#64748b">+ validateur associé</text>
+    <text x="1184" y="742" font-size="10.5" fill="#94a3b8" font-style="italic">lib/validators/&lt;cours&gt;/chapitre-N.ts</text>
+  </g>
+
+  <!-- ===================== BADGE (violet, bottom-center) ===================== -->
+  <g>
+    <rect x="600" y="640" width="242" height="118" rx="6" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <rect x="600" y="640" width="242" height="28" rx="6" fill="#7c3aed"/>
+    <rect x="600" y="654" width="242" height="14" fill="#7c3aed"/>
+    <text x="721" y="659" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">BADGE</text>
+    <text x="614" y="688" font-size="12.5" fill="#1e293b" text-decoration="underline"># id</text>
+    <text x="614" y="706" font-size="12.5" fill="#1e293b">icon · label</text>
+    <text x="614" y="724" font-size="12.5" fill="#1e293b">description</text>
+    <text x="614" y="746" font-size="10.5" fill="#94a3b8" font-style="italic">lib/badges-catalog.ts</text>
+  </g>
+
+  <!-- ===================== ASSOCIATIONS (orange ovals) ===================== -->
+  <!-- POSSEDE -->
+  <g>
+    <ellipse cx="355" cy="146" rx="58" ry="29" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="355" y="151" font-size="12.5" font-weight="600" fill="#7c2d12" text-anchor="middle">POSSÈDE</text>
+  </g>
+  <!-- OUVRE -->
+  <g>
+    <ellipse cx="355" cy="300" rx="52" ry="27" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="355" y="305" font-size="12.5" font-weight="600" fill="#7c2d12" text-anchor="middle">OUVRE</text>
+  </g>
+  <!-- GENERE -->
+  <g>
+    <ellipse cx="355" cy="432" rx="54" ry="27" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="355" y="437" font-size="12.5" font-weight="600" fill="#7c2d12" text-anchor="middle">GÉNÈRE</text>
+  </g>
+  <!-- DEBLOQUE (carries unlockedAt) -->
+  <g>
+    <ellipse cx="620" cy="585" rx="66" ry="34" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="620" y="582" font-size="12.5" font-weight="600" fill="#7c2d12" text-anchor="middle">DÉBLOQUE</text>
+    <text x="620" y="598" font-size="10.5" fill="#9a3412" text-anchor="middle" font-style="italic">unlockedAt</text>
+  </g>
+  <!-- COMPLETE (carries completedAt) -->
+  <g>
+    <ellipse cx="930" cy="560" rx="66" ry="34" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="930" y="557" font-size="12.5" font-weight="600" fill="#7c2d12" text-anchor="middle">COMPLÈTE</text>
+    <text x="930" y="573" font-size="10.5" fill="#9a3412" text-anchor="middle" font-style="italic">completedAt</text>
+  </g>
+  <!-- CONTIENT -->
+  <g>
+    <ellipse cx="1277" cy="255" rx="56" ry="27" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="1277" y="260" font-size="12.5" font-weight="600" fill="#7c2d12" text-anchor="middle">CONTIENT</text>
+  </g>
+  <!-- SE_COMPOSE -->
+  <g>
+    <ellipse cx="1277" cy="500" rx="62" ry="28" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="1277" y="505" font-size="12" font-weight="600" fill="#7c2d12" text-anchor="middle">SE_COMPOSE</text>
+  </g>
+  <!-- RECOMPENSE -->
+  <g>
+    <ellipse cx="1015" cy="583" rx="64" ry="29" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="1015" y="588" font-size="12" font-weight="600" fill="#7c2d12" text-anchor="middle">RÉCOMPENSE</text>
+  </g>
+
+  <!-- ===================== CARDINALITIES (halo text) ===================== -->
+  <g font-size="11.5" font-weight="700" fill="#0f172a" stroke="#f8fafc" stroke-width="3" paint-order="stroke" text-anchor="middle">
+    <!-- POSSEDE -->
+    <text x="284" y="140">1,1</text>
+    <text x="452" y="270">0,n</text>
+    <!-- OUVRE -->
+    <text x="284" y="292">1,1</text>
+    <text x="452" y="340">0,n</text>
+    <!-- GENERE -->
+    <text x="284" y="424">1,1</text>
+    <text x="452" y="438">0,n</text>
+    <!-- DEBLOQUE -->
+    <text x="556" y="540">0,n</text>
+    <text x="690" y="632">0,n</text>
+    <!-- COMPLETE -->
+    <text x="760" y="486">0,n</text>
+    <text x="1140" y="612">0,n</text>
+    <!-- CONTIENT -->
+    <text x="1300" y="216">1,n</text>
+    <text x="1300" y="290">1,1</text>
+    <!-- SE_COMPOSE -->
+    <text x="1300" y="460">1,n</text>
+    <text x="1300" y="540">1,1</text>
+    <!-- RECOMPENSE -->
+    <text x="1140" y="476">1,1</text>
+    <text x="864" y="676">0,1</text>
+  </g>
+
+  <!-- ===================== LEGEND ===================== -->
+  <g>
+    <rect x="41" y="820" width="700" height="210" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <text x="61" y="850" font-size="15" font-weight="700" fill="#0f172a">Légende</text>
+
+    <rect x="61" y="866" width="26" height="18" rx="3" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.8"/>
+    <text x="98" y="880" font-size="12.5" fill="#1e293b">Entité persistée en base — PostgreSQL / Prisma (prisma/schema.prisma)</text>
+
+    <rect x="61" y="892" width="26" height="18" rx="3" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.8"/>
+    <text x="98" y="906" font-size="12.5" fill="#1e293b">Entité du domaine définie en code/données — TypeScript (data/courses, lib/*)</text>
+
+    <ellipse cx="74" cy="930" rx="14" ry="9" fill="#fff7ed" stroke="#ea580c" stroke-width="1.8"/>
+    <text x="98" y="934" font-size="12.5" fill="#1e293b">Association (verbe) — cardinalités (min,max) lues à chaque extrémité</text>
+
+    <text x="61" y="960" font-size="12.5" fill="#1e293b"><tspan font-weight="700"># </tspan>identifiant · <tspan font-weight="700">◆ </tspan>contrainte d'unicité · <tspan font-weight="700">↣ </tspan>référence faible par slug (non FK)</text>
+
+    <text x="61" y="984" font-size="12" fill="#475569"><tspan font-weight="700" fill="#7c2d12">DÉBLOQUE</tspan> = table d'association physique <tspan font-style="italic">UserBadge</tspan> (porte unlockedAt).</text>
+    <text x="61" y="1004" font-size="12" fill="#475569"><tspan font-weight="700" fill="#7c2d12">COMPLÈTE</tspan> = table d'association physique <tspan font-style="italic">StepCompletion</tspan> (course, chapter, stepIndex, completedAt).</text>
+    <text x="61" y="1024" font-size="12" fill="#475569">COURS / CHAPITRE / ÉTAPE / BADGE ne sont pas en base : ce sont des données statiques du code.</text>
+  </g>
+</svg>

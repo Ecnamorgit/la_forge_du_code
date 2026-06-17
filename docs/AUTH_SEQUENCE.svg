@@ -1,0 +1,93 @@
+<svg viewBox="0 0 1320 910" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">Diagramme de séquence — authentification</title>
+  <desc id="d">Flux d'inscription, de vérification d'email et de connexion entre l'apprenant, l'application, Auth.js, PostgreSQL et Resend.</desc>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#334155"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1320" height="910" fill="#f8fafc"/>
+  <text x="40" y="44" font-size="24" font-weight="700" fill="#0f172a">Authentification — diagramme de séquence</text>
+  <text x="40" y="69" font-size="13.5" fill="#475569">Inscription → vérification d'email → connexion</text>
+
+  <!-- ===== GROUP BANDS ===== -->
+  <rect x="40" y="185" width="1240" height="288" rx="8" fill="#eff6ff" opacity="0.6"/>
+  <rect x="46" y="191" width="150" height="22" rx="4" fill="#1d4ed8"/><text x="121" y="207" font-size="11.5" font-weight="700" fill="#fff" text-anchor="middle">1 · INSCRIPTION</text>
+  <rect x="40" y="481" width="1240" height="165" rx="8" fill="#ecfeff" opacity="0.7"/>
+  <rect x="46" y="487" width="160" height="22" rx="4" fill="#0e7490"/><text x="126" y="503" font-size="11.5" font-weight="700" fill="#fff" text-anchor="middle">2 · VÉRIFICATION</text>
+  <rect x="40" y="654" width="1240" height="205" rx="8" fill="#f5f3ff" opacity="0.7"/>
+  <rect x="46" y="660" width="150" height="22" rx="4" fill="#7c3aed"/><text x="121" y="676" font-size="11.5" font-weight="700" fill="#fff" text-anchor="middle">3 · CONNEXION</text>
+
+  <!-- ===== LIFELINES ===== -->
+  <g>
+    <line x1="130" y1="144" x2="130" y2="870" stroke="#cbd5e1" stroke-width="1.4" stroke-dasharray="4 4"/>
+    <line x1="430" y1="144" x2="430" y2="870" stroke="#cbd5e1" stroke-width="1.4" stroke-dasharray="4 4"/>
+    <line x1="690" y1="144" x2="690" y2="870" stroke="#cbd5e1" stroke-width="1.4" stroke-dasharray="4 4"/>
+    <line x1="950" y1="144" x2="950" y2="870" stroke="#cbd5e1" stroke-width="1.4" stroke-dasharray="4 4"/>
+    <line x1="1190" y1="144" x2="1190" y2="870" stroke="#cbd5e1" stroke-width="1.4" stroke-dasharray="4 4"/>
+  </g>
+  <!-- actor heads -->
+  <g font-size="12.5" font-weight="700" fill="#0f172a" text-anchor="middle">
+    <rect x="48" y="100" width="164" height="44" rx="6" fill="#fff" stroke="#475569" stroke-width="1.5"/><text x="130" y="120">Apprenant</text><text x="130" y="136" font-size="10.5" font-weight="400" fill="#64748b">(navigateur)</text>
+    <rect x="350" y="100" width="160" height="44" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/><text x="430" y="120">App — Routes API</text><text x="430" y="136" font-size="10.5" font-weight="400" fill="#64748b">Next.js</text>
+    <rect x="618" y="100" width="144" height="44" rx="6" fill="#fff" stroke="#0e7490" stroke-width="1.5"/><text x="690" y="126">Auth.js</text>
+    <rect x="878" y="100" width="144" height="44" rx="6" fill="#fff" stroke="#7c3aed" stroke-width="1.5"/><text x="950" y="126">PostgreSQL</text>
+    <rect x="1120" y="100" width="140" height="44" rx="6" fill="#fff" stroke="#7c3aed" stroke-width="1.5"/><text x="1190" y="126">Resend</text>
+  </g>
+
+  <!-- ===== MESSAGES ===== -->
+  <g stroke="#334155" stroke-width="1.6" marker-end="url(#a)">
+    <line x1="130" y1="227" x2="428" y2="227"/>
+    <line x1="430" y1="300" x2="948" y2="300"/>
+    <line x1="430" y1="373" x2="948" y2="373"/>
+    <line x1="430" y1="408" x2="948" y2="408"/>
+    <line x1="430" y1="443" x2="1188" y2="443"/>
+    <line x1="130" y1="542" x2="428" y2="542"/>
+    <line x1="430" y1="577" x2="948" y2="577"/>
+    <line x1="430" y1="612" x2="948" y2="612"/>
+    <line x1="130" y1="711" x2="688" y2="711"/>
+    <line x1="690" y1="784" x2="948" y2="784"/>
+  </g>
+  <!-- return (dashed) -->
+  <g stroke="#64748b" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#a)">
+    <line x1="430" y1="465" x2="132" y2="465"/>
+    <line x1="430" y1="634" x2="132" y2="634"/>
+    <line x1="690" y1="848" x2="132" y2="848"/>
+  </g>
+  <!-- self calls (loops) -->
+  <g stroke="#334155" stroke-width="1.5" fill="none" marker-end="url(#a)">
+    <path d="M430,255 h30 v16 h-28"/>
+    <path d="M430,328 h30 v16 h-28"/>
+    <path d="M690,739 h30 v16 h-28"/>
+    <path d="M690,812 h30 v16 h-28"/>
+  </g>
+
+  <!-- ===== LABELS ===== -->
+  <g font-size="11.5" fill="#1e293b">
+    <text x="279" y="221" text-anchor="middle">POST /api/signup (email, pseudo, mdp)</text>
+    <text x="468" y="252">rate-limit IP + validation Zod</text>
+    <text x="689" y="294" text-anchor="middle">vérifier unicité (email, pseudo)</text>
+    <text x="468" y="325">bcrypt.hash(mdp, coût 12)</text>
+    <text x="689" y="367" text-anchor="middle">créer User — emailVerified = null</text>
+    <text x="689" y="402" text-anchor="middle">créer token email_verify (TTL 24h)</text>
+    <text x="809" y="437" text-anchor="middle">envoyer email de vérification</text>
+  </g>
+  <g font-size="11.5" fill="#475569">
+    <text x="281" y="459" text-anchor="middle">200 — « Vérifie ton email »</text>
+  </g>
+  <g font-size="11.5" fill="#1e293b">
+    <text x="279" y="536" text-anchor="middle">GET /verify-email/[token]</text>
+    <text x="689" y="571" text-anchor="middle">consommer token (atomique, usage unique)</text>
+    <text x="689" y="606" text-anchor="middle">User.emailVerified = maintenant</text>
+  </g>
+  <g font-size="11.5" fill="#475569">
+    <text x="281" y="628" text-anchor="middle">redirection → /login</text>
+  </g>
+  <g font-size="11.5" fill="#1e293b">
+    <text x="409" y="705" text-anchor="middle">signIn(email, mdp)</text>
+    <text x="728" y="736">rate-limit (avant bcrypt)</text>
+    <text x="819" y="778" text-anchor="middle">findUnique(email)</text>
+    <text x="728" y="809">bcrypt.compare + contrôle emailVerified</text>
+  </g>
+  <g font-size="11.5" fill="#475569">
+    <text x="411" y="842" text-anchor="middle">cookie session JWT → /dashboard</text>
+  </g>
+</svg>

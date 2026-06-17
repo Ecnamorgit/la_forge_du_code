@@ -1,0 +1,114 @@
+<svg viewBox="0 0 1400 640" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">Architecture technique CodeForge</title>
+  <desc id="d">Architecture en trois couches : navigateur client, serveur Next.js, données et services externes.</desc>
+  <defs>
+    <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1400" height="640" fill="#f8fafc"/>
+  <text x="40" y="46" font-size="25" font-weight="700" fill="#0f172a">Architecture technique — CodeForge / Nebula Command</text>
+  <text x="40" y="72" font-size="14" fill="#475569">Next.js 16 (App Router) · Auth.js v5 · Prisma + PostgreSQL · Resend</text>
+
+  <rect x="40" y="92" width="360" height="510" rx="10" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.6"/>
+  <text x="220" y="120" font-size="15" font-weight="700" fill="#1d4ed8" text-anchor="middle">NAVIGATEUR (client)</text>
+
+  <rect x="440" y="92" width="548" height="510" rx="10" fill="#ecfeff" stroke="#0e7490" stroke-width="1.6"/>
+  <text x="714" y="120" font-size="15" font-weight="700" fill="#0e7490" text-anchor="middle">SERVEUR — Next.js 16</text>
+
+  <rect x="1028" y="92" width="332" height="510" rx="10" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.6"/>
+  <text x="1194" y="120" font-size="15" font-weight="700" fill="#7c3aed" text-anchor="middle">DONNÉES &amp; SERVICES</text>
+
+  <g>
+    <rect x="64" y="150" width="312" height="60" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+    <text x="220" y="175" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">Pages &amp; UI</text>
+    <text x="220" y="195" font-size="11.5" fill="#475569" text-anchor="middle">App Router · React 19 · Server/Client Components</text>
+  </g>
+  <g>
+    <rect x="64" y="232" width="312" height="56" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+    <text x="220" y="255" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">Éditeur Monaco</text>
+    <text x="220" y="274" font-size="11.5" fill="#475569" text-anchor="middle">chargé depuis le CDN jsdelivr</text>
+  </g>
+  <g>
+    <rect x="64" y="320" width="312" height="74" rx="6" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="220" y="346" font-size="13" font-weight="700" fill="#7c2d12" text-anchor="middle">Sandbox JS — iframe « origine null »</text>
+    <text x="220" y="366" font-size="11.5" fill="#9a3412" text-anchor="middle">exécute le code étudiant, isolé de l'app</text>
+    <text x="220" y="383" font-size="11.5" fill="#9a3412" text-anchor="middle">console + localStorage simulés · timeout 3s</text>
+  </g>
+  <g>
+    <rect x="64" y="410" width="312" height="56" rx="6" fill="#fff" stroke="#1d4ed8" stroke-width="1.5"/>
+    <text x="220" y="433" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">Aperçu HTML/CSS — iframe sandbox</text>
+    <text x="220" y="452" font-size="11.5" fill="#475569" text-anchor="middle">rendu visuel isolé</text>
+  </g>
+  <text x="220" y="500" font-size="11.5" fill="#64748b" text-anchor="middle" font-style="italic">Exécution du code étudiant :</text>
+  <text x="220" y="517" font-size="11.5" fill="#64748b" text-anchor="middle" font-style="italic">100 % navigateur, aucun backend d'exécution</text>
+
+  <g>
+    <rect x="476" y="150" width="488" height="52" rx="6" fill="#fff" stroke="#0e7490" stroke-width="1.5"/>
+    <text x="720" y="172" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">Middleware — proxy.ts</text>
+    <text x="720" y="190" font-size="11.5" fill="#475569" text-anchor="middle">garde des routes protégées · redirections auth</text>
+  </g>
+  <g>
+    <rect x="476" y="230" width="232" height="66" rx="6" fill="#fff" stroke="#0e7490" stroke-width="1.5"/>
+    <text x="592" y="255" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">Server Components</text>
+    <text x="592" y="274" font-size="11.5" fill="#475569" text-anchor="middle">&amp; Pages (SSR)</text>
+  </g>
+  <g>
+    <rect x="732" y="230" width="232" height="66" rx="6" fill="#fff" stroke="#0e7490" stroke-width="1.5"/>
+    <text x="848" y="255" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">Routes API REST</text>
+    <text x="848" y="274" font-size="11.5" fill="#475569" text-anchor="middle">/api/signup · /api/auth/* · /api/me/*</text>
+  </g>
+  <g>
+    <rect x="476" y="324" width="488" height="58" rx="6" fill="#fff" stroke="#0e7490" stroke-width="1.5"/>
+    <text x="720" y="348" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">Auth.js v5 (NextAuth)</text>
+    <text x="720" y="367" font-size="11.5" fill="#475569" text-anchor="middle">Credentials + bcrypt (coût 12) · sessions JWT</text>
+  </g>
+  <g>
+    <rect x="476" y="410" width="488" height="58" rx="6" fill="#fff" stroke="#0e7490" stroke-width="1.5"/>
+    <text x="720" y="434" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">Bibliothèques serveur — lib/</text>
+    <text x="720" y="453" font-size="11.5" fill="#475569" text-anchor="middle">tokens · rate-limit · email · validators</text>
+  </g>
+  <g>
+    <rect x="476" y="496" width="488" height="56" rx="6" fill="#fff" stroke="#0e7490" stroke-width="1.5"/>
+    <text x="720" y="519" font-size="13" font-weight="600" fill="#0f172a" text-anchor="middle">lib/db — Prisma + pool pg</text>
+    <text x="720" y="538" font-size="11.5" fill="#475569" text-anchor="middle">accès base, singleton en dev</text>
+  </g>
+
+  <g>
+    <rect x="1052" y="200" width="284" height="120" rx="6" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+    <rect x="1052" y="200" width="284" height="26" rx="6" fill="#7c3aed"/>
+    <rect x="1052" y="214" width="284" height="12" fill="#7c3aed"/>
+    <text x="1194" y="219" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">PostgreSQL</text>
+    <text x="1194" y="252" font-size="11.5" fill="#475569" text-anchor="middle">via @prisma/adapter-pg</text>
+    <text x="1194" y="274" font-size="11.5" fill="#475569" text-anchor="middle">User · OneTimeToken · Account</text>
+    <text x="1194" y="294" font-size="11.5" fill="#475569" text-anchor="middle">Session · UserBadge · StepCompletion</text>
+    <text x="1194" y="313" font-size="10.5" fill="#94a3b8" text-anchor="middle" font-style="italic">pooler Supabase / Neon en prod</text>
+  </g>
+  <g>
+    <rect x="1052" y="430" width="284" height="80" rx="6" fill="#fff" stroke="#7c3aed" stroke-width="1.6"/>
+    <text x="1194" y="463" font-size="13" font-weight="700" fill="#0f172a" text-anchor="middle">Resend</text>
+    <text x="1194" y="484" font-size="11.5" fill="#475569" text-anchor="middle">emails transactionnels</text>
+    <text x="1194" y="501" font-size="11.5" fill="#475569" text-anchor="middle">vérification · reset mot de passe</text>
+  </g>
+
+  <g stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#arr)">
+    <line x1="376" y1="176" x2="474" y2="176"/>
+    <line x1="606" y1="202" x2="592" y2="228"/>
+    <line x1="834" y1="202" x2="848" y2="228"/>
+    <line x1="848" y1="296" x2="800" y2="322"/>
+    <line x1="720" y1="382" x2="720" y2="408"/>
+    <line x1="720" y1="468" x2="720" y2="494"/>
+    <line x1="964" y1="524" x2="1050" y2="300"/>
+    <line x1="930" y1="439" x2="1050" y2="463"/>
+  </g>
+  <!-- Pages -> db routed through left gutter (dashed) -->
+  <polyline points="476,290 458,290 458,524 474,524" fill="none" stroke="#94a3b8" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+
+  <g font-size="11" font-weight="600" fill="#334155" stroke="#f8fafc" stroke-width="3" paint-order="stroke">
+    <text x="421" y="168">HTTPS</text>
+    <text x="1016" y="400">SQL</text>
+    <text x="978" y="436">email API</text>
+    <text x="430" y="412" fill="#64748b" transform="rotate(-90 430 412)">lecture SSR</text>
+  </g>
+</svg>

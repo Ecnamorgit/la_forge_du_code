@@ -1,0 +1,146 @@
+<svg viewBox="0 0 1480 1090" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
+  <title id="t">MLD relationnel CodeForge / Nebula Command</title>
+  <desc id="d">Modèle logique de données : tables PostgreSQL avec clés primaires, clés étrangères et contraintes d'unicité.</desc>
+
+  <rect x="0" y="0" width="1480" height="1090" fill="#f8fafc"/>
+
+  <text x="40" y="46" font-size="26" font-weight="700" fill="#0f172a">MLD relationnel — CodeForge / Nebula Command</text>
+  <text x="40" y="72" font-size="14" fill="#475569">Modèle Logique de Données — schéma relationnel PostgreSQL (Prisma). PK = clé primaire · FK = clé étrangère · U = unique</text>
+
+  <g stroke="#0e7490" stroke-width="1.8" fill="none">
+    <line x1="335" y1="131" x2="380" y2="401"/>
+    <line x1="910" y1="153" x2="660" y2="401"/>
+    <line x1="335" y1="553" x2="380" y2="553"/>
+    <line x1="430" y1="881" x2="445" y2="744"/>
+    <line x1="900" y1="881" x2="610" y2="744"/>
+  </g>
+  <g font-size="13" font-weight="700" fill="#0e7490" stroke="#f8fafc" stroke-width="3" paint-order="stroke">
+    <text x="348" y="124">N</text><text x="362" y="396">1</text>
+    <text x="896" y="146">N</text><text x="678" y="396">1</text>
+    <text x="346" y="546">N</text><text x="372" y="546">1</text>
+    <text x="414" y="874">N</text><text x="452" y="738">1</text>
+    <text x="884" y="874">N</text><text x="594" y="738">1</text>
+  </g>
+
+  <g transform="translate(60,0)">
+    <rect x="320" y="360" width="280" height="384" rx="7" fill="#ffffff" stroke="#0e7490" stroke-width="2.6"/>
+    <rect x="320" y="360" width="280" height="30" rx="7" fill="#0e7490"/>
+    <rect x="320" y="375" width="280" height="15" fill="#0e7490"/>
+    <text x="460" y="381" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">User</text>
+    <text x="334" y="406" font-size="12.5" font-weight="700" fill="#0f172a" text-decoration="underline">id</text><text x="586" y="406" font-size="10.5" font-weight="700" fill="#0e7490" text-anchor="end">PK</text>
+    <text x="334" y="428" font-size="12.5" fill="#1e293b">email</text><text x="586" y="428" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">U</text>
+    <text x="334" y="450" font-size="12.5" fill="#1e293b">username</text><text x="586" y="450" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">U</text>
+    <text x="334" y="472" font-size="12.5" fill="#1e293b">password</text>
+    <text x="334" y="494" font-size="12.5" fill="#1e293b">name</text>
+    <text x="334" y="516" font-size="12.5" fill="#1e293b">image</text>
+    <text x="334" y="538" font-size="12.5" fill="#1e293b">emailVerified</text>
+    <text x="334" y="560" font-size="12.5" fill="#1e293b">joinedAt</text>
+    <text x="334" y="582" font-size="12.5" fill="#1e293b">totalXp</text>
+    <text x="334" y="604" font-size="12.5" fill="#1e293b">streak</text>
+    <text x="334" y="626" font-size="12.5" fill="#1e293b">lastVisit</text>
+    <text x="334" y="648" font-size="12.5" fill="#1e293b">lastVisitedCourse</text>
+    <text x="334" y="670" font-size="12.5" fill="#1e293b">onboardedAt</text>
+    <text x="334" y="692" font-size="12.5" fill="#1e293b">species</text>
+    <text x="334" y="714" font-size="12.5" fill="#1e293b">uniformColor</text>
+    <text x="334" y="736" font-size="12.5" fill="#1e293b">role</text>
+  </g>
+
+  <g>
+    <rect x="70" y="70" width="265" height="294" rx="6" fill="#ffffff" stroke="#0e7490" stroke-width="1.8"/>
+    <rect x="70" y="70" width="265" height="28" rx="6" fill="#0e7490"/>
+    <rect x="70" y="84" width="265" height="14" fill="#0e7490"/>
+    <text x="202" y="89" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Account</text>
+    <text x="84" y="116" font-size="12.5" font-weight="700" fill="#0f172a" text-decoration="underline">id</text><text x="322" y="116" font-size="10.5" font-weight="700" fill="#0e7490" text-anchor="end">PK</text>
+    <rect x="71" y="120" width="263" height="22" fill="#fef3c7"/>
+    <text x="84" y="136" font-size="12.5" fill="#1e293b">userId</text><text x="322" y="136" font-size="10.5" font-weight="700" fill="#92400e" text-anchor="end">FK → User</text>
+    <text x="84" y="158" font-size="12.5" fill="#1e293b">type</text>
+    <text x="84" y="180" font-size="12.5" fill="#1e293b">provider</text><text x="322" y="180" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">U*</text>
+    <text x="84" y="202" font-size="12.5" fill="#1e293b">providerAccountId</text><text x="322" y="202" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">U*</text>
+    <text x="84" y="224" font-size="12.5" fill="#1e293b">refresh_token</text>
+    <text x="84" y="246" font-size="12.5" fill="#1e293b">access_token</text>
+    <text x="84" y="268" font-size="12.5" fill="#1e293b">expires_at</text>
+    <text x="84" y="290" font-size="12.5" fill="#1e293b">token_type</text>
+    <text x="84" y="312" font-size="12.5" fill="#1e293b">scope</text>
+    <text x="84" y="334" font-size="12.5" fill="#1e293b">id_token</text>
+    <text x="84" y="356" font-size="12.5" fill="#1e293b">session_state</text>
+  </g>
+  <text x="84" y="380" font-size="10.5" fill="#94a3b8" font-style="italic">U* = UNIQUE(provider, providerAccountId)</text>
+
+  <g>
+    <rect x="910" y="70" width="240" height="118" rx="6" fill="#ffffff" stroke="#0e7490" stroke-width="1.8"/>
+    <rect x="910" y="70" width="240" height="28" rx="6" fill="#0e7490"/>
+    <rect x="910" y="84" width="240" height="14" fill="#0e7490"/>
+    <text x="1030" y="89" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Session</text>
+    <text x="924" y="116" font-size="12.5" font-weight="700" fill="#0f172a" text-decoration="underline">id</text><text x="1137" y="116" font-size="10.5" font-weight="700" fill="#0e7490" text-anchor="end">PK</text>
+    <text x="924" y="138" font-size="12.5" fill="#1e293b">sessionToken</text><text x="1137" y="138" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">U</text>
+    <rect x="911" y="142" width="238" height="22" fill="#fef3c7"/>
+    <text x="924" y="158" font-size="12.5" fill="#1e293b">userId</text><text x="1137" y="158" font-size="10.5" font-weight="700" fill="#92400e" text-anchor="end">FK → User</text>
+    <text x="924" y="180" font-size="12.5" fill="#1e293b">expires</text>
+  </g>
+
+  <g>
+    <rect x="1200" y="70" width="235" height="118" rx="6" fill="#ffffff" stroke="#0e7490" stroke-width="1.8" stroke-dasharray="5 3"/>
+    <rect x="1200" y="70" width="235" height="28" rx="6" fill="#0e7490"/>
+    <rect x="1200" y="84" width="235" height="14" fill="#0e7490"/>
+    <text x="1317" y="89" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">VerificationToken</text>
+    <text x="1214" y="116" font-size="12.5" font-weight="700" fill="#0f172a" text-decoration="underline">identifier</text><text x="1421" y="116" font-size="10.5" font-weight="700" fill="#0e7490" text-anchor="end">PK*</text>
+    <text x="1214" y="138" font-size="12.5" font-weight="700" fill="#0f172a" text-decoration="underline">token</text><text x="1421" y="138" font-size="10.5" font-weight="700" fill="#0e7490" text-anchor="end">PK* / U</text>
+    <text x="1214" y="160" font-size="12.5" fill="#1e293b">expires</text>
+    <text x="1214" y="182" font-size="10" fill="#94a3b8" font-style="italic">PK* = composite (Auth.js, non relié)</text>
+  </g>
+
+  <g>
+    <rect x="70" y="470" width="265" height="184" rx="6" fill="#ffffff" stroke="#0e7490" stroke-width="1.8"/>
+    <rect x="70" y="470" width="265" height="28" rx="6" fill="#0e7490"/>
+    <rect x="70" y="484" width="265" height="14" fill="#0e7490"/>
+    <text x="202" y="489" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">OneTimeToken</text>
+    <text x="84" y="516" font-size="12.5" font-weight="700" fill="#0f172a" text-decoration="underline">id</text><text x="322" y="516" font-size="10.5" font-weight="700" fill="#0e7490" text-anchor="end">PK</text>
+    <text x="84" y="538" font-size="12.5" fill="#1e293b">token</text><text x="322" y="538" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">U</text>
+    <rect x="71" y="542" width="263" height="22" fill="#fef3c7"/>
+    <text x="84" y="558" font-size="12.5" fill="#1e293b">userId</text><text x="322" y="558" font-size="10.5" font-weight="700" fill="#92400e" text-anchor="end">FK → User</text>
+    <text x="84" y="580" font-size="12.5" fill="#1e293b">kind</text>
+    <text x="84" y="602" font-size="12.5" fill="#1e293b">expiresAt</text>
+    <text x="84" y="624" font-size="12.5" fill="#1e293b">usedAt</text>
+    <text x="84" y="646" font-size="12.5" fill="#1e293b">createdAt</text>
+  </g>
+  <text x="84" y="672" font-size="10.5" fill="#94a3b8" font-style="italic">index (userId, kind) · kind ∈ {email_verify, password_reset}</text>
+
+  <g>
+    <rect x="180" y="820" width="250" height="118" rx="6" fill="#ffffff" stroke="#0e7490" stroke-width="1.8"/>
+    <rect x="180" y="820" width="250" height="28" rx="6" fill="#0e7490"/>
+    <rect x="180" y="834" width="250" height="14" fill="#0e7490"/>
+    <text x="305" y="839" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">UserBadge</text>
+    <text x="194" y="866" font-size="12.5" font-weight="700" fill="#0f172a" text-decoration="underline">id</text><text x="417" y="866" font-size="10.5" font-weight="700" fill="#0e7490" text-anchor="end">PK</text>
+    <rect x="181" y="870" width="248" height="22" fill="#fef3c7"/>
+    <text x="194" y="886" font-size="12.5" fill="#1e293b">userId</text><text x="417" y="886" font-size="10.5" font-weight="700" fill="#92400e" text-anchor="end">FK → User · U*</text>
+    <text x="194" y="908" font-size="12.5" fill="#1e293b">badgeId</text><text x="417" y="908" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">U* ↣</text>
+    <text x="194" y="930" font-size="12.5" fill="#1e293b">unlockedAt</text>
+  </g>
+  <text x="180" y="958" font-size="10.5" fill="#94a3b8" font-style="italic">U* = UNIQUE(userId, badgeId) · badgeId ↣ catalogue statique (pas de FK)</text>
+
+  <g>
+    <rect x="900" y="820" width="265" height="162" rx="6" fill="#ffffff" stroke="#0e7490" stroke-width="1.8"/>
+    <rect x="900" y="820" width="265" height="28" rx="6" fill="#0e7490"/>
+    <rect x="900" y="834" width="265" height="14" fill="#0e7490"/>
+    <text x="1032" y="839" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">StepCompletion</text>
+    <text x="914" y="866" font-size="12.5" font-weight="700" fill="#0f172a" text-decoration="underline">id</text><text x="1152" y="866" font-size="10.5" font-weight="700" fill="#0e7490" text-anchor="end">PK</text>
+    <rect x="901" y="870" width="263" height="22" fill="#fef3c7"/>
+    <text x="914" y="886" font-size="12.5" fill="#1e293b">userId</text><text x="1152" y="886" font-size="10.5" font-weight="700" fill="#92400e" text-anchor="end">FK → User · U*</text>
+    <text x="914" y="908" font-size="12.5" fill="#1e293b">course</text><text x="1152" y="908" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">U* ↣</text>
+    <text x="914" y="930" font-size="12.5" fill="#1e293b">chapter</text><text x="1152" y="930" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">U* ↣</text>
+    <text x="914" y="952" font-size="12.5" fill="#1e293b">stepIndex</text><text x="1152" y="952" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">U*</text>
+    <text x="914" y="974" font-size="12.5" fill="#1e293b">completedAt</text>
+  </g>
+  <text x="900" y="1000" font-size="10.5" fill="#94a3b8" font-style="italic">U* = UNIQUE(userId, course, chapter, stepIndex) · course/chapter ↣ contenu statique</text>
+
+  <g>
+    <rect x="690" y="470" width="250" height="180" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+    <text x="710" y="498" font-size="14" font-weight="700" fill="#0f172a">Légende</text>
+    <text x="710" y="522" font-size="12" fill="#1e293b"><tspan font-weight="700" fill="#0e7490">PK</tspan> — clé primaire (soulignée)</text>
+    <text x="710" y="544" font-size="12" fill="#1e293b"><tspan font-weight="700" fill="#92400e">FK</tspan> — clé étrangère (ligne ambre)</text>
+    <text x="710" y="566" font-size="12" fill="#1e293b"><tspan font-weight="700" fill="#b45309">U / U*</tspan> — contrainte d'unicité (simple / composite)</text>
+    <text x="710" y="588" font-size="12" fill="#1e293b"><tspan font-weight="700">↣</tspan> — référence logique vers contenu statique (pas de FK)</text>
+    <text x="710" y="610" font-size="12" fill="#1e293b"><tspan font-weight="700">1 — N</tspan> — cardinalité de la relation</text>
+    <text x="710" y="636" font-size="11" fill="#475569" font-style="italic">7 tables PostgreSQL · ON DELETE CASCADE sur les FK</text>
+  </g>
+</svg>
