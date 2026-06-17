@@ -86,7 +86,7 @@ export default function DashboardPage() {
         {/* Welcome */}
         <section className="mb-8 flex flex-col items-start gap-4 animate-fade-down sm:flex-row sm:items-start sm:gap-6 lg:mb-10">
           <BrandLogo
-            size={64}
+            size={80}
             priority
             className="mt-1 shrink-0 drop-shadow-[0_0_24px_rgba(0,240,255,0.25)]"
           />
@@ -116,7 +116,7 @@ export default function DashboardPage() {
               <article className="relative overflow-hidden rounded-sm border border-nebula-cyan/40 bg-nebula-bg-panel/85 p-5 backdrop-blur-md shadow-[0_0_40px_rgba(0,240,255,0.08)] lg:p-7">
                 <div className="pointer-events-none absolute -right-12 -top-12 opacity-25">
                   <Image
-                    src="/planet-green.png"
+                    src="/planet-green-v2.png"
                     alt=""
                     width={200}
                     height={200}

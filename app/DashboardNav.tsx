@@ -18,7 +18,7 @@ export default function DashboardNav({ userName }: DashboardNavProps) {
   return (
     <header className="relative z-50 flex h-16 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/80 px-4 backdrop-blur-md lg:px-6">
       <Link href="/dashboard" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-        <BrandLogo size={36} />
+        <BrandLogo size={40} />
         <div className="hidden font-tech text-base tracking-widest sm:block">
           <span className="text-nebula-cyan">NEBULA</span>
           <span className="ml-1 text-nebula-text-secondary">COMMAND</span>

@@ -105,7 +105,7 @@ function LoginPageContent() {
 
           <div className="rounded-sm border border-nebula-cyan/40 bg-nebula-bg-panel/85 p-8 backdrop-blur-md shadow-[0_0_40px_rgba(0,240,255,0.08)]">
             <div className="mb-6 flex flex-col items-center text-center">
-              <BrandLogo size={64} className="mb-3" />
+              <BrandLogo size={72} className="mb-4" />
               <h1 className="font-display text-xl tracking-[0.06em] text-nebula-cyan [text-shadow:0_0_16px_rgba(0,240,255,0.28)] sm:text-2xl">
                 CONNEXION
               </h1>

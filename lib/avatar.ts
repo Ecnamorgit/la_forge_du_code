@@ -1,7 +1,8 @@
 /**
- * Avatar customization options. Purely cosmetic — these values are stored on
- * the User row (species, uniformColor, role) and used by the UI to display
- * an avatar visualization. No gameplay impact.
+ * Avatar customization options, stored on the User row (species, uniformColor,
+ * role). Species and uniform colour are purely cosmetic. The role also drives
+ * the course recommendations (onboarding result + /learn page) via
+ * ROLE_RECOMMENDED_COURSES below — no chapter is ever locked by it.
  */
 
 export type SpeciesId =
@@ -29,6 +30,7 @@ export interface SpeciesDef {
   emoji: string;
   label: string;
   description: string;
+  image?: string;
 }
 
 export interface UniformColorDef {
@@ -45,6 +47,7 @@ export interface RoleDef {
   emoji: string;
   label: string;
   description: string;
+  image?: string;
 }
 
 export const SPECIES: SpeciesDef[] = [
@@ -53,30 +56,35 @@ export const SPECIES: SpeciesDef[] = [
     emoji: "🧑‍🚀",
     label: "Humain",
     description: "L'origine classique. Adaptable, curieux, perseverant.",
+    image: "/species-humain-v2.png",
   },
   {
     id: "cyborg",
     emoji: "🤖",
     label: "Cyborg",
     description: "Moitie organique, moitie machine. Acces direct aux systemes.",
+    image: "/species-cyborg-v2.png",
   },
   {
     id: "synthetique",
     emoji: "👾",
     label: "Synthetique",
     description: "Conscience numerique pure. Pas de fatigue, pas de doute.",
+    image: "/species-synthetique-v2.png",
   },
   {
     id: "hybride",
     emoji: "🧬",
     label: "Hybride",
     description: "Genetiquement modifie pour les longs voyages.",
+    image: "/species-hybride-v2.png",
   },
   {
     id: "inconnue",
     emoji: "🛸",
     label: "Origine inconnue",
     description: "Decouvert a la derive. Aucun dossier dans les archives.",
+    image: "/species-inconnue-v2.png",
   },
 ];
 
@@ -94,26 +102,42 @@ export const ROLES: RoleDef[] = [
     emoji: "🛸",
     label: "Pilote",
     description: "Manoeuvre les vaisseaux. Reflexe d'abord, plan ensuite.",
+    image: "/role-pilote-v2.png",
   },
   {
     id: "ingenieur",
     emoji: "🔧",
     label: "Ingenieur",
     description: "Construit, repare, ameliore. Aime les systemes complexes.",
+    image: "/role-ingenieur-v2.png",
   },
   {
     id: "tacticien",
     emoji: "🎯",
     label: "Tacticien",
     description: "Analyse, anticipe, decide. Voit trois coups en avance.",
+    image: "/role-tacticien-v2.png",
   },
   {
     id: "explorateur",
     emoji: "🔭",
     label: "Explorateur",
     description: "Premier sur le terrain. Curiosite avant tout.",
+    image: "/role-explorateur-v2.png",
   },
 ];
+
+/**
+ * Course slugs recommended per role. Single source of truth used by the
+ * onboarding result screen and the /learn page. Display names come from
+ * lib/courses-catalog.ts (getCourseInfo).
+ */
+export const ROLE_RECOMMENDED_COURSES: Record<RoleId, string[]> = {
+  pilote: ["html", "css", "javascript", "react"],
+  ingenieur: ["sql", "nodejs", "mongodb", "devops"],
+  tacticien: ["typescript", "tests", "security", "algo"],
+  explorateur: ["git", "python", "html", "javascript"],
+};
 
 /** Lookup helpers. Return undefined for unknown ids. */
 export function getSpecies(id: string | null | undefined): SpeciesDef | undefined {

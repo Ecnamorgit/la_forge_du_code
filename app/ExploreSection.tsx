@@ -3,10 +3,28 @@ import Link from "next/link";
 import { COURSES_CATALOG } from "@/lib/courses-catalog";
 import CourseIcon from "@/components/ui/CourseIcon";
 
-const COLOR_MAP: Record<string, { border: string; text: string }> = {
-  cyan: { border: "border-nebula-cyan/30", text: "text-nebula-cyan" },
-  blue: { border: "border-nebula-blue/30", text: "text-nebula-blue" },
-  orange: { border: "border-nebula-orange/30", text: "text-nebula-orange" },
+const COLOR_MAP: Record<
+  string,
+  { border: string; glow: string; text: string; bg: string }
+> = {
+  cyan: {
+    border: "border-nebula-cyan/30 hover:border-nebula-cyan/70",
+    glow: "hover:shadow-[0_0_20px_rgba(0,240,255,0.2)]",
+    text: "text-nebula-cyan",
+    bg: "bg-nebula-cyan-faint",
+  },
+  blue: {
+    border: "border-nebula-blue/30 hover:border-nebula-blue/70",
+    glow: "hover:shadow-[0_0_20px_rgba(61,126,255,0.2)]",
+    text: "text-nebula-blue",
+    bg: "bg-nebula-blue-dim/10",
+  },
+  orange: {
+    border: "border-nebula-orange/30 hover:border-nebula-orange/70",
+    glow: "hover:shadow-[0_0_20px_rgba(255,107,44,0.2)]",
+    text: "text-nebula-orange",
+    bg: "bg-nebula-orange-faint",
+  },
 };
 
 interface Props {
@@ -21,39 +39,85 @@ export default function ExploreSection({ activeCourseSlug }: Props) {
 
   return (
     <section className="mt-10 animate-fade-up">
-      <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
+      <h2 className="mb-6 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
         {"> "}Autres cursus
       </h2>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {otherCourses.map((course) => {
+      <div className="flex flex-wrap justify-center sm:justify-start gap-5">
+        {otherCourses.map((course, index) => {
           const c = COLOR_MAP[course.color] ?? COLOR_MAP.cyan;
-          return (
-            <Link key={course.slug} href={`/learn/${course.slug}`}>
-              <article
-                className={`relative overflow-hidden rounded-sm border ${c.border} bg-nebula-bg-panel/70 p-5 backdrop-blur-md transition-all hover:border-opacity-80 hover:bg-nebula-bg-panel/85`}
-              >
-                <div className="absolute right-3 top-3 rounded-sm border border-nebula-text-dim/40 bg-nebula-bg-darkest/60 px-2 py-0.5 font-tech text-[10px] uppercase tracking-widest text-nebula-text-dim">
-                  Disponible
-                </div>
 
-                <div className="flex items-start gap-4">
-                  <div className="shrink-0">
-                    <CourseIcon slug={course.slug} emoji={course.icon} size={32} className="text-3xl" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className={`mb-1 font-tech text-xl ${c.text} tracking-wider`}>
-                      {course.title}
-                    </h3>
-                    <p className="font-body text-sm text-nebula-text-secondary">
-                      {course.subtitle}
-                    </p>
-                    <p className="mt-3 font-tech text-[10px] uppercase tracking-widest text-nebula-text-dim">
-                      Entrer →
-                    </p>
-                  </div>
+          // Prevent tooltips from overflowing the screen edges
+          const isLeftAligned = index < 3;
+          const isRightAligned = index > otherCourses.length - 4;
+
+          let tooltipAlignClass = "left-1/2 -translate-x-1/2";
+          let arrowAlignClass = "left-1/2 -translate-x-1/2";
+
+          if (isLeftAligned) {
+            tooltipAlignClass = "left-0";
+            arrowAlignClass = "left-10 -translate-x-1/2";
+          } else if (isRightAligned) {
+            tooltipAlignClass = "right-0";
+            arrowAlignClass = "right-10 translate-x-1/2";
+          }
+
+          return (
+            <Link key={course.slug} href={`/learn/${course.slug}`} className="group relative">
+              {/* Badge/Écusson container */}
+              <div
+                className={`
+                  flex h-20 w-20 cursor-pointer items-center justify-center rounded-full
+                  border bg-nebula-bg-panel/80 backdrop-blur-md transition-all duration-300
+                  hover:-translate-y-1 hover:scale-110 ${c.border} ${c.glow}
+                `}
+              >
+                <CourseIcon
+                  slug={course.slug}
+                  emoji={course.icon}
+                  size={48}
+                  className="text-4xl transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+
+              {/* Hover Tooltip/Popup */}
+              <div
+                className={`
+                  pointer-events-none absolute bottom-full z-50 mb-3 w-64 ${tooltipAlignClass}
+                  rounded-sm border ${c.border.split(" ")[0]} bg-nebula-bg-panel/95 p-4
+                  invisible opacity-0 shadow-[0_0_24px_rgba(0,240,255,0.12)] backdrop-blur-md
+                  transition-all duration-300 group-hover:translate-y-[-4px] group-hover:visible group-hover:opacity-100
+                `}
+              >
+                {/* Arrow pointing to the badge */}
+                <div className={`absolute top-full border-x-[6px] border-t-[6px] border-x-transparent border-t-nebula-bg-panel ${arrowAlignClass}`} />
+                
+                <div className="mb-1 flex items-center justify-between">
+                  <span className="font-tech text-[9px] uppercase tracking-widest text-nebula-text-dim">
+                    Disponible
+                  </span>
                 </div>
-              </article>
+                
+                <h3 className={`font-tech text-lg tracking-wider ${c.text} mb-0.5`}>
+                  {course.title}
+                </h3>
+                
+                <p className="font-body text-xs text-nebula-text-secondary mb-2 leading-tight">
+                  {course.subtitle}
+                </p>
+                
+                <div className={`h-px w-full ${c.bg} mb-2`} />
+                
+                <p className="font-body text-[11px] leading-relaxed text-nebula-text-dim">
+                  {course.description}
+                </p>
+                
+                <div className="mt-2 text-right">
+                  <span className={`font-tech text-[10px] uppercase tracking-widest ${c.text}`}>
+                    Entrer →
+                  </span>
+                </div>
+              </div>
             </Link>
           );
         })}
@@ -61,3 +125,4 @@ export default function ExploreSection({ activeCourseSlug }: Props) {
     </section>
   );
 }
+

@@ -1,10 +1,13 @@
-import Image from "next/image";
+"use client";
+
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { useUser } from "@/lib/use-user";
+import { ROLES, ROLE_RECOMMENDED_COURSES, isRoleId } from "@/lib/avatar";
 
 import BrandLogo from "@/components/ui/BrandLogo";
 import CourseIcon from "@/components/ui/CourseIcon";
 import CourseCardLink from "../CourseCardLink";
+import CourseWireframe from "@/components/ui/CourseWireframe";
 import {
   COURSES_CATALOG,
   getCourseChaptersCount,
@@ -23,11 +26,25 @@ const COURSES: CourseEntry[] = COURSES_CATALOG.map((c) => ({
 }));
 
 export default function LearnPage() {
+  const { state, hydrated } = useUser();
+  const userRole = hydrated && state?.role && isRoleId(state.role) ? state.role : null;
+
+  // Split courses if a role is defined (mapping shared with the onboarding —
+  // see lib/avatar.ts).
+  const roleCourses = userRole ? ROLE_RECOMMENDED_COURSES[userRole] : null;
+  const recommendedCourses = roleCourses
+    ? COURSES.filter((c) => roleCourses.includes(c.slug))
+    : [];
+
+  const otherCourses = roleCourses
+    ? COURSES.filter((c) => !roleCourses.includes(c.slug))
+    : COURSES;
+
   return (
-    <div className="relative h-full overflow-hidden">
+    <div className="relative min-h-screen overflow-y-auto py-16">
       <div className="fixed inset-0 bg-nebula-bg z-0 pointer-events-none" />
 
-      <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">
+      <div className="relative z-10 flex flex-col items-center px-4 max-w-6xl mx-auto">
         <Link
           href="/dashboard"
           className="absolute left-6 top-6 font-tech text-sm uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan"
@@ -58,10 +75,38 @@ export default function LearnPage() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-start gap-10 justify-center max-w-4xl animate-fade-up">
-          {COURSES.map((course) => (
-            <CourseCard key={course.slug} course={course} />
-          ))}
+        {/* Recommended Section */}
+        {recommendedCourses.length > 0 && (
+          <div className="w-full mb-10 animate-fade-up">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="font-tech text-xs tracking-widest text-nebula-cyan uppercase border border-nebula-cyan/30 px-3.5 py-1.5 rounded bg-nebula-cyan-faint">
+                Recommandé pour ton profil : {ROLES.find((r) => r.id === userRole)?.label ?? userRole}
+              </span>
+              <div className="h-px flex-1 bg-gradient-to-r from-nebula-cyan/30 to-transparent" />
+            </div>
+            <div className="flex flex-wrap items-start gap-8 justify-center">
+              {recommendedCourses.map((course) => (
+                <CourseCard key={course.slug} course={course} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Other / Unified Section */}
+        <div className="w-full animate-fade-up">
+          {recommendedCourses.length > 0 && (
+            <div className="flex items-center gap-3 mb-6 mt-4">
+              <span className="font-tech text-xs tracking-widest text-nebula-text-dim uppercase border border-nebula-border/30 px-3.5 py-1.5 rounded bg-nebula-bg-panel/40">
+                Autres Cursus
+              </span>
+              <div className="h-px flex-1 bg-gradient-to-r from-nebula-border/30 to-transparent" />
+            </div>
+          )}
+          <div className="flex flex-wrap items-start gap-8 justify-center">
+            {otherCourses.map((course) => (
+              <CourseCard key={course.slug} course={course} />
+            ))}
+          </div>
         </div>
 
         <p className="mt-16 font-tech text-nebula-text-dim text-xs tracking-[0.4em] uppercase animate-fade-in-late">
@@ -93,7 +138,7 @@ function CourseCard({ course }: { course: CourseEntry }) {
     },
     orange: {
       border: "border-nebula-orange/20",
-      glow: "hover:shadow-[0_0_30_30px_rgba(255,107,44,0.15)]",
+      glow: "hover:shadow-[0_0_30px_rgba(255,107,44,0.15)]",
       text: "text-nebula-orange",
       bg: "bg-nebula-orange-faint",
     },
@@ -101,122 +146,12 @@ function CourseCard({ course }: { course: CourseEntry }) {
 
   const c = colorMap[course.color] ?? colorMap.cyan;
 
-  const featuredVisuals: Partial<
-    Record<
-      (typeof COURSES)[number]["slug"],
-      { src: string; size: number; isStrip?: boolean }
-    >
-  > = {
-    html: { src: "/planets/rocky-moon-strip.png", size: 80, isStrip: true },
-    css: { src: "/galaxy.gif", size: 88, isStrip: false },
-    javascript: {
-      src: "/planets/gas-giant-strip.png",
-      size: 88,
-      isStrip: true,
-    },
-  };
-
-  const featuredVisual = featuredVisuals[course.slug];
-
-  if (featuredVisual) {
-    const featuredCard = (
-      <div className="group relative h-24 w-24">
-        <div className="flex h-24 w-24 items-center justify-center">
-          {featuredVisual.isStrip ? (
-            <div
-              className="sprite-planet transition-transform duration-300 group-hover:scale-105"
-              style={
-                {
-                  ["--planet-frame-size" as const]: `${featuredVisual.size}px`,
-                  ["--planet-frame-count" as const]: "4",
-                  width: featuredVisual.size,
-                  height: featuredVisual.size,
-                  backgroundImage: `url(${featuredVisual.src})`,
-                  backgroundSize: `${featuredVisual.size * 4}px ${featuredVisual.size}px`,
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "0 0",
-                  imageRendering: "pixelated",
-                } as CSSProperties
-              }
-            />
-          ) : (
-            <Image
-              src={featuredVisual.src}
-              alt={`Visuel ${course.title}`}
-              width={featuredVisual.size}
-              height={featuredVisual.size}
-              // Suppression de la ternaire featuredVisual.rotate ici
-              className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
-            />
-          )}
-        </div>
-
-        <div
-          className={`
-            pointer-events-none absolute left-1/2 top-full z-20 mt-4 w-72 -translate-x-1/2
-            rounded-lg border ${c.border} bg-nebula-bg-panel/95 p-6 opacity-0 shadow-[0_0_30px_rgba(0,240,255,0.12)]
-            backdrop-blur-sm transition-all duration-300 group-hover:pointer-events-auto
-            group-hover:translate-y-1 group-hover:opacity-100
-          `}
-        >
-          <div className="absolute top-3 right-3">
-            {isLocked ? (
-              <span className="font-tech text-[10px] tracking-widest text-nebula-text-dim border border-nebula-text-dim/30 rounded px-2 py-0.5">
-                VERROUILLE
-              </span>
-            ) : (
-              <span
-                className={`font-tech text-[10px] tracking-widest ${c.text} border ${c.border} rounded px-2 py-0.5`}
-              >
-                DISPONIBLE
-              </span>
-            )}
-          </div>
-
-          <h2 className={`font-tech text-2xl tracking-wider ${c.text} mb-1`}>
-            {course.title}
-          </h2>
-          <p className="font-body text-nebula-text-secondary text-sm mb-3">
-            {course.subtitle}
-          </p>
-
-          <div className={`h-px w-full ${c.bg} mb-3`} />
-
-          <p className="font-body text-nebula-text-dim text-xs leading-relaxed mb-4">
-            {course.description}
-          </p>
-
-          <div className="flex items-center justify-between">
-            <span className="font-tech text-[11px] text-nebula-text-dim tracking-wider">
-              {course.chapters > 0
-                ? `${course.chapters} CHAPITRE${course.chapters > 1 ? "S" : ""}`
-                : "BIENTOT"}
-            </span>
-            {!isLocked && (
-              <span className={`font-tech text-xs ${c.text} tracking-wider`}>
-                ENTRER {"->"}
-              </span>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-
-    if (isLocked) return featuredCard;
-
-    return (
-      <CourseCardLink href={`/learn/${course.slug}`}>
-        {featuredCard}
-      </CourseCardLink>
-    );
-  }
-
   // Fallback si pas de visual (pour la structure standard des cartes)
   const inner = (
     <div
       className={`
         relative w-72 rounded-lg border ${c.border} bg-nebula-bg-panel/80 backdrop-blur-sm
-        p-6 transition-all duration-300
+        p-6 transition-all duration-300 overflow-hidden
         ${
           isLocked
             ? "opacity-40 cursor-not-allowed"
@@ -224,7 +159,12 @@ function CourseCard({ course }: { course: CourseEntry }) {
         }
       `}
     >
-      <div className="absolute top-3 right-3">
+      {/* Background wireframe logo */}
+      <div className={`absolute inset-0 z-0 overflow-hidden rounded-lg pointer-events-none opacity-[0.18] flex items-center justify-center ${c.text}`}>
+        <CourseWireframe slug={course.slug} />
+      </div>
+
+      <div className="absolute top-3 right-3 z-10">
         {isLocked ? (
           <span className="font-tech text-[10px] tracking-widest text-nebula-text-dim border border-nebula-text-dim/30 rounded px-2 py-0.5">
             VERROUILLE
@@ -238,7 +178,7 @@ function CourseCard({ course }: { course: CourseEntry }) {
         )}
       </div>
 
-      <div className="mb-4 flex flex-col items-start">
+      <div className="relative z-10 mb-4 flex flex-col items-start">
         <div className="mb-3">
           <CourseIcon slug={course.slug} emoji={course.icon} size={40} className="text-4xl" />
         </div>
@@ -260,7 +200,7 @@ function CourseCard({ course }: { course: CourseEntry }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="relative z-10 flex items-center justify-between">
         <span className="font-tech text-[11px] text-nebula-text-dim tracking-wider">
           {course.chapters > 0
             ? `${course.chapters} CHAPITRE${course.chapters > 1 ? "S" : ""}`

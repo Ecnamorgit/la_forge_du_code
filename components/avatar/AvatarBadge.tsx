@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getSpecies, getUniformColor } from "@/lib/avatar";
 
 interface AvatarBadgeProps {
@@ -10,7 +11,7 @@ interface AvatarBadgeProps {
 }
 
 /**
- * Visual representation of a user's avatar: a circular emoji medallion with
+ * Visual representation of a user's avatar: a circular pixel art medallion or emoji with
  * an accent border + glow matching the uniform color. Pure, reusable, used in
  * DashboardNav, /profil, /avatar preview, leaderboard rows (eventually).
  */
@@ -30,7 +31,7 @@ export default function AvatarBadge({
   return (
     <div
       aria-hidden
-      className="relative flex shrink-0 items-center justify-center rounded-full bg-nebula-bg-darkest"
+      className="relative flex shrink-0 items-center justify-center rounded-full bg-nebula-bg-darkest overflow-hidden"
       style={{
         width: size,
         height: size,
@@ -40,7 +41,18 @@ export default function AvatarBadge({
         lineHeight: 1,
       }}
     >
-      <span style={{ fontSize }}>{emoji}</span>
+      {sp?.image ? (
+        <Image
+          src={sp.image}
+          alt={sp.label}
+          width={size}
+          height={size}
+          className="h-full w-full object-cover"
+          style={{ imageRendering: "pixelated" }}
+        />
+      ) : (
+        <span style={{ fontSize }}>{emoji}</span>
+      )}
     </div>
   );
 }

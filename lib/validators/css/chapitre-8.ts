@@ -22,8 +22,7 @@ export const validators: Validator[] = [
     if (!/@media\b/i.test(css)) {
       return { ok: false, msg: "Ajoute une regle @media (...) { ... }." };
     }
-    const mediaMatch = css.match(/@media\b[^{]+\{([\s\S]*?)\}\s*\}/);
-    // Simpler: check that there's an @media block containing h1 with font-size
+    // Check that there's an @media block containing h1 with font-size
     if (!/@media\b[^{]+\{[\s\S]*?h1\s*\{[\s\S]*?font-size[\s\S]*?\}/i.test(css)) {
       return {
         ok: false,

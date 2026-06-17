@@ -5,7 +5,7 @@
  * briefing template literals) just to display course maps / dashboards.
  *
  * Keep this file in sync manually when adding/renaming chapters.
- * Heavy ChapterData is lazy-loaded via lib/courses-registry.ts LOADERS.
+ * Heavy ChapterData lives in lib/courses-registry.ts (data/courses/**).
  */
 
 export interface ChapterSummary {

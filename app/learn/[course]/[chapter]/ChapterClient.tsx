@@ -105,16 +105,21 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
     () => chapter.steps.map((_, i) => completedStepIndexes.includes(i)),
     [completedStepIndexes, chapter.steps]
   );
+  // Max XP of the chapter, derived from the same formula that actually awards
+  // XP (lib/xp.ts). Single source of truth — the hardcoded `totalXp` in the
+  // data files drifted from reality, so we never display it.
+  const chapterMaxXp = useMemo(
+    () =>
+      chapter.steps.reduce((sum, s) => sum + xpForStep(s.objectives.length), 0),
+    [chapter.steps]
+  );
   const xp = useMemo(
     () =>
-      Math.min(
-        completedStepIndexes.reduce(
-          (sum, idx) => sum + xpForStep(chapter.steps[idx].objectives.length),
-          0
-        ),
-        chapter.totalXp
+      completedStepIndexes.reduce(
+        (sum, idx) => sum + xpForStep(chapter.steps[idx].objectives.length),
+        0
       ),
-    [completedStepIndexes, chapter.steps, chapter.totalXp]
+    [completedStepIndexes, chapter.steps]
   );
   const doneObjectives = useMemo(() => {
     const set = new Set<string>();
@@ -245,7 +250,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
         show={showBanner}
         title={step.bannerTtl}
         subtitle={step.bannerSub}
-        xpLabel={step.bannerXp}
+        xpLabel={`⚡ +${xpForStep(step.objectives.length)} XP`}
         buttonLabel={isLastStep ? "TERMINER LE PROTOCOLE ->" : "SYSTEME SUIVANT ->"}
         bannerFrame={step.bannerFrame}
         progressNow={currentStep + 1}
@@ -277,13 +282,13 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             ← Retour
           </Link>
           <div className="hidden h-5 w-px bg-nebula-border lg:block" />
-          <BrandLogo size={28} className="hidden lg:block" />
+          <BrandLogo size={32} className="hidden lg:block" />
           <div className="hidden font-tech text-sm tracking-widest lg:block">
             <span className="text-nebula-cyan">NEBULA</span>
             <span className="ml-1.5 text-nebula-text-secondary">/ {course.toUpperCase()} / {chapter.slug.toUpperCase()}</span>
           </div>
         </div>
-        <XPBar xp={xp} maxXp={chapter.totalXp} />
+        <XPBar xp={xp} maxXp={chapterMaxXp} />
       </header>
 
       {/* Mobile tabs — visible only below lg */}

@@ -27,11 +27,11 @@ const FRAME_W = 704;
 const FRAME_H = 512;
 
 const CUSTOM_NODE_IMAGES: Record<string, string> = {
-  ch1: "/planet-green.png",
-  ch2: "/planet-red.png",
-  ch3: "/planet-gas.png",
-  ch4: "/planet-dry.png",
-  ch5: "/planet-ring.png",
+  ch1: "/planet-green-v2.png",
+  ch2: "/planet-red-v2.png",
+  ch3: "/planet-gas-v2.png",
+  ch4: "/planet-dry-v2.png",
+  ch5: "/planet-ring-v2.png",
 };
 
 interface LevelNodeProps {
@@ -79,7 +79,7 @@ export default function LevelNodeComponent({
 
     if (!prevDone) return "locked";
     return isComplete ? "completed" : "available";
-  }, [node.slug, course, state]);
+  }, [node.slug, course, state, chaptersMeta]);
 
   const isLocked = status === "locked";
   const isCompleted = status === "completed";

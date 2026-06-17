@@ -14,20 +14,52 @@ import {
   levelFromXp,
   rankFromXp,
 } from "@/lib/user-store";
-import { CSS_CHAPTERS_META, HTML_CHAPTERS_META, JS_CHAPTERS_META } from "@/lib/courses-meta";
+import { getChaptersMeta, type ChapterMetaFull } from "@/lib/courses-meta";
+import { COURSES_CATALOG } from "@/lib/courses-catalog";
 import Sprite from "@/components/ui/Sprite";
 import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import { BADGES } from "@/lib/badges-catalog";
+import CourseIcon from "@/components/ui/CourseIcon";
 
 // Single source of truth lives in lib/badges-catalog.ts (synced with
 // BADGE_BY_CHAPTER). Frame index in badges.png = position in this array.
 const ALL_BADGES = BADGES;
 
-const COURSES_LIST = [
-  { slug: "html", title: "HTML", available: true },
-  { slug: "css", title: "CSS", available: true },
-  { slug: "javascript", title: "JavaScript", available: true },
-];
+// All courses come from the catalog — single source of truth, so any new
+// course automatically shows up here with its chapters.
+const COURSES_LIST = COURSES_CATALOG.map((c) => ({
+  slug: c.slug,
+  title: c.title,
+  icon: c.icon,
+  chapters: getChaptersMeta(c.slug),
+}));
+
+function getCourseSlugByBadgeId(id: string): string {
+  if (id.startsWith("css-")) return "css";
+  if (id.startsWith("js-")) return "javascript";
+  if (id.startsWith("react-")) return "react";
+  if (
+    id === "selene" ||
+    id === "relay" ||
+    id === "archivist" ||
+    id === "logistician" ||
+    id === "operator" ||
+    id.startsWith("html-")
+  ) {
+    return "html";
+  }
+  if (id === "ts-shield") return "typescript";
+  if (id === "git-archivist") return "git";
+  if (id === "sql-keeper") return "sql";
+  if (id === "nodejs-builder") return "nodejs";
+  if (id === "tests-qa") return "tests";
+  if (id === "devops-launcher") return "devops";
+  if (id === "mongodb-leaf") return "mongodb";
+  if (id === "security-shield") return "security";
+  if (id === "python-serpent") return "python";
+  if (id === "algo-strategist") return "algo";
+  return "html";
+}
 
 export default function ProfilPage() {
   const { state, hydrated, renameUser, reset } = useUser();
@@ -45,10 +77,7 @@ export default function ProfilPage() {
   const streak = state.streak || 1;
   const joined = state.joinedAt || "—";
 
-  const computeProgress = (
-    course: string,
-    chapters: typeof HTML_CHAPTERS_META
-  ) => {
+  const computeProgress = (course: string, chapters: ChapterMetaFull[]) => {
     const totalSteps = chapters.reduce((s, c) => s + c.totalSteps, 0);
     const done = chapters.reduce(
       (s, c) => s + getCompletedSteps(state, course, c.slug).length,
@@ -56,10 +85,6 @@ export default function ProfilPage() {
     );
     return totalSteps === 0 ? 0 : Math.round((done / totalSteps) * 100);
   };
-
-  const htmlProgress = computeProgress("html", HTML_CHAPTERS_META);
-  const cssProgress = computeProgress("css", CSS_CHAPTERS_META);
-  const jsProgress = computeProgress("javascript", JS_CHAPTERS_META);
 
   const startEditing = () => {
     setEditValue(username);
@@ -263,19 +288,9 @@ export default function ProfilPage() {
           </h2>
           <div className="space-y-3">
             {COURSES_LIST.map((course) => {
-              const isLocked = !course.available;
-              let progress = 0;
-              let chapters: typeof HTML_CHAPTERS_META = [];
-              if (course.slug === "html") {
-                progress = htmlProgress;
-                chapters = HTML_CHAPTERS_META;
-              } else if (course.slug === "css") {
-                progress = cssProgress;
-                chapters = CSS_CHAPTERS_META;
-              } else if (course.slug === "javascript") {
-                progress = jsProgress;
-                chapters = JS_CHAPTERS_META;
-              }
+              const isLocked = false;
+              const chapters = course.chapters;
+              const progress = computeProgress(course.slug, chapters);
 
               return (
                 <div
@@ -287,13 +302,22 @@ export default function ProfilPage() {
                   }`}
                 >
                   <div className="mb-2 flex items-center justify-between">
-                    <h3
-                      className={`font-tech text-xl tracking-wider ${
-                        isLocked ? "text-nebula-text-dim" : "text-nebula-cyan"
-                      }`}
-                    >
-                      {course.title}
-                    </h3>
+                    <div className="flex items-center gap-3">
+                      <CourseIcon
+                        slug={course.slug}
+                        emoji={course.icon}
+                        size={32}
+                        className={isLocked ? "opacity-30 grayscale" : ""}
+                      />
+                      <Link
+                        href={`/learn/${course.slug}`}
+                        className={`font-tech text-xl tracking-wider transition-colors hover:text-nebula-green ${
+                          isLocked ? "text-nebula-text-dim" : "text-nebula-cyan"
+                        }`}
+                      >
+                        {course.title}
+                      </Link>
+                    </div>
                     <span className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary">
                       {isLocked ? "Verrouillé" : `${progress}%`}
                     </span>
@@ -364,16 +388,11 @@ export default function ProfilPage() {
                       unlocked ? "" : "opacity-25 grayscale"
                     }`}
                   >
-                    {SPRITE_SHEETS_READY.badges ? (
-                      <Sprite
-                        sheet={BADGE_ICONS}
-                        frame={i}
-                        displaySize={64}
-                        title={badge.label}
-                      />
-                    ) : (
-                      badge.icon
-                    )}
+                    <CourseIcon
+                      slug={getCourseSlugByBadgeId(badge.id)}
+                      emoji={badge.icon}
+                      size={48}
+                    />
                   </div>
                   <div
                     className={`mb-1.5 font-tech text-sm uppercase tracking-widest ${

@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 
 import AvatarBadge from "@/components/avatar/AvatarBadge";
 import {
@@ -82,7 +83,7 @@ function AvatarPageInner() {
           </h1>
           <p className="mt-3 mx-auto max-w-xl font-body text-sm text-nebula-text-secondary">
             {mode === "create"
-              ? "Avant de prendre les commandes, choisis ton identite. Toutes les options sont purement cosmetiques — tu pourras les modifier plus tard depuis ton profil."
+              ? "Avant de prendre les commandes, choisis ton identite. L'apparence est purement cosmetique ; ton role oriente les cursus recommandes. Tout reste modifiable depuis ton profil."
               : "Modifie ton apparence. Les changements seront visibles partout, immediatement."}
           </p>
         </header>
@@ -112,6 +113,7 @@ function AvatarPageInner() {
                   selected={species === sp.id}
                   onClick={() => setSpecies(sp.id)}
                   emoji={sp.emoji}
+                  image={sp.image}
                   label={sp.label}
                   description={sp.description}
                 />
@@ -155,7 +157,7 @@ function AvatarPageInner() {
           {/* Role */}
           <Section
             label="Role prefere"
-            description="Indicatif. Aide a recommander des cursus plus tard."
+            description="Oriente les cursus recommandes pour ton profil sur la page Cursus."
           >
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {ROLES.map((r) => (
@@ -164,6 +166,7 @@ function AvatarPageInner() {
                   selected={role === r.id}
                   onClick={() => setRole(r.id)}
                   emoji={r.emoji}
+                  image={r.image}
                   label={r.label}
                   description={r.description}
                 />
@@ -230,12 +233,14 @@ function Choice({
   selected,
   onClick,
   emoji,
+  image,
   label,
   description,
 }: {
   selected: boolean;
   onClick: () => void;
   emoji: string;
+  image?: string;
   label: string;
   description: string;
 }) {
@@ -250,7 +255,20 @@ function Choice({
           : "border-nebula-border bg-nebula-bg-panel/40 hover:border-nebula-cyan-dim"
       }`}
     >
-      <span className="mb-2 text-3xl sm:text-4xl">{emoji}</span>
+      {image ? (
+        <div className="mb-2 h-12 w-12 shrink-0 overflow-hidden rounded-full">
+          <Image
+            src={image}
+            alt={label}
+            width={48}
+            height={48}
+            className="h-full w-full object-cover"
+            style={{ imageRendering: "pixelated" }}
+          />
+        </div>
+      ) : (
+        <span className="mb-2 text-3xl sm:text-4xl">{emoji}</span>
+      )}
       <span
         className={`mb-1 font-tech text-xs uppercase tracking-widest ${
           selected ? "text-nebula-cyan" : "text-nebula-text"

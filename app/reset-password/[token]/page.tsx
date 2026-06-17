@@ -70,7 +70,7 @@ export default function ResetPasswordPage({ params }: PageProps) {
 
           <div className="rounded-sm border border-nebula-cyan/40 bg-nebula-bg-panel/85 p-8 backdrop-blur-md shadow-[0_0_40px_rgba(0,240,255,0.08)]">
             <div className="mb-6 flex flex-col items-center text-center">
-              <BrandLogo size={64} className="mb-3" />
+              <BrandLogo size={72} className="mb-4" />
               <h1 className="font-tech text-2xl tracking-[0.18em] text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)]">
                 NOUVEAU MOT DE PASSE
               </h1>

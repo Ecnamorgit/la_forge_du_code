@@ -17,7 +17,7 @@ import type { SpriteSheet } from "@/components/ui/Sprite";
  * so there is zero visual change until the art is ready — then flip the flag.
  */
 export const SPRITE_SHEETS_READY = {
-  mission: false,
+  mission: true,
   banner: false,
   badges: false,
 } as const;
@@ -30,7 +30,7 @@ export const SPRITE_SHEETS_READY = {
  * Sheet: 8 columns × 4 rows × 64×64 = 512×256.
  */
 export const MISSION_ICONS: SpriteSheet = {
-  src: "/sprites/mission-icons.png",
+  src: "/sprites/mission-icons-v2.png",
   frameWidth: 32,
   frameHeight: 32,
   columns: 8,

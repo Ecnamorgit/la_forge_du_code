@@ -14,7 +14,7 @@ export default function LandingPage() {
       {/* Decorative planets — hidden under md to keep mobile clean */}
       <div className="pointer-events-none fixed left-[6%] top-[24%] z-[5] hidden opacity-50 md:block">
         <Image
-          src="/planet-gas.png"
+          src="/planet-gas-v2.png"
           alt=""
           width={140}
           height={140}
@@ -24,7 +24,7 @@ export default function LandingPage() {
       </div>
       <div className="pointer-events-none fixed right-[5%] top-[55%] z-[5] hidden opacity-50 md:block">
         <Image
-          src="/planet-dry.png"
+          src="/planet-dry-v2.png"
           alt=""
           width={170}
           height={170}
@@ -34,7 +34,7 @@ export default function LandingPage() {
       </div>
       <div className="pointer-events-none fixed left-[10%] bottom-[8%] z-[5] hidden opacity-35 lg:block">
         <Image
-          src="/planet-red.png"
+          src="/planet-red-v2.png"
           alt=""
           width={90}
           height={90}
@@ -46,7 +46,7 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="relative z-50 flex h-16 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/80 px-4 backdrop-blur-md sm:px-6">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <BrandLogo size={36} />
+          <BrandLogo size={40} />
           <div className="truncate font-tech text-sm tracking-widest sm:text-base">
             <span className="text-nebula-cyan">NEBULA</span>
             <span className="ml-1 hidden text-nebula-text-secondary sm:inline">COMMAND</span>
@@ -78,9 +78,9 @@ export default function LandingPage() {
         {/* Hero — takes the slack so the screen feels balanced */}
         <section className="flex flex-1 flex-col items-center justify-center py-8 text-center animate-fade-down">
           <BrandLogo
-            size={104}
+            size={128}
             priority
-            className="mb-6 drop-shadow-[0_0_30px_rgba(0,240,255,0.3)]"
+            className="mb-8 drop-shadow-[0_0_30px_rgba(0,240,255,0.3)]"
           />
 
           <h1
@@ -97,8 +97,8 @@ export default function LandingPage() {
 
           <p className="mb-3 max-w-2xl font-body text-base leading-relaxed text-nebula-text-secondary sm:text-lg lg:text-xl">
             Apprends à coder dans un univers spatial gamifié. HTML, CSS,
-            JavaScript — débloque tes protocoles et construis ta station
-            orbitale.
+            JavaScript, React et 10 autres cursus — débloque tes protocoles et
+            construis ta station orbitale.
           </p>
           <p className="mb-10 font-tech text-[10px] uppercase tracking-[0.35em] text-nebula-text-dim sm:text-xs sm:tracking-[0.4em]">
             [ Plateforme d&apos;apprentissage pour cadets de la flotte ]
@@ -123,17 +123,17 @@ export default function LandingPage() {
         {/* Features — band at bottom of the viewport */}
         <section className="mx-auto grid w-full max-w-5xl shrink-0 grid-cols-1 gap-5 animate-fade-up md:grid-cols-3 lg:gap-6">
           <FeatureCard
-            icon="/planet-green.png"
+            icon="/feature-courses-v2.png"
             title="Cursus structurés"
             description="Des protocoles progressifs : HTML, CSS et JavaScript. Chaque chapitre est une mission."
           />
           <FeatureCard
-            icon="/planet-red.png"
+            icon="/feature-badges-v2.png"
             title="XP & badges"
             description="Gagne de l'expérience, débloque des badges, monte en grade. Ta progression est sauvegardée."
           />
           <FeatureCard
-            icon="/planet-ring.png"
+            icon="/feature-editor-v2.png"
             title="Éditeur intégré"
             description="Code directement dans le navigateur avec un éditeur professionnel et un feedback instantané."
           />
