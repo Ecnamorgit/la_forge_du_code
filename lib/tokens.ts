@@ -1,8 +1,7 @@
 import "server-only";
 
-import { randomBytes } from "crypto";
-
 import { prisma } from "@/lib/db";
+import { generateRawToken, hashToken } from "@/lib/token-crypto";
 
 export type TokenKind = "email_verify" | "password_reset";
 
@@ -10,11 +9,6 @@ const TTL_MS: Record<TokenKind, number> = {
   email_verify: 24 * 60 * 60 * 1000, // 24h
   password_reset: 60 * 60 * 1000, // 1h
 };
-
-/** 32 random bytes → 43-char URL-safe token. */
-function generateRawToken(): string {
-  return randomBytes(32).toString("base64url");
-}
 
 /**
  * Create a fresh single-use token. Invalidates any older unused tokens of the
@@ -36,7 +30,7 @@ export async function createToken(args: {
     }),
     prisma.oneTimeToken.create({
       data: {
-        token,
+        token: hashToken(token),
         userId: args.userId,
         kind: args.kind,
         expiresAt,
@@ -70,7 +64,7 @@ export async function consumeToken(args: {
   kind: TokenKind;
 }): Promise<ConsumedToken> {
   const record = await prisma.oneTimeToken.findUnique({
-    where: { token: args.token },
+    where: { token: hashToken(args.token) },
     select: { id: true, userId: true, kind: true, expiresAt: true, usedAt: true },
   });
 
