@@ -32,20 +32,28 @@ Sans ça, les emails de vérification ne partiront pas aux vrais utilisateurs.
 
 ---
 
-## 3. Appliquer les migrations de base de données
+## 3. Appliquer les migrations de base de données (runbook)
 
-Les migrations Prisma en attente incluent l'avatar utilisateur et le `lastVisitedCourse`.
+Prérequis : `DIRECT_URL` pointe sur la connexion **directe** (port `5432`), pas la connexion poolée. `migrate deploy` ouvre des connexions longues incompatibles avec le pooler transactionnel (`pgbouncer`).
 
 ```bash
-# En local, pointé vers la base de PROD (DIRECT_URL configuré) :
-npx prisma migrate deploy
+# 1. Générer le client Prisma (idempotent) :
+pnpm prisma generate
+
+# 2. Inspecter l'état (quelles migrations sont en attente) :
+pnpm prisma migrate status
+
+# 3. Appliquer les migrations en attente sur la base de PROD :
+pnpm prisma migrate deploy
 ```
 
-- `migrate deploy` applique uniquement les migrations existantes (aucune génération, aucun prompt) — c'est la commande adaptée à la CI/prod.
-- Sur Vercel, l'idéal est de l'exécuter dans le `buildCommand` :
+- `migrate deploy` applique **uniquement** les migrations existantes (aucune génération, aucun prompt) — c'est la commande adaptée à la CI/prod. Il s'arrête en erreur si une migration échoue (transactionnel par fichier).
+- Migrations actuellement versionnées : init, onboarded, one-time-token, **hash-one-time-tokens** (purge les tokens en clair, cf. CF-1), avatar, last-visited-course.
+- Sur Vercel, exécuter dans le `buildCommand` :
   `prisma migrate deploy && next build`.
+- **Rollback** : Prisma n'a pas de `down` automatique. En cas de problème, restaurer depuis un backup (cf. ticket CF-19) ou écrire une migration corrective.
 
-Vérifie ensuite que le client est généré (`prisma generate` est lancé automatiquement au build via les `postinstall`/build de Next).
+> ✅ Le client Prisma (`lib/generated/prisma`) est régénéré à chaque build. La **CI** (`.github/workflows/ci.yml`) lance `prisma generate` + `typecheck` + `build` à chaque push, ce qui valide que le client et le bundle de prod se construisent (cf. CF-5).
 
 ---
 
@@ -64,11 +72,12 @@ Sur Vercel : connecter le repo GitHub → chaque push sur `main` déclenche un d
 
 - [x] Mots de passe hashés (bcrypt, cost **12**).
 - [x] Politique de mot de passe : ≥ 8 caractères, au moins une lettre + un chiffre (signup & reset) + champ de confirmation au signup.
-- [x] Tokens email/reset à usage unique, TTL, consommation atomique.
+- [x] Tokens email/reset à usage unique, TTL, consommation atomique, **stockés hachés SHA-256** (`lib/token-crypto.ts`) — un dump DB n'expose aucun lien utilisable (CF-1).
 - [x] Anti-énumération (login & forgot-password neutres).
 - [x] Toutes les routes `/api/me/*` exigent une session.
 - [x] Exécution du code élève isolée en iframe `sandbox="allow-scripts"`.
-- [x] **Rate limiting** sur login, signup, forgot-password, resend-verification, check-verification (`lib/rate-limit.ts`).
+- [x] **Rate limiting** sur login, signup, forgot-password, resend-verification, check-verification **et reset-password** (`lib/rate-limit.ts`) (CF-2).
+- [x] **Validation fail-fast de l'environnement** au démarrage (`lib/env.ts` via `instrumentation.ts`) : le serveur refuse de booter si une variable critique manque/est mal réglée (CF-3).
 - [x] **Headers de sécurité** dans `next.config.ts` : CSP (prod), HSTS, X-Frame-Options: DENY, X-Content-Type-Options, Referrer-Policy, Permissions-Policy ; `X-Powered-By` désactivé.
 - [ ] (Optionnel) CSP par nonces pour retirer `'unsafe-inline'` du `script-src` — non trivial avec Monaco (CDN + workers) et Next/Turbopack.
 
