@@ -82,6 +82,7 @@ Sur Vercel : connecter le repo GitHub → chaque push sur `main` déclenche un d
 - [x] Exécution du code élève isolée en iframe `sandbox="allow-scripts"`.
 - [x] **Rate limiting** sur login, signup, forgot-password, resend-verification, check-verification **et reset-password** (`lib/rate-limit.ts`) (CF-2).
 - [x] **Validation fail-fast de l'environnement** au démarrage (`lib/env.ts` via `instrumentation.ts`) : le serveur refuse de booter si une variable critique manque/est mal réglée (CF-3).
+- [x] **RGPD** : export des données (`GET /api/me/export`) et suppression définitive du compte (`DELETE /api/me`, cascade) exposés depuis la page profil (CF-14).
 - [x] **Headers de sécurité** dans `next.config.ts` : CSP (prod), HSTS, X-Frame-Options: DENY, X-Content-Type-Options, Referrer-Policy, Permissions-Policy ; `X-Powered-By` désactivé.
 - [ ] (Optionnel) CSP par nonces pour retirer `'unsafe-inline'` du `script-src` — non trivial avec Monaco (CDN + workers) et Next/Turbopack.
 
@@ -102,3 +103,30 @@ Dérouler `docs/SMOKE_TEST.md` sur l'URL de prod, en priorité :
 3. Forgot-password → email → reset → login avec nouveau mot de passe.
 4. Un chapitre complet par type de cours (HTML, JS, React, et un cours « commande » comme Git/SQL).
 5. `/api/me/*` sans session → 401.
+
+---
+
+## 7. Sauvegardes & restauration (CF-19)
+
+La base est la seule donnée non reconstructible : elle **doit** être sauvegardée.
+
+**Activer les sauvegardes automatiques** (hébergeur managé) :
+
+- **Neon** : sauvegardes continues + *Point-in-Time Restore* (PITR). Vérifier la fenêtre de rétention dans _Project → Backups_.
+- **Supabase** : _Database → Backups_. Daily backups sur les plans payants ; activer PITR si disponible. Sur le plan gratuit, planifier un `pg_dump` externe (cron) — les sauvegardes ne sont pas garanties.
+
+**Sauvegarde manuelle / hors-site (recommandé en complément)** :
+
+```bash
+# Dump compressé (utilise DIRECT_URL, connexion directe) :
+pg_dump "$DIRECT_URL" -Fc -f backup-$(date +%F).dump
+```
+
+**Restauration** :
+
+```bash
+# Restaurer dans une base vide (⚠️ destructif sur la cible) :
+pg_restore --clean --if-exists -d "$DIRECT_URL" backup-AAAA-MM-JJ.dump
+```
+
+> ✅ **Critère de validation** : sauvegardes automatiques activées **et** une restauration testée au moins une fois sur une base jetable (vérifier que l'app démarre et que les comptes/progression sont présents). Une sauvegarde jamais restaurée n'est pas une sauvegarde.
