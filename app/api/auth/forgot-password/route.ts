@@ -11,13 +11,13 @@ const bodySchema = z.object({
 });
 
 /**
- * Always returns 200 — never leaks whether the email exists in the system.
+ * toujours retourné 200 OK pour ne pas révéler si l'adresse e-mail est enregistrée ou non.
  */
 export async function POST(req: Request) {
-  // Throttle to prevent password-reset email spam / enumeration probing.
-  const limit = rateLimit(`forgot:${getClientIp(req)}`, {
+  //
+  const limit = await rateLimit(`forgot:${getClientIp(req)}`, {
     limit: 5,
-    windowMs: 15 * 60 * 1000, // 5 requests / 15 min / IP
+    windowMs: 15 * 60 * 1000, // 5 requettes / 15 min / IP
   });
   if (!limit.ok) return tooManyRequests(limit.retryAfter);
 
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     select: { id: true, email: true, password: true },
   });
 
-  // Only send if the user exists AND has a credentials-based password.
+  // envoyer que si l'utilisateur existe et a un mot de passe
   if (user && user.password) {
     const token = await createToken({ userId: user.id, kind: "password_reset" });
     await sendPasswordResetEmail({ to: user.email, token }).catch(() => {});

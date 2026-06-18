@@ -1,20 +1,21 @@
 import "server-only";
 
 import { NextResponse } from "next/server";
+import { Redis } from "@upstash/redis";
+
+import { logger } from "@/lib/logger";
 
 /**
- * Lightweight in-memory fixed-window rate limiter.
+ * Limiteur de débit à fenêtre fixe, enfichable.
  *
- * Keyed by an arbitrary string (typically `${scope}:${ip}`). Zero dependencies,
- * which makes it ideal for a single long-running Node instance (`next start`,
- * a VPS, a container).
+ * - **Par défaut** : compteurs en mémoire process. Parfait pour une instance
+ *   unique (`next start`, VPS, conteneur), zéro dépendance.
+ * - **Multi-instance / serverless** : si `UPSTASH_REDIS_REST_URL` +
+ *   `UPSTASH_REDIS_REST_TOKEN` sont définis, les compteurs sont partagés via
+ *   Upstash Redis, donc la limite est respectée à travers toutes les instances.
  *
- * ⚠️ Production caveat: the store lives in process memory. On a horizontally
- * scaled / serverless deployment (e.g. Vercel functions), each instance keeps
- * its own counters, so the effective limit is multiplied by the number of live
- * instances. For strict guarantees across instances, back this with a shared
- * store (Upstash Redis, or a Postgres table) — the public API below can stay
- * identical. For this app's scale it already blunts brute-force and email spam.
+ * L'API publique (`rateLimit`) est asynchrone dans les deux cas. En cas de panne
+ * Redis, on bascule en mémoire (fail-open) plutôt que de bloquer l'auth.
  */
 
 interface Bucket {
@@ -42,10 +43,12 @@ export interface RateLimitResult {
   retryAfter: number;
 }
 
-export function rateLimit(
-  key: string,
-  opts: { limit: number; windowMs: number }
-): RateLimitResult {
+export interface RateLimitOptions {
+  limit: number;
+  windowMs: number;
+}
+
+function memoryRateLimit(key: string, opts: RateLimitOptions): RateLimitResult {
   const now = Date.now();
   sweep(now);
 
@@ -64,6 +67,59 @@ export function rateLimit(
     };
   }
   return { ok: true, remaining: opts.limit - bucket.count, retryAfter: 0 };
+}
+
+// Upstash client, créé une seule fois si la config est présente.
+let redis: Redis | null = null;
+let redisChecked = false;
+function getRedis(): Redis | null {
+  if (redisChecked) return redis;
+  redisChecked = true;
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (url && token) {
+    redis = new Redis({ url, token });
+    logger.info("rate_limit_backend", { backend: "upstash" });
+  }
+  return redis;
+}
+
+async function redisRateLimit(
+  client: Redis,
+  key: string,
+  opts: RateLimitOptions
+): Promise<RateLimitResult> {
+  const redisKey = `rl:${key}`;
+  const count = await client.incr(redisKey);
+  // Premier hit de la fenêtre : poser l'expiration.
+  if (count === 1) {
+    await client.pexpire(redisKey, opts.windowMs);
+  }
+  if (count > opts.limit) {
+    const ttl = await client.pttl(redisKey);
+    const ttlMs = ttl > 0 ? ttl : opts.windowMs;
+    return { ok: false, remaining: 0, retryAfter: Math.max(1, Math.ceil(ttlMs / 1000)) };
+  }
+  return { ok: true, remaining: opts.limit - count, retryAfter: 0 };
+}
+
+export async function rateLimit(
+  key: string,
+  opts: RateLimitOptions
+): Promise<RateLimitResult> {
+  const client = getRedis();
+  if (client) {
+    try {
+      return await redisRateLimit(client, key, opts);
+    } catch (err) {
+      // Fail-open : ne pas bloquer l'utilisateur si Redis est injoignable.
+      logger.warn("rate_limit_redis_error_fallback_memory", {
+        message: err instanceof Error ? err.message : String(err),
+      });
+      return memoryRateLimit(key, opts);
+    }
+  }
+  return memoryRateLimit(key, opts);
 }
 
 /**

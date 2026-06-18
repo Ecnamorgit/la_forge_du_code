@@ -17,7 +17,7 @@ const bodySchema = z.object({
  */
 export async function POST(req: Request) {
   // Throttle to prevent verification-email spam.
-  const limit = rateLimit(`resend:${getClientIp(req)}`, {
+  const limit = await rateLimit(`resend:${getClientIp(req)}`, {
     limit: 5,
     windowMs: 15 * 60 * 1000, // 5 requests / 15 min / IP
   });

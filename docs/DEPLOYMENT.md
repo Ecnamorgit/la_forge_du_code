@@ -17,6 +17,8 @@ Configure ces variables dans le dashboard de l'hébergeur (Vercel → _Project S
 | `RESEND_API_KEY` | ✅ | Clé Resend de prod (`re_...`). |
 | `RESEND_FROM_EMAIL` | ✅ | Expéditeur sur **domaine vérifié** (ex. `Nebula Command <noreply@mail.codeforge.com>`). `onboarding@resend.dev` n'envoie qu'au compte propriétaire. |
 | `APP_URL` | ✅ | URL HTTPS publique **sans slash final** (ex. `https://codeforge.space`). Sert à construire les liens d'email — un mauvais réglage casse la vérification et le reset. |
+| `UPSTASH_REDIS_REST_URL` | ⚠️ multi-instance | Rate-limiter partagé (CF-7). Requis sur déploiement **serverless/multi-instance** (Vercel) pour que la limite soit respectée entre instances. Absent → fallback mémoire (OK en mono-instance). |
+| `UPSTASH_REDIS_REST_TOKEN` | ⚠️ multi-instance | Token REST Upstash, va de pair avec l'URL ci-dessus. |
 
 > **AUTH_SECRET** : générer une valeur dédiée à la prod et la garder secrète. Si elle fuite, toutes les sessions deviennent forgeables → régénérer immédiatement (invalide les sessions existantes).
 
@@ -83,7 +85,7 @@ Sur Vercel : connecter le repo GitHub → chaque push sur `main` déclenche un d
 
 > ⚠️ **À vérifier en navigateur avant de déployer** : la CSP n'est active qu'en production. Lance `npm run build && npm start`, ouvre une mission (ex. `/learn/javascript/chapitre-1`) avec la console DevTools, et confirme que l'éditeur Monaco se charge, que « Déployer » exécute le code, et qu'il n'y a **aucune erreur `Content-Security-Policy`**. Si Monaco est bloqué, ajuste `script-src`/`worker-src`/`connect-src` (domaine `cdn.jsdelivr.net` + `blob:`).
 
-> ⚠️ **Rate limiting** : l'implémentation actuelle est en mémoire (per-instance). Sur un déploiement serverless multi-instances (Vercel), la limite effective est multipliée par le nombre d'instances. Pour une garantie stricte, brancher `lib/rate-limit.ts` sur un store partagé (Upstash Redis ou une table Postgres). Suffisant en l'état pour un déploiement mono-instance ou un trafic modéré.
+> ℹ️ **Rate limiting** (CF-7) : `lib/rate-limit.ts` est enfichable. Par défaut il compte en mémoire (suffisant en **mono-instance**). Sur un déploiement **serverless/multi-instance** (Vercel), renseigne `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` : les compteurs sont alors partagés via Upstash Redis et la limite est respectée à travers les instances. Sans ces variables, le fallback mémoire reste actif ; en cas de panne Redis, on bascule en mémoire (fail-open).
 
 > ✅ **Vérifié automatiquement** (serveur de prod local) : `/api/me` sans session → 401 ; signup mot de passe faible → 400 ; rate limit signup → 429 après 5 requêtes/IP ; tous les headers de sécurité présents dans la réponse HTTP.
 

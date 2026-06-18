@@ -19,7 +19,7 @@ const bodySchema = z.object({
 export async function POST(req: Request) {
   // Throttle par IP : empêche de marteler des tokens au hasard, et borne le
   // coût des bcrypt.hash déclenchés par cette route.
-  const limit = rateLimit(`reset:${getClientIp(req)}`, {
+  const limit = await rateLimit(`reset:${getClientIp(req)}`, {
     limit: 10,
     windowMs: 15 * 60 * 1000, // 10 tentatives / 15 min / IP
   });
