@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/db";
 import { TokenError, consumeToken } from "@/lib/tokens";
+import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
   token: z.string().min(20).max(200),
@@ -16,6 +17,14 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: Request) {
+  // Throttle par IP : empêche de marteler des tokens au hasard, et borne le
+  // coût des bcrypt.hash déclenchés par cette route.
+  const limit = rateLimit(`reset:${getClientIp(req)}`, {
+    limit: 10,
+    windowMs: 15 * 60 * 1000, // 10 tentatives / 15 min / IP
+  });
+  if (!limit.ok) return tooManyRequests(limit.retryAfter);
+
   let raw: unknown;
   try {
     raw = await req.json();
