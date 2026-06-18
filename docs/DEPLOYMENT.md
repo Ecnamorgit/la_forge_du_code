@@ -19,6 +19,8 @@ Configure ces variables dans le dashboard de l'hébergeur (Vercel → _Project S
 | `APP_URL` | ✅ | URL HTTPS publique **sans slash final** (ex. `https://codeforge.space`). Sert à construire les liens d'email — un mauvais réglage casse la vérification et le reset. |
 | `UPSTASH_REDIS_REST_URL` | ⚠️ multi-instance | Rate-limiter partagé (CF-7). Requis sur déploiement **serverless/multi-instance** (Vercel) pour que la limite soit respectée entre instances. Absent → fallback mémoire (OK en mono-instance). |
 | `UPSTASH_REDIS_REST_TOKEN` | ⚠️ multi-instance | Token REST Upstash, va de pair avec l'URL ci-dessus. |
+| `SENTRY_DSN` | ⬜ optionnel | Monitoring d'erreurs serveur (CF-10). Absent → inerte (erreurs loggées via `lib/logger.ts`). Présent → init Sentry + remontée via `onRequestError`. |
+| `SENTRY_TRACES_SAMPLE_RATE` | ⬜ optionnel | Taux d'échantillonnage des traces (défaut `0.1`). |
 
 > **AUTH_SECRET** : générer une valeur dédiée à la prod et la garder secrète. Si elle fuite, toutes les sessions deviennent forgeables → régénérer immédiatement (invalide les sessions existantes).
 

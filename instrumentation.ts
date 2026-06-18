@@ -1,32 +1,37 @@
-/**
- * Hook d'instrumentation Next.js : `register()` est appelé une seule fois au
- * démarrage de chaque instance serveur, avant de servir la moindre requête.
- *
- * On s'en sert pour valider la configuration d'environnement « fail-fast » :
- * si une variable critique manque ou est mal réglée, le serveur refuse de
- * démarrer avec un message explicite, au lieu de planter au premier appel DB
- * ou au premier envoi d'email.
- *
- * Limité au runtime Node.js : le runtime Edge (middleware) n'utilise ni Prisma
- * ni Resend, et l'import de la validation y est inutile.
- */
 import type { Instrumentation } from "next";
 
 import { logger } from "./lib/logger";
 
+/**
+ * Hook d'instrumentation Next.js : `register()` est appelé une seule fois au
+ * démarrage de chaque instance serveur, avant de servir la moindre requête.
+ *
+ * - Validation fail-fast de la configuration d'environnement (CF-3).
+ * - Initialisation optionnelle de Sentry (CF-10) si `SENTRY_DSN` est défini —
+ *   import dynamique pour rester totalement inerte (build + bundle) tant que le
+ *   monitoring n'est pas configuré.
+ */
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
     const { validateEnv } = await import("./lib/env");
     validateEnv();
   }
+
+  if (process.env.SENTRY_DSN) {
+    const Sentry = await import("@sentry/nextjs");
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? "0.1"),
+    });
+  }
 }
 
 /**
  * Capture centralisée des erreurs serveur non gérées (Server Components, Route
- * Handlers, Server Actions). Logge un évènement structuré exploitable sans
- * exposer de PII. Point d'accroche idéal pour brancher Sentry plus tard (CF-10).
+ * Handlers, Server Actions). Logge un évènement structuré (CF-9) et, si Sentry
+ * est configuré, le remonte au monitoring (CF-10). Aucune PII exposée.
  */
-export const onRequestError: Instrumentation.onRequestError = (
+export const onRequestError: Instrumentation.onRequestError = async (
   err,
   request,
   context
@@ -39,4 +44,9 @@ export const onRequestError: Instrumentation.onRequestError = (
     routePath: context.routePath,
     routeType: context.routeType,
   });
+
+  if (process.env.SENTRY_DSN) {
+    const Sentry = await import("@sentry/nextjs");
+    Sentry.captureRequestError(err, request, context);
+  }
 };
