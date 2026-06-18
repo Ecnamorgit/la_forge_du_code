@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { signOut } from "next-auth/react";
 
 import DashboardNav from "../DashboardNav";
 import { useUser } from "@/lib/use-user";
@@ -16,8 +18,6 @@ import {
 } from "@/lib/user-store";
 import { getChaptersMeta, type ChapterMetaFull } from "@/lib/courses-meta";
 import { COURSES_CATALOG } from "@/lib/courses-catalog";
-import Sprite from "@/components/ui/Sprite";
-import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import { BADGES } from "@/lib/badges-catalog";
 import CourseIcon from "@/components/ui/CourseIcon";
 
@@ -372,7 +372,7 @@ export default function ProfilPage() {
             {"> "}Badges
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {ALL_BADGES.map((badge, i) => {
+            {ALL_BADGES.map((badge) => {
               const unlocked = state.badges.includes(badge.id);
               return (
                 <article
@@ -460,7 +460,88 @@ export default function ProfilPage() {
             <SoundToggleRow />
           </div>
         </section>
+
+        {/* Données personnelles (RGPD) */}
+        <section className="mb-10 animate-fade-up">
+          <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
+            {"> "}Mes données (RGPD)
+          </h2>
+          <div className="rounded-sm border border-nebula-border/60 bg-nebula-bg-panel/70 p-5 backdrop-blur-md">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="min-w-0">
+                <div className="font-tech text-sm uppercase tracking-widest text-nebula-text">
+                  Exporter mes données
+                </div>
+                <p className="mt-1 font-body text-xs text-nebula-text-dim">
+                  Télécharge l&apos;ensemble de tes données (profil, badges, progression) au format JSON.
+                </p>
+              </div>
+              <a
+                href="/api/me/export"
+                download
+                className="rounded-sm border border-nebula-cyan-dim bg-transparent px-4 py-2 font-tech text-xs uppercase tracking-widest text-nebula-cyan transition-all hover:border-nebula-cyan hover:bg-nebula-cyan-faint"
+              >
+                Exporter (JSON)
+              </a>
+            </div>
+            <div className="my-5 h-px bg-nebula-border/50" />
+            <DangerZone />
+          </div>
+        </section>
       </main>
+    </div>
+  );
+}
+
+function DangerZone() {
+  const router = useRouter();
+  const [deleting, setDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    if (
+      !window.confirm(
+        "Supprimer définitivement ton compte et TOUTES tes données ? Cette action est irréversible."
+      )
+    ) {
+      return;
+    }
+    setDeleting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/me", { method: "DELETE" });
+      if (!res.ok) throw new Error("Suppression impossible. Réessaie.");
+      await signOut({ redirect: false });
+      router.push("/");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur");
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="min-w-0">
+        <div className="font-tech text-sm uppercase tracking-widest text-nebula-red">
+          Supprimer mon compte
+        </div>
+        <p className="mt-1 font-body text-xs text-nebula-text-dim">
+          Efface définitivement ton compte, ta progression et tes badges. Aucune récupération possible.
+        </p>
+        {error && (
+          <p className="mt-2 font-tech text-[11px] uppercase tracking-wider text-nebula-red">
+            {"> "}ERREUR : {error}
+          </p>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={handleDelete}
+        disabled={deleting}
+        className="rounded-sm border border-nebula-red/60 bg-transparent px-4 py-2 font-tech text-xs uppercase tracking-widest text-nebula-red transition-all enabled:hover:bg-nebula-red/10 disabled:opacity-50"
+      >
+        {deleting ? "Suppression..." : "Supprimer définitivement"}
+      </button>
     </div>
   );
 }
