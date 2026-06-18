@@ -27,13 +27,29 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      # --no-frozen-lockfile : à retirer une fois `pnpm install` relancé en local
-      # pour régénérer pnpm-lock.yaml avec vitest.
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
+
+      # Le client Prisma est généré (lib/generated/prisma) et nécessaire au
+      # typecheck comme au build.
+      - name: Generate Prisma client
+        run: pnpm prisma generate
 
       - name: Lint
         run: pnpm lint
 
+      - name: Typecheck
+        run: pnpm typecheck
+
       - name: Tests unitaires
         run: pnpm test:run
+
+      # Build de production. DATABASE_URL factice : aucune page n'interroge la
+      # base au build (pas de generateStaticParams), l'URL sert juste à
+      # instancier le pool Prisma à l'import. La validation d'env (fail-fast)
+      # ne tourne qu'au démarrage du serveur, pas au build.
+      - name: Build
+        run: pnpm build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          AUTH_SECRET: ci-build-secret-not-used-1234567890
