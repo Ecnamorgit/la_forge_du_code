@@ -1,38 +1,35 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 import { isSoundEnabled, setSoundEnabled } from "./audio";
 
-/** Reactive accessor to the sound preference (localStorage-backed). */
+function subscribe(callback: () => void): () => void {
+  window.addEventListener("nebula:sound-changed", callback);
+  return () => window.removeEventListener("nebula:sound-changed", callback);
+}
+
+/**
+ * Reactive accessor to the sound preference (localStorage-backed).
+ *
+ * Modelled as an external store: `setSoundEnabled` writes localStorage and
+ * dispatches "nebula:sound-changed", which `useSyncExternalStore` subscribes to.
+ * SSR + first client paint default to `true`; the real value is read once mounted.
+ */
 export function useSoundPreference(): {
   enabled: boolean;
   toggle: () => void;
   setEnabled: (v: boolean) => void;
 } {
-  // Default to true on first render so SSR + first paint match. Real value is
-  // read in the effect once we know we're in the browser.
-  const [enabled, setEnabledState] = useState(true);
-
-  useEffect(() => {
-    setEnabledState(isSoundEnabled());
-    const onChange = (e: Event) => {
-      setEnabledState((e as CustomEvent<boolean>).detail);
-    };
-    window.addEventListener("nebula:sound-changed", onChange);
-    return () => window.removeEventListener("nebula:sound-changed", onChange);
-  }, []);
+  const enabled = useSyncExternalStore(subscribe, isSoundEnabled, () => true);
 
   const setEnabled = useCallback((v: boolean) => {
     setSoundEnabled(v);
-    setEnabledState(v);
   }, []);
 
   const toggle = useCallback(() => {
-    const next = !enabled;
-    setSoundEnabled(next);
-    setEnabledState(next);
-  }, [enabled]);
+    setSoundEnabled(!isSoundEnabled());
+  }, []);
 
   return { enabled, toggle, setEnabled };
 }
