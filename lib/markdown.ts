@@ -42,7 +42,7 @@ export function renderLessonMarkdown(
       formatted = formatted.replace(DOC_TOKEN_RE, (_full, id, label) => {
         const text =
           label != null ? label : escapeHtml(opts.resolveDocTerm?.(id) ?? id);
-        return `<button type="button" data-doc-id="${id}" class="doc-chip inline-flex items-center gap-1 rounded-sm border border-nebula-cyan/40 bg-nebula-cyan-faint/30 px-1.5 py-0.5 align-baseline font-code text-xs text-nebula-cyan transition-colors hover:border-nebula-cyan hover:bg-nebula-cyan-faint/60">📖 ${text}</button>`;
+        return `<button type="button" data-doc-id="${escapeHtml(id)}" class="doc-chip inline-flex items-center gap-1 rounded-sm border border-nebula-cyan/40 bg-nebula-cyan-faint/30 px-1.5 py-0.5 align-baseline font-code text-xs text-nebula-cyan transition-colors hover:border-nebula-cyan hover:bg-nebula-cyan-faint/60">📖 ${text}</button>`;
       });
 
       formatted = formatted.replace(

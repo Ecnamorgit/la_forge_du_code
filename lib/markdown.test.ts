@@ -38,6 +38,12 @@ describe("renderLessonMarkdown — token doc", () => {
     const out = renderLessonMarkdown("voir [[doc:html/doctype]]");
     expect(out).toContain("html/doctype");
   });
+
+  it("échappe l'id du chip (defense en profondeur) et préserve le label", () => {
+    const out = renderLessonMarkdown("voir [[doc:html/doctype|a & b]]");
+    expect(out).toContain('data-doc-id="html/doctype"');
+    expect(out).toContain("a &amp; b");
+  });
 });
 
 describe("extractDocTokenIds", () => {
