@@ -22,45 +22,8 @@ import { xpForStep } from "@/lib/xp";
 import { getChapterBackground, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import { getBadgeForChapter } from "@/lib/courses-meta";
 import { badgeFrameById } from "@/lib/badges-catalog";
-
-function parseBriefing(content: string) {
-  if (!content) return "";
-
-  const escaped = content
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-
-  return escaped
-    .split("\n")
-    .map((line) => {
-      const trimmed = line.trim();
-      if (!trimmed) return "";
-
-      let formatted = line;
-      formatted = formatted.replace(
-        /`([^`]+)`/g,
-        '<code class="bg-nebula-bg-editor px-1.5 py-0.5 rounded text-nebula-cyan font-code text-xs font-mono">$1</code>'
-      );
-      formatted = formatted.replace(
-        /\*\*([^*]+)\*\*/g,
-        '<strong class="text-nebula-orange font-bold">$1</strong>'
-      );
-
-      const finalTrimmed = formatted.trim();
-
-      if (finalTrimmed.startsWith("### ")) {
-        return `<h4 class="text-nebula-cyan font-tech text-lg mt-8 mb-4 tracking-widest uppercase border-b border-nebula-cyan/20 pb-2">${finalTrimmed.slice(4)}</h4>`;
-      }
-
-      if (finalTrimmed.startsWith("- ")) {
-        return `<li class="ml-4 mb-3 text-nebula-text/85 list-none flex gap-2.5 text-base leading-relaxed"><span class="text-nebula-cyan shrink-0 mt-0.5">◈</span><span>${finalTrimmed.slice(2)}</span></li>`;
-      }
-
-      return `<p class="mb-5 last:mb-0 text-base leading-relaxed">${formatted}</p>`;
-    })
-    .join("");
-}
+import { renderLessonMarkdown } from "@/lib/markdown";
+import { getDocEntry } from "@/data/docs/html";
 
 interface ChapterClientProps {
   course: string;
@@ -344,7 +307,9 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
           <div
             className="prose-nebula font-body text-base leading-relaxed text-nebula-text/90"
             dangerouslySetInnerHTML={{
-              __html: parseBriefing(step.briefing.content),
+              __html: renderLessonMarkdown(step.briefing.content, {
+                resolveDocTerm: (id) => getDocEntry(id)?.term,
+              }),
             }}
           />
 
