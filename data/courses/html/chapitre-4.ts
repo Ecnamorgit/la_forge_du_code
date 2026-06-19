@@ -39,6 +39,7 @@ Chaque ligne de la liste est une balise **<li>** (*list item*).
         { id: "o1a", label: "Ajouter une balise <ul>" },
         { id: "o1b", label: "Placer au moins trois <li>" },
       ],
+      docRefs: ["html/ul"],
       missionIcon: "📦",
       missionTag: "PROTOCOLE 01",
       missionTtl: "DRESSER L'INVENTAIRE",
@@ -77,6 +78,7 @@ Des qu'il y a un **ordre logique** : une recette, une procedure, un classement.
         { id: "o2a", label: "Ajouter une balise <ol>" },
         { id: "o2b", label: "Placer au moins trois <li>" },
       ],
+      docRefs: ["html/ol"],
       missionIcon: "🔢",
       missionTag: "PROTOCOLE 02",
       missionTtl: "ORDRE DE MARCHE",
@@ -119,6 +121,7 @@ Des qu'il y a un **ordre logique** : une recette, une procedure, un classement.
         { id: "o3a", label: "Ajouter une balise <table>" },
         { id: "o3b", label: "Placer au moins deux <tr> avec des <td>" },
       ],
+      docRefs: ["html/table"],
       missionIcon: "🧮",
       missionTag: "PROTOCOLE 03",
       missionTtl: "GRILLE DE COORDONNEES",
@@ -129,7 +132,7 @@ Des qu'il y a un **ordre logique** : une recette, une procedure, un classement.
     },
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Arsenal</title>\n  </head>\n  <body>\n    <h1>Inventaire de la base</h1>\n    <table>\n      <tr>\n        <td>Mars</td>\n        <td>225 M km</td>\n      </tr>\n      <tr>\n        <td>Lune</td>\n        <td>384 000 km</td>\n      </tr>\n    </table>\n    \n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Arsenal</title>\n  </head>\n  <body>\n    <h1>Inventaire de la base</h1>\n    <ul>\n      <li>Oxygene</li>\n      <li>Energie</li>\n      <li>Communication</li>\n    </ul>\n    <ol>\n      <li>Pressuriser</li>\n      <li>Allumer les moteurs</li>\n      <li>Decoller</li>\n    </ol>\n    <table>\n      <tr>\n        <td>Mars</td>\n        <td>225 M km</td>\n      </tr>\n      <tr>\n        <td>Lune</td>\n        <td>384 000 km</td>\n      </tr>\n    </table>\n    \n  </body>\n</html>',
       placeholder: "<!-- Ajoute des titres de colonnes avec <thead> et <th> -->",
       narrator:
         "Sans en-tete, la grille est aveugle. Distingue les colonnes avec <thead> et <th> pour donner du sens aux donnees.",
@@ -149,7 +152,7 @@ Des qu'il y a un **ordre logique** : une recette, une procedure, un classement.
 \`  </thead>\`
 \`  <tbody>\`
 \`    <tr><td>Mars</td><td>225 M km</td></tr>\`
-\`    <tbody>\`
+\`  </tbody>\`
 \`</table>\`
 
 **Avantage :** les outils d'accessibilite annoncent que "Cible" est l'en-tete de la colonne, pas une donnee.
@@ -159,6 +162,7 @@ Des qu'il y a un **ordre logique** : une recette, une procedure, un classement.
         { id: "o4a", label: "Encadrer les en-tetes dans un <thead>" },
         { id: "o4b", label: "Utiliser au moins deux <th>" },
       ],
+      docRefs: ["html/thead"],
       missionIcon: "🏷",
       missionTag: "PROTOCOLE 04",
       missionTtl: "BAPTISER LES COLONNES",

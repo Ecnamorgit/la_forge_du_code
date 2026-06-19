@@ -47,6 +47,7 @@ export const chapitre8: ChapterData = {
         { id: "o1a", label: "Ajouter une balise <video>" },
         { id: "o1b", label: "Activer l'attribut controls" },
       ],
+      docRefs: ["html/video"],
       missionIcon: "🎬",
       missionTag: "PROTOCOLE 01",
       missionTtl: "DIFFUSION VIDEO",
@@ -90,6 +91,7 @@ export const chapitre8: ChapterData = {
         { id: "o2a", label: "Ajouter une balise <audio>" },
         { id: "o2b", label: "Activer l'attribut controls" },
       ],
+      docRefs: ["html/audio"],
       missionIcon: "🔊",
       missionTag: "PROTOCOLE 02",
       missionTtl: "CANAL AUDIO",
@@ -137,6 +139,7 @@ Une image 4000x3000 px sert magnifiquement un ecran retina, mais sur un mobile 4
         { id: "o3a", label: "Utiliser l'attribut srcset sur <img>" },
         { id: "o3b", label: "Definir l'attribut sizes" },
       ],
+      docRefs: ["html/picture", "html/img"],
       missionIcon: "🖼",
       missionTag: "PROTOCOLE 03",
       missionTtl: "IMAGES ADAPTATIVES",
@@ -147,7 +150,7 @@ Une image 4000x3000 px sert magnifiquement un ecran retina, mais sur un mobile 4
     },
     {
       startCode:
-        '<!DOCTYPE html>\n<html lang="fr">\n  <head>\n    <meta charset="UTF-8">\n    <title>Centre de diffusion</title>\n  </head>\n  <body>\n    <h1>Centre de diffusion</h1>\n    <video src="briefing.mp4" controls width="480"></video>\n    <audio src="alerte.mp3" controls></audio>\n    \n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html lang="fr">\n  <head>\n    <meta charset="UTF-8">\n    <title>Centre de diffusion</title>\n  </head>\n  <body>\n    <h1>Centre de diffusion</h1>\n    <video src="briefing.mp4" controls width="480"></video>\n    <audio src="alerte.mp3" controls></audio>\n    <img src="lune.jpg" alt="Surface lunaire" srcset="lune-small.jpg 480w, lune-large.jpg 1200w" sizes="(max-width: 600px) 480px, 1200px">\n    \n  </body>\n</html>',
       placeholder: "<!-- Utilise <picture> avec deux <source> pour servir webp puis fallback jpg -->",
       narrator:
         "Encore mieux que srcset : la balise <picture> permet de servir des formats differents (WebP moderne pour les navigateurs qui le supportent, JPG en fallback). Encapsule deux <source> et un <img> de secours.",
@@ -180,6 +183,7 @@ Le navigateur **lit les sources dans l'ordre** et prend la **premiere qu'il sait
         { id: "o4a", label: "Encapsuler avec une balise <picture>" },
         { id: "o4b", label: "Avoir au moins 2 <source> + un <img> fallback" },
       ],
+      docRefs: ["html/picture"],
       missionIcon: "🎞",
       missionTag: "PROTOCOLE 04",
       missionTtl: "MULTI-FORMAT",
