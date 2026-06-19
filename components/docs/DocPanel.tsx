@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { getDocEntry } from "@/data/docs/html";
 import { renderLessonMarkdown } from "@/lib/markdown";
 
@@ -10,9 +10,16 @@ interface DocPanelProps {
   onOpen: (id: string) => void;
 }
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export default function DocPanel({ entryId, onClose, onOpen }: DocPanelProps) {
   const entry = entryId ? getDocEntry(entryId) : undefined;
   const open = entry != null;
+
+  const panelRef = useRef<HTMLElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -22,6 +29,56 @@ export default function DocPanel({ entryId, onClose, onOpen }: DocPanelProps) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  // Déplace le focus dans le panneau à l'ouverture, et le restaure à la fermeture.
+  useEffect(() => {
+    if (!open) return;
+    previouslyFocusedRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    closeButtonRef.current?.focus();
+
+    return () => {
+      const previouslyFocused = previouslyFocusedRef.current;
+      if (previouslyFocused && document.contains(previouslyFocused)) {
+        previouslyFocused.focus();
+      }
+    };
+  }, [open, entryId]);
+
+  // Piège le focus (Tab / Shift+Tab) à l'intérieur du panneau pendant qu'il est ouvert.
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const panel = panelRef.current;
+      if (!panel) return;
+
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+      ).filter((el) => el.offsetParent !== null || el === document.activeElement);
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (e.shiftKey) {
+        if (active === first || !panel.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (active === last || !panel.contains(active)) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   return (
     <>
@@ -35,9 +92,11 @@ export default function DocPanel({ entryId, onClose, onOpen }: DocPanelProps) {
       />
       {/* Panneau : drawer bas sur mobile, latéral droit sur lg */}
       <aside
+        ref={panelRef}
         data-testid="doc-panel"
         aria-hidden={!open}
         role="dialog"
+        aria-modal="true"
         aria-label={entry?.title ?? "Fiche de référence"}
         className={`fixed z-[211] flex flex-col overflow-hidden border-nebula-border/70 bg-nebula-bg-darkest/95 backdrop-blur-md transition-transform duration-200 motion-reduce:transition-none
           inset-x-0 bottom-0 max-h-[85dvh] rounded-t-xl border-t
@@ -51,6 +110,7 @@ export default function DocPanel({ entryId, onClose, onOpen }: DocPanelProps) {
                 📖 Référence
               </span>
               <button
+                ref={closeButtonRef}
                 type="button"
                 onClick={onClose}
                 aria-label="Fermer"
