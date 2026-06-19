@@ -15,19 +15,19 @@ test("le panneau de doc s'ouvre depuis un chip et se ferme avec Échap", async (
   await page.goto("/learn/html/chapitre-1");
 
   const panel = page.getByTestId("doc-panel");
-  await expect(panel).toBeHidden();
+  await expect(panel).toHaveAttribute("aria-hidden", "true");
 
   // Chip inline dans le briefing.
   await page.locator('button[data-doc-id="html/doctype"]').first().click();
-  await expect(panel).toBeVisible();
+  await expect(panel).toHaveAttribute("aria-hidden", "false");
   await expect(panel.getByText("La déclaration <!DOCTYPE html>")).toBeVisible();
 
   // Échap ferme.
   await page.keyboard.press("Escape");
-  await expect(panel).toBeHidden();
+  await expect(panel).toHaveAttribute("aria-hidden", "true");
 
   // Cluster « Références de cette étape ».
   await page.locator('button[data-doc-ref="html/html-element"]').click();
-  await expect(panel).toBeVisible();
+  await expect(panel).toHaveAttribute("aria-hidden", "false");
   await expect(panel.getByText("L'élément racine <html>")).toBeVisible();
 });
