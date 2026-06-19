@@ -26,11 +26,13 @@ export default async function globalSetup(): Promise<void> {
   await client.connect();
   try {
     const hash = await bcrypt.hash(E2E_USER.password, 10);
+    // emailVerified + onboardedAt non null : utilisateur prêt, sans overlay
+    // d'onboarding qui pourrait masquer l'éditeur dans les tests.
     await client.query(
-      `INSERT INTO "User" (id, email, username, password, "emailVerified", "lastVisit")
-       VALUES ($1, $2, $3, $4, NOW(), '')
+      `INSERT INTO "User" (id, email, username, password, "emailVerified", "onboardedAt", "lastVisit")
+       VALUES ($1, $2, $3, $4, NOW(), NOW(), '')
        ON CONFLICT (email)
-       DO UPDATE SET password = EXCLUDED.password, "emailVerified" = NOW()`,
+       DO UPDATE SET password = EXCLUDED.password, "emailVerified" = NOW(), "onboardedAt" = NOW()`,
       [E2E_USER.id, E2E_USER.email, E2E_USER.username, hash]
     );
   } finally {
