@@ -21,6 +21,8 @@ export interface Step {
     content: string;
   };
   objectives: StepObjective[];
+  /** Ids de fiches de référence pertinentes pour cette étape (optionnel). */
+  docRefs?: string[];
   bannerIcon: string;
   /** Optional frame index in /sprites/banner-icons.png. Falls back to bannerIcon emoji. */
   bannerFrame?: number;

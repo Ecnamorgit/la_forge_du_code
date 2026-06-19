@@ -22,45 +22,9 @@ import { xpForStep } from "@/lib/xp";
 import { getChapterBackground, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import { getBadgeForChapter } from "@/lib/courses-meta";
 import { badgeFrameById } from "@/lib/badges-catalog";
-
-function parseBriefing(content: string) {
-  if (!content) return "";
-
-  const escaped = content
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-
-  return escaped
-    .split("\n")
-    .map((line) => {
-      const trimmed = line.trim();
-      if (!trimmed) return "";
-
-      let formatted = line;
-      formatted = formatted.replace(
-        /`([^`]+)`/g,
-        '<code class="bg-nebula-bg-editor px-1.5 py-0.5 rounded text-nebula-cyan font-code text-xs font-mono">$1</code>'
-      );
-      formatted = formatted.replace(
-        /\*\*([^*]+)\*\*/g,
-        '<strong class="text-nebula-orange font-bold">$1</strong>'
-      );
-
-      const finalTrimmed = formatted.trim();
-
-      if (finalTrimmed.startsWith("### ")) {
-        return `<h4 class="text-nebula-cyan font-tech text-lg mt-8 mb-4 tracking-widest uppercase border-b border-nebula-cyan/20 pb-2">${finalTrimmed.slice(4)}</h4>`;
-      }
-
-      if (finalTrimmed.startsWith("- ")) {
-        return `<li class="ml-4 mb-3 text-nebula-text/85 list-none flex gap-2.5 text-base leading-relaxed"><span class="text-nebula-cyan shrink-0 mt-0.5">◈</span><span>${finalTrimmed.slice(2)}</span></li>`;
-      }
-
-      return `<p class="mb-5 last:mb-0 text-base leading-relaxed">${formatted}</p>`;
-    })
-    .join("");
-}
+import { renderLessonMarkdown } from "@/lib/markdown";
+import { getDocEntry } from "@/data/docs/html";
+import DocPanel from "@/components/docs/DocPanel";
 
 interface ChapterClientProps {
   course: string;
@@ -138,6 +102,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
   const [bannerVfxTrigger, setBannerVfxTrigger] = useState(0);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [levelUp, setLevelUp] = useState({ trigger: 0, level: 1 });
+  const [openDocId, setOpenDocId] = useState<string | null>(null);
   const previousLevelRef = useRef<number>(levelFromXp(state.totalXp));
 
   const hintTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -271,6 +236,11 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
         href={`/learn/${course}`}
       />
       <HintBox show={showHint} html={step.hint} />
+      <DocPanel
+        entryId={openDocId}
+        onClose={() => setOpenDocId(null)}
+        onOpen={(id) => setOpenDocId(id)}
+      />
 
       {/* Top bar */}
       <header className="relative z-50 flex h-14 shrink-0 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/70 px-4 backdrop-blur-md lg:px-6">
@@ -343,10 +313,48 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
 
           <div
             className="prose-nebula font-body text-base leading-relaxed text-nebula-text/90"
+            onClick={(e) => {
+              const el = (e.target as HTMLElement).closest("[data-doc-id]");
+              const id = el?.getAttribute("data-doc-id");
+              if (id) setOpenDocId(id);
+            }}
             dangerouslySetInnerHTML={{
-              __html: parseBriefing(step.briefing.content),
+              __html: renderLessonMarkdown(step.briefing.content, {
+                resolveDocTerm: (id) => getDocEntry(id)?.term,
+              }),
             }}
           />
+
+          {step.docRefs && step.docRefs.length > 0 && (
+            <div className="mt-8 rounded-sm border border-nebula-cyan/30 bg-nebula-cyan-faint/20 p-5">
+              <div className="mb-3 font-tech text-sm uppercase tracking-widest text-nebula-cyan">
+                📖 Références de cette étape
+              </div>
+              <ul className="space-y-2">
+                {step.docRefs.map((id) => {
+                  const ref = getDocEntry(id);
+                  if (!ref) return null;
+                  return (
+                    <li key={id}>
+                      <button
+                        type="button"
+                        data-doc-ref={id}
+                        onClick={() => setOpenDocId(id)}
+                        className="w-full rounded-sm border border-nebula-border/60 bg-[rgba(5,10,20,0.32)] px-4 py-2.5 text-left transition-colors hover:border-nebula-cyan"
+                      >
+                        <span className="font-code text-sm text-nebula-cyan">
+                          {ref.term}
+                        </span>
+                        <span className="ml-2 font-body text-xs text-nebula-text-secondary">
+                          {ref.summary}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
 
           {/* Objectifs */}
           <div className="mt-10 rounded-sm border border-nebula-border/70 bg-[rgba(5,10,20,0.32)] p-5">
