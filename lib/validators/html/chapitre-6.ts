@@ -52,7 +52,7 @@ export const validators: Validator[] = [
   // Step 4: img has alt + nav link has aria-current="page"
   (code) => {
     const clean = stripHtmlComments(code);
-    const imgWithAlt = /<img\b[^>]*\balt\s*=\s*["'][^"']*["'][^>]*>/i.test(clean);
+    const imgWithAlt = /<img\b[^>]*\balt\s*=\s*["'][^"']+["'][^>]*>/i.test(clean);
     if (!imgWithAlt) {
       return { ok: false, msg: 'Ajoute un attribut alt="..." sur l\'image (texte descriptif).' };
     }
