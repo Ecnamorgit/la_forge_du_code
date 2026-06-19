@@ -3,7 +3,7 @@ import * as path from 'path';
 
 const coursesDir = path.join(process.cwd(), 'codeforge/data/courses');
 const courses = fs.readdirSync(coursesDir);
-const result: any = {};
+const result: Record<string, unknown> = {};
 
 for (const course of courses) {
   const coursePath = path.join(coursesDir, course);

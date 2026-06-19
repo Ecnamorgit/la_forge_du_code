@@ -41,6 +41,10 @@ export function runJs(code: string): Promise<JsRunResult> {
       return;
     }
 
+    // Origine de la fenêtre parente (l'app). Sert de cible explicite au
+    // postMessage du sandbox, au lieu du "*" permissif.
+    const parentOrigin = window.location.origin;
+
     const iframe = document.createElement("iframe");
     iframe.setAttribute("sandbox", "allow-scripts");
     iframe.style.display = "none";
@@ -86,8 +90,17 @@ export function runJs(code: string): Promise<JsRunResult> {
       (function () {
         "use strict";
         const logs = [];
+        // Bornes anti-emballement : un code malicieux/buggé ne peut pas faire
+        // exploser la mémoire ou la taille du message avant le timeout parent.
+        const MAX_LOGS = 1000;
+        const MAX_LINE = 2000;
         const formatArg = ${formatArg.toString()};
-        const append = (...args) => logs.push(args.map(formatArg).join(" "));
+        const append = (...args) => {
+          if (logs.length >= MAX_LOGS) return;
+          let line = args.map(formatArg).join(" ");
+          if (line.length > MAX_LINE) line = line.slice(0, MAX_LINE) + "… (tronqué)";
+          logs.push(line);
+        };
         const fakeConsole = { log: append, info: append, warn: append, error: append, debug: append };
         // localStorage polyfill — opaque-origin iframes (sandbox without allow-same-origin)
         // don't have a real Storage API. We expose an in-memory shim so chapters that teach
@@ -118,7 +131,7 @@ export function runJs(code: string): Promise<JsRunResult> {
           parent.postMessage({
             type: "sandbox:result",
             payload: { ok: !error, logs, error, lastValue }
-          }, "*");
+          }, ${JSON.stringify(parentOrigin)});
         }, 300);
       })();
     </script>

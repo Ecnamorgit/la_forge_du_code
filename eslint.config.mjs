@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Assets statiques (dont Monaco self-hébergé copié dans public/monaco).
+    "public/**",
   ]),
 ]);
 

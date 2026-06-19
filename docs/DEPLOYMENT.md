@@ -17,6 +17,10 @@ Configure ces variables dans le dashboard de l'hébergeur (Vercel → _Project S
 | `RESEND_API_KEY` | ✅ | Clé Resend de prod (`re_...`). |
 | `RESEND_FROM_EMAIL` | ✅ | Expéditeur sur **domaine vérifié** (ex. `Nebula Command <noreply@mail.codeforge.com>`). `onboarding@resend.dev` n'envoie qu'au compte propriétaire. |
 | `APP_URL` | ✅ | URL HTTPS publique **sans slash final** (ex. `https://codeforge.space`). Sert à construire les liens d'email — un mauvais réglage casse la vérification et le reset. |
+| `UPSTASH_REDIS_REST_URL` | ⚠️ multi-instance | Rate-limiter partagé (CF-7). Requis sur déploiement **serverless/multi-instance** (Vercel) pour que la limite soit respectée entre instances. Absent → fallback mémoire (OK en mono-instance). |
+| `UPSTASH_REDIS_REST_TOKEN` | ⚠️ multi-instance | Token REST Upstash, va de pair avec l'URL ci-dessus. |
+| `SENTRY_DSN` | ⬜ optionnel | Monitoring d'erreurs serveur (CF-10). Absent → inerte (erreurs loggées via `lib/logger.ts`). Présent → init Sentry + remontée via `onRequestError`. |
+| `SENTRY_TRACES_SAMPLE_RATE` | ⬜ optionnel | Taux d'échantillonnage des traces (défaut `0.1`). |
 
 > **AUTH_SECRET** : générer une valeur dédiée à la prod et la garder secrète. Si elle fuite, toutes les sessions deviennent forgeables → régénérer immédiatement (invalide les sessions existantes).
 
@@ -32,20 +36,28 @@ Sans ça, les emails de vérification ne partiront pas aux vrais utilisateurs.
 
 ---
 
-## 3. Appliquer les migrations de base de données
+## 3. Appliquer les migrations de base de données (runbook)
 
-Les migrations Prisma en attente incluent l'avatar utilisateur et le `lastVisitedCourse`.
+Prérequis : `DIRECT_URL` pointe sur la connexion **directe** (port `5432`), pas la connexion poolée. `migrate deploy` ouvre des connexions longues incompatibles avec le pooler transactionnel (`pgbouncer`).
 
 ```bash
-# En local, pointé vers la base de PROD (DIRECT_URL configuré) :
-npx prisma migrate deploy
+# 1. Générer le client Prisma (idempotent) :
+pnpm prisma generate
+
+# 2. Inspecter l'état (quelles migrations sont en attente) :
+pnpm prisma migrate status
+
+# 3. Appliquer les migrations en attente sur la base de PROD :
+pnpm prisma migrate deploy
 ```
 
-- `migrate deploy` applique uniquement les migrations existantes (aucune génération, aucun prompt) — c'est la commande adaptée à la CI/prod.
-- Sur Vercel, l'idéal est de l'exécuter dans le `buildCommand` :
+- `migrate deploy` applique **uniquement** les migrations existantes (aucune génération, aucun prompt) — c'est la commande adaptée à la CI/prod. Il s'arrête en erreur si une migration échoue (transactionnel par fichier).
+- Migrations actuellement versionnées : init, onboarded, one-time-token, **hash-one-time-tokens** (purge les tokens en clair, cf. CF-1), avatar, last-visited-course.
+- Sur Vercel, exécuter dans le `buildCommand` :
   `prisma migrate deploy && next build`.
+- **Rollback** : Prisma n'a pas de `down` automatique. En cas de problème, restaurer depuis un backup (cf. ticket CF-19) ou écrire une migration corrective.
 
-Vérifie ensuite que le client est généré (`prisma generate` est lancé automatiquement au build via les `postinstall`/build de Next).
+> ✅ Le client Prisma (`lib/generated/prisma`) est régénéré à chaque build. La **CI** (`.github/workflows/ci.yml`) lance `prisma generate` + `typecheck` + `build` à chaque push, ce qui valide que le client et le bundle de prod se construisent (cf. CF-5).
 
 ---
 
@@ -64,17 +76,19 @@ Sur Vercel : connecter le repo GitHub → chaque push sur `main` déclenche un d
 
 - [x] Mots de passe hashés (bcrypt, cost **12**).
 - [x] Politique de mot de passe : ≥ 8 caractères, au moins une lettre + un chiffre (signup & reset) + champ de confirmation au signup.
-- [x] Tokens email/reset à usage unique, TTL, consommation atomique.
+- [x] Tokens email/reset à usage unique, TTL, consommation atomique, **stockés hachés SHA-256** (`lib/token-crypto.ts`) — un dump DB n'expose aucun lien utilisable (CF-1).
 - [x] Anti-énumération (login & forgot-password neutres).
 - [x] Toutes les routes `/api/me/*` exigent une session.
 - [x] Exécution du code élève isolée en iframe `sandbox="allow-scripts"`.
-- [x] **Rate limiting** sur login, signup, forgot-password, resend-verification, check-verification (`lib/rate-limit.ts`).
+- [x] **Rate limiting** sur login, signup, forgot-password, resend-verification, check-verification **et reset-password** (`lib/rate-limit.ts`) (CF-2).
+- [x] **Validation fail-fast de l'environnement** au démarrage (`lib/env.ts` via `instrumentation.ts`) : le serveur refuse de booter si une variable critique manque/est mal réglée (CF-3).
+- [x] **RGPD** : export des données (`GET /api/me/export`) et suppression définitive du compte (`DELETE /api/me`, cascade) exposés depuis la page profil (CF-14).
 - [x] **Headers de sécurité** dans `next.config.ts` : CSP (prod), HSTS, X-Frame-Options: DENY, X-Content-Type-Options, Referrer-Policy, Permissions-Policy ; `X-Powered-By` désactivé.
 - [ ] (Optionnel) CSP par nonces pour retirer `'unsafe-inline'` du `script-src` — non trivial avec Monaco (CDN + workers) et Next/Turbopack.
 
 > ⚠️ **À vérifier en navigateur avant de déployer** : la CSP n'est active qu'en production. Lance `npm run build && npm start`, ouvre une mission (ex. `/learn/javascript/chapitre-1`) avec la console DevTools, et confirme que l'éditeur Monaco se charge, que « Déployer » exécute le code, et qu'il n'y a **aucune erreur `Content-Security-Policy`**. Si Monaco est bloqué, ajuste `script-src`/`worker-src`/`connect-src` (domaine `cdn.jsdelivr.net` + `blob:`).
 
-> ⚠️ **Rate limiting** : l'implémentation actuelle est en mémoire (per-instance). Sur un déploiement serverless multi-instances (Vercel), la limite effective est multipliée par le nombre d'instances. Pour une garantie stricte, brancher `lib/rate-limit.ts` sur un store partagé (Upstash Redis ou une table Postgres). Suffisant en l'état pour un déploiement mono-instance ou un trafic modéré.
+> ℹ️ **Rate limiting** (CF-7) : `lib/rate-limit.ts` est enfichable. Par défaut il compte en mémoire (suffisant en **mono-instance**). Sur un déploiement **serverless/multi-instance** (Vercel), renseigne `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` : les compteurs sont alors partagés via Upstash Redis et la limite est respectée à travers les instances. Sans ces variables, le fallback mémoire reste actif ; en cas de panne Redis, on bascule en mémoire (fail-open).
 
 > ✅ **Vérifié automatiquement** (serveur de prod local) : `/api/me` sans session → 401 ; signup mot de passe faible → 400 ; rate limit signup → 429 après 5 requêtes/IP ; tous les headers de sécurité présents dans la réponse HTTP.
 
@@ -89,3 +103,30 @@ Dérouler `docs/SMOKE_TEST.md` sur l'URL de prod, en priorité :
 3. Forgot-password → email → reset → login avec nouveau mot de passe.
 4. Un chapitre complet par type de cours (HTML, JS, React, et un cours « commande » comme Git/SQL).
 5. `/api/me/*` sans session → 401.
+
+---
+
+## 7. Sauvegardes & restauration (CF-19)
+
+La base est la seule donnée non reconstructible : elle **doit** être sauvegardée.
+
+**Activer les sauvegardes automatiques** (hébergeur managé) :
+
+- **Neon** : sauvegardes continues + *Point-in-Time Restore* (PITR). Vérifier la fenêtre de rétention dans _Project → Backups_.
+- **Supabase** : _Database → Backups_. Daily backups sur les plans payants ; activer PITR si disponible. Sur le plan gratuit, planifier un `pg_dump` externe (cron) — les sauvegardes ne sont pas garanties.
+
+**Sauvegarde manuelle / hors-site (recommandé en complément)** :
+
+```bash
+# Dump compressé (utilise DIRECT_URL, connexion directe) :
+pg_dump "$DIRECT_URL" -Fc -f backup-$(date +%F).dump
+```
+
+**Restauration** :
+
+```bash
+# Restaurer dans une base vide (⚠️ destructif sur la cible) :
+pg_restore --clean --if-exists -d "$DIRECT_URL" backup-AAAA-MM-JJ.dump
+```
+
+> ✅ **Critère de validation** : sauvegardes automatiques activées **et** une restauration testée au moins une fois sur une base jetable (vérifier que l'app démarre et que les comptes/progression sont présents). Une sauvegarde jamais restaurée n'est pas une sauvegarde.

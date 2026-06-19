@@ -10,19 +10,12 @@ const bodySchema = z.object({
   password: z.string().min(1).max(128),
 });
 
-/**
- * Follow-up endpoint called by /login when signIn() fails. Returns
- * { unverified: true } iff the credentials are valid AND emailVerified is null.
- * This is no less safe than signIn itself — same data leaks. Lets us show
- * "your email is not verified — resend?" instead of generic "invalid credentials"
- * when the password is right but the email pending.
- */
+
 export async function POST(req: Request) {
-  // This endpoint runs bcrypt.compare, so it's a password-guessing vector.
-  // Throttle per IP and short-circuit (keeping the neutral shape) when exceeded.
-  const limit = rateLimit(`checkverif:${getClientIp(req)}`, {
+
+  const limit = await rateLimit(`checkverif:${getClientIp(req)}`, {
     limit: 10,
-    windowMs: 5 * 60 * 1000, // 10 attempts / 5 min / IP
+    windowMs: 5 * 60 * 1000, // 10 tentatives / 5 min / IP
   });
   if (!limit.ok) return NextResponse.json({ unverified: false });
 

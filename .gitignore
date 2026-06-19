@@ -13,6 +13,15 @@
 # testing
 /coverage
 
+# playwright (e2e)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# monaco assets self-hébergés (copiés par scripts/copy-monaco.mjs)
+/public/monaco/
+
 # next.js
 /.next/
 /out/

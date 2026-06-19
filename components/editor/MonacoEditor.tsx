@@ -2,7 +2,17 @@
 
 import dynamic from "next/dynamic";
 
-const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+// Self-héberge Monaco depuis /public/monaco au lieu du CDN jsdelivr (CF-16).
+// On configure le loader au moment où le module se charge côté client, avant
+// que l'éditeur ne soit monté.
+const Editor = dynamic(
+  () =>
+    import("@monaco-editor/react").then((mod) => {
+      mod.loader.config({ paths: { vs: "/monaco/vs" } });
+      return mod.default;
+    }),
+  { ssr: false }
+);
 
 interface MonacoEditorProps {
   value: string;

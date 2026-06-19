@@ -44,7 +44,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Throttle login attempts per IP *before* running bcrypt, to blunt
         // brute-force. Exceeding the budget fails the attempt like bad creds.
         const ip = getClientIp(request as unknown as Request);
-        if (!rateLimit(`login:${ip}`, { limit: 10, windowMs: 5 * 60 * 1000 }).ok) {
+        if (!(await rateLimit(`login:${ip}`, { limit: 10, windowMs: 5 * 60 * 1000 })).ok) {
           return null;
         }
 

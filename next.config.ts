@@ -6,14 +6,14 @@ const isProd = process.env.NODE_ENV === "production";
  * Content-Security-Policy.
  *
  * Tuned for this app's runtime needs:
- * - Monaco is loaded from the jsdelivr CDN by @monaco-editor/react (no local
- *   loader override), and spins up its tokenizer in blob: web workers.
+ * - Monaco is self-hosted from /public/monaco (CF-16), so no external CDN is
+ *   needed — everything loads from 'self'. Its tokenizer runs in blob: workers.
  * - Next.js injects inline bootstrap/hydration scripts and Tailwind inline
- *   styles, hence 'unsafe-inline'. 'unsafe-eval' covers Monaco + Next.
- * - The lesson runner executes student code inside srcdoc/blob iframes.
+ *   styles, hence 'unsafe-inline'. 'unsafe-eval' is required by Monaco AND by
+ *   the lesson runner (`new Function` inside the srcdoc iframe), so it cannot
+ *   be removed without breaking the core feature.
  *
  * Only enforced in production: dev needs eval + ws: for HMR/React Refresh.
- * Tighten later with per-request nonces if you drop 'unsafe-inline'.
  */
 const csp = [
   "default-src 'self'",
@@ -21,10 +21,10 @@ const csp = [
   "object-src 'none'",
   "frame-ancestors 'none'",
   "img-src 'self' data: blob:",
-  "font-src 'self' data: https://cdn.jsdelivr.net",
-  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
-  "connect-src 'self' https://cdn.jsdelivr.net",
+  "font-src 'self' data:",
+  "style-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  "connect-src 'self'",
   "worker-src 'self' blob:",
   "child-src 'self' blob:",
   "frame-src 'self' blob:",

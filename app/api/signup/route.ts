@@ -24,7 +24,7 @@ const signupSchema = z.object({
 
 export async function POST(request: Request) {
   // Throttle account creation per IP to curb spam / mass signups.
-  const limit = rateLimit(`signup:${getClientIp(request)}`, {
+  const limit = await rateLimit(`signup:${getClientIp(request)}`, {
     limit: 5,
     windowMs: 60 * 60 * 1000, // 5 accounts / hour / IP
   });

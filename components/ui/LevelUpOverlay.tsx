@@ -14,15 +14,17 @@ interface LevelUpOverlayProps {
  * Mounted high in the tree so it covers the whole screen.
  */
 export default function LevelUpOverlay({ trigger, level }: LevelUpOverlayProps) {
-  const [show, setShow] = useState(false);
+  // `show` is derived from the trigger, so we never set state synchronously
+  // inside the effect — only `dismissed`, and only from the timer callback.
+  const [dismissed, setDismissed] = useState(0);
 
   useEffect(() => {
     if (trigger === 0) return;
-    setShow(true);
-    const id = setTimeout(() => setShow(false), 2400);
+    const id = setTimeout(() => setDismissed(trigger), 2400);
     return () => clearTimeout(id);
   }, [trigger]);
 
+  const show = trigger !== 0 && trigger !== dismissed;
   if (!show) return null;
 
   return (

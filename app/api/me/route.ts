@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
-import { getUserState } from "@/lib/me-server";
+import { UserNotFoundError, deleteAccount, getUserState } from "@/lib/me-server";
 
 export async function GET() {
   const session = await auth();
@@ -19,4 +19,22 @@ export async function GET() {
   }
 
   return NextResponse.json(state);
+}
+
+/** RGPD — suppression définitive du compte de l'utilisateur connecté. */
+export async function DELETE() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  }
+
+  try {
+    await deleteAccount(session.user.id);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    if (err instanceof UserNotFoundError) {
+      return NextResponse.json({ error: err.message }, { status: 401 });
+    }
+    throw err;
+  }
 }

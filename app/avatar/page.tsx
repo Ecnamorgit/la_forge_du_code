@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -45,13 +45,19 @@ function AvatarPageInner() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Hydrate the local state once the user state arrives.
-  useEffect(() => {
-    if (!hydrated) return;
+  // Seed the local form state from the server snapshot once it hydrates (and
+  // again if the server values change). Done during render — React's supported
+  // pattern for adjusting state to a changing source — rather than in an effect.
+  const seedKey = hydrated
+    ? `${state.species ?? ""}|${state.uniformColor ?? ""}|${state.role ?? ""}`
+    : null;
+  const [seededFrom, setSeededFrom] = useState<string | null>(null);
+  if (seedKey !== null && seedKey !== seededFrom) {
+    setSeededFrom(seedKey);
     if (state.species) setSpecies(state.species as SpeciesId);
     if (state.uniformColor) setUniformColor(state.uniformColor as UniformColorId);
     if (state.role) setRole(state.role as RoleId);
-  }, [hydrated, state.species, state.uniformColor, state.role]);
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

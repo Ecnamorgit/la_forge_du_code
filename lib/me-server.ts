@@ -336,6 +336,46 @@ export async function markCourseVisited(
   return state;
 }
 
+/**
+ * RGPD — export des données personnelles de l'utilisateur (droit d'accès /
+ * portabilité). Retourne le profil + badges + progression sous forme sérialisable.
+ */
+export async function exportUserData(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      email: true,
+      username: true,
+      name: true,
+      emailVerified: true,
+      joinedAt: true,
+      totalXp: true,
+      streak: true,
+      lastVisit: true,
+      lastVisitedCourse: true,
+      onboardedAt: true,
+      species: true,
+      uniformColor: true,
+      role: true,
+      badges: { select: { badgeId: true, unlockedAt: true } },
+      stepCompletions: {
+        select: { course: true, chapter: true, stepIndex: true, completedAt: true },
+      },
+    },
+  });
+  if (!user) throw new UserNotFoundError();
+  return { exportedAt: new Date().toISOString(), account: user };
+}
+
+/**
+ * RGPD — suppression définitive du compte (droit à l'effacement). Le `onDelete:
+ * Cascade` du schéma supprime comptes, sessions, badges, progression et tokens.
+ */
+export async function deleteAccount(userId: string): Promise<void> {
+  await assertUserExists(userId);
+  await prisma.user.delete({ where: { id: userId } });
+}
+
 export async function resetProgress(userId: string): Promise<UserState> {
   await assertUserExists(userId);
 
