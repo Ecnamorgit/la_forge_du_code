@@ -18,12 +18,12 @@ export const chapitre1: ChapterData = {
       briefing: {
         title: "Les Fondations de l'Acier Numérique",
         content: `
-### Le Signal d'Amorce : <!DOCTYPE html>
+### Le Signal d'Amorce : [[doc:html/doctype|<!DOCTYPE html>]]
 Imaginez que vous envoyez un message à un alien. Avant de parler, vous devez lui dire quelle langue vous utilisez.
 **<!DOCTYPE html>** n'est pas une balise HTML, c'est une "déclaration". Elle dit au navigateur (Chrome, Firefox) : *"Attention, je vais te parler en HTML5, la version la plus moderne et puissante du langage."*
 
 ### L'Enceinte de la Base : <html>
-En HTML, tout fonctionne par **emboîtement**. La balise **<html>** est la "racine". Tout ce que vous écrirez par la suite devra se trouver à l'intérieur de cette balise.
+En HTML, tout fonctionne par **emboîtement**. La balise [[doc:html/html-element|<html>]] est la "racine". Tout ce que vous écrirez par la suite devra se trouver à l'intérieur de cette balise.
 - On l'ouvre au début : \`<html>\`
 - On la ferme à la fin : \`</html>\` (le slash **/** indique la fermeture).
 
@@ -34,6 +34,7 @@ En HTML, tout fonctionne par **emboîtement**. La balise **<html>** est la "raci
         { id: "o1a", label: "Déclarer <!DOCTYPE html>" },
         { id: "o1b", label: "Créer l'élément racine <html>" },
       ],
+      docRefs: ["html/doctype", "html/html-element"],
       missionIcon: "📡",
       missionTag: "PROTOCOLE 01",
       missionTtl: "AMORÇAGE SYSTÈME",
@@ -68,6 +69,7 @@ La balise **<title>** est cruciale. Elle donne un nom officiel à votre document
         { id: "o2a", label: "Ajouter la section <head>" },
         { id: "o2b", label: "Définir un <title>" },
       ],
+      docRefs: ["html/head"],
       missionIcon: "🧠",
       missionTag: "PROTOCOLE 02",
       missionTtl: "CENTRE DE CONTRÔLE",
