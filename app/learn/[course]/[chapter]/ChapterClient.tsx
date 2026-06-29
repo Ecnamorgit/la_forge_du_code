@@ -20,6 +20,7 @@ import { useUser } from "@/lib/use-user";
 import { getCompletedSteps, levelFromXp } from "@/lib/user-store";
 import { xpForStep } from "@/lib/xp";
 import { getChapterBackground, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
+import { CHARACTERS } from "@/lib/characters";
 import { getBadgeForChapter } from "@/lib/courses-meta";
 import { badgeFrameById } from "@/lib/badges-catalog";
 import { renderLessonMarkdown } from "@/lib/markdown";
@@ -307,9 +308,14 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             {step.briefing.title}
           </h2>
 
-          <p className="mb-8 border-l-2 border-nebula-cyan/40 bg-nebula-cyan-faint/40 px-5 py-4 font-body text-base italic leading-relaxed text-nebula-text-secondary">
-            {step.narrator}
-          </p>
+          <div className="mb-8 border-l-2 border-nebula-cyan/40 bg-nebula-cyan-faint/40 px-5 py-4">
+            <div className="mb-1.5 font-tech text-[10px] uppercase tracking-widest text-nebula-cyan">
+              {CHARACTERS.kira.glyph} {CHARACTERS.kira.title} {CHARACTERS.kira.name}
+            </div>
+            <p className="font-body text-base italic leading-relaxed text-nebula-text-secondary">
+              {step.narrator}
+            </p>
+          </div>
 
           <div
             className="prose-nebula font-body text-base leading-relaxed text-nebula-text/90"
