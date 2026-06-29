@@ -11,7 +11,7 @@ fait **valider en direct**, et gagne de l'XP et des badges au fil des missions.
 ## ✨ Fonctionnalités
 
 - **Authentification complète** : inscription, vérification d'email, connexion, mot de passe oublié / réinitialisation.
-- **14 cursus** (HTML, CSS, JavaScript, React, TypeScript, Git, SQL, Node.js, Tests, DevOps, MongoDB, Sécurité, Python, Algo).
+- **4 cursus complets** (HTML, CSS, JavaScript, React) + **10 cursus en aperçu** — chapitre pilote (TypeScript, Git, SQL, Node.js, Tests, DevOps, MongoDB, Sécurité, Python, Algo), signalés « Aperçu » dans le catalogue.
 - **Éditeur de code intégré** (Monaco) avec **validation des exercices en direct**.
 - **Exécution sécurisée du code étudiant** dans un sandbox isolé (iframe à origine opaque).
 - **Gamification** : XP, niveaux, séries (streak), badges, classement.

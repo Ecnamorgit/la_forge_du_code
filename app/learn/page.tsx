@@ -11,19 +11,27 @@ import CourseWireframe from "@/components/ui/CourseWireframe";
 import {
   COURSES_CATALOG,
   getCourseChaptersCount,
+  getCourseStatus,
   type CourseInfo,
+  type CourseStatus,
 } from "@/lib/courses-catalog";
 
 interface CourseEntry extends CourseInfo {
   chapters: number;
   status: "available" | "locked";
+  /** Editorial depth: a full learning path vs a piloted intro chapter. */
+  depth: CourseStatus;
 }
+
+// Complete courses first, preview ("Aperçu") ones last, original order otherwise.
+const DEPTH_ORDER: Record<CourseStatus, number> = { complete: 0, preview: 1 };
 
 const COURSES: CourseEntry[] = COURSES_CATALOG.map((c) => ({
   ...c,
   chapters: getCourseChaptersCount(c.slug),
-  status: "available",
-}));
+  status: "available" as const,
+  depth: getCourseStatus(c.slug),
+})).sort((a, b) => DEPTH_ORDER[a.depth] - DEPTH_ORDER[b.depth]);
 
 export default function LearnPage() {
   const { state, hydrated } = useUser();
@@ -168,6 +176,10 @@ function CourseCard({ course }: { course: CourseEntry }) {
         {isLocked ? (
           <span className="font-tech text-[10px] tracking-widest text-nebula-text-dim border border-nebula-text-dim/30 rounded px-2 py-0.5">
             VERROUILLE
+          </span>
+        ) : course.depth === "preview" ? (
+          <span className="font-tech text-[10px] tracking-widest text-nebula-text-dim border border-nebula-text-dim/40 rounded px-2 py-0.5 bg-nebula-bg-panel/60">
+            APERCU
           </span>
         ) : (
           <span
