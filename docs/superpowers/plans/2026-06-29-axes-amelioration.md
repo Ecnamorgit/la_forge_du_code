@@ -286,8 +286,18 @@ le streak et les badges déjà en place.
   H.E.L.P. sur les hints ([HintBox.tsx](components/ui/HintBox.tsx), remplace « ARIA »),
   Kira Vesper sur les briefings ([ChapterClient.tsx](app/learn/[course]/[chapter]/ChapterClient.tsx)).
 - Vérif : `tsc` OK, `lint` OK (1 warning préexistant hors périmètre), **187 tests unitaires verts**.
+- **Chantier 4 — FAIT (approche CSS).** [CombatVisualizer.tsx](components/lesson/CombatVisualizer.tsx) :
+  canon joueur + laser cyan + explosion ennemie sur succès ; balayage ennemi + secousse
+  console sur échec. Bug de positionnement [EnemySprite.tsx](components/ui/EnemySprite.tsx)
+  corrigé (Y seul). Keyframes + garde `prefers-reduced-motion` dans
+  [globals.css](app/globals.css). Intégré non-bloquant dans
+  [ChapterWorkspace.tsx](components/lesson/ChapterWorkspace.tsx).
+  Vérif : `tsc` OK, `lint` OK, **187 tests**, **`next build` 0 erreur**. ⚠ Vérif visuelle
+  in-app et e2e à faire sur l'environnement du dev (DB + auth requis ici indisponibles).
 - Reste optionnel : généraliser les tonalités à plus de validateurs ; étendre les voix
-  via sprites pixel-art ; assertions e2e dédiées.
+  via sprites pixel-art ; assertions e2e dédiées ; gating optionnel de la bannière
+  derrière la fin d'animation (section 1 du doc combat) ; passer au Canvas 2D si besoin
+  d'interactivité (section 4 du doc combat).
 
 ## Prochaine étape
 Valider chantier par chantier (notamment les 3 décisions ouvertes : seuil « complet » §1,
