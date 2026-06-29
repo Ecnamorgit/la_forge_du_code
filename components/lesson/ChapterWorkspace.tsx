@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Step, ValidationResult, Validator } from "@/data/courses/html/types";
 import MonacoEditor from "@/components/editor/MonacoEditor";
-import EnemySprite from "@/components/ui/EnemySprite";
+import CombatVisualizer from "@/components/lesson/CombatVisualizer";
 import {
   playBreach,
   playDeployBip,
@@ -73,6 +73,8 @@ export default function ChapterWorkspace({
     trigger: number;
   }>({ type: "none", trigger: 0 });
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
+  // Increments on each failure to (re)play the console "took a hit" shake.
+  const [shakeTrigger, setShakeTrigger] = useState(0);
 
   const detectedTagsRef = useRef<Set<string>>(detectClosedTags(step.startCode));
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -158,6 +160,7 @@ export default function ChapterWorkspace({
     });
     playBreach();
     setEnemyState((prev) => ({ type: "fly", trigger: prev.trigger + 1 }));
+    setShakeTrigger((p) => p + 1);
   }, [code, isJs, onDeploy, onStepSuccess, validate]);
 
   const editorTabLabel = isJs ? "script.js" : "index.html";
@@ -191,11 +194,16 @@ export default function ChapterWorkspace({
         />
       </div>
 
-      {/* Feedback status bar */}
-      <div className="shrink-0 border-y border-nebula-border/60 bg-nebula-bg-panel/50 px-5 py-3.5 backdrop-blur-sm">
+      {/* Feedback status bar — doubles as the combat strip. */}
+      <div
+        key={shakeTrigger}
+        className={`shrink-0 border-y border-nebula-border/60 bg-nebula-bg-panel/50 px-5 py-3.5 backdrop-blur-sm ${
+          shakeTrigger > 0 && feedback.type === "err" ? "animate-screen-shake" : ""
+        }`}
+      >
         <div className="relative flex items-center gap-3">
-          <EnemySprite
-            type={enemyState.type}
+          <CombatVisualizer
+            outcome={enemyState.type}
             trigger={enemyState.trigger}
           />
           {feedback.type === "idle" && (

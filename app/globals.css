@@ -652,3 +652,92 @@
   image-rendering: pixelated;
   animation: planet-anim 0.8s steps(4) infinite;
 }
+
+/* ──────────────────────────────────────────────────────────
+   Combat visualizer (chantier 4) — CSS-driven sequences.
+   Player emitter (left) fires a laser at the enemy (right) on success;
+   on error the console takes a hit and shakes. Pure CSS so it stays light
+   and in the 16-bit aesthetic. See components/lesson/CombatVisualizer.tsx.
+   ────────────────────────────────────────────────────────── */
+
+/* Player emitter charges its reactor before firing. */
+@keyframes emitter-charge {
+  0% {
+    filter: brightness(1);
+    transform: translateY(-50%) scale(1);
+  }
+  60% {
+    filter: brightness(2.2) drop-shadow(0 0 8px var(--cyan, #00f0ff));
+    transform: translateY(-50%) scale(1.18);
+  }
+  100% {
+    filter: brightness(1);
+    transform: translateY(-50%) scale(1);
+  }
+}
+.animate-emitter-charge {
+  animation: emitter-charge 0.5s ease-out;
+}
+
+/* Cyan laser beam sweeping from the emitter to the enemy. */
+@keyframes laser-fire {
+  0% {
+    transform: translateY(-50%) scaleX(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(-50%) scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50%) scaleX(1);
+    opacity: 0;
+  }
+}
+.animate-laser-fire {
+  transform-origin: left center;
+  animation: laser-fire 0.55s ease-out forwards;
+}
+
+/* Console takes a hit on failure. */
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-4px, 2px); }
+  30% { transform: translate(5px, -2px); }
+  45% { transform: translate(-4px, -2px); }
+  60% { transform: translate(4px, 2px); }
+  75% { transform: translate(-2px, 1px); }
+}
+.animate-screen-shake {
+  animation: screen-shake 0.45s ease-in-out;
+}
+
+/* Accessibility: honour reduced-motion. Combat motion collapses to a static
+   state (no sweeps, no shake) while still conveying success/error via opacity. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-emitter-charge,
+  .animate-laser-fire,
+  .animate-screen-shake,
+  .animate-enemy-fly,
+  .animate-enemy-explode,
+  .sprite-enemy-anim {
+    animation: none !important;
+  }
+  .animate-laser-fire {
+    transform: translateY(-50%) scaleX(1);
+    opacity: 0.6;
+  }
+}
+
+/* Player emitter: a small cyan chevron pointing at the enemy. */
+.combat-emitter {
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 12px solid var(--cyan, #00f0ff);
+  filter: drop-shadow(0 0 4px var(--cyan, #00f0ff));
+}
