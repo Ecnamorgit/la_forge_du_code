@@ -3,12 +3,21 @@ export interface StepObjective {
   label: string;
 }
 
+/**
+ * Narrative tone of a failure, used to pick an in-universe error header.
+ * "structure" = broken markup/structure, "logic" = faulty logic / loops,
+ * "syntax" = syntax error. Omitted = generic. See lib/narrative-feedback.ts.
+ */
+export type ErrorTone = "structure" | "logic" | "syntax" | "generic";
+
 export interface ValidationResult {
   ok: boolean;
   msg: string;
   obj?: string;
   objList?: string[];
   final?: boolean;
+  /** Optional narrative tone for failures (ignored on success). */
+  tone?: ErrorTone;
 }
 
 export interface Step {

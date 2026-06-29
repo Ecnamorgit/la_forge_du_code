@@ -1,4 +1,4 @@
-import type { ValidationResult } from "@/data/courses/html/types";
+import type { ErrorTone, ValidationResult } from "@/data/courses/html/types";
 
 /**
  * Shared helpers for STATIC validators — i.e. courses that don't execute in the
@@ -28,8 +28,8 @@ export function countMatches(code: string, re: RegExp): number {
   return (code.match(new RegExp(re.source, flags)) ?? []).length;
 }
 
-export function fail(msg: string): ValidationResult {
-  return { ok: false, msg };
+export function fail(msg: string, tone?: ErrorTone): ValidationResult {
+  return tone ? { ok: false, msg, tone } : { ok: false, msg };
 }
 
 export function pass(

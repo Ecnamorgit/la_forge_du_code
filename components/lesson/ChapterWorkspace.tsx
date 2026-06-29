@@ -11,6 +11,11 @@ import {
   playSystemOnline,
 } from "@/lib/audio";
 import { runJs } from "@/lib/sandbox/run-js";
+import {
+  getErrorHeader,
+  inferToneFromError,
+  type ErrorTone,
+} from "@/lib/narrative-feedback";
 
 type Language = "html" | "javascript";
 
@@ -61,6 +66,7 @@ export default function ChapterWorkspace({
   const [feedback, setFeedback] = useState<{
     type: "idle" | "ok" | "err";
     msg: string;
+    tone?: ErrorTone;
   }>({ type: "idle", msg: "" });
   const [enemyState, setEnemyState] = useState<{
     type: "fly" | "explode" | "none";
@@ -112,9 +118,11 @@ export default function ChapterWorkspace({
   const runCode = useCallback(async () => {
     onDeploy?.();
     let result: ValidationResult;
+    let jsError: string | null = null;
 
     if (isJs) {
       const exec = await runJs(code);
+      jsError = exec.error;
       const entries: ConsoleEntry[] = exec.logs.map((text) => ({
         type: "log",
         text,
@@ -143,7 +151,11 @@ export default function ChapterWorkspace({
       return;
     }
 
-    setFeedback({ type: "err", msg: result.msg });
+    setFeedback({
+      type: "err",
+      msg: result.msg,
+      tone: result.tone ?? inferToneFromError(jsError),
+    });
     playBreach();
     setEnemyState((prev) => ({ type: "fly", trigger: prev.trigger + 1 }));
   }, [code, isJs, onDeploy, onStepSuccess, validate]);
@@ -210,7 +222,7 @@ export default function ChapterWorkspace({
           {feedback.type === "err" && (
             <div className="animate-fb-in flex items-baseline gap-3">
               <strong className="font-tech text-sm tracking-widest text-nebula-red">
-                {"> "}BRECHE DETECTEE
+                {"> "}{getErrorHeader(feedback.tone)}
               </strong>
               <span className="font-body text-base text-nebula-text-secondary">
                 {feedback.msg}
