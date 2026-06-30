@@ -294,6 +294,26 @@ le streak et les badges déjà en place.
   [ChapterWorkspace.tsx](components/lesson/ChapterWorkspace.tsx).
   Vérif : `tsc` OK, `lint` OK, **187 tests**, **`next build` 0 erreur**. ⚠ Vérif visuelle
   in-app et e2e à faire sur l'environnement du dev (DB + auth requis ici indisponibles).
+- **Chantier 5 — FAIT (moteur SQL réel).** [run-sql.ts](lib/sandbox/run-sql.ts) (sql.js
+  WASM self-hébergé `/public/sql`), [sql-seeds.ts](lib/sandbox/sql-seeds.ts) (seed+verify
+  par étape), validateurs SQL réécrits sur le résultat réel
+  ([validators/sql/chapitre-1.ts](lib/validators/sql/chapitre-1.ts)),
+  `language="sql"` + tableau de résultats dans
+  [ChapterWorkspace.tsx](components/lesson/ChapterWorkspace.tsx). Vérif : `tsc`, `lint`,
+  **`next build` 0 erreur**, **195 tests** dont la boucle SQL complète exécutée pour de vrai
+  sous Node. ⚠ Fetch du `.wasm` en navigateur non vérifié ici (servi depuis `/public/sql`).
+  SQL reste « aperçu » (1 chapitre) — extension de contenu = optionnel.
+- **Chantier 6A — FAIT (carte de succès partageable).** Route image OG
+  [api/share/[badge]/route.tsx](app/api/share/[badge]/route.tsx) (next/og, badge validé,
+  params assainis [share.ts](lib/share.ts)), page publique
+  [share/[badge]/page.tsx](app/share/[badge]/page.tsx) avec méta OG/Twitter, bouton
+  [ShareButton.tsx](components/ui/ShareButton.tsx) câblé dans
+  [CompletionScreen.tsx](components/ui/CompletionScreen.tsx). **Vérifié en réel** (dev) :
+  image 200 PNG, badge inconnu 404, méta correctes, rendu visuel conforme. `tsc`/`lint`/
+  **201 tests**/`next build` 0 erreur.
+- **Chantier 6B — NON FAIT (mission quotidienne).** Requiert une migration Prisma +
+  base de données : non exécutable/vérifiable dans l'environnement actuel (pas de DB).
+  À implémenter sur l'environnement du dev. Décision en attente.
 - Reste optionnel : généraliser les tonalités à plus de validateurs ; étendre les voix
   via sprites pixel-art ; assertions e2e dédiées ; gating optionnel de la bannière
   derrière la fin d'animation (section 1 du doc combat) ; passer au Canvas 2D si besoin
