@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Sprite from "@/components/ui/Sprite";
+import ShareButton from "@/components/ui/ShareButton";
 import { BADGE_ICONS } from "@/lib/sprite-config";
 
 interface CompletionScreenProps {
@@ -12,6 +13,8 @@ interface CompletionScreenProps {
   badgeLabel: string;
   /** Optional frame in /sprites/badges.png. Falls back to badgeIcon emoji. */
   badgeFrame?: number;
+  /** Badge id — when set, a share button generates a public success card. */
+  badgeId?: string;
   onClose?: () => void;
   href?: string;
 }
@@ -22,6 +25,7 @@ export default function CompletionScreen({
   badgeIcon,
   badgeLabel,
   badgeFrame,
+  badgeId,
   onClose,
   href,
 }: CompletionScreenProps) {
@@ -52,6 +56,11 @@ export default function CompletionScreen({
           )}
           BADGE : {badgeLabel}
         </div>
+        {badgeId && (
+          <div className="mb-6 flex justify-center">
+            <ShareButton badgeId={badgeId} badgeLabel={badgeLabel} xp={totalXp} />
+          </div>
+        )}
         <br />
         {href ? (
           <Link

@@ -235,6 +235,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             ? badgeFrameById(getBadgeForChapter(course, chapter.slug) ?? "") ?? undefined
             : undefined
         }
+        badgeId={getBadgeForChapter(course, chapter.slug) ?? undefined}
         href={`/learn/${course}`}
       />
       <HintBox show={showHint} html={step.hint} />
