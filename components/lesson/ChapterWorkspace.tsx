@@ -11,18 +11,22 @@ import {
   playSystemOnline,
 } from "@/lib/audio";
 import { runJs } from "@/lib/sandbox/run-js";
+import { runSql, type SqlRunOptions } from "@/lib/sandbox/run-sql";
+import type { SqlQueryResult } from "@/data/courses/html/types";
 import {
   getErrorHeader,
   inferToneFromError,
   type ErrorTone,
 } from "@/lib/narrative-feedback";
 
-type Language = "html" | "javascript";
+type Language = "html" | "javascript" | "sql";
 
 interface ChapterWorkspaceProps {
   step: Step;
   validate: Validator;
   language?: Language;
+  /** Per-step seed/verify SQL, required for the SQL cursus. */
+  sqlConfig?: SqlRunOptions;
   /** On screens below `lg`, only one internal panel is shown at a time. */
   mobilePanel?: "editor" | "output";
   onStepSuccess: (result: ValidationResult) => void;
@@ -56,13 +60,16 @@ export default function ChapterWorkspace({
   step,
   validate,
   language = "html",
+  sqlConfig,
   mobilePanel,
   onStepSuccess,
   onDeploy,
   onTeleportFlash,
 }: ChapterWorkspaceProps) {
   const isJs = language === "javascript";
+  const isSql = language === "sql";
   const [code, setCode] = useState(step.startCode);
+  const [sqlView, setSqlView] = useState<SqlQueryResult | null>(null);
   const [feedback, setFeedback] = useState<{
     type: "idle" | "ok" | "err";
     msg: string;
@@ -95,7 +102,7 @@ export default function ChapterWorkspace({
     (newCode: string) => {
       setCode(newCode);
       latestCodeRef.current = newCode;
-      if (isJs) return;
+      if (isJs || isSql) return;
       clearTimeout(detectTimerRef.current);
       detectTimerRef.current = setTimeout(() => {
         const current = detectClosedTags(latestCodeRef.current);
@@ -114,7 +121,7 @@ export default function ChapterWorkspace({
         detectedTagsRef.current = current;
       }, 150);
     },
-    [onTeleportFlash, isJs]
+    [onTeleportFlash, isJs, isSql]
   );
 
   const runCode = useCallback(async () => {
@@ -137,6 +144,17 @@ export default function ChapterWorkspace({
         logs: exec.logs,
         error: exec.error,
         lastValue: exec.lastValue,
+      });
+    } else if (isSql) {
+      const run = await runSql(code, sqlConfig ?? {});
+      // Show the student's result set, falling back to the read-back state
+      // (so an INSERT/UPDATE step still displays the resulting table).
+      setSqlView(run.result ?? run.verify ?? null);
+      result = validate(code, {
+        logs: [],
+        error: run.error,
+        lastValue: undefined,
+        sql: { result: run.result, verify: run.verify, error: run.error },
       });
     } else {
       if (iframeRef.current) {
@@ -161,9 +179,10 @@ export default function ChapterWorkspace({
     playBreach();
     setEnemyState((prev) => ({ type: "fly", trigger: prev.trigger + 1 }));
     setShakeTrigger((p) => p + 1);
-  }, [code, isJs, onDeploy, onStepSuccess, validate]);
+  }, [code, isJs, isSql, sqlConfig, onDeploy, onStepSuccess, validate]);
 
-  const editorTabLabel = isJs ? "script.js" : "index.html";
+  const editorTabLabel = isJs ? "script.js" : isSql ? "query.sql" : "index.html";
+  const editorLanguage = isJs ? "javascript" : isSql ? "sql" : "html";
 
   return (
     <section className="flex min-h-0 flex-1 flex-col bg-nebula-bg-dark/30 backdrop-blur-md">
@@ -190,7 +209,7 @@ export default function ChapterWorkspace({
           value={code}
           onChange={handleCodeChange}
           placeholder={step.placeholder}
-          language={isJs ? "javascript" : "html"}
+          language={editorLanguage}
         />
       </div>
 
@@ -210,7 +229,7 @@ export default function ChapterWorkspace({
             <>
               <div className="h-2.5 w-2.5 rounded-full bg-nebula-green shadow-[0_0_8px_rgba(0,255,136,0.6)]" />
               <span className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary">
-                {"> "}{isJs ? "Console" : "Apercu en direct"}
+                {"> "}{isJs ? "Console" : isSql ? "Resultat" : "Apercu en direct"}
               </span>
               <span className="font-body text-sm italic text-nebula-text-dim">
                 — En attente du prochain deploiement<span className="terminal-cursor">_</span>
@@ -240,8 +259,60 @@ export default function ChapterWorkspace({
         </div>
       </div>
 
-      {/* Bottom panel: HTML/CSS → iframe live preview ; JS → console */}
-      {isJs ? (
+      {/* Bottom panel: HTML/CSS → iframe live preview ; JS → console ; SQL → table */}
+      {isSql ? (
+        <div
+          className={`flex-1 min-h-0 overflow-auto bg-nebula-bg-darkest/80 px-5 py-4 ${
+            mobilePanel === "editor" ? "hidden lg:block" : "block"
+          }`}
+        >
+          <div className="mb-2 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
+            {"> "}Resultat de la requete
+          </div>
+          {!sqlView ? (
+            <p className="font-tech text-xs italic text-nebula-text-dim">
+              Aucun resultat pour l&apos;instant. Appuie sur DEPLOYER pour executer ta requete.
+            </p>
+          ) : sqlView.rows.length === 0 ? (
+            <p className="font-tech text-xs italic text-nebula-text-dim">
+              Requete executee — 0 ligne.
+            </p>
+          ) : (
+            <table className="w-full border-collapse font-code text-sm text-nebula-text">
+              <thead>
+                <tr>
+                  {sqlView.columns.map((col) => (
+                    <th
+                      key={col}
+                      className="border border-nebula-border/50 bg-nebula-bg-panel/60 px-3 py-1.5 text-left font-tech text-[11px] uppercase tracking-wider text-nebula-cyan"
+                    >
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sqlView.rows.map((row, i) => (
+                  <tr key={i}>
+                    {row.map((cell, j) => (
+                      <td
+                        key={j}
+                        className="border border-nebula-border/40 px-3 py-1.5"
+                      >
+                        {cell === null ? (
+                          <span className="italic text-nebula-text-dim">NULL</span>
+                        ) : (
+                          String(cell)
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      ) : isJs ? (
         <div
           className={`flex-1 min-h-0 overflow-y-auto bg-nebula-bg-darkest/80 px-5 py-4 font-code text-sm ${
             mobilePanel === "editor" ? "hidden lg:block" : "block"

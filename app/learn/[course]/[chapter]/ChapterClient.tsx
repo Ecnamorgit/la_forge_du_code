@@ -21,6 +21,7 @@ import { getCompletedSteps, levelFromXp } from "@/lib/user-store";
 import { xpForStep } from "@/lib/xp";
 import { getChapterBackground, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import { CHARACTERS } from "@/lib/characters";
+import { getSqlStepConfig } from "@/lib/sandbox/sql-seeds";
 import { getBadgeForChapter } from "@/lib/courses-meta";
 import { badgeFrameById } from "@/lib/badges-catalog";
 import { renderLessonMarkdown } from "@/lib/markdown";
@@ -419,7 +420,12 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             key={`${chapter.slug}-${currentStep}`}
             step={step}
             validate={validate}
-            language={course === "javascript" ? "javascript" : "html"}
+            language={
+              course === "javascript" ? "javascript" : course === "sql" ? "sql" : "html"
+            }
+            sqlConfig={
+              course === "sql" ? getSqlStepConfig(chapter.slug, currentStep) : undefined
+            }
             mobilePanel={mobileTab === "output" ? "output" : "editor"}
             onStepSuccess={handleStepSuccess}
             onDeploy={() => setMobileTab("output")}

@@ -18,7 +18,7 @@ interface MonacoEditorProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  language?: "html" | "javascript";
+  language?: "html" | "javascript" | "sql";
 }
 
 export default function MonacoEditor({

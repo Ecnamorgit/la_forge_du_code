@@ -34,7 +34,20 @@ const CASES: Case[] = [
   { course: "git", pass: 'git init\ngit add .\ngit commit -m "init"' },
   {
     course: "sql",
-    pass: "CREATE TABLE pilotes (id INT PRIMARY KEY, nom TEXT NOT NULL); INSERT INTO pilotes VALUES (1, 'Lia');",
+    pass:
+      "CREATE TABLE pilotes (id INTEGER PRIMARY KEY, nom VARCHAR(50) NOT NULL, niveau INTEGER DEFAULT 1); " +
+      "INSERT INTO pilotes (id, nom, niveau) VALUES (1, 'Lia', 5);",
+    // SQL is validated on real execution; supply the read-back the engine produces.
+    passCtx: {
+      logs: [],
+      error: null,
+      lastValue: undefined,
+      sql: {
+        result: null,
+        verify: { columns: ["id", "nom", "niveau"], rows: [[1, "Lia", 5]] },
+        error: null,
+      },
+    },
   },
   {
     course: "nodejs",
