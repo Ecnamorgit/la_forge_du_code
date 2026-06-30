@@ -311,9 +311,14 @@ le streak et les badges déjà en place.
   [CompletionScreen.tsx](components/ui/CompletionScreen.tsx). **Vérifié en réel** (dev) :
   image 200 PNG, badge inconnu 404, méta correctes, rendu visuel conforme. `tsc`/`lint`/
   **201 tests**/`next build` 0 erreur.
-- **Chantier 6B — NON FAIT (mission quotidienne).** Requiert une migration Prisma +
-  base de données : non exécutable/vérifiable dans l'environnement actuel (pas de DB).
-  À implémenter sur l'environnement du dev. Décision en attente.
+- **Chantier 6B — FAIT en code (mission quotidienne).** Logique pure testée
+  ([daily-mission.ts](lib/daily-mission.ts)), champ `User.lastDailyMission` + migration
+  `20260629120000_add_daily_mission`, `claimDailyMission` atomique idempotent
+  ([me-server.ts](lib/me-server.ts)), route [api/me/daily](app/api/me/daily/route.ts) +
+  `useUser.claimDailyMission`, widget [DailyMission.tsx](components/dashboard/DailyMission.tsx)
+  câblé au dashboard. `tsc`/`lint`/**206 tests**/`next build` OK (route enregistrée).
+  ⚠ **À faire sur l'environnement du dev** : `pnpm prisma migrate deploy` pour appliquer
+  la migration ; flux DB (réclamation, anti-double, reset quotidien) à valider en réel.
 - Reste optionnel : généraliser les tonalités à plus de validateurs ; étendre les voix
   via sprites pixel-art ; assertions e2e dédiées ; gating optionnel de la bannière
   derrière la fin d'animation (section 1 du doc combat) ; passer au Canvas 2D si besoin
