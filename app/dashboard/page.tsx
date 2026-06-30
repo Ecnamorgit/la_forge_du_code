@@ -13,6 +13,7 @@ import DashboardNav from "../DashboardNav";
 import StatsCard from "../StatsCard";
 import ExploreSection from "../ExploreSection";
 import { useUser } from "@/lib/use-user";
+import DailyMission from "@/components/dashboard/DailyMission";
 import {
   getActiveCourseSlug,
   getCourseProgress,
@@ -203,6 +204,7 @@ export default function DashboardPage() {
 
           {/* RIGHT */}
           <div className="animate-fade-up">
+            <DailyMission />
             <StatsCard
               username={username}
               level={level}

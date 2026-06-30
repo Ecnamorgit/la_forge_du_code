@@ -26,6 +26,7 @@ model User {
   totalXp      Int       @default(0)
   streak       Int       @default(1)
   lastVisit         String    @default("") // ISO date (yyyy-mm-dd)
+  lastDailyMission  String    @default("") // ISO date (yyyy-mm-dd) of last daily-mission claim
   lastVisitedCourse String? // slug of the last course the user actively interacted with
   onboardedAt       DateTime? // null until the user finishes the first-login briefing
 
