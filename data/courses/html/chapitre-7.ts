@@ -2,35 +2,31 @@ import type { ChapterData } from "./types";
 
 export const chapitre7: ChapterData = {
   slug: "chapitre-7",
-  tag: "MISSION : TRANSPONDEUR ORBITAL",
-  title: "META\nDONNEES",
-  subtitle: "Programme le signal d'identification de ta page",
-  totalXp: 220,
-  completionBadge: "📡",
-  completionBadgeLabel: "INGENIEUR DE SIGNAUX",
+  tag: "DOCK D'ORBITE : TRANSMISSIONS",
+  title: "LE FAVICON",
+  subtitle: "Configure l'en-tete de transmission du dock",
+  totalXp: 200,
+  completionBadge: "🎯",
+  completionBadgeLabel: "OFFICIER DES TRANSMISSIONS",
   steps: [
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Mission Lunaire</title>\n  </head>\n  <body>\n    <h1>Mission Lunaire</h1>\n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    \n  </head>\n  <body>\n    <h1>Relais Spatial</h1>\n  </body>\n</html>',
       placeholder: "<!-- Configure lang sur <html> et ajoute <meta charset> et viewport -->",
       narrator:
-        "Avant que les capteurs externes (navigateurs, robots, lecteurs) puissent comprendre ta page, il leur faut son signal d'identification. Configure la langue, l'encodage et le viewport.",
-      hint: 'Mets <html lang="fr">, ajoute <meta charset="UTF-8"> en tete du <head>, et <meta name="viewport" content="width=device-width, initial-scale=1">.',
+        "Ingénieur des transmissions, configurons les paramètres fondamentaux de notre en-tête. Déclare la langue par défaut du dock sur 'fr', définis l'encodage charset sur UTF-8 pour les logs de communication, et ajuste le viewport pour les terminaux mobiles de l'équipage.",
+      hint: 'Ajoute lang="fr" sur <html>, et dans <head>, place <meta charset="utf-8" /> ainsi que <meta name="viewport" content="width=device-width, initial-scale=1.0" />.',
       briefing: {
-        title: "Les meta de base",
+        title: "Metadonnées globales",
         content: `
-### lang
-**<html lang="fr">** indique la langue principale du document. Les moteurs de recherche et lecteurs d'ecran l'utilisent. Sans cela, un lecteur d'ecran lirait du francais avec une voix anglaise.
+### L'attribut lang
+Configure sur la balise racine **<html>**, il declare au systeme la langue principale utilisee pour les communications du dock (ex : \`lang="fr"\`).
 
-### <meta charset="UTF-8">
-Definit l'encodage des caracteres. **UTF-8** couvre tous les alphabets du monde (accents, emojis, ideogrammes). A placer **en premier** dans <head>.
+### L'encodage charset
+La balise **<meta charset="utf-8">** assure que tous les caracteres speciaux et symboles de soute soient interpretes sans erreur.
 
-### <meta name="viewport">
-Cruciale pour le **responsive**. Sans elle, les navigateurs mobiles affichent la page comme un desktop reduit (illisible). Avec :
-\`<meta name="viewport" content="width=device-width, initial-scale=1">\`
-... la page s'adapte a la largeur de l'ecran.
-
-**Reflexe :** ces 3 declarations sont obligatoires sur 100 % des pages modernes. Aucune exception.
+### Le Viewport
+**<meta name="viewport" content="width=device-width, initial-scale=1.0">** adapte l'affichage des ecrans de controle de la station sur les terminaux mobiles et tablettes tactiles des operateurs.
         `,
       },
       objectives: [
@@ -92,7 +88,7 @@ La balise **<meta name="description">** ne s'affiche pas sur la page elle-meme. 
       placeholder: "<!-- Ajoute les balises Open Graph pour le partage social -->",
       narrator:
         "Quand un cadet partage ta page sur les reseaux sociaux, c'est une carte d'identite enrichie qui s'affiche. Configure les balises Open Graph pour qu'elle soit belle.",
-      hint: 'Ajoute trois <meta property="og:title" content="...">, <meta property="og:description" content="..."> et <meta property="og:image" content="https://nebula.test/preview.png">.',
+      hint: 'Ajoute trois <meta property="og:title" content="...">, <meta property="og:description" content="..."> and <meta property="og:image" content="https://nebula.test/preview.png">.',
       briefing: {
         title: "Open Graph : la carte de visite sociale",
         content: `

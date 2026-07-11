@@ -26,6 +26,7 @@ export default async function globalSetup(): Promise<void> {
   await client.connect();
   try {
     const hash = await bcrypt.hash(E2E_USER.password, 10);
+    await client.query('DELETE FROM "User" WHERE id = $1', [E2E_USER.id]);
     // emailVerified + onboardedAt non null : utilisateur prêt, sans overlay
     // d'onboarding qui pourrait masquer l'éditeur dans les tests.
     await client.query(

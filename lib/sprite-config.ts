@@ -18,8 +18,8 @@ import type { SpriteSheet } from "@/components/ui/Sprite";
  */
 export const SPRITE_SHEETS_READY = {
   mission: true,
-  banner: false,
-  badges: false,
+  banner: true,
+  badges: true,
 } as const;
 
 /**

@@ -2,170 +2,144 @@ import type { ChapterData } from "./types";
 
 export const chapitre5: ChapterData = {
   slug: "chapitre-5",
-  tag: "MISSION : CONSOLE DE COMMANDE",
-  title: "CENTRE DE\nCOMMANDEMENT",
-  subtitle: "Concois la console qui recoit les ordres de l'equipage",
+  tag: "DOCK D'ORBITE : TRANSPORTS",
+  title: "LE MENU\nDEROULANT",
+  subtitle: "Configure les formulaires d'enregistrement des cargaisons",
   totalXp: 250,
-  completionBadge: "🎛",
-  completionBadgeLabel: "OPERATEUR DE CONSOLE",
+  completionBadge: "📝",
+  completionBadgeLabel: "OFFICIER DES LOGISTIQUES",
   steps: [
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console de commande</title>\n  </head>\n  <body>\n    <h1>Console de la station</h1>\n    \n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Enregistrement Soute</title>\n  </head>\n  <body>\n    \n  </body>\n</html>',
       placeholder: "<!-- Cree un formulaire avec un champ texte etiquete -->",
       narrator:
-        "L'equipage doit pouvoir saisir son identifiant. Mets en place un premier formulaire avec un champ texte et son etiquette.",
-      hint: 'Place un <form>, un <label for="callsign">Indicatif</label>, puis un <input type="text" id="callsign" name="callsign"> a l\'interieur.',
+        "Ingénieur de soute, nous devons cataloguer les conteneurs arrivant sur le dock. Ajoute un formulaire <form> contenant un champ de texte associé à un label pour saisir le 'Nom de l\\'equipement'. Le label doit porter le texte exact 'Nom de l\\'equipement :'.",
+      hint: 'Utilise <form><label for="equipement">Nom de l\'equipement :</label><input type="text" id="equipement" /></form>.',
       briefing: {
         title: "Le formulaire et son premier champ",
         content: `
 ### La balise <form>
-**<form>** regroupe tous les champs qu'un utilisateur va remplir. C'est l'enveloppe du formulaire.
+C'est le conteneur principal de tous tes champs de saisie. Elle dit au navigateur : *"Ce qui est a l'interieur est une suite de questions dont je veux collecter les reponses."*
 
-### Le champ texte : <input type="text">
-- **<input>** est une balise **auto-fermante** (pas de </input>).
-- L'attribut **type="text"** indique un champ texte simple.
-- **name** : nom logique du champ (utilise quand on envoie le formulaire).
-- **id** : identifiant unique (utilise par le <label>).
+### Le Label et l'Input
+- **<label>** : affiche le texte decrivant ce que l'utilisateur doit saisir.
+- **<input type="text">** : cree un champ de saisie de texte brut.
+- **Liaison** : l'attribut **for** du label doit correspondre a l'**id** de l'input.
 
-### Le <label>
-\`<label for="callsign">Indicatif</label>\`
-
-L'attribut **for** doit correspondre au **id** du champ. Cliquer sur le label active le champ.
-
-**Bonne pratique :** chaque champ merite un label clair.
+\`<form>\`
+\`  <label for="code">Code :</label>\`
+\`  <input type="text" id="code" />\`
+\`</form>\`
         `,
       },
       objectives: [
-        { id: "o1a", label: "Ajouter une balise <form>" },
-        { id: "o1b", label: "Mettre un <input type=\"text\"> avec son <label>" },
+        { id: "o1a", label: "Creer un element <form>" },
+        { id: "o1b", label: "Ajouter un <label> et un <input> lies" },
       ],
-      docRefs: ["html/form", "html/input", "html/label"],
+      docRefs: ["html/form", "html/label", "html/input"],
       missionIcon: "📝",
       missionTag: "PROTOCOLE 01",
-      missionTtl: "PREMIER CHAMP",
-      bannerIcon: "🪪",
-      bannerTtl: "IDENTIFICATION ACTIVE",
-      bannerSub: "L'equipage peut saisir son indicatif d'appel.",
-      bannerXp: "⚡ +60 XP",
+      missionTtl: "CONTENEUR FORMULAIRE",
+      bannerIcon: "📁",
+      bannerTtl: "STRUCTURE DU FORMULAIRE ACTIVÉE",
+      bannerSub: "Le canal de transmission des donnees est configure.",
+      bannerXp: "⚡ +50 XP",
     },
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console de commande</title>\n  </head>\n  <body>\n    <h1>Console de la station</h1>\n    <form>\n      <label for="callsign">Indicatif</label>\n      <input type="text" id="callsign" name="callsign">\n      \n    </form>\n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Enregistrement Soute</title>\n  </head>\n  <body>\n    <form>\n      <label for="equipement">Nom de l\'equipement :</label>\n      <input type="text" id="equipement" />\n      \n    </form>\n  </body>\n</html>',
       placeholder: "<!-- Ajoute un champ email et un champ password -->",
       narrator:
-        "Toutes les donnees ne se traitent pas pareil. Ajoute un email pour les notifications et un mot de passe pour l'authentification.",
-      hint: 'Ajoute <input type="email"> et <input type="password"> avec leurs <label> respectifs.',
+        "Sécurisons l'accès à l'inventaire du dock. Ajoute deux nouveaux champs de saisie : un champ de type 'email' (label 'Email de l\\'operateur :') et un champ de type 'password' (label 'Mot de passe de securite :').",
+      hint: 'Ajoute des inputs avec type="email" et type="password" associes a leurs labels via des id uniques.',
       briefing: {
-        title: "Les types de champ",
+        title: "Champs Email et Password",
         content: `
-### type="email"
-Active une **validation automatique** : le navigateur verifie que la saisie contient bien un @.
-Sur mobile, il affiche meme un clavier avec le @ en evidence.
+### Les types d'input
+HTML5 propose des types de saisie adaptes :
+- **type="email"** : verifie automatiquement que la saisie correspond a une adresse de transmission valide.
+- **type="password"** : masque les caracteres tapes a l'ecran pour la securite du dock.
 
-### type="password"
-Le texte saisi est **masque** par des points. Indispensable pour les mots de passe.
-
-### Astuce
-Le **type** ne change pas seulement l'apparence : il change le clavier mobile, la validation, l'autocompletion du navigateur, etc.
-
-\`<input type="email" id="mail" name="mail">\`
-\`<input type="password" id="pwd" name="pwd">\`
-
-**Reflexe :** choisis le bon type, le HTML fait le reste.
+\`<label for="pass">Cle :</label>\`
+\`<input type="password" id="pass" />\`
         `,
       },
       objectives: [
-        { id: "o2a", label: "Ajouter un <input type=\"email\">" },
-        { id: "o2b", label: "Ajouter un <input type=\"password\">" },
+        { id: "o2a", label: "Ajouter un champ de saisie email" },
+        { id: "o2b", label: "Ajouter un champ de saisie password" },
       ],
-      docRefs: ["html/input"],
-      missionIcon: "🔐",
+      docRefs: ["html/input", "html/label"],
+      missionIcon: "🔑",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "TYPES SPECIALISES",
-      bannerIcon: "📧",
-      bannerTtl: "CANAUX SECURISES",
-      bannerSub: "Email et mot de passe sont reconnus par le navigateur.",
+      missionTtl: "SECURISATION DE BORD",
+      bannerIcon: "🔐",
+      bannerTtl: "CHAMPS SECURISES ETABLIS",
+      bannerSub: "L'identite de l'operateur et sa cle de cryptage sont configurables.",
       bannerXp: "⚡ +60 XP",
     },
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console de commande</title>\n  </head>\n  <body>\n    <h1>Console de la station</h1>\n    <form>\n      <label for="callsign">Indicatif</label>\n      <input type="text" id="callsign" name="callsign">\n\n      <label for="mail">Email</label>\n      <input type="email" id="mail" name="mail">\n\n      <label for="pwd">Mot de passe</label>\n      <input type="password" id="pwd" name="pwd">\n      \n    </form>\n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Enregistrement Soute</title>\n  </head>\n  <body>\n    <form>\n      <label for="equipement">Nom de l\'equipement :</label>\n      <input type="text" id="equipement" />\n      <label for="email">Email de l\'operateur :</label>\n      <input type="email" id="email" />\n      <label for="pass">Mot de passe de securite :</label>\n      <input type="password" id="pass" />\n      \n    </form>\n  </body>\n</html>',
       placeholder: "<!-- Ajoute un message libre et un bouton d'envoi -->",
       narrator:
-        "Un commandant doit pouvoir rediger un rapport. Ajoute un <textarea> pour un message libre et un <button> pour soumettre le formulaire.",
-      hint: 'Utilise <textarea id="msg" name="msg"></textarea> et <button type="submit">Envoyer</button>.',
+        "L'officier doit pouvoir consigner des notes de vol sur l'état des conteneurs. Ajoute une zone de texte multiligne <textarea> (label 'Commentaires additionnels :') et un bouton d'envoi final.",
+      hint: 'Utilise <textarea id="notes"></textarea> et <button type="submit">Transmettre</button>.',
       briefing: {
-        title: "Texte long et soumission",
+        title: "Textarea et Soumission",
         content: `
 ### La balise <textarea>
-- Sert pour les **messages longs** (au lieu d'un <input> d'une seule ligne).
-- N'est **pas** auto-fermante : on ouvre **<textarea>** et on ferme **</textarea>**.
+Contrairement a l'input simple, **<textarea>** est une balise double qui permet de saisir **plusieurs lignes de texte** (par exemple pour decrire des degats sur un conteneur).
 
 ### Le bouton de soumission
-- **<button type="submit">Envoyer</button>** declenche l'envoi du formulaire.
-- Sans formulaire (<form>), un bouton type submit n'a rien a envoyer.
-
-### Exemple
-\`<label for="msg">Rapport</label>\`
-\`<textarea id="msg" name="msg"></textarea>\`
-\`<button type="submit">Envoyer</button>\`
-
-**A retenir :** trois types de boutons existent — **submit** (par defaut), **reset** (efface), **button** (action JS).
+Pour envoyer le formulaire au dock central, on utilise la balise **<button>** avec l'attribut **type="submit"**.
         `,
       },
       objectives: [
-        { id: "o3a", label: "Ajouter une balise <textarea>" },
-        { id: "o3b", label: "Ajouter un <button type=\"submit\">" },
+        { id: "o3a", label: "Ajouter une zone de texte multiligne <textarea>" },
+        { id: "o3b", label: "Ajouter un bouton de soumission" },
       ],
       docRefs: ["html/textarea", "html/button"],
-      missionIcon: "💬",
+      missionIcon: "💾",
       missionTag: "PROTOCOLE 03",
-      missionTtl: "RAPPORT DETAILLE",
-      bannerIcon: "📨",
-      bannerTtl: "RAPPORT TRANSMIS",
-      bannerSub: "Le formulaire peut etre soumis avec un message libre.",
-      bannerXp: "⚡ +60 XP",
+      missionTtl: "NOTES ET TRANSMISSION",
+      bannerIcon: "🚀",
+      bannerTtl: "TRANSMISSION PRETE",
+      bannerSub: "Les notes d'inspection peuvent etre envoyees.",
+      bannerXp: "⚡ +70 XP",
     },
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console de commande</title>\n  </head>\n  <body>\n    <h1>Console de la station</h1>\n    <form>\n      <label for="callsign">Indicatif</label>\n      <input type="text" id="callsign" name="callsign">\n\n      <label for="mail">Email</label>\n      <input type="email" id="mail" name="mail">\n\n      <label for="pwd">Mot de passe</label>\n      <input type="password" id="pwd" name="pwd">\n\n      <label for="msg">Rapport</label>\n      <textarea id="msg" name="msg"></textarea>\n\n      <button type="submit">Envoyer</button>\n      \n    </form>\n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Enregistrement Soute</title>\n  </head>\n  <body>\n    <form>\n      <label for="equipement">Nom de l\'equipement :</label>\n      <input type="text" id="equipement" />\n      <label for="email">Email de l\'operateur :</label>\n      <input type="email" id="email" />\n      <label for="pass">Mot de passe de securite :</label>\n      <input type="password" id="pass" />\n      <label for="notes">Commentaires additionnels :</label>\n      <textarea id="notes"></textarea>\n      <button type="submit">Transmettre</button>\n      \n    </form>\n  </body>\n</html>',
       placeholder: "<!-- Ajoute un menu deroulant <select> pour la destination -->",
       narrator:
-        "Derniere etape : l'equipage doit choisir sa destination dans une liste preetablie. Cree un menu deroulant avec <select> et plusieurs <option>.",
-      hint: 'Ajoute <label for="dest">Destination</label> et <select id="dest" name="dest"><option>Mars</option><option>Lune</option></select> avec au moins deux options.',
+        "Il reste à définir le secteur orbital de destination. Crée un menu déroulant <select> (label 'Destination du conteneur :') avec 3 options : 'Secteur Alpha', 'Secteur Beta' et 'Secteur Gamma'.",
+      hint: 'Utilise <select id="destination"><option value="alpha">Secteur Alpha</option>...</select> et associe-le a son label.',
       briefing: {
-        title: "Le menu deroulant",
+        title: "La liste deroulante : <select> et <option>",
         content: `
 ### La balise <select>
-Affiche une **liste deroulante**. L'utilisateur choisit une valeur parmi plusieurs.
+Elle propose une liste fermee de choix :
+- **<select>** declare la liste.
+- **<option>** declare chaque choix possible.
 
-### Chaque choix : <option>
-\`<select id="dest" name="dest">\`
-\`  <option>Mars</option>\`
-\`  <option>Lune</option>\`
-\`  <option>Europe (lune de Jupiter)</option>\`
+\`<select id="destination">\`
+\`  <option value="alpha">Secteur Alpha</option>\`
+\`  <option value="beta">Secteur Beta</option>\`
 \`</select>\`
-
-### Pourquoi un select ?
-- Quand les choix sont **predefinis et limites**.
-- Plus compact qu'une serie de cases a cocher.
-
-**Astuce :** mets l'option par defaut en premier — c'est elle qui s'affiche au depart.
         `,
       },
       objectives: [
-        { id: "o4a", label: "Ajouter une balise <select>" },
-        { id: "o4b", label: "Placer au moins deux <option>" },
+        { id: "o4a", label: "Ajouter un menu deroulant <select>" },
+        { id: "o4b", label: "Ajouter des options avec leurs attributs value" },
       ],
       docRefs: ["html/select"],
-      missionIcon: "🛸",
+      missionIcon: "🔽",
       missionTag: "PROTOCOLE 04",
-      missionTtl: "CHOIX DE DESTINATION",
-      bannerIcon: "🪐",
-      bannerTtl: "CONSOLE OPERATIONNELLE",
-      bannerSub:
-        "Le centre de commandement accepte tous les ordres : identite, message et destination.",
+      missionTtl: "AFFECTATION DU SECTEUR",
+      bannerIcon: "🛰",
+      bannerTtl: "LOGISTIQUE TERMINEE",
+      bannerSub: "Le manifeste d'enregistrement de soute est complet.",
       bannerXp: "⚡ +70 XP",
     },
   ],
