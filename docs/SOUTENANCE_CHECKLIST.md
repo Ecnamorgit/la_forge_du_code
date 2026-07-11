@@ -11,7 +11,7 @@ Liste complète des documents et éléments à produire pour le projet et sa sou
 - ⬜ **Cahier des charges** — contexte, problème résolu, objectifs, périmètre (in/out of scope).
 - ⬜ **Expression du besoin / personas** — qui sont les apprenants visés, leurs besoins.
 - ⬜ **Planning / méthodologie** — découpage en phases, méthode (agile ?), diagramme de Gantt ou jalons.
-- 🟡 **Workflow Git** — branches structurées déjà en place (`feat/*`, `fix/*`, `docs/*`) ; à documenter (convention de commits, stratégie de merge).
+- ✅ **Workflow Git** — branches structurées en place. Stratégie de branchement, conventions de commits et processus de revue documentés dans [GIT_WORKFLOW.md](file:///c:/Users/joan7/Desktop/projet%20fil%20rouge/codeforge/docs/GIT_WORKFLOW.md).
 - ✅ **Journal des évolutions** — `CHANGELOG.md`.
 
 ## 2. Conception fonctionnelle
@@ -45,10 +45,10 @@ Liste complète des documents et éléments à produire pour le projet et sa sou
 ## 6. Qualité & tests
 
 - 🟡 **Tests manuels** — `SMOKE_TEST.md` (check-list exhaustive) ✅ ; mais aucun test **automatisé**.
-- 🟡 **Tests unitaires** — notamment sur les validateurs et les tokens (cibles idéales).
-- ⬜ **Test e2e du parcours** — signup → chapitre → sauvegarde de progression (déjà identifié comme manquant dans l'audit prod).
-- ✅ **CI/CD** — pipeline (GitHub Actions) : lint + build + tests à chaque push. Aucun `.github/workflows` actuellement.
-- 🟡 **Stratégie de tests** — document expliquant la pyramide de tests visée (cohérent avec ton cursus « Tests »).
+- ✅ **Tests unitaires** — 206 tests unitaires opérationnels (Vitest) couvrant les validateurs, la logique de mission, le calcul d'XP, les tokens, etc. (cf. [TESTING.md](file:///c:/Users/joan7/Desktop/projet%20fil%20rouge/codeforge/docs/TESTING.md)).
+- ✅ **Test e2e du parcours** — 8 tests de bout en bout (Playwright) validant le parcours d'apprentissage complet (dont le chapitre 1 HTML pas à pas) avec nettoyage/seed automatique de la base.
+- ✅ **CI/CD** — Pipeline GitHub Actions (`.github/workflows/ci.yml`) pleinement opérationnel avec des jobs parallèles de qualité (lint, typecheck, tests unitaires, build) et E2E (avec service PostgreSQL 16 et tests Playwright).
+- ✅ **Stratégie de tests** — Document détaillé présentant l'approche de tests unitaires et E2E disponible dans [TESTING.md](file:///c:/Users/joan7/Desktop/projet%20fil%20rouge/codeforge/docs/TESTING.md).
 
 ## 7. Conformité & juridique
 
@@ -59,7 +59,7 @@ Liste complète des documents et éléments à produire pour le projet et sa sou
 ## 8. Documentation produit
 
 - ✅ **README** — `README.md` personnalisé (présentation, stack, démarrage, index des docs).
-- ⬜ **Guide d'installation / setup dev** — prérequis, `.env`, `pnpm install`, migrations Prisma, lancement.
+- ✅ **Guide d'installation / setup dev** — Disponible à la racine dans le [README.md](file:///c:/Users/joan7/Desktop/projet%20fil%20rouge/codeforge/README.md) sous la section "Démarrage rapide".
 - ✅ **Guide de déploiement** — `DEPLOYMENT.md`.
 - ⬜ **Manuel utilisateur** — prise en main côté apprenant (court).
 - ✅ **Consignes pour assistants IA** — `AGENTS.md` / `CLAUDE.md`.
@@ -78,10 +78,9 @@ Liste complète des documents et éléments à produire pour le projet et sa sou
 
 **Déjà solide :** auth, modèle de données (MCD/MLD), déploiement, durcissement prod, design, parcours utilisateur, smoke tests.
 
-**Les 5 manques les plus importants à combler :**
+**Les chantiers restants à finaliser avant la soutenance :**
 
-1. **Rapport sandbox / sécurité d'exécution** — sujet à plus fort impact, le compléter en priorité.
-2. **Doc du moteur pédagogique (validateurs)** — le cœur métier, actuellement non documenté.
-3. **Tests automatisés + CI** — seul vrai point faible technique, à au moins amorcer.
-4. **Diagrammes UML (cas d'usage, séquence, architecture)** — attendus en soutenance.
-5. **README personnalisé + RGPD/LICENSE** — finitions de présentation et de conformité.
+1. **Diagrammes UML (cas d'usage, séquence, architecture)** — attendus en soutenance.
+2. **Veille / état de l'art** — positionnement face à Codecademy, freeCodeCamp, etc.
+3. **Supports de soutenance** — slides, scénario de démo scripté et vidéo de secours.
+4. **Bilan & perspectives** — définition de la roadmap post-soutenance (cursus complémentaires, OAuth, 2FA).
