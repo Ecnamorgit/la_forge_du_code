@@ -4,13 +4,13 @@ Ce document présente la conception narrative et les storyboards pixel art pour 
 
 ---
 
-# 🌟 Discours de lancement – *CodeForge : La Forge du Code*  
+# 🌟 Discours de lancement – *CodeForge — Nebula Command*  
 
-> **« Chers apprentis ingénieurs, bienvenue à bord de la première station orbitale dédiée à la construction des langages qui feront vibrer l’univers numérique. Ici, chaque ligne de code est une brique d’acier, chaque fonction un moteur d’étoile. Vous êtes les artisans de la Forge, ceux qui transforment le vide du Web en constellations de possibilités. »**  
+> **« Chers cadets, bienvenue à bord de la Coalition Nebula, le réseau de stations orbitales qui maintient en vie l’univers numérique. Ici, chaque ligne de code est un module de survie, chaque fonction un réacteur d’étoile. Vous êtes les ingénieurs de la flotte, ceux qui restaurent les systèmes et transforment le vide du Web en constellations de possibilités. »**  
 
-> **Mission** : *Humanité, il faut quitter le monde physique pour naviguer dans l’immensité du Web et explorer les galaxies du développement.* Votre vaisseau ? Un réseau d’infrastructures codées, vos outils ? Les langages que vous allez maîtriser. Ensemble, nous allons forger des ponts entre les planètes de la connaissance et ouvrir une voie interstellaire où chaque algorithme devient une porte vers de nouveaux horizons.  
+> **Mission** : *Humanité, il faut quitter le monde physique pour naviguer dans l’immensité du Web et explorer les galaxies du développement.* Votre vaisseau ? Un réseau d’infrastructures codées, vos outils ? Les langages que vous allez maîtriser. Ensemble, nous allons établir des liaisons entre les planètes de la connaissance et ouvrir une voie interstellaire où chaque algorithme devient une porte vers de nouveaux horizons.  
 
-> **Engagement** : Chaque défi relevé, chaque bug dompté, fait avancer le projet *CodeForge* et vous propulse un pas plus loin vers l’évasion numérique. Préparez vos consoles, activez votre imagination, et que la première branche de notre vaisseau s’élance !  
+> **Engagement** : Chaque défi relevé, chaque bug dompté, fait avancer la mission *Nebula Command* et vous propulse un pas plus loin vers l’évasion numérique. Préparez vos consoles, activez votre imagination, et que le premier vaisseau de la flotte s’élance !  
 
 ---  
 
@@ -21,14 +21,14 @@ Ce document présente la conception narrative et les storyboards pixel art pour 
 
 | Frame | Description visuelle | Narration (texte pixel) |
 |------|----------------------|--------------------------|
-| 1️⃣ | Un néon bleuté apparaît au centre d’un ciel étoilé pixellisé ; une silhouette de vaisseau se dessine lentement. | « Bienvenue dans la Forge du Code ! » |
-| 2️⃣ | Le joueur (avatar pixel, casque d’ingénieur) apparaît, tenant un marteau lumineux. | « Vous êtes l’Ingénieur de la Forge ». |
+| 1️⃣ | Un néon bleuté apparaît au centre d’un ciel étoilé pixellisé ; une silhouette de vaisseau se dessine lentement. | « Bienvenue à bord de Nebula Command ! » |
+| 2️⃣ | Le joueur (avatar pixel, casque d’ingénieur) apparaît, une console holographique à la main. | « Vous êtes Cadet-Ingénieur de la station ». |
 | 3️⃣ | Des panneaux de code flottent autour du vaisseau : HTML, CSS, JS… ils s’animent comme des modules d’énergie. | « Chaque langage est une pièce maîtresse de notre ship ». |
-| 4️⃣ | Le marteau frappe un bloc de données ; le bloc se transforme en une petite planète pixel art qui orbite autour du vaisseau. | « Construisez, assemblez, faites évoluer les infrastructures spatiales ». |
+| 4️⃣ | La console scelle un bloc de données ; le bloc se stabilise en une petite planète pixel art qui orbite autour du vaisseau. | « Construisez, assemblez, faites évoluer les infrastructures spatiales ». |
 | 5️⃣ | Une invitation apparaît : « Choisissez votre premier cursus et partez explorer les galaxies du Web ». | — |
 
 **Éléments clés à animer**  
-- Le **marteau de forge** qui s’allume à chaque clic.  
+- La **console d’ingénieur** qui s’illumine à chaque validation.  
 - Les **icônes des langages** qui scintillent lorsqu’ils sont sélectionnés.  
 - Un **compteur de réputation** qui se remplit au fur et à mesure que le joueur progresse.  
 
@@ -43,7 +43,7 @@ Ce document présente la conception narrative et les storyboards pixel art pour 
 Dans l’immensité spatiale, le premier chantier consiste à ériger un **dock d’accueil** où les vaisseaux (pages web) s’amarrent. L’HTML devient la charpente qui définit la structure du dock : balises comme des poutres, sections comme des compartiments pressurisés. Sans ce squelette, aucune technologie ne pourra se poser ou se relier aux autres modules.  
 
 ### Storyboard pixel art (5 frames)  
-1️⃣ **Vaisseau de construction** apparaît avec un marteau et plante une balise `<html>` qui s’enroule autour d’un cadre lumineux.  
+1️⃣ **Vaisseau de construction** apparaît et déploie une balise `<html>` qui s’enroule autour d’un cadre lumineux.  
 2️⃣ **Balises `<head>` & `<body>`** s’ajoutent comme deux niveaux de panneaux de contrôle, chaque niveau s’allume lorsqu’on les place.  
 3️⃣ **Éléments de contenu** (`<h1>`, `<p>`, `<img>`) apparaissent sous forme de modules d’équipement flottant et se connectent aux panneaux.  
 4️⃣ Le dock s’illumine, un **signal de stabilité** pulse autour du vaisseau, indiquant que la structure est complète.  
@@ -197,7 +197,7 @@ Un habitat doit accueillir tous les voyageurs, même ceux avec des besoins spéc
 
 ## 🚀 Deuxième Partie : Cursus Intermédiaires & Avancés (8 Cursus Pilotes)
 
-Ces cursus constituent la suite de l'exploration galactique et consolident les capacités techniques des ingénieurs de la Forge.
+Ces cursus constituent la suite de l'exploration galactique et consolident les capacités techniques des ingénieurs de la flotte.
 
 > **Note de cadrage.** Ces 8 cursus sont aujourd'hui des **aperçus** (1 chapitre pilote chacun — cf. le statut « APERÇU » du catalogue). Les storyboards ci-dessous sont des **esquisses de direction**, volontairement resserrées : un pitch, trois temps forts visuels, un hook gamifié. Objectif : fixer le ton sans sur-spécifier une production pixel-art qui n'est pas encore lancée. Chaque cursus sera storyboardé en détail au moment où son contenu passera de « aperçu » à « complet ».
 
