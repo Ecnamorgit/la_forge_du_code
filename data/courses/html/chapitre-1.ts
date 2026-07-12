@@ -13,7 +13,7 @@ export const chapitre1: ChapterData = {
       startCode: "",
       placeholder: "<!-- Écris ton code ici -->",
       narrator:
-        "Ingénieur, nous commençons par les fondations. Sans un protocole d'identification et une enceinte pressurisée, la base lunaire s'effondrera.",
+        "Cadet, nous commençons par les fondations. Sans un protocole d'identification et une enceinte pressurisée, la base lunaire s'effondrera.",
       hint: 'Utilise &lt;!DOCTYPE html&gt; puis &lt;html&gt;&lt;/html&gt;.',
       briefing: {
         title: "Les Fondations de l'Acier Numérique",
@@ -107,7 +107,7 @@ C'est une tradition ancestrale chez les codeurs. Écrire "Hello World" est la pr
       missionTtl: "SIGNAL DE VIE",
       bannerIcon: "🌍",
       bannerTtl: "SYSTÈME OPÉRATIONNEL",
-      bannerSub: "Le signal a atteint la Terre. Félicitations, Ingénieur !",
+      bannerSub: "Le signal a atteint la Terre. Félicitations, Cadet !",
       bannerXp: "⚡ +50 XP",
     },
   ],

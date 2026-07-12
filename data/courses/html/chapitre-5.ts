@@ -14,7 +14,7 @@ export const chapitre5: ChapterData = {
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Enregistrement Soute</title>\n  </head>\n  <body>\n    \n  </body>\n</html>',
       placeholder: "<!-- Cree un formulaire avec un champ texte etiquete -->",
       narrator:
-        "Ingénieur de soute, nous devons cataloguer les conteneurs arrivant sur le dock. Ajoute un formulaire <form> contenant un champ de texte associé à un label pour saisir le 'Nom de l\\'equipement'. Le label doit porter le texte exact 'Nom de l\\'equipement :'.",
+        "Cadet, nous devons cataloguer les conteneurs arrivant sur le dock. Ajoute un formulaire <form> contenant un champ de texte associé à un label pour saisir le 'Nom de l\\'equipement'. Le label doit porter le texte exact 'Nom de l\\'equipement :'.",
       hint: 'Utilise <form><label for="equipement">Nom de l\'equipement :</label><input type="text" id="equipement" /></form>.',
       briefing: {
         title: "Le formulaire et son premier champ",

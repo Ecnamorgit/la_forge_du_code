@@ -11,7 +11,7 @@ export const chapitre1: ChapterData = {
   steps: [
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console graphique</title>\n    \n  </head>\n  <body>\n    <h1>Centre de commande</h1>\n    <p>Bienvenue, cadet.</p>\n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console graphique</title>\n    \n  </head>\n  <body>\n    <h1>Centre de commande</h1>\n    <p>Bienvenue, Cadet.</p>\n  </body>\n</html>',
       placeholder: "<!-- Ajoute une balise <style> dans le <head> -->",
       narrator:
         "Pour appliquer du style à notre dock, nous devons créer une zone dédiée. La balise <style> est la solution : c'est notre console graphique embarquée.",
@@ -49,7 +49,7 @@ export const chapitre1: ChapterData = {
     },
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console graphique</title>\n    <style>\n      \n    </style>\n  </head>\n  <body>\n    <h1>Centre de commande</h1>\n    <p>Bienvenue, cadet.</p>\n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console graphique</title>\n    <style>\n      \n    </style>\n  </head>\n  <body>\n    <h1>Centre de commande</h1>\n    <p>Bienvenue, Cadet.</p>\n  </body>\n</html>',
       placeholder: "<!-- Donne une couleur au <h1> -->",
       narrator:
         "Premier signal visuel : illuminons le titre du dock. Sélectionnons le <h1>, puis appliquons la propriété color.",
@@ -91,7 +91,7 @@ export const chapitre1: ChapterData = {
     },
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console graphique</title>\n    <style>\n      h1 {\n        color: cyan;\n      }\n      \n    </style>\n  </head>\n  <body>\n    <h1>Centre de commande</h1>\n    <p>Bienvenue, cadet.</p>\n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console graphique</title>\n    <style>\n      h1 {\n        color: cyan;\n      }\n      \n    </style>\n  </head>\n  <body>\n    <h1>Centre de commande</h1>\n    <p>Bienvenue, Cadet.</p>\n  </body>\n</html>',
       placeholder: "<!-- Donne une couleur de fond au body -->",
       narrator:
         "Le titre brille, mais le fond reste blanc. Plongeons la page dans l'espace en changeant la couleur de fond du <body>.",
@@ -128,7 +128,7 @@ Elle définit la **couleur de fond** d'un élément.
     },
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console graphique</title>\n    <style>\n      body {\n        background-color: black;\n      }\n      h1 {\n        color: cyan;\n      }\n      \n    </style>\n  </head>\n  <body>\n    <h1>Centre de commande</h1>\n    <p>Bienvenue, cadet.</p>\n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Console graphique</title>\n    <style>\n      body {\n        background-color: black;\n      }\n      h1 {\n        color: cyan;\n      }\n      \n    </style>\n  </head>\n  <body>\n    <h1>Centre de commande</h1>\n    <p>Bienvenue, Cadet.</p>\n  </body>\n</html>',
       placeholder: "<!-- Agrandis le texte avec font-size -->",
       narrator:
         "Le message est lisible mais trop petit. Augmentons la taille du paragraphe avec font-size pour qu'il atteigne le centre de contrôle.",

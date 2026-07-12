@@ -14,7 +14,7 @@ export const chapitre8: ChapterData = {
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Signal d\'Urgence</title>\n  </head>\n  <body>\n    \n  </body>\n</html>',
       placeholder: "<!-- Ajoute une balise <video> avec controles -->",
       narrator:
-        "Ingénieur des transmissions, connectons le retour visuel de surveillance de la soute. Intègre un flux <video> muni de son interface de lecture, ciblant '/videos/emergency-dock.mp4'.",
+        "Cadet, connectons le retour visuel de surveillance de la soute. Intègre un flux <video> muni de son interface de lecture, ciblant '/videos/emergency-dock.mp4'.",
       hint: 'Utilise <video src="/videos/emergency-dock.mp4" controls></video>.',
       briefing: {
         title: "L'integration video : <video> et controls",

@@ -14,7 +14,7 @@ export const chapitre6: ChapterData = {
         '<!DOCTYPE html>\n<html lang="fr">\n  <head>\n    <title>Station Nebula</title>\n  </head>\n  <body>\n    <h1>Station Nebula</h1>\n    <p>Bienvenue, Cadet.</p>\n  </body>\n</html>',
       placeholder: "<!-- Encadre la page avec <header>, <main> et <footer> -->",
       narrator:
-        "Ingénieur de dock, nous devons poser l'architecture sémantique de la console de contrôle principale. Ajoute les compartiments physiques <header>, <main> et <footer>.",
+        "Cadet, nous devons poser l'architecture sémantique de la console de contrôle principale. Ajoute les compartiments physiques <header>, <main> et <footer>.",
       hint: 'Place le <h1> dans un <header>, le <p> dans un <main>, et ajoute un <footer> en bas avec ton nom ou un copyright.',
       briefing: {
         title: "Les compartiments semantiques",
