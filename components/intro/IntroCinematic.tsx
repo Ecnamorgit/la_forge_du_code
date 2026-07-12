@@ -13,7 +13,6 @@ import {
 } from "@/lib/intro";
 import { INTRO_CINEMATIC, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import {
-  isSoundEnabled,
   setSoundEnabled,
   unlockAudio,
   playDeployBip,
@@ -129,7 +128,6 @@ export default function IntroCinematic({
     if (open) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- reset volontaire à l'ouverture
       setIndex(0);
-      setSoundOn(isSoundEnabled());
     }
   }, [open]);
 
