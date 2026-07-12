@@ -19,6 +19,8 @@ export const chapitre3: ChapterData = {
       briefing: {
         title: "Capter une image",
         content: `
+*« Un capteur sans légende ne sert à rien dans le noir. Renseigne toujours le \`alt\` : c'est ce que « voient » les officiers privés d'écran. »* — **Kira**
+
 ### La balise <img>
 La balise **<img>** affiche une image sur la console de controle. C'est une balise **auto-fermante** : pas besoin de balise fermante </img>.
 

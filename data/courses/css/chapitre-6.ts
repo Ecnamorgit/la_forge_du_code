@@ -19,6 +19,8 @@ export const chapitre6: ChapterData = {
       briefing: {
         title: "position: relative",
         content: `
+*« Parfois il faut décaler un module sans bousculer ses voisins. \`position: relative\` le déplace en gardant sa place dans le flux — chirurgie, pas démolition. »* — **Kira**
+
 ### Quatre positionnements
 CSS propose 4 valeurs principales de **position** : **static** (par défaut), **relative**, **absolute**, **fixed**, et une 5ème : **sticky**.
 

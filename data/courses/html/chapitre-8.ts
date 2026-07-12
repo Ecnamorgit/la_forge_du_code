@@ -19,6 +19,8 @@ export const chapitre8: ChapterData = {
       briefing: {
         title: "L'integration video : <video> et controls",
         content: `
+*« Un flux de surveillance sans commandes, c'est une image morte. Donne à ton \`<video>\` ses \`controls\` — l'opérateur doit garder la main. »* — **Kira**
+
 ### La balise <video>
 Elle permet de lire nativement un flux video de surveillance sans plugin tiers sur la soute du dock.
 

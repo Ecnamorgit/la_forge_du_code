@@ -19,6 +19,8 @@ export const chapitre2: ChapterData = {
       briefing: {
         title: "Le selecteur de classe",
         content: `
+*« Tirer sur tout ce qui bouge, c'est bon pour les amateurs. Une \`class\`, un point, et tu ne cibles que ce que tu veux — précision avant puissance. »* — **Kira**
+
 ### Selectionner par classe
 Un meme element peut porter une **class** (etiquette) ajoutee dans le HTML : \`<p class="alert">\`.
 

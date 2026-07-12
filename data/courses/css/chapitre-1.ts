@@ -19,6 +19,8 @@ export const chapitre1: ChapterData = {
       briefing: {
         title: "Brancher le CSS au HTML",
         content: `
+*« La structure tient, maintenant on l'habille. Le \`<style>\` dans le \`<head>\`, c'est ta console graphique — tout le décor de la station passe par là. »* — **Kira**
+
 ### Le CSS, c'est quoi ?
 **CSS** signifie *Cascading Style Sheets* — feuilles de style en cascade. Il sert à **décorer** notre dock : couleurs, polices, tailles, dispositions.
 

@@ -19,6 +19,8 @@ export const chapitre6: ChapterData = {
       briefing: {
         title: "Les compartiments semantiques",
         content: `
+*« Une console où tout se ressemble, personne ne s'y repère — surtout pas les lecteurs d'écran. Nomme tes zones : \`header\`, \`main\`, \`footer\`. La structure, c'est déjà de l'accessibilité. »* — **Kira**
+
 ### Pourquoi semantique ?
 Les balises **<div>** marchent partout mais ne disent rien. Les balises **semantiques** indiquent au navigateur, aux moteurs de recherche et aux lecteurs d'ecran **a quoi sert** chaque zone.
 

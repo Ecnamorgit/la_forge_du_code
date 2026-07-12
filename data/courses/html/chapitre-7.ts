@@ -19,6 +19,8 @@ export const chapitre7: ChapterData = {
       briefing: {
         title: "Metadonnées globales",
         content: `
+*« Avant d'émettre, on règle la fréquence. Langue, encodage, viewport : ces méta-réglages garantissent que ton signal est lu correctement sur tous les terminaux. »* — **Kira**
+
 ### L'attribut lang
 Configure sur la balise racine **<html>**, il declare au systeme la langue principale utilisee pour les communications du dock (ex : \`lang="fr"\`).
 

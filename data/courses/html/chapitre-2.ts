@@ -19,6 +19,8 @@ export const chapitre2: ChapterData = {
       briefing: {
         title: "Le lien externe avec target=\"_blank\"",
         content: `
+*« Une station isolée est une station morte. Un lien relie les docks ; s'il sort de la station, ouvre-le dans un nouveau sas pour ne pas perdre ta session. »* — **Kira**
+
 ### La balise <a>
 **<a>** signifie *anchor* (ancre). C'est l'element de passerelle qui rend un texte cliquable et connecte nos soutes.
 

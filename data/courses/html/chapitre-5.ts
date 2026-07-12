@@ -19,6 +19,8 @@ export const chapitre5: ChapterData = {
       briefing: {
         title: "Le formulaire et son premier champ",
         content: `
+*« Pas d'enregistrement sans étiquette. Lie chaque \`<label>\` à son champ par le \`for\`/\`id\` — un formulaire mal étiqueté, c'est une cargaison sans manifeste. »* — **Kira**
+
 ### La balise <form>
 C'est le conteneur principal de tous tes champs de saisie. Elle dit au navigateur : *"Ce qui est a l'interieur est une suite de questions dont je veux collecter les reponses."*
 

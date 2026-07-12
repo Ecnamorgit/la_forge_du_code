@@ -18,6 +18,8 @@ export const chapitre1: ChapterData = {
       briefing: {
         title: "Les Fondations de l'Acier Numérique",
         content: `
+*« Pas de base sans fondations. Le \`<!DOCTYPE>\` et la balise racine, c'est l'enceinte qui tient tout le reste — on ne pose rien tant qu'elle n'est pas scellée. »* — **Kira**
+
 ### Le Signal d'Amorce : [[doc:html/doctype|<!DOCTYPE html>]]
 Imaginez que vous envoyez un message à un alien. Avant de parler, vous devez lui dire quelle langue vous utilisez.
 **<!DOCTYPE html>** n'est pas une balise HTML, c'est une "déclaration". Elle dit au navigateur (Chrome, Firefox) : *"Attention, je vais te parler en HTML5, la version la plus moderne et puissante du langage."*

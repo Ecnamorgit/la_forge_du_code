@@ -19,6 +19,8 @@ export const chapitre4: ChapterData = {
       briefing: {
         title: "Activer Flexbox",
         content: `
+*« Des vaisseaux empilés en pagaille ne décollent pas. \`display: flex\` sur le hangar, et l'escadrille s'aligne. Tu commandes le parent, il range les enfants. »* — **Kira**
+
 ### Flexbox, c'est quoi ?
 Un système pour **disposer** plusieurs éléments en ligne ou en colonne avec un contrôle précis de l'alignement et de l'espacement.
 

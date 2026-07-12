@@ -19,6 +19,8 @@ export const chapitre5: ChapterData = {
       briefing: {
         title: "Activer Grid",
         content: `
+*« Pour une carte tactique, une seule dimension ne suffit pas. \`display: grid\` te donne lignes ET colonnes — quadrille l'espace comme une grille de défense. »* — **Kira**
+
 ### CSS Grid, c'est quoi ?
 Un système de mise en page **bidimensionnel** : lignes ET colonnes en même temps.
 
