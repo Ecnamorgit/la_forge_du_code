@@ -4,7 +4,7 @@ export const chapitre10: ChapterData = {
   slug: "chapitre-10",
   tag: "MISSION : MEMOIRE PERSISTANTE",
   title: "STOCKAGE\nLOCAL",
-  subtitle: "Conserve les preferences du cadet entre les sessions",
+  subtitle: "Conserve les préférences du cadet entre les sessions",
   totalXp: 270,
   completionBadge: "💾",
   completionBadgeLabel: "GARDIEN DES DONNEES",
@@ -14,33 +14,35 @@ export const chapitre10: ChapterData = {
         "// Stocke 'theme' = 'dark' dans localStorage, puis affiche-le avec getItem.\n",
       placeholder: "// localStorage.setItem + getItem",
       narrator:
-        "Premier ecriture en memoire persistante. Stocke la preference de theme du cadet, puis lis-la pour verifier.",
+        "Premier écriture en mémoire persistante. Stocke la préférence de thème du cadet, puis lis-la pour vérifier.",
       hint: "localStorage.setItem('theme', 'dark');\nconsole.log(localStorage.getItem('theme'));",
       briefing: {
         title: "localStorage : setItem & getItem",
         content: `
+*« Ce qui n'est pas consigné est perdu au prochain redémarrage. \`localStorage\` grave les préférences du cadet dans la mémoire de bord. »* — **Kira**
+
 ### Qu'est-ce que localStorage ?
-Un **stockage cle/valeur** integre au navigateur. Les donnees persistent **meme apres fermeture du navigateur** (contrairement a sessionStorage qui est efface a la fermeture).
+Un **stockage clé/valeur** intégré au navigateur. Les données persistent **même après fermeture du navigateur** (contrairement à sessionStorage qui est effacé à la fermeture).
 
 ### Limites
-- **Strings uniquement** : les valeurs sont stockees en string. Pour les objets, on JSON.stringify avant et JSON.parse en lecture.
+- **Strings uniquement** : les valeurs sont stockées en string. Pour les objets, on JSON.stringify avant et JSON.parse en lecture.
 - **~5 Mo** par domaine, environ.
-- **Synchrone** : pas d'IO disque visible, mais ca bloque le thread quand meme. A eviter pour gros volumes.
+- **Synchrone** : pas d'IO disque visible, mais ça bloque le thread quand même. À éviter pour gros volumes.
 
 ### setItem
 \`localStorage.setItem('theme', 'dark');\`
 
-Si la cle existe deja, la valeur est ecrasee.
+Si la clé existe déjà, la valeur est écrabouillée.
 
 ### getItem
 \`const theme = localStorage.getItem('theme');\`
 
-Retourne la valeur (string) ou **null** si la cle n'existe pas.
+Retourne la valeur (string) ou **null** si la clé n'existe pas.
 
 ### Note importante
-Dans cet editeur, le localStorage est un **polyfill en memoire** : les valeurs ne persistent pas entre deux executions du code. Dans un vrai navigateur, elles survivraient meme apres un reboot.
+Dans cet éditeur, le localStorage est un **polyfill en mémoire** : les valeurs ne persistent pas entre deux exécutions du code. Dans un vrai navigateur, elles survivraient même après un reboot.
 
-**A retenir :** setItem(cle, valeur) ecrit, getItem(cle) lit. Toujours en string.
+**À retenir :** setItem(clé, valeur) écrit, getItem(clé) lit. Toujours en string.
         `,
       },
       objectives: [
@@ -49,131 +51,118 @@ Dans cet editeur, le localStorage est un **polyfill en memoire** : les valeurs n
       ],
       missionIcon: "💾",
       missionTag: "PROTOCOLE 01",
-      missionTtl: "ECRITURE & LECTURE",
+      missionTtl: "ÉCRITURE & LECTURE",
       bannerIcon: "💾",
-      bannerTtl: "MEMOIRE OPERATIONNELLE",
-      bannerSub: "La preference est stockee et relue avec succes.",
+      bannerTtl: "MÉMOIRE OPÉRATIONNELLE",
+      bannerSub: "La préférence est stockée et relue avec succès.",
       bannerXp: "⚡ +60 XP",
     },
     {
       startCode:
-        "// Stocke un objet pilote {nom: 'Luna', niveau: 8} dans localStorage sous la cle 'pilote'.\n// Relis et parse l'objet, puis logge pilote.nom et pilote.niveau.\n",
+        "// Stocke un objet pilote {nom: 'Luna', niveau: 8} dans localStorage sous la clé 'pilote'.\n// Relis et parse l'objet, puis logge pilote.nom et pilote.niveau.\n",
       placeholder: "// JSON.stringify + JSON.parse",
       narrator:
-        "localStorage ne stocke que des strings. Pour persister un objet, JSON.stringify avant d'ecrire, JSON.parse apres lecture.",
+        "localStorage ne stocke que des strings. Pour persister un objet, JSON.stringify avant d'écrire, JSON.parse après lecture.",
       hint: "const pilote = {nom: 'Luna', niveau: 8};\nlocalStorage.setItem('pilote', JSON.stringify(pilote));\nconst lu = JSON.parse(localStorage.getItem('pilote'));\nconsole.log(lu.nom);\nconsole.log(lu.niveau);",
       briefing: {
-        title: "Serialiser un objet",
+        title: "Sérialiser un objet",
         content: `
-### Le probleme
+### Le problème
 \`localStorage.setItem('pilote', { nom: 'Luna' });\`
-\`// Stocke en realite la chaine "[object Object]"\`
+\`// Stocke en réalité la chaîne "[object Object]"\`
 
-Toute valeur passee a setItem est convertie en string. Pour un objet, c'est une catastrophe.
+Toute valeur passée à setItem est convertie en string. Pour un objet, c'est une catastrophe.
 
 ### La solution : JSON
 **Stringify** transforme un objet en JSON (string), **parse** fait l'inverse.
 
-\`// Ecrire\`
+\`// Écrire\`
 \`localStorage.setItem('pilote', JSON.stringify({nom: 'Luna', niveau: 8}));\`
 
 \`// Lire\`
 \`const data = JSON.parse(localStorage.getItem('pilote'));\`
 \`// data est un vrai objet : { nom: 'Luna', niveau: 8 }\`
 
-### Attention : null
-Si la cle n'existe pas, getItem retourne **null**. **JSON.parse(null)** retourne null (heureusement). Mais accede a une propriete sur null = TypeError.
+### Vérification
+On peut vérifier si la clé existe avant de parser :
+\`if (localStorage.getItem('pilote') !== null) {\`
+\`  const pilote = JSON.parse(localStorage.getItem('pilote'));\`
+\`}\`
 
-\`const data = JSON.parse(localStorage.getItem('inexistant'));\`
-\`if (data) { console.log(data.nom); }   // garde defensif\`
-
-### Que stocker ?
-- Preferences utilisateur (theme, langue, taille de police)
-- Brouillon de formulaire
-- Cache de donnees recentes
-- Token d'auth (avec precaution — JWT en localStorage peut etre vulnerable au XSS)
-
-**A retenir :** \`JSON.stringify avant setItem, JSON.parse apres getItem\`. Tu seras 90 % du temps dans ce pattern.
+**À retenir :** Utiliser JSON.stringify et JSON.parse pour stocker et récupérer des objets.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Utiliser JSON.stringify pour stocker l'objet" },
-        { id: "o2b", label: "Logger 'Luna' et le niveau (8) apres parse" },
+        { id: "o2a", label: "Utiliser localStorage.setItem avec un objet" },
+        { id: "o2b", label: "Afficher les propriétés de l'objet après parsing" },
       ],
-      missionIcon: "📦",
+      missionIcon: "🛠️",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "SERIALISATION",
-      bannerIcon: "📦",
-      bannerTtl: "OBJET PERSISTE",
-      bannerSub: "Tu sais maintenant stocker n'importe quelle structure.",
+      missionTtl: "STOCKAGE D'OBJETS",
+      bannerIcon: "🛠️",
+      bannerTtl: "OBJET SÉRIALISÉ",
+      bannerSub: "L'objet est correctement stocké et récupéré.",
       bannerXp: "⚡ +70 XP",
     },
     {
       startCode:
-        "// Stocke 'token' = 'abc123' dans localStorage.\n// Supprime-le avec removeItem, puis verifie que getItem renvoie null.\n",
+        "// Supprime la clé 'settings' de localStorage si elle existe, puis vérifie que getItem retourne null.\n",
       placeholder: "// localStorage.removeItem",
       narrator:
-        "Quand le cadet se deconnecte, il faut supprimer son token. Utilise removeItem pour cibler une cle precise, puis verifie sa disparition.",
-      hint: "localStorage.setItem('token', 'abc123');\nlocalStorage.removeItem('token');\nconsole.log(localStorage.getItem('token'));",
+        "Suppression d'une clé spécifique dans le stockage local et vérification de son absence.",
+      hint: "localStorage.removeItem('settings');\nconsole.log(localStorage.getItem('settings') === null);",
       briefing: {
-        title: "removeItem & clear",
+        title: "Supprimer une clé",
         content: `
-### Supprimer une cle
-\`localStorage.removeItem('token');\`
-Aucun effet si la cle n'existe pas (pas d'erreur).
+### Suppression d'une clé
+Pour supprimer une clé spécifique dans le stockage local, on utilise \`localStorage.removeItem(cle)\`.
 
-### Tout effacer
-\`localStorage.clear();\`
-**Attention** : efface TOUTES les cles, pas seulement celles de ton app. A utiliser avec parcimonie.
+### Vérification
+Après avoir supprimé la clé, on vérifie que \`localStorage.getItem('cle')\` retourne null.
 
-### Verification
-\`localStorage.getItem('token') === null\`
-Apres removeItem, getItem retourne null.
+### Exemple
+\`localStorage.removeItem('settings');\`
+\`console.log(localStorage.getItem('settings') === null);\`
 
-### Cas d'usage typique : deconnexion
+### Cas d'usage typique : Déconnexion
+Pour déconnecter un utilisateur, on supprime ses informations stockées :
 \`function signOut() {\`
 \`  localStorage.removeItem('token');\`
 \`  localStorage.removeItem('userInfo');\`
 \`  redirectToLogin();\`
 \`}\`
 
-### Iterer les cles
-\`for (let i = 0; i < localStorage.length; i++) {\`
-\`  const key = localStorage.key(i);\`
-\`  console.log(key, localStorage.getItem(key));\`
-\`}\`
-
-**A retenir :** removeItem(cle) pour cibler, clear() pour tout flusher.
+**À retenir :** Utiliser \`localStorage.removeItem(cle)\` pour supprimer une clé spécifique.
         `,
       },
       objectives: [
-        { id: "o3a", label: "Utiliser localStorage.removeItem" },
-        { id: "o3b", label: "Verifier que getItem retourne null apres" },
+        { id: "o3a", label: "Supprimer la clé 'settings'" },
+        { id: "o3b", label: "Vérifier que getItem retourne null après suppression" },
       ],
       missionIcon: "🗑",
       missionTag: "PROTOCOLE 03",
-      missionTtl: "NETTOYAGE",
+      missionTtl: "SUPPRESSION",
       bannerIcon: "🗑",
-      bannerTtl: "CLE EFFACEE",
-      bannerSub: "Le token a ete proprement supprime.",
+      bannerTtl: "CLÉ SUPPRIMÉE",
+      bannerSub: "La clé a été correctement supprimée.",
       bannerXp: "⚡ +60 XP",
     },
     {
       startCode:
-        "// Cree une fonction loadOrInit(defaultValue) qui :\n// - Si localStorage a la cle 'settings', retourne JSON.parse(...).\n// - Sinon, retourne defaultValue (sans rien ecrire en stockage).\n//\n// Teste avec defaultValue = {volume: 80, theme: 'dark'} et logge settings.volume.\n",
+        "// Crée une fonction loadOrInit(defaultValue) qui :\n// - Si localStorage a la clé 'settings', retourne JSON.parse(...).\n// - Sinon, retourne defaultValue (sans rien écrire en stockage).\n//\n// Teste avec defaultValue = {volume: 80, theme: 'dark'} et logge settings.volume.\n",
       placeholder: "// fonction utilitaire de lecture avec fallback",
       narrator:
-        "Patron classique : on lit le stockage, si la cle existe on parse, sinon on retourne une valeur par defaut. Implemente cette fonction et utilise-la.",
+        "Patron classique : on lit le stockage, si la clé existe on parse, sinon on retourne une valeur par défaut. Implémente cette fonction et utilise-la.",
       hint: "function loadOrInit(defaultValue) {\n  const raw = localStorage.getItem('settings');\n  if (raw === null) return defaultValue;\n  try { return JSON.parse(raw); } catch { return defaultValue; }\n}\nconst settings = loadOrInit({volume: 80, theme: 'dark'});\nconsole.log(settings.volume);",
       briefing: {
         title: "Patron 'load with fallback'",
         content: `
 ### Robustesse
-Lire localStorage demande de gerer 2 cas :
-1. La cle n'existe pas (-> null)
-2. La cle existe mais le contenu est invalide (JSON corrompu)
+Lire localStorage demande de gérer 2 cas :
+1. La clé n'existe pas (-> null)
+2. La clé existe mais le contenu est invalide (JSON corrompu)
 
-### Implementation defensive
+### Implémentation défensive
 \`function load(key, defaultValue) {\`
 \`  const raw = localStorage.getItem(key);\`
 \`  if (raw === null) return defaultValue;\`
@@ -187,7 +176,7 @@ Lire localStorage demande de gerer 2 cas :
 ### Pourquoi try/catch sur JSON.parse ?
 Si l'utilisateur ouvre les DevTools et modifie manuellement la valeur en stockage, JSON.parse peut throw. On ne veut pas crasher l'app.
 
-### Patron save symetrique
+### Patron save symétrique
 \`function save(key, value) {\`
 \`  localStorage.setItem(key, JSON.stringify(value));\`
 \`}\`
@@ -200,21 +189,21 @@ Dans une app React, on encapsule ce pattern dans un **custom hook** :
 \`  return [value, setValue];\`
 \`}\`
 
-Le composant utilise useLocalState exactement comme useState mais la valeur persiste.
+Le composant utilise \`useLocalState\` exactement comme \`useState\` mais la valeur persiste.
 
-**A retenir :** envelopper localStorage dans des helpers (load/save) est presque toujours une bonne idee.
+**À retenir :** envelopper localStorage dans des helpers (load/save) est presque toujours une bonne idée.
         `,
       },
       objectives: [
-        { id: "o4a", label: "Definir une fonction loadOrInit" },
-        { id: "o4b", label: "Logger 80 (volume par defaut)" },
+        { id: "o4a", label: "Définir une fonction loadOrInit" },
+        { id: "o4b", label: "Logger 80 (volume par défaut)" },
       ],
       missionIcon: "🧬",
       missionTag: "PROTOCOLE 04",
-      missionTtl: "PERSISTANCE STRUCTUREE",
+      missionTtl: "PERSISTANCE STRUCTURÉE",
       bannerIcon: "🧬",
-      bannerTtl: "MEMOIRE MAITRISEE",
-      bannerSub: "Tu sais gerer ecriture, lecture, suppression et fallback.",
+      bannerTtl: "MÉMOIRE MAÎTRISÉE",
+      bannerSub: "Tu sais gérer écriture, lecture, suppression et fallback.",
       bannerXp: "⚡ +80 XP",
     },
   ],

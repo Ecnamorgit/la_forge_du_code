@@ -195,9 +195,11 @@ Un habitat doit accueillir tous les voyageurs, même ceux avec des besoins spéc
 
 ---
 
-## 🚀 Deuxième Partie : Cursus Intermédiaires & Avancés (10 Cursus Pilotes)
+## 🚀 Deuxième Partie : Cursus Intermédiaires & Avancés (8 Cursus Pilotes)
 
 Ces cursus constituent la suite de l'exploration galactique et consolident les capacités techniques des ingénieurs de la Forge.
+
+> **Note de cadrage.** Ces 8 cursus sont aujourd'hui des **aperçus** (1 chapitre pilote chacun — cf. le statut « APERÇU » du catalogue). Les storyboards ci-dessous sont des **esquisses de direction**, volontairement resserrées : un pitch, trois temps forts visuels, un hook gamifié. Objectif : fixer le ton sans sur-spécifier une production pixel-art qui n'est pas encore lancée. Chaque cursus sera storyboardé en détail au moment où son contenu passera de « aperçu » à « complet ».
 
 ## 🛢️ Cursus 8 – SQL – Mission « Noyau de Fusion »
 - **Synopsis narratif**  
@@ -226,7 +228,7 @@ Ces cursus constituent la suite de l'exploration galactique et consolident les c
   1. *Console de contrôle* : le pilote ouvre la console holographique, affichant un tableau de routes lumineux.  
   2. *Route creation* : l’apprenant trace une trajectoire en connectant des nœuds d’étoiles via des lignes néon.  
   3. *Event emitter* : un signal d’alerte (météorite) fait clignoter une icône rouge, déclenchant la fonction de réaction.  
-  4. *Middleware de middleware* : plusieurs couches de boucliers sont ajoutées à chaque segment de route.  
+  4. *Middleware* : plusieurs couches de boucliers filtrent le trafic à chaque segment de route.  
   5. *Response launch* : le vaisseau lance un pod de ravitaillement qui revient avec des données (payload).  
   6. *Live debug* : une petite IA visuelle détecte les fuites et propose des correctifs en temps réel.
 

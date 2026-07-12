@@ -20,6 +20,8 @@ export const chapitre3: ChapterData = {
       briefing: {
         title: "Declarer et appeler une fonction",
         content: `
+*« Un bon ingénieur n'écrit jamais deux fois la même manœuvre. Encapsule-la dans une fonction, nomme-la clairement, et réutilise. »* — **Kira**
+
 ### Syntaxe
 \`function greet(name) {\`
 \`  return \\\`Bonjour, \${name}\\\`;\`

@@ -15,9 +15,11 @@ import { runSql, type SqlRunOptions } from "@/lib/sandbox/run-sql";
 import type { SqlQueryResult } from "@/data/courses/html/types";
 import {
   getErrorHeader,
+  getSpectreTaunt,
   inferToneFromError,
   type ErrorTone,
 } from "@/lib/narrative-feedback";
+import { CHARACTERS } from "@/lib/characters";
 
 type Language = "html" | "javascript" | "sql";
 
@@ -82,6 +84,8 @@ export default function ChapterWorkspace({
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
   // Increments on each failure to (re)play the console "took a hit" shake.
   const [shakeTrigger, setShakeTrigger] = useState(0);
+  // Consecutive failures on the current step; drives the Spectre's intrusion.
+  const [failCount, setFailCount] = useState(0);
 
   const detectedTagsRef = useRef<Set<string>>(detectClosedTags(step.startCode));
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -165,6 +169,7 @@ export default function ChapterWorkspace({
 
     if (result.ok) {
       setFeedback({ type: "ok", msg: result.msg });
+      setFailCount(0);
       playSystemOnline();
       setEnemyState((prev) => ({ type: "explode", trigger: prev.trigger + 1 }));
       onStepSuccess(result);
@@ -176,10 +181,14 @@ export default function ChapterWorkspace({
       msg: result.msg,
       tone: result.tone ?? inferToneFromError(jsError),
     });
+    setFailCount((f) => f + 1);
     playBreach();
     setEnemyState((prev) => ({ type: "fly", trigger: prev.trigger + 1 }));
     setShakeTrigger((p) => p + 1);
   }, [code, isJs, isSql, sqlConfig, onDeploy, onStepSuccess, validate]);
+
+  const spectreTaunt =
+    feedback.type === "err" ? getSpectreTaunt(failCount) : null;
 
   const editorTabLabel = isJs ? "script.js" : isSql ? "query.sql" : "index.html";
   const editorLanguage = isJs ? "javascript" : isSql ? "sql" : "html";
@@ -247,13 +256,28 @@ export default function ChapterWorkspace({
             </div>
           )}
           {feedback.type === "err" && (
-            <div className="animate-fb-in flex items-baseline gap-3">
-              <strong className="font-tech text-sm tracking-widest text-nebula-red">
-                {"> "}{getErrorHeader(feedback.tone)}
-              </strong>
-              <span className="font-body text-base text-nebula-text-secondary">
-                {feedback.msg}
-              </span>
+            <div className="animate-fb-in flex flex-col gap-1.5">
+              <div className="flex items-baseline gap-3">
+                <strong className="font-tech text-sm tracking-widest text-nebula-red">
+                  {"> "}{getErrorHeader(feedback.tone)}
+                </strong>
+                <span className="font-body text-base text-nebula-text-secondary">
+                  {feedback.msg}
+                </span>
+              </div>
+              {spectreTaunt && (
+                <div className="flex items-baseline gap-2 pl-1">
+                  <span
+                    className="font-tech text-xs tracking-widest text-nebula-spectre"
+                    aria-hidden="true"
+                  >
+                    {CHARACTERS.spectre.glyph} {CHARACTERS.spectre.name.toUpperCase()}
+                  </span>
+                  <span className="font-body text-sm italic text-nebula-spectre/80">
+                    {spectreTaunt}
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>

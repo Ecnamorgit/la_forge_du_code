@@ -3,54 +3,56 @@ import type { ChapterData } from "@/data/courses/html/types";
 export const chapitre8: ChapterData = {
   slug: "chapitre-8",
   tag: "MISSION : REACTIVITE",
-  title: "EVENEMENTS\n",
-  subtitle: "Reagis aux clics, touches et formulaires",
+  title: "ÉVÉNEMENTS\n",
+  subtitle: "Réagis aux commandes du pilote et aux interactions du terminal",
   totalXp: 270,
   completionBadge: "⚡",
-  completionBadgeLabel: "OPERATEUR REACTIF",
+  completionBadgeLabel: "OPÉRATEUR REACTIF",
   steps: [
     {
       startCode:
-        "// Cree un <button>Tirer</button>, ajoute-le au body.\n// Attache un listener click qui logge 'PEW' a chaque clic.\n// Declenche 2 clics programmatiquement (btn.click()).\n",
+        "// Crée un <button>Tirer</button>, ajoute-le au body.\n// Attache un listener click qui logge 'PEW' à chaque clic.\n// Déclenche 2 clics programmatiquement (btn.click()).\n",
       placeholder: "// addEventListener('click', ...) puis .click()",
       narrator:
-        "Premier evenement : un clic sur un bouton. Cree le bouton, attache un listener qui logge 'PEW', puis simule 2 clics pour verifier que le listener marche.",
+        "Premier événement : un clic sur un bouton. Crée le bouton, attache un listener qui logge 'PEW', puis simule 2 clics pour vérifier que le listener marche.",
       hint: "const btn = document.createElement('button');\nbtn.textContent = 'Tirer';\ndocument.body.appendChild(btn);\nbtn.addEventListener('click', () => console.log('PEW'));\nbtn.click();\nbtn.click();",
       briefing: {
         title: "addEventListener",
         content: `
-### Schema general
+*« Une station qui n'écoute pas ses capteurs est déjà perdue. Un \`addEventListener\`, c'est un poste de garde : il réagit à chaque signal. »* — **Kira**
+
+### Schéma général
 \`element.addEventListener('type-event', callback);\`
 
-Le callback est appele a chaque fois que l'evenement se produit sur l'element.
+Le callback est appelé à chaque fois que l'événement se produit sur l'élément.
 
-### Les evenements les plus courants
+### Les événements les plus courants
 - **click** : clic souris (ou tap mobile)
 - **submit** : formulaire soumis
 - **input** : changement dans un <input>/<textarea>
 - **change** : changement valide (perte de focus pour les <input>)
-- **keydown / keyup** : touche du clavier pressee/relachee
+- **keydown / keyup** : touche du clavier pressée/relâchée
 - **mouseenter / mouseleave** : survol souris
-- **focus / blur** : champ active/desactive
+- **focus / blur** : champ actif/désactivé
 
-### Le callback recoit un objet event
+### Le callback reçoit un objet event
 \`btn.addEventListener('click', (event) => {\`
-\`  console.log(event.target);   // l'element clique\`
+\`  console.log(event.target);   // l'élément cliqué\`
 \`  console.log(event.type);     // 'click'\`
 \`});\`
 
-### Declencher programmatiquement
+### Déclencher programmatiquement
 \`btn.click();\`
-Equivaut a un vrai clic, le listener est appele.
+Équivaut à un vrai clic, le listener est appelé.
 
 ### removeEventListener
-Pour detacher un listener, il faut la **MEME reference de fonction** que celle passee a add. Donc impossible avec une arrow inline anonyme — il faut nommer.
+Pour détacher un listener, il faut la **MÊME référence de fonction** que celle passée à add. Donc impossible avec une arrow inline anonyme — il faut nommer.
 
 \`const onClick = () => console.log('!');\`
 \`btn.addEventListener('click', onClick);\`
 \`btn.removeEventListener('click', onClick);\`
 
-**A retenir :** un evenement = un callback. Attache, le navigateur fait le reste.
+**À retenir :** un événement = un callback. Attache, le navigateur fait le reste.
         `,
       },
       objectives: [
@@ -61,69 +63,73 @@ Pour detacher un listener, il faut la **MEME reference de fonction** que celle p
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIER LISTENER",
       bannerIcon: "🖱",
-      bannerTtl: "REACTION INSTALLEE",
-      bannerSub: "Chaque clic declenche le callback.",
-      bannerXp: "⚡ +65 XP",
+      bannerTtl: "RÉACTION INSTALLÉE",
+      bannerSub: "Chaque clic est détecté.",
+      bannerXp: "⚡ +75 XP",
     },
     {
       startCode:
-        "// Cree 3 boutons (id 'b1', 'b2', 'b3') avec text 'Action 1', 'Action 2', 'Action 3'.\n// Sur chacun, attache un listener click qui logge l'id du bouton clique.\n// Declenche un clic sur b2.\n",
-      placeholder: "// event.target.id ou closure sur l'id",
+        "// Crée un <button>Action</button>, ajoute-le au body.\n// Attache un listener click qui logge 'Action exécutée' à chaque clic.\n// Déclenche 1 clic programmatiquement (btn.click()).\n",
+      placeholder: "// addEventListener('click', ...) puis .click()",
       narrator:
-        "Plusieurs boutons, un comportement different par bouton : utilise event.target ou une closure pour identifier lequel a ete clique. Declenche un clic sur b2 et logge son id.",
-      hint: "['b1','b2','b3'].forEach((id, i) => { const b = document.createElement('button'); b.id = id; b.textContent = 'Action ' + (i+1); b.addEventListener('click', (e) => console.log(e.target.id)); document.body.appendChild(b); });\ndocument.getElementById('b2').click();",
+        "Second événement : un clic sur un bouton. Crée le bouton, attache un listener qui logge 'Action exécutée', puis simule 1 clic pour vérifier que le listener marche.",
+      hint: "const btn = document.createElement('button');\nbtn.textContent = 'Action';\ndocument.body.appendChild(btn);\nbtn.addEventListener('click', () => console.log('Action exécutée'));\nbtn.click();",
       briefing: {
-        title: "event.target",
+        title: "addEventListener",
         content: `
-### event.target
-La propriete **target** de l'evenement pointe sur **l'element qui a declenche** l'evenement. Tres utile quand plusieurs elements partagent un listener.
+### Schéma général
+\`element.addEventListener('type-event', callback);\`
 
-\`document.addEventListener('click', (e) => {\`
-\`  console.log(e.target.tagName, e.target.id);\`
+Le callback est appelé à chaque fois que l'événement se produit sur l'élément.
+
+### Les événements les plus courants
+- **click** : clic souris (ou tap mobile)
+- **submit** : formulaire soumis
+- **input** : changement dans un <input>/<textarea>
+- **change** : changement valide (perte de focus pour les <input>)
+- **keydown / keyup** : touche du clavier pressée/relâchée
+- **mouseenter / mouseleave** : survol souris
+- **focus / blur** : champ actif/désactivé
+
+### Le callback reçoit un objet event
+\`btn.addEventListener('click', (event) => {\`
+\`  console.log(event.target);   // l'élément cliqué\`
+\`  console.log(event.type);     // 'click'\`
 \`});\`
 
-### Pattern : un listener pour plusieurs elements
-Plutot que d'attacher 10 listeners individuels :
+### Déclencher programmatiquement
+\`btn.click();\`
+Équivaut à un vrai clic, le listener est appelé.
 
-\`monteneur.addEventListener('click', (e) => {\`
-\`  if (e.target.matches('.btn-action')) {\`
-\`    handleAction(e.target.dataset.id);\`
-\`  }\`
-\`});\`
+### removeEventListener
+Pour détacher un listener, il faut la **MÊME référence de fonction** que celle passée à add. Donc impossible avec une arrow inline anonyme — il faut nommer.
 
-C'est la **delegation d'evenements** — plus performant et plus simple a maintenir.
+\`const onClick = () => console.log('!');\`
+\`btn.addEventListener('click', onClick);\`
+\`btn.removeEventListener('click', onClick);\`
 
-### event.currentTarget vs event.target
-- **target** : element qui a declenche (peut etre un enfant).
-- **currentTarget** : element sur lequel le listener est attache.
-
-### preventDefault
-Annule le comportement par defaut : empeche un <a> de naviguer, un submit de poster, un Enter de retour ligne dans certains inputs.
-
-\`a.addEventListener('click', (e) => { e.preventDefault(); ... });\`
-
-**A retenir :** event.target est ton ami pour ecrire **un seul listener pour N elements**.
+**À retenir :** un événement = un callback. Attache, le navigateur fait le reste.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Attacher un listener sur les 3 boutons" },
-        { id: "o2b", label: "Logger 'b2' apres un clic programmatique" },
+        { id: "o2a", label: "Utiliser addEventListener('click', ...)" },
+        { id: "o2b", label: "Logger 'Action exécutée' une fois" },
       ],
-      missionIcon: "🎮",
+      missionIcon: "🖱",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "CIBLAGE EVENEMENT",
-      bannerIcon: "🎮",
-      bannerTtl: "ENNEMI IDENTIFIE",
-      bannerSub: "Le listener sait qui a declenche le clic.",
-      bannerXp: "⚡ +70 XP",
+      missionTtl: "ACTION VALIDÉE",
+      bannerIcon: "🖱",
+      bannerTtl: "RÉPONSE À L'ACTION",
+      bannerSub: "L'action est détectée.",
+      bannerXp: "⚡ +75 XP",
     },
     {
       startCode:
-        "// Cree un <input id='nom'>, ajoute-le au body.\n// Attache un listener 'input' qui logge 'Salut <valeur>' a chaque changement.\n// Modifie input.value et dispatche un event 'input' manuellement.\n",
+        "// Crée un <input type='text' id='commande'>, ajoute-le au body.\n// Attache un listener 'input' qui logge 'Commande : <valeur>' à chaque changement.\n// Modifie input.value et dispatche un event 'input' manuellement.\n",
       placeholder: "// addEventListener('input', ...) + dispatchEvent",
       narrator:
-        "Reagis a la frappe utilisateur. Sur un <input>, attache un listener 'input' qui logge 'Salut <valeur>'. Pour tester sans clavier reel, modifie input.value et dispatche un Event('input') manuellement.",
-      hint: "const inp = document.createElement('input');\ninp.id = 'nom';\ndocument.body.appendChild(inp);\ninp.addEventListener('input', () => console.log('Salut ' + inp.value));\ninp.value = 'Luna';\ninp.dispatchEvent(new Event('input'));",
+        "Reagis à la frappe utilisateur. Sur un <input>, attache un listener 'input' qui logge 'Commande : <valeur>'. Pour tester sans clavier réel, modifie input.value et dispatche un Event('input') manuellement.",
+      hint: "const inp = document.createElement('input');\ninp.type = 'text';\ninp.id = 'commande';\ndocument.body.appendChild(inp);\ninp.addEventListener('input', () => console.log('Commande : ' + inp.value));\ninp.value = 'Déplacement';\ninp.dispatchEvent(new Event('input'));",
       briefing: {
         title: "Evenement input + dispatchEvent",
         content: `
@@ -142,7 +148,7 @@ Se declenche **a chaque modification de la valeur** d'un <input>/<textarea>/<sel
 \`input.value\` retourne **toujours une string**, meme pour un type="number".
 
 ### Modifier programmatiquement
-\`input.value = 'Luna';\` change la valeur **mais ne declenche PAS l'event 'input'** (sinon boucle infinie).
+\`input.value = 'Déplacement';\` change la valeur **mais ne declenche PAS l'event 'input'** (sinon boucle infinie).
 
 ### dispatchEvent
 Pour declencher un evenement manuellement :
@@ -156,7 +162,7 @@ Utile pour les tests automatises et certaines integrations.
       },
       objectives: [
         { id: "o3a", label: "Attacher un listener 'input'" },
-        { id: "o3b", label: "Logger 'Salut Luna' (ou similaire)" },
+        { id: "o3b", label: "Logger 'Commande : Déplacement'" },
       ],
       missionIcon: "⌨",
       missionTag: "PROTOCOLE 03",
@@ -164,15 +170,15 @@ Utile pour les tests automatises et certaines integrations.
       bannerIcon: "⌨",
       bannerTtl: "FRAPPE SUIVIE",
       bannerSub: "Chaque modification est captee.",
-      bannerXp: "⚡ +70 XP",
+      bannerXp: "⚡ +75 XP",
     },
     {
       startCode:
-        "// Cree un <form><input id='pwd' type='password'><button type='submit'>OK</button></form>.\n// Attache un listener 'submit' qui empeche le submit reel et logge 'Login attempt: ' + valeur.\n// Definis input.value = 'secret' puis declenche form.requestSubmit() ou simule submit.\n",
+        "// Crée un <form><input id='commande' type='text'><button type='submit'>OK</button></form>.\n// Attache un listener 'submit' qui empeche le submit reel et logge 'Commande reçue : ' + valeur.\n// Definis input.value = 'Déplacement' puis declenche form.requestSubmit() ou simule submit.\n",
       placeholder: "// preventDefault + dispatchEvent submit",
       narrator:
-        "Empeche un formulaire de soumettre pour le navigateur (preventDefault) et fais ton propre traitement a la place. Logge la tentative de login.",
-      hint: "const form = document.createElement('form');\nconst input = document.createElement('input');\ninput.id = 'pwd'; input.type = 'password';\nconst btn = document.createElement('button'); btn.type = 'submit'; btn.textContent = 'OK';\nform.appendChild(input); form.appendChild(btn);\ndocument.body.appendChild(form);\nform.addEventListener('submit', (e) => { e.preventDefault(); console.log('Login attempt: ' + input.value); });\ninput.value = 'secret';\nform.dispatchEvent(new Event('submit'));",
+        "Empeche un formulaire de soumettre pour le navigateur (preventDefault) et fais ton propre traitement a la place. Logge la commande reçue.",
+      hint: "const form = document.createElement('form');\nconst input = document.createElement('input');\ninput.id = 'commande'; input.type = 'text';\nconst btn = document.createElement('button'); btn.type = 'submit'; btn.textContent = 'OK';\nform.appendChild(input); form.appendChild(btn);\ndocument.body.appendChild(form);\nform.addEventListener('submit', (e) => { e.preventDefault(); console.log('Commande reçue : ' + input.value); });\ninput.value = 'Déplacement';\nform.dispatchEvent(new Event('submit'));",
       briefing: {
         title: "Submit + preventDefault",
         content: `
@@ -202,7 +208,7 @@ Le navigateur valide deja **type="email"**, **required**, **minlength**, etc. Si
       },
       objectives: [
         { id: "o4a", label: "Utiliser e.preventDefault() dans le handler" },
-        { id: "o4b", label: "Logger une string contenant 'secret'" },
+        { id: "o4b", label: "Logger une string contenant 'Déplacement'" },
       ],
       missionIcon: "📨",
       missionTag: "PROTOCOLE 04",

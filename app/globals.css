@@ -20,6 +20,8 @@
   --green: #00ff88;
   --green-dim: #004d28;
   --green-faint: rgba(0, 255, 136, 0.05);
+  /* Le Spectre (antagoniste) — violet glitch, distinct du rouge "erreur systeme". */
+  --spectre: #b26bff;
   --blue: #3d7eff;
   --blue-dim: #1a3366;
   --text: #c8d6e5;
@@ -51,6 +53,7 @@
   --color-nebula-green: var(--green);
   --color-nebula-green-dim: var(--green-dim);
   --color-nebula-green-faint: var(--green-faint);
+  --color-nebula-spectre: var(--spectre);
   --color-nebula-blue: var(--blue);
   --color-nebula-blue-dim: var(--blue-dim);
   --color-nebula-text: var(--text);

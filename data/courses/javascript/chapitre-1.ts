@@ -18,6 +18,8 @@ export const chapitre1: ChapterData = {
       briefing: {
         title: "Le premier signal : console.log",
         content: `
+*« Avant de piloter quoi que ce soit, apprends à écouter tes instruments. \`console.log\`, c'est ta radio : sans elle, tu voles à l'aveugle. »* — **Kira**
+
 ### console.log
 **console.log(...)** envoie un message vers la **console** du navigateur. C'est l'outil n°1 pour observer ce que fait ton code.
 

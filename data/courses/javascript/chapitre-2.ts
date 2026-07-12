@@ -20,6 +20,8 @@ export const chapitre2: ChapterData = {
       briefing: {
         title: "Les opérateurs arithmétiques",
         content: `
+*« En vol, une erreur de calcul de carburant ne pardonne pas. Compte juste, respecte les priorités, et vérifie toujours ton résultat. »* — **Kira**
+
 ### Les opérateurs principaux
 - **+** addition
 - **-** soustraction

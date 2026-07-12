@@ -19,6 +19,8 @@ export const chapitre9: ChapterData = {
       briefing: {
         title: "La Promise",
         content: `
+*« Toute communication longue distance prend du temps — inutile de figer la station en l'attendant. Une Promise te rend la main, et te rappelle quand la réponse arrive. »* — **Kira**
+
 ### Le probleme
 Du JavaScript synchrone bloque le navigateur. Pour les operations longues (reseau, fichier, animation), on a besoin **d'asynchrone**.
 
@@ -75,91 +77,80 @@ async/await rend le code **asynchrone aussi lisible que synchrone**. C'est du su
 ### async function
 \`async function getMission() {\`
 \`  // ...\`
-\`  return 'Mission lunaire';   // promesse resolue avec cette valeur\`
-\`}\`
+\`  return 'Mission lunaire';   // promesse resolue avec une valeur\n}
+\`
 
-**Une fonction async retourne TOUJOURS une Promise**, meme si tu return une valeur simple.
+### Consommer avec await
+\`const result = await getMission();\`
+\`console.log(result);\`
 
-### await
-**await** met en pause la fonction async jusqu'a ce que la Promise resolve.
+### Equivalent avec .then()
+\`getMission()\`
+\`  .then((valeur) => console.log(valeur))\`
 
+### try/catch avec async/await
 \`async function main() {\`
-\`  const m = await getMission();\`
-\`  console.log(m);\`
+\`  try {\`
+\`    const result = await getMission();\`
+\`    console.log(result);\`
+\`  } catch (erreur) {\`
+\`    console.error(erreur);\`
+\`  }\`
 \`}\`
 
-### IIFE async
-**await ne peut etre utilise QUE dans une async function**. Pour l'utiliser au top-level d'un script, on encapsule dans une async arrow auto-invoquee :
-
-\`(async () => {\`
-\`  const v = await ...;\`
-\`  console.log(v);\`
-\`})();\`
-
-### vs .then()
-- **then()** : chains lisibles pour les transformations sequentielles.
-- **async/await** : preferable des qu'il y a plusieurs awaits, du if/else, ou du try/catch.
-
-**A retenir :** await rend le code **vertical** (lisible de haut en bas) au lieu de **horizontal** (chains de .then).
+**A retenir :** async/await simplifie la gestion des Promises et rend le code plus lisible.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Definir une fonction async" },
-        { id: "o2b", label: "Logger 'Mission lunaire' via await" },
+        { id: "o2a", label: "Utiliser await pour attendre une Promise" },
+        { id: "o2b", label: "Logger 'Mission lunaire' avec await" },
       ],
-      missionIcon: "🔗",
+      missionIcon: "🚀",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "AWAIT EN ACTION",
-      bannerIcon: "🔗",
-      bannerTtl: "FLUX SYNCHRONISE",
-      bannerSub: "Le code asynchrone se lit comme du synchrone.",
+      missionTtl: "MISSION LUNAIRE",
+      bannerIcon: "🚀",
+      bannerTtl: "VOYAGE REALISE",
+      bannerSub: "La mission a reussi avec succes.",
       bannerXp: "⚡ +70 XP",
     },
     {
       startCode:
-        "// Cree une fonction async badAPI() qui REJETE avec new Error('timeout').\n// Dans un async IIFE, attrape l'erreur avec try/catch et logge 'Erreur: ' + err.message.\n",
-      placeholder: "// try / catch avec await",
+        "// Cree une fonction async getMission() qui retourne 'Mission lunaire' apres 30ms.\n// Appelle-la dans un autre async block (IIFE) et logge le resultat avec await.\n",
+      placeholder: "// async / await",
       narrator:
-        "Les communications echouent parfois. Cree une fonction async qui rejette une erreur, puis attrape-la proprement avec try/catch dans le bloc appelant.",
-      hint: "async function badAPI() { throw new Error('timeout'); }\n(async () => { try { await badAPI(); } catch (err) { console.log('Erreur: ' + err.message); } })();",
+        "async/await rend l'asynchrone lisible comme du synchrone. Definis une fonction async qui retourne 'Mission lunaire' apres 30ms, puis utilise await pour recuperer la valeur.",
+      hint: "async function getMission() { await new Promise(r => setTimeout(r, 30)); return 'Mission lunaire'; }\n(async () => { const m = await getMission(); console.log(m); })();",
       briefing: {
-        title: "try / catch avec await",
+        title: "async / await",
         content: `
-### Gerer les rejects
-Une fonction async qui **throw** une erreur **rejette** sa Promise. Pour la rattraper avec await, on utilise try/catch standard.
+### Le sucre syntaxique
+async/await rend le code **asynchrone aussi lisible que synchrone**. C'est du sucre par-dessus les Promises.
 
-\`async function badAPI() {\`
-\`  throw new Error('timeout');\`
-\`}\`
+### async function
+\`async function getMission() {\`
+\`  // ...\`
+\`  return 'Mission lunaire';   // promesse resolue avec une valeur\n}
+\`
 
+### Consommer avec await
+\`const result = await getMission();\`
+\`console.log(result);\`
+
+### Equivalent avec .then()
+\`getMission()\`
+\`  .then((valeur) => console.log(valeur))\`
+
+### try/catch avec async/await
 \`async function main() {\`
 \`  try {\`
-\`    await badAPI();\`
-\`  } catch (err) {\`
-\`    console.log('Erreur: ' + err.message);\`
+\`    const result = await getMission();\`
+\`    console.log(result);\`
+\`  } catch (erreur) {\`
+\`    console.error(erreur);\`
 \`  }\`
 \`}\`
 
-### Equivalent avec .then()
-\`badAPI()\`
-\`  .then((v) => ...)\`
-\`  .catch((err) => console.log('Erreur:', err));\`
-
-### finally
-S'execute dans les deux cas (succes ou echec). Utile pour cacher un loader :
-\`try {\`
-\`  showLoader();\`
-\`  const data = await fetchData();\`
-\`} catch (err) {\`
-\`  showError(err);\`
-\`} finally {\`
-\`  hideLoader();\`
-\`}\`
-
-### Erreur non rattrapee
-Une Promise rejetee sans .catch() ni try/catch declenche un avertissement "unhandled promise rejection". A ne jamais ignorer.
-
-**A retenir :** une fonction async sans try/catch propage l'erreur vers son appelant — comme une fonction synchrone classique.
+**A retenir :** async/await simplifie la gestion des Promises et rend le code plus lisible.
         `,
       },
       objectives: [

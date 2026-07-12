@@ -19,6 +19,8 @@ export const chapitre7: ChapterData = {
       briefing: {
         title: "Creer et inserer un element",
         content: `
+*« Le DOM, c'est la console physique de la station : chaque balise est un levier que tu peux saisir et déplacer. Manipule-la avec méthode. »* — **Kira**
+
 ### Le DOM, c'est quoi ?
 **DOM** (Document Object Model) est la representation **vivante et modifiable** de la page HTML, exposee a JavaScript. Chaque balise est un **objet** qu'on peut manipuler.
 
@@ -79,71 +81,74 @@ Quand on a un tableau de donnees et qu'on veut afficher chaque element dans le D
 ### Astuce : ajouter au parent avant l'enfant final
 On peut aussi tout faire dans un **DocumentFragment** pour optimiser :
 \`const frag = document.createDocumentFragment();\`
-\`donnees.forEach((d) => { ... frag.appendChild(li); });\`
+\`donnees.forEach((d) => {\`
+\`  const li = document.createElement('li');\`
+\`  li.textContent = d;\`
+\`  frag.appendChild(li);\`
+\`});\`
 \`document.body.appendChild(frag);\`
 
-C'est plus rapide quand on insere des dizaines d'elements (1 seul reflow).
+### Les methodes de selection
+- **getElementById('xxx')** : pour un element par son id unique.
+- **querySelector('.classe')** : pour le premier element correspondant a un selecteur CSS.
+- **querySelectorAll('.classe')** : pour tous les elements correspondants, retourne une NodeList.
 
-### querySelectorAll
-**document.querySelectorAll(selecteur)** retourne une **NodeList** (proche d'un tableau) de tous les elements matchant.
+### Les methodes de modification
+- **textContent = '...'** : modifie le contenu textuel d'un element.
+- **innerHTML = '<b>...</b>'** : insere du HTML dans un element (attention aux injections).
 
-\`document.querySelectorAll('li').length // 3\`
-
-### querySelector (singulier)
-Retourne **le premier** element matchant (ou null).
-
-**A retenir :** crois ton ami forEach + createElement pour generer du DOM en serie.
+**A retenir :** utiliser **querySelector(All)** pour une flexibilite maximale et **DocumentFragment** pour optimiser l'ajout de plusieurs elements au DOM.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Creer un <ul> avec 3 <li> dedans" },
-        { id: "o2b", label: "Afficher exactement 3 (nombre de <li>)" },
+        { id: "o2a", label: "Creer un <ul> avec 3 <li>" },
+        { id: "o2b", label: "Afficher le nombre total de <li>" },
       ],
-      missionIcon: "📋",
+      missionIcon: "➕",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "LISTE DYNAMIQUE",
-      bannerIcon: "📋",
-      bannerTtl: "MISSIONS LISTEES",
-      bannerSub: "Trois <li> ont ete generes par script.",
-      bannerXp: "⚡ +70 XP",
+      missionTtl: "LISTE DE MISSIONS",
+      bannerIcon: "➕",
+      bannerTtl: "LISTE AJOUTEE",
+      bannerSub: "3 missions ajoutees dans le DOM.",
+      bannerXp: "⚡ +65 XP",
     },
     {
       startCode:
-        "// Cree un <div class='status'>EN VOL</div>, ajoute-le au body.\n// Ensuite, modifie sa classe en 'status alert' et son texte en 'ALERTE'.\n// Affiche el.className et el.textContent.\n",
-      placeholder: "// className et textContent",
+        "// Cree un <div> avec une classe 'status' et ajoute-le au body.\n// Modifie ensuite la classe pour changer l'apparence dynamiquement.\n",
+      placeholder: "// document.createElement, classList.add, classList.remove",
       narrator:
-        "Le statut d'un vaisseau peut changer. Cree un div avec une classe initiale, puis modifie classe et texte a la volee. Affiche les nouvelles valeurs.",
-      hint: "const el = document.createElement('div');\nel.className = 'status';\nel.textContent = 'EN VOL';\ndocument.body.appendChild(el);\nel.className = 'status alert';\nel.textContent = 'ALERTE';\nconsole.log(el.className);\nconsole.log(el.textContent);",
+        "Cree un <div> avec la classe 'status'. Ensuite, change cette classe pour modifier son apparence. Verifie que le changement est bien applique.",
+      hint: "const statusDiv = document.createElement('div');\nstatusDiv.className = 'status';\ndocument.body.appendChild(statusDiv);\nsetTimeout(() => {\n  statusDiv.classList.remove('status');\n  statusDiv.classList.add('alert');\n}, 2000);",
       briefing: {
         title: "Modifier des attributs et du contenu",
         content: `
 ### Modifier classes
 - **el.className** : la chaine complete des classes ('status alert'). Remplace tout.
 - **el.classList** : API plus fine.
-  - **classList.add('alert')** : ajoute
-  - **classList.remove('alert')** : retire
-  - **classList.toggle('alert')** : bascule
-  - **classList.contains('alert')** : test
+  - **classList.add('alert')** : ajoute une classe.
+  - **classList.remove('alert')** : retire une classe.
+  - **classList.toggle('alert')** : bascule la presence d'une classe.
+  - **classList.contains('alert')** : teste si une classe est presente.
 
 ### Modifier le texte
 - **el.textContent = '...'** : remplace le texte (echappe l'HTML).
-- **el.innerHTML = '<b>...</b>'** : interprete (sensible XSS).
+- **el.innerHTML = '<b>...</b>'** : interprete du HTML dans un element (attention aux injections).
 
 ### Modifier les attributs
 - **el.id = 'xxx'**, **el.title = 'tooltip'**, **el.href = '/'** pour les attributs standards.
-- **el.setAttribute('data-foo', 'bar')** pour les attributs personnalises (data-*, aria-*).
-- **el.getAttribute('href')** pour lire.
+- **el.setAttribute('data-foo', 'bar')** pour les attributs personnalises (data-*).
+- **el.getAttribute('href')** pour lire un attribut.
 
 ### Modifier le style direct
 - **el.style.color = 'red'** : style inline (CSS camelCase : backgroundColor, fontSize...).
-- Prefere **classList** pour le maintenable, **style** pour le dynamique pur (positions calculees, etc.).
+- Prefere **classList** pour le maintenable et **style** pour le dynamique pur (positions calculees, etc.).
 
 **A retenir :** une fois un element en memoire (variable JS), on peut modifier ses proprietes a tout moment — le DOM se met a jour en direct.
         `,
       },
       objectives: [
         { id: "o3a", label: "Modifier className apres creation" },
-        { id: "o3b", label: "Afficher 'ALERTE' au moins une fois" },
+        { id: "o3b", label: "Afficher l'element avec une nouvelle classe" },
       ],
       missionIcon: "🛠",
       missionTag: "PROTOCOLE 03",
@@ -155,10 +160,10 @@ Retourne **le premier** element matchant (ou null).
     },
     {
       startCode:
-        "// Insere 3 spans (A, B, C) dans le body, puis utilise querySelectorAll\n// pour boucler dessus et logger le textContent de chacun.\n",
+        "// Cree 3 spans (A, B, C) dans le body, puis utilise querySelectorAll\n// pour boucler dessus et logger le textContent de chacun.\n",
       placeholder: "// querySelectorAll + forEach",
       narrator:
-        "Insere d'abord 3 spans avec les textes 'A', 'B', 'C'. Puis lis-les avec querySelectorAll et affiche leur textContent un par un.",
+        "Cree d'abord 3 spans avec les textes 'A', 'B', 'C'. Puis lis-les avec querySelectorAll et affiche leur textContent un par un.",
       hint: "['A','B','C'].forEach(t => { const s = document.createElement('span'); s.textContent = t; document.body.appendChild(s); });\nconst all = document.querySelectorAll('span');\nall.forEach(el => console.log(el.textContent));",
       briefing: {
         title: "Selectionner et iterer",

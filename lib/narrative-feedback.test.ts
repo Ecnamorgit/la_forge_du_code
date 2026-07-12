@@ -2,7 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   getErrorHeader,
   getSuccessHeader,
+  getSpectreTaunt,
   inferToneFromError,
+  SPECTRE_TAUNT_THRESHOLD,
 } from "./narrative-feedback";
 
 describe("getErrorHeader", () => {
@@ -26,6 +28,32 @@ describe("getErrorHeader", () => {
 describe("getSuccessHeader", () => {
   it("renvoie l'en-tête de succès par défaut", () => {
     expect(getSuccessHeader()).toBe("SYSTEME EN LIGNE");
+  });
+});
+
+describe("getSpectreTaunt", () => {
+  it("reste silencieux sous le seuil (1re erreur = feedback système seul)", () => {
+    expect(getSpectreTaunt(0)).toBeNull();
+    expect(getSpectreTaunt(1)).toBeNull();
+    expect(getSpectreTaunt(SPECTRE_TAUNT_THRESHOLD - 1)).toBeNull();
+  });
+
+  it("apparaît au seuil et renvoie une raillerie non vide", () => {
+    const taunt = getSpectreTaunt(SPECTRE_TAUNT_THRESHOLD);
+    expect(taunt).toBeTypeOf("string");
+    expect(taunt).not.toBe("");
+  });
+
+  it("est déterministe : même rang → même réplique", () => {
+    expect(getSpectreTaunt(4)).toBe(getSpectreTaunt(4));
+  });
+
+  it("tourne sur le pool sans planter pour un rang très élevé", () => {
+    expect(getSpectreTaunt(999)).toBeTypeOf("string");
+  });
+
+  it("ignore une valeur non finie", () => {
+    expect(getSpectreTaunt(Number.NaN)).toBeNull();
   });
 });
 
