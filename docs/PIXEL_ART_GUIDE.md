@@ -169,3 +169,30 @@ Le fallback emoji reste en place tant que le flag est `false` → zéro régress
 **Ce que je peux faire dès maintenant côté code (sans dessiner)** : resync `ALL_BADGES`,
 brancher `mission-icons`, ajouter les `*Frame` dans les données, activer le scaling
 entier — pour que tu n'aies plus qu'à déposer les PNG. Dis-moi si je lance ce câblage.
+
+---
+
+## 9. Cinématique d'intro — `intro-cinematic.png`
+
+Contrat défini dans `lib/sprite-config.ts` (`INTRO_CINEMATIC`) et consommé par
+`components/intro/IntroCinematic.tsx`.
+
+- **Frame 320×180** (16:9), **5 colonnes**, 1 ligne → canvas **1600×180** (5 frames).
+- **Ordre des frames = `INTRO_SCENES`** (`lib/intro.ts`) :
+
+| Frame | Scène | Contenu visuel |
+|---|---|---|
+| 0 | logo | Un vaisseau se dessine sur un ciel étoilé |
+| 1 | cadet | Avatar Cadet-Ingénieur + console holographique |
+| 2 | orbit | Panneaux HTML/CSS/JS en orbite autour du vaisseau |
+| 3 | planet | La console scelle un bloc → une planète se stabilise |
+| 4 | invite | Invitation « Choisis ton premier cursus » (portail de cursus) |
+
+- Palette Nebula (`docs/palette/nebula.hex`), pas d'anti-aliasing, contour 1 px,
+  lumière haut-droite (cf. §1). Fond transparent **ou** peint sombre.
+- La **narration reste du texte HTML** (déjà en place, lisible lecteur d'écran) :
+  ne pas graver de texte dans les frames.
+
+**Activation :** déposer `public/sprites/intro-cinematic.png`, puis passer
+`SPRITE_SHEETS_READY.intro` à `true` (`lib/sprite-config.ts`). Le composant
+bascule du placeholder au sprite sans autre changement de code.
