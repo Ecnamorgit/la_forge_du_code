@@ -16,7 +16,7 @@ import type { SqlQueryResult } from "@/data/courses/html/types";
 import {
   getErrorHeader,
   getSpectreTaunt,
-  inferToneFromError,
+  resolveErrorTone,
   type ErrorTone,
 } from "@/lib/narrative-feedback";
 import { CHARACTERS } from "@/lib/characters";
@@ -179,13 +179,13 @@ export default function ChapterWorkspace({
     setFeedback({
       type: "err",
       msg: result.msg,
-      tone: result.tone ?? inferToneFromError(jsError),
+      tone: resolveErrorTone(result.tone, jsError, language),
     });
     setFailCount((f) => f + 1);
     playBreach();
     setEnemyState((prev) => ({ type: "fly", trigger: prev.trigger + 1 }));
     setShakeTrigger((p) => p + 1);
-  }, [code, isJs, isSql, sqlConfig, onDeploy, onStepSuccess, validate]);
+  }, [code, isJs, isSql, sqlConfig, language, onDeploy, onStepSuccess, validate]);
 
   const spectreTaunt =
     feedback.type === "err" ? getSpectreTaunt(failCount) : null;

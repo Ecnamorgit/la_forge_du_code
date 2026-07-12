@@ -79,3 +79,29 @@ export function inferToneFromError(error: string | null): ErrorTone | undefined 
   if (/^syntaxerror/i.test(error)) return "syntax";
   return undefined;
 }
+
+/**
+ * Tonalité par défaut selon le langage de l'étape, quand ni le validateur ni
+ * l'inférence runtime n'ont fixé de tonalité. HTML (et CSS, servi en "html")
+ * → structure ; JS/SQL restent génériques (undefined → « BRECHE DETECTEE »).
+ */
+const DEFAULT_TONE_BY_LANGUAGE: Record<
+  "html" | "javascript" | "sql",
+  ErrorTone | undefined
+> = {
+  html: "structure",
+  javascript: undefined,
+  sql: undefined,
+};
+
+/**
+ * Résout la tonalité d'un échec : priorité au tone du validateur, puis à
+ * l'inférence depuis l'erreur JS runtime, puis au défaut du langage.
+ */
+export function resolveErrorTone(
+  validatorTone: ErrorTone | undefined,
+  jsError: string | null,
+  language: "html" | "javascript" | "sql",
+): ErrorTone | undefined {
+  return validatorTone ?? inferToneFromError(jsError) ?? DEFAULT_TONE_BY_LANGUAGE[language];
+}
