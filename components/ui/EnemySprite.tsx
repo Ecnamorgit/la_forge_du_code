@@ -30,7 +30,8 @@ export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
           width: displaySize,
           height: displaySize * (512 / 704),
           backgroundImage: "url(/sprites/enemy-sprites.png)",
-          backgroundPosition: "0px 0px", // row 1, frame 1
+          // Only pin the row (Y); the `sprite-enemy-anim` keyframes drive X.
+          backgroundPositionY: "0px", // row 1
           backgroundSize: `${2816 * scale}px ${1536 * scale}px`,
           imageRendering: "pixelated",
         }}
@@ -47,7 +48,8 @@ export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
         width: displaySize,
         height: displaySize * (512 / 704),
         backgroundImage: "url(/sprites/enemy-sprites.png)",
-        backgroundPosition: "0px 0px",
+        // Only pin the row (Y); the `sprite-enemy-anim` keyframes drive X.
+        backgroundPositionY: "0px", // row 1
         backgroundSize: `${2816 * scale}px ${1536 * scale}px`,
         imageRendering: "pixelated",
       }}

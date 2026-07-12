@@ -19,6 +19,8 @@ export const chapitre4: ChapterData = {
       briefing: {
         title: "Les tableaux (Array)",
         content: `
+*« Une flotte sans registre, c'est le chaos. Range tes unités dans un tableau — et souviens-toi : le premier vaisseau porte l'index zéro. »* — **Kira**
+
 ### Declarer un tableau
 \`const flotte = ["Alpha", "Bravo", "Charlie"];\`
 

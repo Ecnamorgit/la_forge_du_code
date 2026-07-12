@@ -18,8 +18,10 @@ import {
 } from "@/lib/user-store";
 import { getChaptersMeta, type ChapterMetaFull } from "@/lib/courses-meta";
 import { COURSES_CATALOG } from "@/lib/courses-catalog";
-import { BADGES } from "@/lib/badges-catalog";
+import { BADGES, badgeFrameById } from "@/lib/badges-catalog";
 import CourseIcon from "@/components/ui/CourseIcon";
+import Sprite from "@/components/ui/Sprite";
+import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 
 // Single source of truth lives in lib/badges-catalog.ts (synced with
 // BADGE_BY_CHAPTER). Frame index in badges.png = position in this array.
@@ -388,11 +390,16 @@ export default function ProfilPage() {
                       unlocked ? "" : "opacity-25 grayscale"
                     }`}
                   >
-                    <CourseIcon
-                      slug={getCourseSlugByBadgeId(badge.id)}
-                      emoji={badge.icon}
-                      size={48}
-                    />
+                    {SPRITE_SHEETS_READY.badges ? (
+                      <Sprite
+                        sheet={BADGE_ICONS}
+                        frame={badgeFrameById(badge.id) ?? 0}
+                        displaySize={48}
+                        title={badge.label}
+                      />
+                    ) : (
+                      <span>{badge.icon}</span>
+                    )}
                   </div>
                   <div
                     className={`mb-1.5 font-tech text-sm uppercase tracking-widest ${

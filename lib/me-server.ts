@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { getBadgeForChapter } from "@/lib/courses-meta";
 import { getChapterData } from "@/lib/courses-registry";
 import { MAX_XP, xpForStep } from "@/lib/xp";
+import { DAILY_MISSION_XP, canClaimDailyMission } from "@/lib/daily-mission";
 import type { UserState } from "@/lib/user-store";
 
 function todayIso(): string {
@@ -21,6 +22,7 @@ interface RawUserBundle {
   totalXp: number;
   streak: number;
   lastVisit: string;
+  lastDailyMission: string;
   lastVisitedCourse: string | null;
   joinedAt: Date;
   onboardedAt: Date | null;
@@ -50,6 +52,7 @@ function shape(bundle: RawUserBundle): UserState {
     totalXp: bundle.totalXp,
     streak: bundle.streak,
     lastVisit: bundle.lastVisit,
+    lastDailyMission: bundle.lastDailyMission,
     lastVisitedCourse: bundle.lastVisitedCourse,
     badges: bundle.badges.map((b) => b.badgeId),
     completedSteps,
@@ -66,6 +69,7 @@ const USER_BUNDLE_SELECT = {
   totalXp: true,
   streak: true,
   lastVisit: true,
+  lastDailyMission: true,
   lastVisitedCourse: true,
   joinedAt: true,
   onboardedAt: true,
@@ -336,6 +340,49 @@ export async function markCourseVisited(
   return state;
 }
 
+export interface ClaimDailyResult {
+  state: UserState;
+  awardedXp: number;
+  alreadyClaimed: boolean;
+}
+
+/**
+ * Claim the once-per-day mission bonus. Atomic + idempotent: the transaction
+ * re-reads `lastDailyMission` so a double click (or concurrent tab) can't grant
+ * the bonus twice in the same calendar day.
+ */
+export async function claimDailyMission(userId: string): Promise<ClaimDailyResult> {
+  await assertUserExists(userId);
+  const today = todayIso();
+
+  let awardedXp = 0;
+  let alreadyClaimed = false;
+
+  await prisma.$transaction(async (tx) => {
+    const user = await tx.user.findUnique({
+      where: { id: userId },
+      select: { totalXp: true, lastDailyMission: true },
+    });
+    if (!user) throw new UserNotFoundError();
+
+    if (!canClaimDailyMission(user.lastDailyMission, today)) {
+      alreadyClaimed = true;
+      return;
+    }
+
+    const nextXp = Math.min(user.totalXp + DAILY_MISSION_XP, MAX_XP);
+    awardedXp = nextXp - user.totalXp;
+    await tx.user.update({
+      where: { id: userId },
+      data: { totalXp: nextXp, lastDailyMission: today },
+    });
+  });
+
+  const state = await getUserState(userId);
+  if (!state) throw new UserNotFoundError();
+  return { state, awardedXp, alreadyClaimed };
+}
+
 /**
  * RGPD — export des données personnelles de l'utilisateur (droit d'accès /
  * portabilité). Retourne le profil + badges + progression sous forme sérialisable.
@@ -352,6 +399,7 @@ export async function exportUserData(userId: string) {
       totalXp: true,
       streak: true,
       lastVisit: true,
+      lastDailyMission: true,
       lastVisitedCourse: true,
       onboardedAt: true,
       species: true,
@@ -388,6 +436,7 @@ export async function resetProgress(userId: string): Promise<UserState> {
         totalXp: 0,
         streak: 1,
         lastVisit: todayIso(),
+        lastDailyMission: "",
         lastVisitedCourse: null,
       },
     }),

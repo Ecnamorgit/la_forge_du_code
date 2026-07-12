@@ -4,20 +4,31 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Step, ValidationResult, Validator } from "@/data/courses/html/types";
 import MonacoEditor from "@/components/editor/MonacoEditor";
-import EnemySprite from "@/components/ui/EnemySprite";
+import CombatVisualizer from "@/components/lesson/CombatVisualizer";
 import {
   playBreach,
   playDeployBip,
   playSystemOnline,
 } from "@/lib/audio";
 import { runJs } from "@/lib/sandbox/run-js";
+import { runSql, type SqlRunOptions } from "@/lib/sandbox/run-sql";
+import type { SqlQueryResult } from "@/data/courses/html/types";
+import {
+  getErrorHeader,
+  getSpectreTaunt,
+  inferToneFromError,
+  type ErrorTone,
+} from "@/lib/narrative-feedback";
+import { CHARACTERS } from "@/lib/characters";
 
-type Language = "html" | "javascript";
+type Language = "html" | "javascript" | "sql";
 
 interface ChapterWorkspaceProps {
   step: Step;
   validate: Validator;
   language?: Language;
+  /** Per-step seed/verify SQL, required for the SQL cursus. */
+  sqlConfig?: SqlRunOptions;
   /** On screens below `lg`, only one internal panel is shown at a time. */
   mobilePanel?: "editor" | "output";
   onStepSuccess: (result: ValidationResult) => void;
@@ -51,22 +62,30 @@ export default function ChapterWorkspace({
   step,
   validate,
   language = "html",
+  sqlConfig,
   mobilePanel,
   onStepSuccess,
   onDeploy,
   onTeleportFlash,
 }: ChapterWorkspaceProps) {
   const isJs = language === "javascript";
+  const isSql = language === "sql";
   const [code, setCode] = useState(step.startCode);
+  const [sqlView, setSqlView] = useState<SqlQueryResult | null>(null);
   const [feedback, setFeedback] = useState<{
     type: "idle" | "ok" | "err";
     msg: string;
+    tone?: ErrorTone;
   }>({ type: "idle", msg: "" });
   const [enemyState, setEnemyState] = useState<{
     type: "fly" | "explode" | "none";
     trigger: number;
   }>({ type: "none", trigger: 0 });
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
+  // Increments on each failure to (re)play the console "took a hit" shake.
+  const [shakeTrigger, setShakeTrigger] = useState(0);
+  // Consecutive failures on the current step; drives the Spectre's intrusion.
+  const [failCount, setFailCount] = useState(0);
 
   const detectedTagsRef = useRef<Set<string>>(detectClosedTags(step.startCode));
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -87,7 +106,7 @@ export default function ChapterWorkspace({
     (newCode: string) => {
       setCode(newCode);
       latestCodeRef.current = newCode;
-      if (isJs) return;
+      if (isJs || isSql) return;
       clearTimeout(detectTimerRef.current);
       detectTimerRef.current = setTimeout(() => {
         const current = detectClosedTags(latestCodeRef.current);
@@ -106,15 +125,17 @@ export default function ChapterWorkspace({
         detectedTagsRef.current = current;
       }, 150);
     },
-    [onTeleportFlash, isJs]
+    [onTeleportFlash, isJs, isSql]
   );
 
   const runCode = useCallback(async () => {
     onDeploy?.();
     let result: ValidationResult;
+    let jsError: string | null = null;
 
     if (isJs) {
       const exec = await runJs(code);
+      jsError = exec.error;
       const entries: ConsoleEntry[] = exec.logs.map((text) => ({
         type: "log",
         text,
@@ -128,6 +149,17 @@ export default function ChapterWorkspace({
         error: exec.error,
         lastValue: exec.lastValue,
       });
+    } else if (isSql) {
+      const run = await runSql(code, sqlConfig ?? {});
+      // Show the student's result set, falling back to the read-back state
+      // (so an INSERT/UPDATE step still displays the resulting table).
+      setSqlView(run.result ?? run.verify ?? null);
+      result = validate(code, {
+        logs: [],
+        error: run.error,
+        lastValue: undefined,
+        sql: { result: run.result, verify: run.verify, error: run.error },
+      });
     } else {
       if (iframeRef.current) {
         iframeRef.current.srcdoc = code;
@@ -137,18 +169,29 @@ export default function ChapterWorkspace({
 
     if (result.ok) {
       setFeedback({ type: "ok", msg: result.msg });
+      setFailCount(0);
       playSystemOnline();
       setEnemyState((prev) => ({ type: "explode", trigger: prev.trigger + 1 }));
       onStepSuccess(result);
       return;
     }
 
-    setFeedback({ type: "err", msg: result.msg });
+    setFeedback({
+      type: "err",
+      msg: result.msg,
+      tone: result.tone ?? inferToneFromError(jsError),
+    });
+    setFailCount((f) => f + 1);
     playBreach();
     setEnemyState((prev) => ({ type: "fly", trigger: prev.trigger + 1 }));
-  }, [code, isJs, onDeploy, onStepSuccess, validate]);
+    setShakeTrigger((p) => p + 1);
+  }, [code, isJs, isSql, sqlConfig, onDeploy, onStepSuccess, validate]);
 
-  const editorTabLabel = isJs ? "script.js" : "index.html";
+  const spectreTaunt =
+    feedback.type === "err" ? getSpectreTaunt(failCount) : null;
+
+  const editorTabLabel = isJs ? "script.js" : isSql ? "query.sql" : "index.html";
+  const editorLanguage = isJs ? "javascript" : isSql ? "sql" : "html";
 
   return (
     <section className="flex min-h-0 flex-1 flex-col bg-nebula-bg-dark/30 backdrop-blur-md">
@@ -175,22 +218,27 @@ export default function ChapterWorkspace({
           value={code}
           onChange={handleCodeChange}
           placeholder={step.placeholder}
-          language={isJs ? "javascript" : "html"}
+          language={editorLanguage}
         />
       </div>
 
-      {/* Feedback status bar */}
-      <div className="shrink-0 border-y border-nebula-border/60 bg-nebula-bg-panel/50 px-5 py-3.5 backdrop-blur-sm">
+      {/* Feedback status bar — doubles as the combat strip. */}
+      <div
+        key={shakeTrigger}
+        className={`shrink-0 border-y border-nebula-border/60 bg-nebula-bg-panel/50 px-5 py-3.5 backdrop-blur-sm ${
+          shakeTrigger > 0 && feedback.type === "err" ? "animate-screen-shake" : ""
+        }`}
+      >
         <div className="relative flex items-center gap-3">
-          <EnemySprite
-            type={enemyState.type}
+          <CombatVisualizer
+            outcome={enemyState.type}
             trigger={enemyState.trigger}
           />
           {feedback.type === "idle" && (
             <>
               <div className="h-2.5 w-2.5 rounded-full bg-nebula-green shadow-[0_0_8px_rgba(0,255,136,0.6)]" />
               <span className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary">
-                {"> "}{isJs ? "Console" : "Apercu en direct"}
+                {"> "}{isJs ? "Console" : isSql ? "Resultat" : "Apercu en direct"}
               </span>
               <span className="font-body text-sm italic text-nebula-text-dim">
                 — En attente du prochain deploiement<span className="terminal-cursor">_</span>
@@ -208,20 +256,87 @@ export default function ChapterWorkspace({
             </div>
           )}
           {feedback.type === "err" && (
-            <div className="animate-fb-in flex items-baseline gap-3">
-              <strong className="font-tech text-sm tracking-widest text-nebula-red">
-                {"> "}BRECHE DETECTEE
-              </strong>
-              <span className="font-body text-base text-nebula-text-secondary">
-                {feedback.msg}
-              </span>
+            <div className="animate-fb-in flex flex-col gap-1.5">
+              <div className="flex items-baseline gap-3">
+                <strong className="font-tech text-sm tracking-widest text-nebula-red">
+                  {"> "}{getErrorHeader(feedback.tone)}
+                </strong>
+                <span className="font-body text-base text-nebula-text-secondary">
+                  {feedback.msg}
+                </span>
+              </div>
+              {spectreTaunt && (
+                <div className="flex items-baseline gap-2 pl-1">
+                  <span
+                    className="font-tech text-xs tracking-widest text-nebula-spectre"
+                    aria-hidden="true"
+                  >
+                    {CHARACTERS.spectre.glyph} {CHARACTERS.spectre.name.toUpperCase()}
+                  </span>
+                  <span className="font-body text-sm italic text-nebula-spectre/80">
+                    {spectreTaunt}
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Bottom panel: HTML/CSS → iframe live preview ; JS → console */}
-      {isJs ? (
+      {/* Bottom panel: HTML/CSS → iframe live preview ; JS → console ; SQL → table */}
+      {isSql ? (
+        <div
+          className={`flex-1 min-h-0 overflow-auto bg-nebula-bg-darkest/80 px-5 py-4 ${
+            mobilePanel === "editor" ? "hidden lg:block" : "block"
+          }`}
+        >
+          <div className="mb-2 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
+            {"> "}Resultat de la requete
+          </div>
+          {!sqlView ? (
+            <p className="font-tech text-xs italic text-nebula-text-dim">
+              Aucun resultat pour l&apos;instant. Appuie sur DEPLOYER pour executer ta requete.
+            </p>
+          ) : sqlView.rows.length === 0 ? (
+            <p className="font-tech text-xs italic text-nebula-text-dim">
+              Requete executee — 0 ligne.
+            </p>
+          ) : (
+            <table className="w-full border-collapse font-code text-sm text-nebula-text">
+              <thead>
+                <tr>
+                  {sqlView.columns.map((col) => (
+                    <th
+                      key={col}
+                      className="border border-nebula-border/50 bg-nebula-bg-panel/60 px-3 py-1.5 text-left font-tech text-[11px] uppercase tracking-wider text-nebula-cyan"
+                    >
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {sqlView.rows.map((row, i) => (
+                  <tr key={i}>
+                    {row.map((cell, j) => (
+                      <td
+                        key={j}
+                        className="border border-nebula-border/40 px-3 py-1.5"
+                      >
+                        {cell === null ? (
+                          <span className="italic text-nebula-text-dim">NULL</span>
+                        ) : (
+                          String(cell)
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      ) : isJs ? (
         <div
           className={`flex-1 min-h-0 overflow-y-auto bg-nebula-bg-darkest/80 px-5 py-4 font-code text-sm ${
             mobilePanel === "editor" ? "hidden lg:block" : "block"

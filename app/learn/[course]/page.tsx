@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import BrandLogo from "@/components/ui/BrandLogo";
 import LevelNodeComponent, { type LevelNode } from "./LevelNode";
 import { getChaptersMeta } from "@/lib/courses-meta";
+import { getCourseStatus } from "@/lib/courses-catalog";
 
 const HTML_LEVELS: LevelNode[] = [
   {
@@ -607,6 +608,7 @@ export default async function CourseMapPage({
 
   const chaptersMeta = await getChaptersMeta(course);
   const playableSlugs = new Set(chaptersMeta.map((c) => c.slug));
+  const isPreview = getCourseStatus(course) === "preview";
 
   return (
     <div className="relative h-full overflow-hidden">
@@ -641,6 +643,14 @@ export default async function CourseMapPage({
         </div>
         <div className="w-24" />
       </div>
+
+      {isPreview && (
+        <div className="relative z-20 mx-auto max-w-3xl px-4">
+          <p className="rounded-sm border border-nebula-text-dim/30 bg-nebula-bg-panel/60 px-4 py-2 text-center font-tech text-[11px] uppercase tracking-widest text-nebula-text-secondary">
+            ⚠ Chapitre pilote — la suite de ce cursus est en cours de déploiement
+          </p>
+        </div>
+      )}
 
       <div
         className="relative z-10 mx-auto animate-fade-in-paint"

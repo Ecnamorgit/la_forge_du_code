@@ -12,11 +12,19 @@ export interface CompleteStepResponse {
   alreadyDone: boolean;
 }
 
+export interface ClaimDailyResponse {
+  state: UserState;
+  awardedXp: number;
+  alreadyClaimed: boolean;
+}
+
 export interface UseUserReturn {
   state: UserState;
   hydrated: boolean;
   /** Refetch the state from the server (e.g. after an external change). */
   refresh: () => Promise<void>;
+  /** Claim the once-per-day mission bonus. */
+  claimDailyMission: () => Promise<ClaimDailyResponse>;
   /** Server-validated step completion. Returns awarded XP + new badge. */
   completeStep: (
     course: string,
@@ -229,6 +237,26 @@ export function useUser(): UseUserReturn {
     }
   }, []);
 
+  const claimDailyMission = useCallback(async (): Promise<ClaimDailyResponse> => {
+    let res: Response;
+    try {
+      res = await fetch("/api/me/daily", { method: "POST" });
+    } catch {
+      throw new Error(toNetworkMessage());
+    }
+    if (res.status === 401) {
+      void signOut({ callbackUrl: "/login" });
+      throw new Error("Session expiree. Reconnecte-toi.");
+    }
+    if (!res.ok) {
+      const err = await readJson<{ error?: string }>(res);
+      throw new Error(err.error ?? "Mission du jour indisponible");
+    }
+    const data = await readJson<ClaimDailyResponse>(res);
+    setState(data.state);
+    return data;
+  }, []);
+
   const reset = useCallback(async () => {
     let res: Response;
     try {
@@ -256,6 +284,7 @@ export function useUser(): UseUserReturn {
     state: publicState,
     hydrated,
     refresh,
+    claimDailyMission,
     completeStep,
     renameUser,
     reset,

@@ -2,45 +2,30 @@ import type { ChapterData } from "./types";
 
 export const chapitre8: ChapterData = {
   slug: "chapitre-8",
-  tag: "MISSION : TRANSMISSION MULTI-CANAL",
-  title: "MEDIAS\nAVANCES",
-  subtitle: "Diffuse video, audio et images optimisees a tous les ecrans",
-  totalXp: 240,
-  completionBadge: "🎥",
-  completionBadgeLabel: "OPERATEUR MULTIMEDIA",
+  tag: "DOCK D'ORBITE : ALARME",
+  title: "LA BALISE <PICTURE>",
+  subtitle: "Configure les flux de communication audio et video du dock",
+  totalXp: 180,
+  completionBadge: "🚨",
+  completionBadgeLabel: "OFFICIER DES TRANSMISSIONS",
   steps: [
     {
       startCode:
-        '<!DOCTYPE html>\n<html lang="fr">\n  <head>\n    <meta charset="UTF-8">\n    <title>Centre de diffusion</title>\n  </head>\n  <body>\n    <h1>Centre de diffusion</h1>\n    \n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Signal d\'Urgence</title>\n  </head>\n  <body>\n    \n  </body>\n</html>',
       placeholder: "<!-- Ajoute une balise <video> avec controles -->",
       narrator:
-        "La station doit diffuser des messages video. Ajoute une balise <video> avec un attribut controls pour que l'equipage puisse lire, mettre en pause et regler le volume.",
-      hint: 'Ajoute <video src="briefing.mp4" controls width="480"></video>. L\'attribut controls active la barre de lecture.',
+        "Ingénieur des transmissions, connectons le retour visuel de surveillance de la soute. Intègre un flux <video> muni de son interface de lecture, ciblant '/videos/emergency-dock.mp4'.",
+      hint: 'Utilise <video src="/videos/emergency-dock.mp4" controls></video>.',
       briefing: {
-        title: "La balise <video>",
+        title: "L'integration video : <video> et controls",
         content: `
-### Lecture native
-**<video>** lit une video sans plugin (Flash, c'est fini depuis 2020). Le navigateur fournit les controles.
+### La balise <video>
+Elle permet de lire nativement un flux video de surveillance sans plugin tiers sur la soute du dock.
 
-### Attributs cles
-- **src** : chemin du fichier video
-- **controls** : affiche les boutons play/pause/volume (sans ca, video muette et non interactive)
-- **width / height** : taille d'affichage (CSS recommande pour le responsive)
-- **autoplay** : lance la lecture (souvent bloque par les navigateurs sans **muted**)
-- **loop** : reboucle a la fin
-- **poster** : image affichee avant la lecture
+### L'attribut controls
+**controls** affiche l'interface standard de lecture : bouton play/pause, barre de progression de la surveillance, volume et plein ecran. Sans cet attribut, la video apparait comme une image fixe.
 
-### Exemple
-\`<video src="mission.mp4" controls width="480"></video>\`
-
-### Multi-format (defense en profondeur)
-\`<video controls>\`
-\`  <source src="film.webm" type="video/webm">\`
-\`  <source src="film.mp4" type="video/mp4">\`
-\`  Votre navigateur ne supporte pas la video.\`
-\`</video>\`
-
-**Astuce :** met **muted** pour autoriser autoplay sur mobile.
+\`<video src="/videos/emergency-dock.mp4" controls></video>\`
         `,
       },
       objectives: [
@@ -171,7 +156,7 @@ Une image 4000x3000 px sert magnifiquement un ecran retina, mais sur un mobile 4
 \`</picture>\`
 
 ### Comment ca marche ?
-Le navigateur **lit les sources dans l'ordre** et prend la **premiere qu'il sait afficher**. Chrome lit la 1ere (webp OK), Safari ancien saute a la 2eme (jpg).
+Le navigateur **lire les sources dans l'ordre** et prend la **premiere qu'il sait afficher**. Chrome lit la 1ere (webp OK), Safari ancien saute a la 2eme (jpg).
 
 ### Le <img> final
 **Obligatoire** dans <picture>. Sert de fallback ultime ET porte l'attribut **alt** pour l'accessibilite.

@@ -2,19 +2,19 @@ import type { ChapterData } from "./types";
 
 export const chapitre6: ChapterData = {
   slug: "chapitre-6",
-  tag: "MISSION : ARCHITECTURE SEMANTIQUE",
-  title: "STRUCTURE\nSEMANTIQUE",
-  subtitle: "Donne du sens a chaque compartiment de la station",
-  totalXp: 240,
-  completionBadge: "🏗",
-  completionBadgeLabel: "ARCHITECTE SEMANTIQUE",
+  tag: "DOCK D'ORBITE : ACCESSIBILITE",
+  title: "ACCESSIBILITE :\nALT ET ARIA",
+  subtitle: "Structure le centre operationnel du dock et configure l'accessibilite",
+  totalXp: 200,
+  completionBadge: "♿",
+  completionBadgeLabel: "EXPERT EN ACCESSIBILITE",
   steps: [
     {
       startCode:
-        '<!DOCTYPE html>\n<html lang="fr">\n  <head>\n    <title>Station Nebula</title>\n  </head>\n  <body>\n    <h1>Station Nebula</h1>\n    <p>Bienvenue, Cadet.</p>\n    \n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html lang="fr">\n  <head>\n    <title>Station Nebula</title>\n  </head>\n  <body>\n    <h1>Station Nebula</h1>\n    <p>Bienvenue, Cadet.</p>\n  </body>\n</html>',
       placeholder: "<!-- Encadre la page avec <header>, <main> et <footer> -->",
       narrator:
-        "Une page bien structuree, c'est comme une station : un pont superieur, une salle des operations, un sas de sortie. Remplace les <div> generiques par les balises semantiques <header>, <main> et <footer>.",
+        "Ingénieur de dock, nous devons poser l'architecture sémantique de la console de contrôle principale. Ajoute les compartiments physiques <header>, <main> et <footer>.",
       hint: 'Place le <h1> dans un <header>, le <p> dans un <main>, et ajoute un <footer> en bas avec ton nom ou un copyright.',
       briefing: {
         title: "Les compartiments semantiques",
@@ -53,7 +53,7 @@ Les balises **<div>** marchent partout mais ne disent rien. Les balises **semant
         '<!DOCTYPE html>\n<html lang="fr">\n  <head>\n    <title>Station Nebula</title>\n  </head>\n  <body>\n    <header>\n      <h1>Station Nebula</h1>\n      \n    </header>\n    <main>\n      <p>Bienvenue, Cadet.</p>\n    </main>\n    <footer><small>(c) 2026</small></footer>\n  </body>\n</html>',
       placeholder: "<!-- Ajoute une <nav> avec au moins 3 liens dans le header -->",
       narrator:
-        "Aucune station n'est complete sans navigation. Ajoute une balise <nav> dans le header avec au moins trois liens : Accueil, Missions, Contact.",
+        "Aucune station n'est complète sans routage sémantique. Ajoute une balise <nav> dans le header avec au moins trois liens pointant vers des destinations internes.",
       hint: 'Place a l\'interieur du <header> une <nav> contenant trois balises <a href="..."> distinctes.',
       briefing: {
         title: "La balise <nav>",
@@ -92,7 +92,7 @@ Une page peut avoir **plusieurs <nav>** (header + footer, par exemple) mais une 
         '<!DOCTYPE html>\n<html lang="fr">\n  <head>\n    <title>Station Nebula</title>\n  </head>\n  <body>\n    <header>\n      <h1>Station Nebula</h1>\n      <nav>\n        <a href="/">Accueil</a>\n        <a href="/missions">Missions</a>\n        <a href="/contact">Contact</a>\n      </nav>\n    </header>\n    <main>\n      \n    </main>\n    <footer><small>(c) 2026</small></footer>\n  </body>\n</html>',
       placeholder: "<!-- Dans <main>, ajoute un <article> et une <section> -->",
       narrator:
-        "Le compartiment principal doit etre decoupe. Place un <article> (une mission complete, autonome) qui contient une <section> (un sous-bloc thematique).",
+        "Le compartiment principal doit être structuré pour le log de soute. Place un <article> (qui contient les informations logistiques globales) enveloppant lui-même une <section> (contenant le briefing détaillé de la mission).",
       hint: 'A l\'interieur de <main>, ouvre <article>...</article>. A l\'interieur, place une <section> avec un <h2>Briefing</h2> et un <p>.',
       briefing: {
         title: "Article vs Section vs Aside",
@@ -137,7 +137,7 @@ Un **contenu connexe** mais separable : encart, citation, "voir aussi", barre la
         '<!DOCTYPE html>\n<html lang="fr">\n  <head>\n    <title>Station Nebula</title>\n  </head>\n  <body>\n    <header>\n      <h1>Station Nebula</h1>\n      <nav>\n        <a href="/">Accueil</a>\n        <a href="/missions">Missions</a>\n        <a href="/contact">Contact</a>\n      </nav>\n    </header>\n    <main>\n      <article>\n        <h2>Mission Lunaire</h2>\n        <section>\n          <p>Briefing en cours.</p>\n          <img src="lune.png">\n        </section>\n      </article>\n    </main>\n    <footer><small>(c) 2026</small></footer>\n  </body>\n</html>',
       placeholder: "<!-- Rends l'image accessible et marque le lien actif -->",
       narrator:
-        "Derniere etape : rends la page utilisable pour tous. Ajoute un attribut alt descriptif sur l'image, et marque le lien actif de la navigation avec aria-current=\"page\".",
+        "Dernière étape : rends la console de bord accessible pour tous les officiers. Ajoute un attribut 'alt' descriptif sur l'image du dock, et marque le lien actif de la navigation avec 'aria-current=\"page\"'.",
       hint: 'Sur le <img>, ajoute alt="Surface lunaire vue depuis l\'orbite". Sur le premier <a href="/">, ajoute aria-current="page".',
       briefing: {
         title: "Accessibilite : alt et ARIA",

@@ -2,9 +2,9 @@ import type { ChapterData } from "./types";
 
 export const chapitre3: ChapterData = {
   slug: "chapitre-3",
-  tag: "MISSION : ŒIL ORBITAL",
-  title: "BASE DE DONNEES\nVISUELLE",
-  subtitle: "Capture, calibre et annote les images de la station",
+  tag: "DOCK D'ORBITE : CAMÉRAS",
+  title: "RESEAU DE CAPTEURS",
+  subtitle: "Capture, calibre et annote les images de la soute",
   totalXp: 200,
   completionBadge: "📸",
   completionBadgeLabel: "ARCHIVISTE VISUEL",
@@ -14,22 +14,22 @@ export const chapitre3: ChapterData = {
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Oeil Orbital</title>\n  </head>\n  <body>\n    <h1>Galerie de la station</h1>\n    \n  </body>\n</html>',
       placeholder: "<!-- Capture une image avec <img> -->",
       narrator:
-        "Ingenieur, branchons le capteur visuel. La balise <img> permet d'afficher une image, mais elle a besoin d'une source et d'une description.",
+        "Ingénieur de soute, branchons le premier capteur visuel de notre dock d'amarrage. La balise <img> permet d'afficher le flux vidéo en direct, mais elle a besoin d'indiquer sa source et d'une description alternative en cas de perte de signal.",
       hint: 'Utilise <img src="..." alt="...">. Une URL d\'exemple : "https://placehold.co/200x120".',
       briefing: {
         title: "Capter une image",
         content: `
 ### La balise <img>
-La balise **<img>** affiche une image. C'est une balise **auto-fermante** : pas de </img> a la fin.
+La balise **<img>** affiche une image sur la console de controle. C'est une balise **auto-fermante** : pas besoin de balise fermante </img>.
 
 ### Les attributs essentiels
-- **src** : la source de l'image (URL ou fichier local).
-- **alt** : un texte alternatif decrit l'image quand elle ne peut pas s'afficher.
+- **src** : la source de l'image (URL ou fichier local de la soute).
+- **alt** : description textuelle alternative obligatoire pour l'accessibilité.
 
 ### Exemple
-\`<img src="https://placehold.co/200x120" alt="Vue de la station">\`
+\`<img src="https://placehold.co/200x120" alt="Sas de chargement principal">\`
 
-**Bonne pratique :** le **alt** est obligatoire. Il aide l'accessibilite et le SEO.
+**Bonne pratique :** Renseigne toujours le **alt**. Cela permet aux officiers malvoyants d'interpreter le flux.
         `,
       },
       objectives: [
@@ -50,24 +50,24 @@ La balise **<img>** affiche une image. C'est une balise **auto-fermante** : pas 
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Oeil Orbital</title>\n  </head>\n  <body>\n    <h1>Galerie de la station</h1>\n    <img src="https://placehold.co/200x120" alt="Vue de la station">\n    \n  </body>\n</html>',
       placeholder: "<!-- Calibre l'image avec width et height -->",
       narrator:
-        "Le capteur fonctionne mais il occupe trop d'espace. Calibre-le avec une largeur et une hauteur precises.",
+        "Le capteur fonctionne, mais il prend trop de place sur l'écran. Calibre-le avec une largeur et une hauteur précises pour l'intégrer au tableau de bord.",
       hint: 'Ajoute width="..." et height="..." sur la balise <img> (ex. width="300" height="180").',
       briefing: {
         title: "Calibrer le capteur",
         content: `
 ### Les attributs width et height
-Tu peux fixer la taille d'une image en pixels :
-- **width** : la largeur.
-- **height** : la hauteur.
+Tu peux fixer les dimensions de la zone d'affichage :
+- **width** : largeur en pixels.
+- **height** : hauteur en pixels.
 
 ### Exemple
 \`<img src="..." alt="..." width="300" height="180">\`
 
 ### Pourquoi le faire ?
-- Le navigateur **reserve la place** de l'image avant qu'elle ne charge -> moins de saccades.
-- Tu controles l'apparence sans dependre de la taille du fichier.
+- Le navigateur **reserve l'espace physique** avant le chargement complet de l'image.
+- Cela évite les saccades visuelles à l'écran lors du défilement des données.
 
-**Astuce :** sans unite, la valeur est en pixels.
+**Astuce :** Pas besoin de spécifier "px", le système comprend qu'il s'agit de pixels.
         `,
       },
       objectives: [
@@ -88,25 +88,20 @@ Tu peux fixer la taille d'une image en pixels :
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Oeil Orbital</title>\n  </head>\n  <body>\n    <h1>Galerie de la station</h1>\n    <img src="https://placehold.co/200x120" alt="Vue de la station" width="300" height="180">\n    \n  </body>\n</html>',
       placeholder: "<!-- Rends l'image cliquable -->",
       narrator:
-        "Les images peuvent devenir des portails. Entoure l'image d'un lien <a> pour qu'elle redirige vers la page de details.",
+        "Les images peuvent servir de raccourcis tactiles. Enveloppe le capteur <img> dans un lien <a> pour qu'un clic redirige vers la console de détails du secteur.",
       hint: 'Place <img> a l\'interieur d\'un <a href="details.html">...</a>.',
       briefing: {
         title: "Image cliquable",
         content: `
 ### Combiner <a> et <img>
-Une image peut etre **cliquable** : il suffit de la placer dans une balise **<a>**.
+Une image peut servir d'ancre de navigation. Il suffit de la placer à l'intérieur d'une balise **<a>**.
 
 ### Exemple
 \`<a href="details.html">\`
-\`  <img src="..." alt="Voir les details">\`
+\`  <img src="..." alt="Détails du module" />\`
 \`</a>\`
 
-### Cas d'usage
-- Boutons illustres.
-- Galeries dont chaque vignette ouvre l'image en grand.
-- Bannieres promotionnelles.
-
-**A retenir :** <a> est un conteneur, il peut englober du texte **ou** une image.
+**A retenir :** La balise <a> est un conteneur générique, elle accepte du texte, mais aussi d'autres éléments comme les images.
         `,
       },
       objectives: [
@@ -127,26 +122,20 @@ Une image peut etre **cliquable** : il suffit de la placer dans une balise **<a>
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Oeil Orbital</title>\n  </head>\n  <body>\n    <h1>Galerie de la station</h1>\n    <a href="details.html">\n      <img src="https://placehold.co/200x120" alt="Vue de la station" width="300" height="180">\n    </a>\n    \n  </body>\n</html>',
       placeholder: "<!-- Documente l'image avec <figure> et <figcaption> -->",
       narrator:
-        "Une image sans contexte reste muette. Encadre-la dans une <figure> et ajoute une legende avec <figcaption> pour la documenter.",
+        "Une image sans explication technique est inutile pour l'équipage. Encadre le bloc de capture dans une <figure> et ajoute une légende explicative avec <figcaption>.",
       hint: 'Utilise <figure>...<figcaption>Texte de legende</figcaption></figure>.',
       briefing: {
         title: "Annoter une image",
         content: `
 ### Les balises <figure> et <figcaption>
-- **<figure>** regroupe une image (ou un schema) et son commentaire.
-- **<figcaption>** contient la **legende** de la figure.
+- **<figure>** : regroupe une illustration (photo du dock, schéma électrique) et sa description.
+- **<figcaption>** : définit la **legende** de l'illustration.
 
 ### Structure
 \`<figure>\`
-\`  <img src="..." alt="...">\`
-\`  <figcaption>Vue de la station depuis l'orbite</figcaption>\`
+\`  <img src="..." alt="..." />\`
+\`  <figcaption>Fig 1. Entrée du hangar de maintenance</figcaption>\`
 \`</figure>\`
-
-### Pourquoi c'est utile ?
-- Le navigateur comprend que l'image et le texte forment un **bloc indissociable**.
-- Excellent pour les articles, les rapports de mission et les schemas techniques.
-
-**Niveau bonus :** la legende peut etre avant ou apres l'image, peu importe.
         `,
       },
       objectives: [
@@ -159,8 +148,7 @@ Une image peut etre **cliquable** : il suffit de la placer dans une balise **<a>
       missionTtl: "ARCHIVER LE CLICHE",
       bannerIcon: "🏷",
       bannerTtl: "FICHE COMPLETE",
-      bannerSub:
-        "L'image est desormais documentee et indexable dans les archives.",
+      bannerSub: "L'image est desormais documentee et indexable dans les archives du dock.",
       bannerXp: "⚡ +50 XP",
     },
   ],

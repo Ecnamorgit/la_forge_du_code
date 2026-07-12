@@ -14,7 +14,7 @@ export const chapitre2: ChapterData = {
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Palette tactique</title>\n    <style>\n      body { background-color: #03060d; color: white; }\n      \n    </style>\n  </head>\n  <body>\n    <h1>Statut equipage</h1>\n    <p class="alert">Alerte : pression instable</p>\n    <p>Tous les autres systemes sont nominaux.</p>\n  </body>\n</html>',
       placeholder: "<!-- Cible le paragraphe avec class=\"alert\" -->",
       narrator:
-        "Tous les paragraphes ne se valent pas. Cible uniquement celui qui porte la classe alert pour le mettre en evidence.",
+        "Tous les paragraphes ne se valent pas. Cible uniquement celui qui porte la classe alert pour l'alerter visuellement.",
       hint: "Dans le <style>, ajoute : .alert { color: red; }",
       briefing: {
         title: "Le selecteur de classe",

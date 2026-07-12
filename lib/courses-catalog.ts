@@ -163,6 +163,22 @@ export function getCourseChaptersCount(slug: string): number {
   return CHAPTER_SUMMARIES[slug]?.length ?? 0;
 }
 
+/**
+ * A course is shown as "complete" once it has enough chapters to form a real
+ * learning path; below that it is a piloted "preview" (intro chapter only).
+ * Kept as a threshold on the chapter count so there is a single source of
+ * truth (no manual per-course flag to keep in sync).
+ */
+export const COURSE_COMPLETE_MIN_CHAPTERS = 4;
+
+export type CourseStatus = "complete" | "preview";
+
+export function getCourseStatus(slug: string): CourseStatus {
+  return getCourseChaptersCount(slug) >= COURSE_COMPLETE_MIN_CHAPTERS
+    ? "complete"
+    : "preview";
+}
+
 const ICON_FRAME_BY_SLUG: Record<string, number> = Object.fromEntries(
   COURSES_CATALOG.map((c, i) => [c.slug, i])
 );

@@ -4,17 +4,25 @@ export const validators: Validator[] = [
   (code) => {
     const c = code.toLowerCase().trim();
     if (!c.includes("<!doctype html>")) {
-      return { ok: false, msg: "Le signal <!DOCTYPE html> est manquant à l'appel." };
+      return {
+        ok: false,
+        msg: "Le signal <!DOCTYPE html> est manquant à l'appel.",
+        tone: "structure",
+      };
     }
     if (!/<html\b[^>]*>/i.test(code) || !/<\/html>/i.test(code)) {
-      return { ok: false, msg: "L'enceinte <html> doit être ouverte ET fermée." };
+      return {
+        ok: false,
+        msg: "L'enceinte <html> doit être ouverte ET fermée.",
+        tone: "structure",
+      };
     }
     return { ok: true, msg: "Structure de base validée.", objList: ["o1a", "o1b"] };
   },
   (code) => {
     const lower = code.toLowerCase();
     if (!lower.includes("<head>") || !lower.includes("</head>")) {
-      return { ok: false, msg: "La section <head> est manquante." };
+      return { ok: false, msg: "La section <head> est manquante.", tone: "structure" };
     }
     const titleMatch = code.match(/<title>([\s\S]*?)<\/title>/i);
     if (!titleMatch || !titleMatch[1].trim()) {
@@ -25,7 +33,11 @@ export const validators: Validator[] = [
   (code) => {
     const lower = code.toLowerCase();
     if (!lower.includes("<body>") || !lower.includes("</body>")) {
-      return { ok: false, msg: "Où est le <body> ? C'est là que tout se passe !" };
+      return {
+        ok: false,
+        msg: "Où est le <body> ? C'est là que tout se passe !",
+        tone: "structure",
+      };
     }
     const h1Match = code.match(/<h1>([\s\S]*?)<\/h1>/i);
     if (!h1Match || !h1Match[1].toLowerCase().includes("hello world")) {

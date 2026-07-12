@@ -2,10 +2,15 @@ import Link from "next/link";
 import Image from "next/image";
 
 import BrandLogo from "@/components/ui/BrandLogo";
+import IntroCinematicMount from "@/components/intro/IntroCinematicMount";
+import ReplayIntroButton from "@/components/intro/ReplayIntroButton";
 
 export default function LandingPage() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden overflow-y-auto">
+      {/* Cinématique d'intro (auto-play 1re visite, rejouable) */}
+      <IntroCinematicMount />
+
       {/* Background layers */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-bg" />
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-stars opacity-30" />
@@ -117,6 +122,10 @@ export default function LandingPage() {
             >
               J&apos;ai déjà un compte
             </Link>
+          </div>
+
+          <div className="mt-6">
+            <ReplayIntroButton />
           </div>
         </section>
 

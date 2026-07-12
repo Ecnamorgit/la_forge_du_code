@@ -4,7 +4,7 @@ export const chapitre9: ChapterData = {
   slug: "chapitre-9",
   tag: "MISSION : DYNAMIQUE VISUELLE",
   title: "TRANSITIONS\n& ANIMATIONS",
-  subtitle: "Mets tes elements en mouvement",
+  subtitle: "Anime les elements du dock",
   totalXp: 260,
   completionBadge: "💫",
   completionBadgeLabel: "ANIMATEUR DE PIXELS",

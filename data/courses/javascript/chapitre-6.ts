@@ -3,7 +3,7 @@ import type { ChapterData } from "@/data/courses/html/types";
 export const chapitre6: ChapterData = {
   slug: "chapitre-6",
   tag: "MISSION : TRAITEMENT DE DONNEES",
-  title: "METHODES\nMODERNES",
+  title: "MÉTHODES\nMODERNES",
   subtitle: "Manipule des tableaux avec map, filter, reduce et find",
   totalXp: 260,
   completionBadge: "🧮",
@@ -14,13 +14,15 @@ export const chapitre6: ChapterData = {
         "const xp = [50, 120, 80, 200, 30];\n// Cree un tableau xpDouble qui contient chaque XP multiplie par 2, et affiche-le.\n",
       placeholder: "// Utilise map pour transformer chaque element",
       narrator:
-        "Tu dois doubler les XP de tous les cadets pour une operation speciale. Utilise la methode map() pour transformer le tableau xp en xpDouble, puis affiche-le.",
+        "Tu dois doubler les points d'expérience (XP) de tous les cadets pour une opération spéciale. Utilise la méthode map() pour transformer le tableau xp en xpDouble, puis affiche-le.",
       hint: "const xpDouble = xp.map((n) => n * 2);\nconsole.log(xpDouble);",
       briefing: {
         title: "Array.map()",
         content: `
-### Le probleme
-Tu as un tableau, tu veux **un nouveau tableau de meme taille** ou chaque element est transforme.
+*« Traiter mille cadets un par un ? Tu n'as pas le temps. \`map\` transforme toute une colonne d'un seul ordre — sans jamais toucher à l'original. »* — **Kira**
+
+### Le problème
+Tu as un tableau, tu veux **un nouveau tableau de même taille** où chaque élément est transformé.
 
 ### Avec une boucle classique
 \`const xpDouble = [];\`
@@ -31,17 +33,17 @@ Tu as un tableau, tu veux **un nouveau tableau de meme taille** ou chaque elemen
 ### Avec map()
 \`const xpDouble = xp.map((n) => n * 2);\`
 
-**Une seule ligne**, plus lisible, plus declaratif.
+**Une seule ligne**, plus lisible, plus déclaratif.
 
-### Comment ca marche ?
-**map(callback)** appelle callback pour chaque element et **retourne un nouveau tableau** avec les valeurs retournees. Le tableau original n'est PAS modifie.
+### Comment ça marche ?
+**map(callback)** appelle callback pour chaque élément et **retourne un nouveau tableau** avec les valeurs retournées. Le tableau original n'est PAS modifié.
 
 ### Exemple plus parlant
 \`const noms = ["luna", "io", "mars"];\`
 \`const enMaj = noms.map((n) => n.toUpperCase());\`
 \`// ["LUNA", "IO", "MARS"]\`
 
-**A retenir :** map = "transformation". Il garde **toujours le meme nombre d'elements**.
+**À retenir :** map = "transformation". Il garde **toujours le même nombre d'éléments**.
         `,
       },
       objectives: [
@@ -52,8 +54,8 @@ Tu as un tableau, tu veux **un nouveau tableau de meme taille** ou chaque elemen
       missionTag: "PROTOCOLE 01",
       missionTtl: "TRANSFORMATION",
       bannerIcon: "🔁",
-      bannerTtl: "DONNEES TRANSFORMEES",
-      bannerSub: "Chaque XP a ete double dans un nouveau tableau.",
+      bannerTtl: "DONNÉES TRANSFORMÉES",
+      bannerSub: "Chaque XP a été doublé dans un nouveau tableau.",
       bannerXp: "⚡ +60 XP",
     },
     {
@@ -61,158 +63,148 @@ Tu as un tableau, tu veux **un nouveau tableau de meme taille** ou chaque elemen
         "const equipage = [\n  { nom: 'Luna', niveau: 8 },\n  { nom: 'Io', niveau: 3 },\n  { nom: 'Mars', niveau: 12 },\n  { nom: 'Phobos', niveau: 5 },\n];\n// Cree un tableau elites qui ne contient que les membres de niveau >= 5, et affiche-le.\n",
       placeholder: "// Utilise filter pour ne garder que les niveaux >= 5",
       narrator:
-        "On veut isoler les membres d'elite (niveau >= 5). Utilise filter() pour creer un sous-tableau, puis affiche-le.",
+        "On veut isoler les membres d'élite (niveau ≥ 5). Utilise filter() pour créer un sous-tableau, puis affiche-le.",
       hint: "const elites = equipage.filter((m) => m.niveau >= 5);\nconsole.log(elites);",
       briefing: {
         title: "Array.filter()",
         content: `
 ### Quand l'utiliser
-Quand tu veux **garder seulement** certains elements d'un tableau, selon une condition.
+Quand tu veux **garder seulement** certains éléments d'un tableau, selon une condition.
 
 ### Syntaxe
 \`const elites = equipage.filter((m) => m.niveau >= 5);\`
 
-Le callback retourne **true** (on garde) ou **false** (on jette).
+**Deux arguments** :
+1. **Le callback** : reçoit chaque élément et retourne un booléen indiquant si l'élément doit être inclus.
+2. **Retour** : un nouveau tableau contenant uniquement les éléments pour lesquels le callback a retourné true.
 
-### Difference avec map
-- **map** : transforme, taille identique.
-- **filter** : selectionne, taille **inferieure ou egale**.
+### Exemple plus parlant
+\`const equipage = [\n  { nom: 'Luna', niveau: 8 },\n  { nom: 'Io', niveau: 3 },\n  { nom: 'Mars', niveau: 12 },\n  { nom: 'Phobos', niveau: 5 }\n];\`
+\`const elites = equipage.filter((m) => m.niveau >= 5);\`
+\`// [{ nom: 'Luna', niveau: 8 }, { nom: 'Mars', niveau: 12 }, { nom: 'Phobos', niveau: 5 }]\`
 
-### Combiner les deux (tres frequent)
-\`const nomsElites = equipage\`
-\`  .filter((m) => m.niveau >= 5)\`
-\`  .map((m) => m.nom);\`
-\`// ["Luna", "Mars", "Phobos"]\`
-
-D'abord on filtre, puis on transforme. C'est un **pipeline**.
-
-### Cas d'usage
-- Filtrer des produits par stock > 0.
-- Garder les messages non lus.
-- Afficher uniquement les contacts en ligne.
-
-**A retenir :** filter ne change jamais les elements, il en garde juste un sous-ensemble.
+**À retenir :** filter = "sélection". Il permet de filtrer les éléments selon une condition.
         `,
       },
       objectives: [
         { id: "o2a", label: "Utiliser .filter() sur le tableau" },
-        { id: "o2b", label: "La condition cible niveau >= 5" },
+        { id: "o2b", label: "Afficher le sous-tableau d'élites" },
       ],
-      missionIcon: "🎯",
+      missionIcon: " sàng",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "SELECTION CONDITIONNELLE",
-      bannerIcon: "🎯",
-      bannerTtl: "ELITES IDENTIFIEES",
-      bannerSub: "Le sous-tableau contient uniquement les membres qualifies.",
+      missionTtl: "SÉLECTION",
+      bannerIcon: " sàng",
+      bannerTtl: "ÉLITES IDENTIFIÉES",
+      bannerSub: "Les membres d'élite ont été filtrés selon leur niveau.",
       bannerXp: "⚡ +65 XP",
     },
     {
       startCode:
-        "const cargo = [\n  { nom: 'Eau', masse: 120 },\n  { nom: 'Oxygene', masse: 80 },\n  { nom: 'Vivres', masse: 200 },\n];\n// Calcule la masse totale du cargo avec reduce, et affiche-la.\n",
-      placeholder: "// Utilise reduce pour additionner masse",
+        "const cargo = [\n  { id: 'CARGO-01', poids: 200 },\n  { id: 'CARGO-02', poids: 300 },\n  { id: 'CARGO-03', poids: 500 }\n];\n// Calcule le poids total des cargaisons et affiche-le.\n",
+      placeholder: "// Utilise reduce pour calculer la somme des poids",
       narrator:
-        "Avant le decollage, calcule la masse totale du cargo. Utilise reduce() pour additionner toutes les masses.",
-      hint: "const total = cargo.reduce((sum, item) => sum + item.masse, 0);\nconsole.log(total);",
+        "Le capitaine veut connaître le poids total des cargaisons. Utilise reduce() pour additionner les poids de chaque cargaison, puis affiche le résultat.",
+      hint: "const totalPoids = cargo.reduce((sum, item) => sum + item.poids, 0);\nconsole.log(totalPoids);",
       briefing: {
         title: "Array.reduce()",
         content: `
 ### A quoi sert reduce ?
-**Reduire un tableau a une seule valeur** : somme, moyenne, max, min, regroupement, etc.
+Retourne **une seule valeur** calculée à partir des éléments d'un tableau. Utile pour effectuer des opérations cumulatives comme la somme, le produit ou l'agrégation.
 
 ### Syntaxe
-\`const total = cargo.reduce((sum, item) => sum + item.masse, 0);\`
+\`const totalPoids = cargo.reduce((sum, item) => sum + item.poids, 0);\`
 
 **Deux arguments** :
-1. **Le callback** : recoit l'accumulateur et l'element courant, retourne le nouveau accumulateur.
-2. **La valeur initiale** : ici 0 (le total commence a zero).
+1. **Le callback** : reçoit un accumulateur (la valeur courante) et chaque élément du tableau, retourne la nouvelle valeur de l'accumulateur.
+2. **La valeur initiale** : ici 0 (le total commence à zero).
 
-### Etape par etape
-- Iteration 1 : sum = 0, item = Eau (120). Retour : 120.
-- Iteration 2 : sum = 120, item = Oxygene (80). Retour : 200.
-- Iteration 3 : sum = 200, item = Vivres (200). Retour : 400.
-- Final : 400.
+### Etape par étape
+- Iteration 1 : sum = 0, item = CARGO-01 (200). Retour : 200.
+- Iteration 2 : sum = 200, item = CARGO-02 (300). Retour : 500.
+- Iteration 3 : sum = 500, item = CARGO-03 (500). Retour : 1000.
+- Final : 1000.
 
 ### Autres exemples
 \`// Trouver le max\`
-\`const max = nbs.reduce((m, n) => Math.max(m, n), -Infinity);\`
+\`const maxPoids = cargaisons.reduce((m, c) => Math.max(m, c.poids), 0);\`
 
-\`// Compter les occurrences\`
-\`const compte = mots.reduce((acc, m) => {\`
-\`  acc[m] = (acc[m] || 0) + 1;\`
+\`// Compter les occurrences par type\`
+\`const compteType = cargaisons.reduce((acc, c) => {\`
+\`  acc[c.type] = (acc[c.type] || 0) + 1;\`
 \`  return acc;\`
 \`}, {});\`
 
 ### Quand utiliser reduce vs map/filter ?
-- **map** : tableau -> tableau de meme taille.
+- **map** : tableau -> tableau de même taille.
 - **filter** : tableau -> sous-tableau.
 - **reduce** : tableau -> **une seule valeur** (nombre, objet, string).
 
-**A retenir :** reduce est le plus puissant et le plus difficile a maitriser. Quand tu sais l'ecrire, tu sais penser fonctionnel.
+**À retenir :** reduce est le plus puissant et le plus difficile à maîtriser. Quand tu sais l'écrire, tu sais penser fonctionnel.
         `,
       },
       objectives: [
         { id: "o3a", label: "Utiliser .reduce() sur le tableau" },
-        { id: "o3b", label: "Afficher 400 (somme des masses)" },
+        { id: "o3b", label: "Afficher 1000 (somme des poids)" },
       ],
       missionIcon: "📊",
       missionTag: "PROTOCOLE 03",
       missionTtl: "AGREGATION",
       bannerIcon: "📊",
-      bannerTtl: "TOTAL CALCULE",
-      bannerSub: "reduce a additionne toutes les masses en une seule valeur.",
+      bannerTtl: "TOTAL CALCULÉ",
+      bannerSub: "reduce a additionné tous les poids en une seule valeur.",
       bannerXp: "⚡ +70 XP",
     },
     {
       startCode:
-        "const ships = [\n  { id: 'NEB-01', etat: 'op' },\n  { id: 'NEB-02', etat: 'maintenance' },\n  { id: 'NEB-03', etat: 'op' },\n];\n// Trouve le premier vaisseau en maintenance et affiche son id.\n",
+        "const vaisseaux = [\n  { id: 'VAIS-01', etat: 'op' },\n  { id: 'VAIS-02', etat: 'maintenance' },\n  { id: 'VAIS-03', etat: 'op' }\n];\n// Trouve le premier vaisseau en maintenance et affiche son id.\n",
       placeholder: "// Utilise find pour trouver le premier en maintenance",
       narrator:
-        "Le commandant veut savoir quel vaisseau est en maintenance. Utilise find() pour trouver le premier element qui correspond, et affiche son id.",
-      hint: "const ship = ships.find((s) => s.etat === 'maintenance');\nconsole.log(ship.id);",
+        "Le commandant veut savoir quel vaisseau est en maintenance. Utilise find() pour trouver le premier élément qui correspond, et affiche son id.",
+      hint: "const vaisseau = vaisseaux.find((v) => v.etat === 'maintenance');\nconsole.log(vaisseau.id);",
       briefing: {
         title: "Array.find()",
         content: `
 ### A quoi sert find ?
-Retourne **le premier element** qui satisfait une condition. **Pas un tableau**, juste l'element (ou undefined).
+Retourne **le premier élément** qui satisfait une condition. **Pas un tableau**, juste l'élément (ou undefined).
 
 ### Difference avec filter
-- **filter** : retourne TOUS les elements qui matchent (tableau).
+- **filter** : retourne TOUS les éléments qui matchent (tableau).
 - **find** : retourne LE PREMIER (objet ou undefined).
 
 ### Exemple
-\`const ship = ships.find((s) => s.etat === 'maintenance');\`
-\`// { id: 'NEB-02', etat: 'maintenance' }\`
+\`const vaisseau = vaisseaux.find((v) => v.etat === 'maintenance');\`
+\`// { id: 'VAIS-02', etat: 'maintenance' }\`
 
 ### Si rien ne matche
-\`const ship = ships.find((s) => s.id === 'XXX');\`
+\`const vaisseau = vaisseaux.find((v) => v.id === 'XXX');\`
 \`// undefined\`
 
-**Reflexe :** verifie toujours que le resultat n'est pas undefined avant d'acceder a ses proprietes.
+**Reflexe :** vérifie toujours que le résultat n'est pas undefined avant d'accéder à ses propriétés.
 
-\`if (ship) console.log(ship.id);\`
+\`if (vaisseau) console.log(vaisseau.id);\`
 
 ### findIndex
-Variante qui retourne **l'index** au lieu de l'element :
-\`const i = ships.findIndex((s) => s.etat === 'maintenance');\`
+Variante qui retourne **l'index** au lieu de l'élément :
+\`const i = vaisseaux.findIndex((v) => v.etat === 'maintenance');\`
 \`// 1\`
 
-### Methodes voisines
-- **some(callback)** : retourne true si AU MOINS UN element matche.
-- **every(callback)** : retourne true si TOUS les elements matchent.
+### Méthodes voisines
+- **some(callback)** : retourne true si AU MOINS UN élément matche.
+- **every(callback)** : retourne true si TOUS les éléments matchent.
 
-**A retenir :** find = "donne-moi le premier qui...". Le plus simple et utile au quotidien.
+**À retenir :** find = "donne-moi le premier qui...". Le plus simple et utile au quotidien.
         `,
       },
       objectives: [
         { id: "o4a", label: "Utiliser .find() sur le tableau" },
-        { id: "o4b", label: "Afficher 'NEB-02'" },
+        { id: "o4b", label: "Afficher 'VAIS-02'" },
       ],
       missionIcon: "🔎",
       missionTag: "PROTOCOLE 04",
       missionTtl: "RECHERCHE CIBLEE",
       bannerIcon: "🔎",
-      bannerTtl: "VAISSEAU LOCALISE",
-      bannerSub: "find a renvoye le premier element correspondant.",
+      bannerTtl: "VAISSEAU LOCALISÉ",
+      bannerSub: "find a renvoyé le premier élément correspondant.",
       bannerXp: "⚡ +65 XP",
     },
   ],

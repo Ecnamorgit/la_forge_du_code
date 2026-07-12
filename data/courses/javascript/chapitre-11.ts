@@ -19,6 +19,8 @@ export const chapitre11: ChapterData = {
       briefing: {
         title: "La fonction fetch()",
         content: `
+*« Nos coordonnées viennent du central, pas de nulle part. \`fetch\` ouvre la liaison ; le \`.then\` traite la réponse quand elle nous parvient. »* — **Kira**
+
 ### Qu'est-ce que fetch ?
 \`fetch()\` est la fonction native de JavaScript pour faire des requetes reseau (HTTP). Elle permet de demander des donnees a un serveur distant.
 
@@ -69,56 +71,52 @@ Cette methode renvoie **elle aussi** une Promesse ! Il faut donc chainer un seco
 \`fetch('https://api.url.com/data')\`
 \`  .then(reponse => reponse.json())\`
 \`  .then(donnees => {\`
-\`    // Ici, "donnees" est un vrai objet JS ou un tableau\`
-\`    console.log(donnees.nom);\`
+\`    // Ici, "donnees" contient l'objet JSON decode\n\`
+\`    console.log(donnees);\`\n\`
 \`  });\`
 
-**A retenir :** Requete \`fetch\` -> transformation \`.json()\` -> utilisation des donnees \`data\`.
+**A retenir :** \`fetch()\` retourne une Promise qui se resout avec un objet Response. Utilisez \`response.json()\` pour obtenir le contenu au format JSON.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Utiliser response.json() dans le premier .then()" },
-        { id: "o2b", label: "Ajouter un second .then() pour logger les donnees" },
+        { id: "o2a", label: "Utiliser .json() pour decoder la reponse" },
+        { id: "o2b", label: "Logger l'objet JSON decode" },
       ],
-      missionIcon: "📦",
+      missionIcon: "⚙️",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "DECODAGE JSON",
-      bannerIcon: "📦",
-      bannerTtl: "DONNEES DECODEES",
-      bannerSub: "Le message JSON a ete transforme en objet utilisable.",
+      missionTtl: "DECODEUR",
+      bannerIcon: "⚙️",
+      bannerTtl: "DONNEES DÉCODÉES",
+      bannerSub: "Le contenu JSON est maintenant exploitable.",
       bannerXp: "⚡ +70 XP",
     },
     {
       startCode:
-        "// Recris la requete de l'etape precedente de maniere moderne.\n// Cree une fonction : async function getVaisseau() { ... }\n// Dedans, utilise le mot-cle await pour fetch et .json(), puis logge les donnees.\n",
-      placeholder: "// async function ... await fetch ...",
+        "// Creer une fonction avec le mot-cle async pour getVaisseau.\n// Utilise await pour recuperer et parser les donnees de 'https://api.codeforge.space/vaisseau'.\n",
+      placeholder: "// async function getVaisseau() { ... }",
       narrator:
-        "Les chaines de .then() peuvent devenir illisibles. La nouvelle norme de la flotte utilise la syntaxe async/await. Recris la fonction de recuperation du vaisseau avec cette methode.",
+        "Le code asynchrone peut être rendu plus lisible en utilisant des fonctions async. Cela permet d'utiliser le mot-cle await pour attendre la resolution de la Promise.",
       hint: "async function getVaisseau() {\n  const res = await fetch('https://api.codeforge.space/vaisseau');\n  const data = await res.json();\n  console.log(data);\n}\ngetVaisseau();",
       briefing: {
-        title: "La syntaxe async / await",
+        title: "Syntaxe Async/Await",
         content: `
-### Le probleme de .then()
-Chainer de multiples \`.then()\` rend le code decale vers la droite (ce qu'on appelle le "Callback Hell") et difficile a lire.
+### Asynchrone avec async/await
+La syntaxe \`async / await\` rend le code asynchrone plus lisible et plus facile à écrire. Elle permet de gérer les Promises comme si elles étaient des appels synchrones.
 
-### La solution moderne
-Depuis 2017, JS propose les mots-cles **async** et **await**. Ils permettent d'ecrire du code asynchrone pour qu'il ait l'air synchrone (ligne par ligne).
+1. Déclarez une fonction avec le mot-cle **async**.
+2. Utilisez **await** devant une Promise pour attendre sa résolution.
 
-### Comment l'utiliser ?
-1. Il faut placer le mot-cle **async** devant la fonction.
-2. A l'interieur, on utilise **await** devant une Promise. Le code "met en pause" la fonction jusqu'a ce que la reponse arrive, puis stocke le resultat dans la variable.
-
-\`async function recupererProfil() {\`
-\`  const res = await fetch('api/profil');\`
+\`async function recupererDonnees() {\`
+\`  const res = await fetch('api/donnees');\`
 \`  const data = await res.json();\`
 \`  console.log(data);\`
 \`}\`
 
-**A retenir :** \`await\` supprime le besoin d'ecrire \`.then()\`. Le code redevient clair et vertical.
+**A retenir :** \`await\` rend le code asynchrone synchrone en apparence, ce qui facilite sa lecture.
         `,
       },
       objectives: [
-        { id: "o3a", label: "Creer une fonction avec le mot-cle async" },
+        { id: "o3a", label: "Creer une fonction async getVaisseau" },
         { id: "o3b", label: "Utiliser await pour recuperer et parser les donnees" },
       ],
       missionIcon: "⚡",

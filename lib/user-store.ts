@@ -3,6 +3,8 @@ export interface UserState {
   totalXp: number;
   streak: number;
   lastVisit: string;
+  // ISO date (yyyy-mm-dd) the daily mission was last claimed; "" if never.
+  lastDailyMission: string;
   // Slug of the last course the user interacted with (visited or completed a
   // step in). Used by the dashboard to pre-select the "active" cursus. Null
   // until the user first opens any chapter.
@@ -24,6 +26,7 @@ export const DEFAULT_USER: UserState = {
   totalXp: 0,
   streak: 1,
   lastVisit: "",
+  lastDailyMission: "",
   lastVisitedCourse: null,
   badges: [],
   completedSteps: {},

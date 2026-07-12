@@ -3,83 +3,85 @@ import type { ChapterData } from "@/data/courses/html/types";
 export const chapitre2: ChapterData = {
   slug: "chapitre-2",
   tag: "MISSION : ANALYSE DES DONNEES",
-  title: "OPERATIONS\n& DECISIONS",
-  subtitle: "Calculs, comparaisons et structures de decision",
+  title: "OPÉRATIONS\n& DÉCISIONS",
+  subtitle: "Calculs, comparaisons et structures de décision",
   totalXp: 200,
   completionBadge: "🧮",
   completionBadgeLabel: "ANALYSTE TACTIQUE",
   steps: [
     {
       startCode:
-        "const carburant = 80;\nconst consommation = 12;\n// Affiche le carburant restant apres deux heures\n",
-      placeholder: "// Utilise les operateurs arithmetiques",
+        "const carburant = 80;\nconst consommation = 12;\n// Affiche le carburant restant après deux heures\n",
+      placeholder: "// Utilise les opérateurs arithmétiques",
       narrator:
-        "Premier calcul tactique. Soustrais deux heures de consommation au carburant et affiche le resultat.",
+        "Premier calcul tactique. Soustrais deux heures de consommation au carburant et affiche le résultat.",
       hint:
         "Ecris : console.log(carburant - consommation * 2); — la multiplication est faite avant la soustraction.",
       briefing: {
-        title: "Les operateurs arithmetiques",
+        title: "Les opérateurs arithmétiques",
         content: `
-### Les operateurs principaux
+*« En vol, une erreur de calcul de carburant ne pardonne pas. Compte juste, respecte les priorités, et vérifie toujours ton résultat. »* — **Kira**
+
+### Les opérateurs principaux
 - **+** addition
 - **-** soustraction
 - **\\*** multiplication
 - **/** division
 - **%** modulo (reste de la division)
 
-### Priorite
-JS respecte la priorite usuelle : **\\*** et **/** avant **+** et **-**.
-Pour forcer l'ordre, utilise des parentheses : \`(a + b) * c\`.
+### Priorité
+JS respecte la priorité usuelle : **\\*** et **/** avant **+** et **-**.
+Pour forcer l'ordre, utilise des parenthèses : \`(a + b) * c\`.
 
 ### Exemple
 \`const total = (10 + 5) * 2; // 30\`
 
-**Mission :** calcule **carburant - consommation * 2** et logue le resultat (qui doit valoir 56).
+**Mission :** calcule **carburant - consommation * 2** et logue le résultat (qui doit valoir 56).
         `,
       },
       objectives: [
-        { id: "o1a", label: "Utiliser une operation arithmetique" },
-        { id: "o1b", label: "Afficher le bon resultat (56)" },
+        { id: "o1a", label: "Utiliser une opération arithmétique" },
+        { id: "o1b", label: "Afficher le bon résultat (56)" },
       ],
       missionIcon: "➗",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIER CALCUL",
       bannerIcon: "🧮",
-      bannerTtl: "CALCUL CONFIRME",
+      bannerTtl: "CALCUL CONFIRMÉ",
       bannerSub: "Le rapport de consommation est exact.",
       bannerXp: "⚡ +50 XP",
     },
     {
       startCode:
-        "const niveauOxygene = 35;\n// Affiche true si le niveau est superieur a 50, sinon false\n",
-      placeholder: "// Utilise un operateur de comparaison",
+        "const niveauOxygene = 35;\n// Affiche true si le niveau est supérieur à 50, sinon false\n",
+      placeholder: "// Utilise un opérateur de comparaison",
       narrator:
-        "On veut savoir si l'oxygene est suffisant. Une comparaison renvoie **true** ou **false** — c'est ce qu'on appelle un booleen.",
+        "On veut savoir si l'oxygène est suffisant. Une comparaison renvoie **true** ou **false** — c'est ce qu'on appelle un booléen.",
       hint: "Ecris : console.log(niveauOxygene > 50);",
       briefing: {
-        title: "Comparaisons et booleens",
+        title: "Comparaisons et booléens",
         content: `
-### Les operateurs de comparaison
-- **>** strictement superieur
-- **<** strictement inferieur
-- **>=** superieur ou egal
-- **<=** inferieur ou egal
-- **===** strictement egal (recommande)
-- **!==** strictement different
+### Les opérateurs de comparaison
+- **>** strictement supérieur
+- **<** strictement inférieur
+- **>=** supérieur ou égal
+- **<=** inférieur ou égal
+- **===** strictement égal (recommandé)
+- **!==** strictement différent
 
 ### Ce qu'ils retournent
-Toujours un **booleen** : true ou false.
+Toujours un **booléen** : true ou false.
 
 ### Exemple
 \`const enAlerte = niveauOxygene < 40; // true\`
 
-**Astuce :** preferer **===** a **==** evite des pieges (\`"5" == 5\` est true mais \`"5" === 5\` est false).
+**Astuce :** préfère **===** à **==** évite des pièges (\`"5" == 5\` est true mais \`"5" === 5\` est false).
 
-**Mission :** affiche le resultat de **niveauOxygene > 50** (doit afficher \`false\` ici).
+**Mission :** affiche le résultat de **niveauOxygene > 50** (doit afficher \`false\` ici).
         `,
       },
       objectives: [
-        { id: "o2a", label: "Utiliser un operateur de comparaison" },
+        { id: "o2a", label: "Utiliser un opérateur de comparaison" },
         { id: "o2b", label: "Afficher false dans ce contexte" },
       ],
       missionIcon: "⚖",
@@ -95,7 +97,7 @@ Toujours un **booleen** : true ou false.
         'const niveauBouclier = 25;\n// Si le bouclier est sous 30, affiche "ALERTE", sinon "OK"\n',
       placeholder: "// Utilise if / else",
       narrator:
-        "L'equipage doit etre prevenu si le bouclier est trop bas. Implemente une condition.",
+        "L'équipage doit être prévenu si le bouclier est trop bas. Implémente une condition.",
       hint:
         'Utilise : if (niveauBouclier < 30) { console.log("ALERTE"); } else { console.log("OK"); }',
       briefing: {
@@ -103,9 +105,9 @@ Toujours un **booleen** : true ou false.
         content: `
 ### Syntaxe
 \`if (condition) {\`
-\`  // execute si vrai\`
+\`  // exécute si vrai\`
 \`} else {\`
-\`  // execute sinon\`
+\`  // exécute sinon\`
 \`}\`
 
 ### Exemple
@@ -115,9 +117,9 @@ Toujours un **booleen** : true ou false.
 \`  console.log("Continuer la mission");\`
 \`}\`
 
-### A retenir
-- La **condition** est evaluee comme un booleen.
-- Les **accolades** \`{ ... }\` regroupent les instructions a executer.
+### À retenir
+- La **condition** est évaluée comme un booléen.
+- Les **accolades** \`{ ... }\` regroupent les instructions à exécuter.
 - **else** est optionnel.
 
 **Mission :** affiche \`"ALERTE"\` si le bouclier est sous 30, sinon \`"OK"\`.
@@ -131,8 +133,8 @@ Toujours un **booleen** : true ou false.
       missionTag: "PROTOCOLE 03",
       missionTtl: "CONDITIONS DE VOL",
       bannerIcon: "🚨",
-      bannerTtl: "REPONSE ADAPTEE",
-      bannerSub: "Le systeme reagit selon l'etat du bouclier.",
+      bannerTtl: "REPONSE ADAPTÉE",
+      bannerSub: "Le système réagit selon l'état du bouclier.",
       bannerXp: "⚡ +50 XP",
     },
     {
@@ -140,7 +142,7 @@ Toujours un **booleen** : true ou false.
         'const temperature = 72;\n// 3 zones : sous 20 -> "FROID", entre 20 et 80 -> "OK", au-dessus -> "CRITIQUE"\n',
       placeholder: "// Utilise if / else if / else",
       narrator:
-        "Trois zones de temperature a gerer. Empile plusieurs conditions avec **else if**.",
+        "Trois zones de température à gérer. Empile plusieurs conditions avec **else if**.",
       hint:
         'Utilise : if (t < 20) { ... } else if (t <= 80) { ... } else { ... }',
       briefing: {
@@ -156,7 +158,7 @@ Toujours un **booleen** : true ou false.
 \`}\`
 
 ### Ordre important
-JS teste les conditions **dans l'ordre** et s'arrete a la premiere vraie. Place donc les plus specifiques d'abord.
+JS teste les conditions **dans l'ordre** et s'arrête à la première vraie. Place donc les plus spécifiques d'abord.
 
 ### Plus tard
 Pour beaucoup de cas, on utilise **switch** ou des objets de correspondance — pour l'instant, **if/else if/else** suffit.
@@ -172,8 +174,8 @@ Pour beaucoup de cas, on utilise **switch** ou des objets de correspondance — 
       missionTag: "PROTOCOLE 04",
       missionTtl: "TROIS ZONES",
       bannerIcon: "🧭",
-      bannerTtl: "CLASSIFICATION FINE",
-      bannerSub: "Le systeme distingue trois etats distincts.",
+      bannerTtl: "CLASSIFICATION FINIE",
+      bannerSub: "Le système distingue trois états distincts.",
       bannerXp: "⚡ +50 XP",
     },
   ],
