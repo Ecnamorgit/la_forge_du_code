@@ -122,7 +122,7 @@ export default function IntroCinematic({
     onClose();
   }, [onClose]);
 
-  // Repart à la première scène et lit la préférence son à chaque ouverture
+  // Repart à la première scène à chaque ouverture
   // (reset intentionnel : le composant reste monté entre deux ouvertures).
   useEffect(() => {
     if (open) {
