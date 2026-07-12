@@ -20,6 +20,7 @@ export const SPRITE_SHEETS_READY = {
   mission: true,
   banner: true,
   badges: true,
+  intro: false,
 } as const;
 
 /**
@@ -57,6 +58,19 @@ export const BADGE_ICONS: SpriteSheet = {
   frameWidth: 64,
   frameHeight: 64,
   columns: 8,
+};
+
+/**
+ * Frames de la cinématique d'intro : une frame par scène, ordre = INTRO_SCENES
+ * (lib/intro.ts). Sheet : 5 colonnes × 1 ligne × 320×180 = 1600×180.
+ * Livrée plus tard (voir docs/PIXEL_ART_GUIDE.md) ; tant que
+ * SPRITE_SHEETS_READY.intro est false, le composant rend un placeholder.
+ */
+export const INTRO_CINEMATIC: SpriteSheet = {
+  src: "/sprites/intro-cinematic.png",
+  frameWidth: 320,
+  frameHeight: 180,
+  columns: 5,
 };
 
 /** Per-course chapter background. */
