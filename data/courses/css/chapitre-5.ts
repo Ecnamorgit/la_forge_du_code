@@ -44,6 +44,7 @@ Un système de mise en page **bidimensionnel** : lignes ET colonnes en même tem
       objectives: [
         { id: "o1a", label: "Activer display: grid sur .grid" },
       ],
+      docRefs: ["css/grid"],
       missionIcon: "🧭",
       missionTag: "PROTOCOLE 01",
       missionTtl: "DEPLOYER LA GRILLE",

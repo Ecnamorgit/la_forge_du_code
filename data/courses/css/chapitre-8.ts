@@ -51,6 +51,7 @@ Sur un mobile de 375px, le conteneur déborde à droite. L'utilisateur doit scro
         { id: "o1a", label: "Utiliser max-width sur .container" },
         { id: "o1b", label: "Éviter width: 800px en dur" },
       ],
+      docRefs: ["css/media-queries"],
       missionIcon: "📏",
       missionTag: "PROTOCOLE 01",
       missionTtl: "LARGEURS FLUIDES",

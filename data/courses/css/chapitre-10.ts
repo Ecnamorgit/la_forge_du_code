@@ -57,6 +57,7 @@ Tu peux aussi définir des variables dans un sélecteur spécifique. Elles ne se
         { id: "o1a", label: "Définir une variable --color-primary dans :root" },
         { id: "o1b", label: "Utiliser une couleur valide en valeur" },
       ],
+      docRefs: ["css/variables"],
       missionIcon: "🎯",
       missionTag: "PROTOCOLE 01",
       missionTtl: "DECLARATION CENTRALE",

@@ -52,6 +52,7 @@ ou simplement :
         { id: "o1a", label: "Ajouter transition sur .btn" },
         { id: "o1b", label: "Specifier une duree (0.2s a 0.5s)" },
       ],
+      docRefs: ["css/transition"],
       missionIcon: "🌀",
       missionTag: "PROTOCOLE 01",
       missionTtl: "ADOUCISSEMENT",
