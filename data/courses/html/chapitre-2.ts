@@ -11,8 +11,10 @@ export const chapitre2: ChapterData = {
   steps: [
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Relais Orbital</title>\n  </head>\n  <body>\n    <h1>Relais Orbital</h1>\n    \n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Relais Orbital</title>\n  </head>\n  <body>\n    <h1>Relais Orbital</h1>\n    <a herf="https://developer.mozilla.org" target="_blank">Documentation MDN</a>\n  </body>\n</html>',
       placeholder: "<!-- Ajoute un lien externe vers https://developer.mozilla.org -->",
+      spectreTrap:
+        "J'ai retourné les lettres de ton `href`, Cadet. Ce lien ne mène nulle part. Répare l'attribut si tu veux ouvrir la passerelle.",
       narrator:
         "Premiere passerelle de transmission. Ouvre un canal externe vers la documentation MDN. Comme c'est un lien hors de la station, configure-le pour s'ouvrir dans un nouvel onglet.",
       hint: 'Ajoute <a href="https://developer.mozilla.org" target="_blank">Documentation MDN</a>.',

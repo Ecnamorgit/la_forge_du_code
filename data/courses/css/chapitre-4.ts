@@ -11,8 +11,10 @@ export const chapitre4: ChapterData = {
   steps: [
     {
       startCode:
-        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Flexbox</title>\n    <style>\n      body { background-color: #03060d; color: white; font-family: sans-serif; }\n      .item { background-color: cyan; color: black; padding: 16px; border: 2px solid #003a4a; }\n      .container { background-color: #0a1322; padding: 12px; }\n      \n    </style>\n  </head>\n  <body>\n    <div class="container">\n      <div class="item">Vaisseau 1</div>\n      <div class="item">Vaisseau 2</div>\n      <div class="item">Vaisseau 3</div>\n    </div>\n  </body>\n</html>',
+        '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Flexbox</title>\n    <style>\n      body { background-color: #03060d; color: white; font-family: sans-serif; }\n      .item { background-color: cyan; color: black; padding: 16px; border: 2px solid #003a4a; }\n      .container { background-color: #0a1322; padding: 12px; display: flexbox; }\n      \n    </style>\n  </head>\n  <body>\n    <div class="container">\n      <div class="item">Vaisseau 1</div>\n      <div class="item">Vaisseau 2</div>\n      <div class="item">Vaisseau 3</div>\n    </div>\n  </body>\n</html>',
       placeholder: "<!-- Active flexbox sur .container -->",
+      spectreTrap:
+        "Regarde tes chasseurs s'entasser, Cadet. J'ai glissé un `display: flexbox` là où le protocole n'en connaît pas. Corrige, ou reste au sol.",
       narrator:
         "Les vaisseaux sont empiles verticalement par défaut. Activez Flexbox sur le conteneur pour les aligner côte à côte, en formation.",
       hint: "Ajoutez : .container { display: flex; }",

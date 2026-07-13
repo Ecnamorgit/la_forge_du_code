@@ -100,6 +100,17 @@ export default function ChapterWorkspace({
     return () => clearTimeout(detectTimerRef.current);
   }, []);
 
+  // Étape-piège : à l'ouverture, Le Spectre fond sur la console (beat + son).
+  // Montage uniquement — le composant est remonté par étape (clé).
+  useEffect(() => {
+    if (step.spectreTrap) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- flourish volontaire au montage
+      setEnemyState({ type: "fly", trigger: 1 });
+      playBreach();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (!isJs && iframeRef.current) {
       iframeRef.current.srcdoc = step.startCode;
