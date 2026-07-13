@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getDocEntry } from "@/data/docs/html";
+import { getDocEntry } from "@/data/docs";
 import { renderLessonMarkdown } from "@/lib/markdown";
 
 interface DocPanelProps {
