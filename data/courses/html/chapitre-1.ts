@@ -13,11 +13,13 @@ export const chapitre1: ChapterData = {
       startCode: "",
       placeholder: "<!-- Écris ton code ici -->",
       narrator:
-        "Ingénieur, nous commençons par les fondations. Sans un protocole d'identification et une enceinte pressurisée, la base lunaire s'effondrera.",
+        "Cadet, nous commençons par les fondations. Sans un protocole d'identification et une enceinte pressurisée, la base lunaire s'effondrera.",
       hint: 'Utilise &lt;!DOCTYPE html&gt; puis &lt;html&gt;&lt;/html&gt;.',
       briefing: {
         title: "Les Fondations de l'Acier Numérique",
         content: `
+*« Pas de base sans fondations. Le \`<!DOCTYPE>\` et la balise racine, c'est l'enceinte qui tient tout le reste — on ne pose rien tant qu'elle n'est pas scellée. »* — **Kira**
+
 ### Le Signal d'Amorce : [[doc:html/doctype|<!DOCTYPE html>]]
 Imaginez que vous envoyez un message à un alien. Avant de parler, vous devez lui dire quelle langue vous utilisez.
 **<!DOCTYPE html>** n'est pas une balise HTML, c'est une "déclaration". Elle dit au navigateur (Chrome, Firefox) : *"Attention, je vais te parler en HTML5, la version la plus moderne et puissante du langage."*
@@ -107,7 +109,7 @@ C'est une tradition ancestrale chez les codeurs. Écrire "Hello World" est la pr
       missionTtl: "SIGNAL DE VIE",
       bannerIcon: "🌍",
       bannerTtl: "SYSTÈME OPÉRATIONNEL",
-      bannerSub: "Le signal a atteint la Terre. Félicitations, Ingénieur !",
+      bannerSub: "Le signal a atteint la Terre. Félicitations, Cadet !",
       bannerXp: "⚡ +50 XP",
     },
   ],

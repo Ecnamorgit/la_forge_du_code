@@ -14,11 +14,13 @@ export const chapitre7: ChapterData = {
         '<!DOCTYPE html>\n<html>\n  <head>\n    \n  </head>\n  <body>\n    <h1>Relais Spatial</h1>\n  </body>\n</html>',
       placeholder: "<!-- Configure lang sur <html> et ajoute <meta charset> et viewport -->",
       narrator:
-        "Ingénieur des transmissions, configurons les paramètres fondamentaux de notre en-tête. Déclare la langue par défaut du dock sur 'fr', définis l'encodage charset sur UTF-8 pour les logs de communication, et ajuste le viewport pour les terminaux mobiles de l'équipage.",
+        "Cadet, configurons les paramètres fondamentaux de notre en-tête. Déclare la langue par défaut du dock sur 'fr', définis l'encodage charset sur UTF-8 pour les logs de communication, et ajuste le viewport pour les terminaux mobiles de l'équipage.",
       hint: 'Ajoute lang="fr" sur <html>, et dans <head>, place <meta charset="utf-8" /> ainsi que <meta name="viewport" content="width=device-width, initial-scale=1.0" />.',
       briefing: {
         title: "Metadonnées globales",
         content: `
+*« Avant d'émettre, on règle la fréquence. Langue, encodage, viewport : ces méta-réglages garantissent que ton signal est lu correctement sur tous les terminaux. »* — **Kira**
+
 ### L'attribut lang
 Configure sur la balise racine **<html>**, il declare au systeme la langue principale utilisee pour les communications du dock (ex : \`lang="fr"\`).
 

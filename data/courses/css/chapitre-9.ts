@@ -19,6 +19,8 @@ export const chapitre9: ChapterData = {
       briefing: {
         title: "transition",
         content: `
+*« Un changement brutal fatigue l'œil en poste long. Une \`transition\`, et l'état passe en douceur — le confort aussi, c'est de l'ingénierie. »* — **Kira**
+
 ### Le probleme
 Sans transition, un changement de propriete est **instantane** au :hover ou :focus. Visuellement brutal.
 

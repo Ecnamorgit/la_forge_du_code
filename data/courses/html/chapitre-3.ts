@@ -14,11 +14,13 @@ export const chapitre3: ChapterData = {
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Oeil Orbital</title>\n  </head>\n  <body>\n    <h1>Galerie de la station</h1>\n    \n  </body>\n</html>',
       placeholder: "<!-- Capture une image avec <img> -->",
       narrator:
-        "Ingénieur de soute, branchons le premier capteur visuel de notre dock d'amarrage. La balise <img> permet d'afficher le flux vidéo en direct, mais elle a besoin d'indiquer sa source et d'une description alternative en cas de perte de signal.",
+        "Cadet, branchons le premier capteur visuel de notre dock d'amarrage. La balise <img> permet d'afficher le flux vidéo en direct, mais elle a besoin d'indiquer sa source et d'une description alternative en cas de perte de signal.",
       hint: 'Utilise <img src="..." alt="...">. Une URL d\'exemple : "https://placehold.co/200x120".',
       briefing: {
         title: "Capter une image",
         content: `
+*« Un capteur sans légende ne sert à rien dans le noir. Renseigne toujours le \`alt\` : c'est ce que « voient » les officiers privés d'écran. »* — **Kira**
+
 ### La balise <img>
 La balise **<img>** affiche une image sur la console de controle. C'est une balise **auto-fermante** : pas besoin de balise fermante </img>.
 

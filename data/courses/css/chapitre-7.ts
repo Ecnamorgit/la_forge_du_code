@@ -19,6 +19,8 @@ export const chapitre7: ChapterData = {
       briefing: {
         title: "Pseudo-classe :hover",
         content: `
+*« Une console qui ne réagit pas au contact inquiète l'équipage. \`:hover\`, \`:focus\` : style tes éléments selon leur état, donne-leur un signe de vie. »* — **Kira**
+
 ### Qu'est-ce qu'une pseudo-classe ?
 Une **pseudo-classe** cible un élément selon son **état** plutôt que sa classe statique. Format : **selecteur:pseudo-classe**.
 

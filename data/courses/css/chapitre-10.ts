@@ -19,6 +19,8 @@ export const chapitre10: ChapterData = {
       briefing: {
         title: "Définir une variable CSS",
         content: `
+*« Une couleur recopiée dix fois, c'est dix pannes à venir. Centralise sur \`:root\` avec des variables : tu changes la teinte de toute la flotte en une ligne. »* — **Kira**
+
 ### Variables CSS = Custom Properties
 Une variable CSS est une valeur réutilisable, définie une fois, accessible partout.
 

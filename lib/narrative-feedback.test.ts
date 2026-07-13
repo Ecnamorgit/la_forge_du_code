@@ -4,6 +4,7 @@ import {
   getSuccessHeader,
   getSpectreTaunt,
   inferToneFromError,
+  resolveErrorTone,
   SPECTRE_TAUNT_THRESHOLD,
 } from "./narrative-feedback";
 
@@ -73,5 +74,27 @@ describe("inferToneFromError", () => {
   it("renvoie undefined pour les autres erreurs ou l'absence d'erreur", () => {
     expect(inferToneFromError("TypeError: x is not a function")).toBeUndefined();
     expect(inferToneFromError(null)).toBeUndefined();
+  });
+});
+
+describe("resolveErrorTone", () => {
+  it("priorise la tonalité fournie par le validateur", () => {
+    expect(resolveErrorTone("syntax", null, "html")).toBe("syntax");
+    expect(resolveErrorTone("syntax", "SyntaxError: x", "javascript")).toBe("syntax");
+  });
+
+  it("utilise l'inférence depuis l'erreur JS quand le validateur n'a rien fixé", () => {
+    expect(
+      resolveErrorTone(undefined, "Execution interrompue apres 3s (boucle infinie).", "javascript")
+    ).toBe("logic");
+  });
+
+  it("retombe sur le défaut du langage : HTML (et CSS servi en html) → structure", () => {
+    expect(resolveErrorTone(undefined, null, "html")).toBe("structure");
+  });
+
+  it("laisse JS/SQL en générique (undefined) sans tonalité ni inférence", () => {
+    expect(resolveErrorTone(undefined, null, "javascript")).toBeUndefined();
+    expect(resolveErrorTone(undefined, null, "sql")).toBeUndefined();
   });
 });

@@ -19,6 +19,8 @@ export const chapitre4: ChapterData = {
       briefing: {
         title: "Les listes a puces",
         content: `
+*« Un inventaire, ça se tient en ordre. Une puce par module, et rien d'autre qu'un \`<li>\` dans un \`<ul>\`. »* — **Kira**
+
 ### La balise <ul>
 **<ul>** signifie *unordered list* — liste **sans ordre particulier**. La console affiche une puce devant chaque compartiment.
 

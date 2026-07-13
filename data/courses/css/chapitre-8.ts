@@ -19,6 +19,8 @@ export const chapitre8: ChapterData = {
       briefing: {
         title: "max-width vs width",
         content: `
+*« Un écran de passerelle et un terminal de poche n'ont pas la même taille. \`max-width\` + \`width: 100%\` : ton dock s'adapte au lieu de déborder. »* — **Kira**
+
 ### Le problème de width fixe
 \`.container { width: 800px; }\`
 Sur un mobile de 375px, le conteneur déborde à droite. L'utilisateur doit scroller horizontalement — pire expérience web qui soit.

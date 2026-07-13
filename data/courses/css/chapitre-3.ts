@@ -19,6 +19,8 @@ export const chapitre3: ChapterData = {
       briefing: {
         title: "Largeur et hauteur",
         content: `
+*« Chaque module occupe un volume précis dans la soute. \`width\` et \`height\` réservent sa place ; connais ta boîte avant de l'empiler. »* — **Kira**
+
 ### Les propriétés width et height
 - **width** : la largeur de l'élément.
 - **height** : la hauteur de l'élément.
