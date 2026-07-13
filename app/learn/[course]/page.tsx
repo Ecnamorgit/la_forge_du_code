@@ -5,6 +5,7 @@ import BrandLogo from "@/components/ui/BrandLogo";
 import LevelNodeComponent, { type LevelNode } from "./LevelNode";
 import { getChaptersMeta } from "@/lib/courses-meta";
 import { getCourseStatus } from "@/lib/courses-catalog";
+import NullProgressBar from "@/components/lesson/NullProgressBar";
 
 const HTML_LEVELS: LevelNode[] = [
   {
@@ -642,6 +643,10 @@ export default async function CourseMapPage({
           </h1>
         </div>
         <div className="w-24" />
+      </div>
+
+      <div className="relative z-20 mx-auto max-w-3xl px-4 pt-1">
+        <NullProgressBar course={course} chapters={chaptersMeta} />
       </div>
 
       {isPreview && (
