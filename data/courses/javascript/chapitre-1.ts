@@ -10,7 +10,9 @@ export const chapitre1: ChapterData = {
   completionBadgeLabel: "OPERATEUR RADIO",
   steps: [
     {
-      startCode: "// Affiche un message dans la console\n",
+      startCode: 'consol.log("Bonjour, station Nebula");\n',
+      spectreTrap:
+        "J'ai brouillé ton émetteur, Cadet. Ce `consol.log` ne répond plus — retrouve le bon canal, si tu en es capable.",
       placeholder: "// Ecris ton code ici",
       narrator:
         "Cadet, ton premier ordre est d'envoyer un signal radio. En JavaScript, on parle à la console via console.log.",
