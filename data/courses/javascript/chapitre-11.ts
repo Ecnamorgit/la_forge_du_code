@@ -42,6 +42,7 @@ Une Promise represente une valeur qui sera disponible *plus tard*. Pour executer
         { id: "o1a", label: "Utiliser fetch avec la bonne URL" },
         { id: "o1b", label: "Chainer un .then() et logger la reponse" },
       ],
+      docRefs: ["js/fetch"],
       missionIcon: "📡",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIER CONTACT",

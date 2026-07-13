@@ -53,6 +53,7 @@ Tu cree **rarement** des Promises a la main. Les APIs (**fetch**, **setTimeout-a
         { id: "o1a", label: "Utiliser new Promise + setTimeout" },
         { id: "o1b", label: "Logger 'OK' dans un .then()" },
       ],
+      docRefs: ["js/async"],
       missionIcon: "⏳",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PROMESSE FUTURE",

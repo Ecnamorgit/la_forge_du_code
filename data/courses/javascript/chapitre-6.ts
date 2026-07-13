@@ -50,6 +50,7 @@ Tu as un tableau, tu veux **un nouveau tableau de même taille** où chaque él�
         { id: "o1a", label: "Utiliser .map() sur le tableau" },
         { id: "o1b", label: "Afficher le nouveau tableau" },
       ],
+      docRefs: ["js/array-methods"],
       missionIcon: "🔁",
       missionTag: "PROTOCOLE 01",
       missionTtl: "TRANSFORMATION",

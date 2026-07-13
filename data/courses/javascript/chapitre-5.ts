@@ -45,6 +45,7 @@ export const chapitre5: ChapterData = {
         { id: "o1a", label: "Déclarer un objet avec >= 3 propriétés" },
         { id: "o1b", label: "L'afficher avec console.log" },
       ],
+      docRefs: ["js/objets"],
       missionIcon: "🗂",
       missionTag: "PROTOCOLE 01",
       missionTtl: "FICHE VAISSAUX",

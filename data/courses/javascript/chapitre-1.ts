@@ -40,6 +40,7 @@ export const chapitre1: ChapterData = {
         { id: "o1a", label: "Utiliser console.log" },
         { id: "o1b", label: 'Afficher "Bonjour, station Nebula"' },
       ],
+      docRefs: ["js/console"],
       missionIcon: "📡",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIER SIGNAL",

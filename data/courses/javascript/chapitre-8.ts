@@ -59,6 +59,7 @@ Pour détacher un listener, il faut la **MÊME référence de fonction** que cel
         { id: "o1a", label: "Utiliser addEventListener('click', ...)" },
         { id: "o1b", label: "Logger 'PEW' au moins 2 fois" },
       ],
+      docRefs: ["js/events"],
       missionIcon: "🖱",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIER LISTENER",
