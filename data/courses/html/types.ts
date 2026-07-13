@@ -23,6 +23,11 @@ export interface ValidationResult {
 export interface Step {
   startCode: string;
   placeholder: string;
+  /**
+   * Étape-piège : Le Spectre a corrompu le `startCode`, à réparer. La valeur est
+   * sa raillerie, affichée à la place de la boîte narrateur. Absent = étape normale.
+   */
+  spectreTrap?: string;
   narrator: string;
   hint: string;
   briefing: {

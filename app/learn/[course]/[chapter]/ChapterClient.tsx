@@ -311,14 +311,25 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             {step.briefing.title}
           </h2>
 
-          <div className="mb-8 border-l-2 border-nebula-cyan/40 bg-nebula-cyan-faint/40 px-5 py-4">
-            <div className="mb-1.5 font-tech text-[10px] uppercase tracking-widest text-nebula-cyan">
-              {CHARACTERS.kira.glyph} {CHARACTERS.kira.title} {CHARACTERS.kira.name}
+          {step.spectreTrap ? (
+            <div className="mb-8 border-l-2 border-nebula-spectre/60 bg-nebula-spectre/10 px-5 py-4">
+              <div className="mb-1.5 font-tech text-[10px] uppercase tracking-widest text-nebula-spectre">
+                {CHARACTERS.spectre.glyph} {CHARACTERS.spectre.title} {CHARACTERS.spectre.name}
+              </div>
+              <p className="font-body text-base italic leading-relaxed text-nebula-text-secondary">
+                {step.spectreTrap}
+              </p>
             </div>
-            <p className="font-body text-base italic leading-relaxed text-nebula-text-secondary">
-              {step.narrator}
-            </p>
-          </div>
+          ) : (
+            <div className="mb-8 border-l-2 border-nebula-cyan/40 bg-nebula-cyan-faint/40 px-5 py-4">
+              <div className="mb-1.5 font-tech text-[10px] uppercase tracking-widest text-nebula-cyan">
+                {CHARACTERS.kira.glyph} {CHARACTERS.kira.title} {CHARACTERS.kira.name}
+              </div>
+              <p className="font-body text-base italic leading-relaxed text-nebula-text-secondary">
+                {step.narrator}
+              </p>
+            </div>
+          )}
 
           <div
             className="prose-nebula font-body text-base leading-relaxed text-nebula-text/90"
