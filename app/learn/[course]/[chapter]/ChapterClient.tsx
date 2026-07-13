@@ -23,6 +23,7 @@ import { getChapterBackground, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import { CHARACTERS } from "@/lib/characters";
 import { getSqlStepConfig } from "@/lib/sandbox/sql-seeds";
 import { getBadgeForChapter } from "@/lib/courses-meta";
+import { combatThemeForCourse } from "@/lib/combat-theme";
 import { badgeFrameById } from "@/lib/badges-catalog";
 import { renderLessonMarkdown } from "@/lib/markdown";
 import { getDocEntry } from "@/data/docs/html";
@@ -431,6 +432,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             onStepSuccess={handleStepSuccess}
             onDeploy={() => setMobileTab("output")}
             onTeleportFlash={() => setTeleportFlash((prev) => prev + 1)}
+            combatTheme={combatThemeForCourse(course)}
           />
         </div>
       </div>
