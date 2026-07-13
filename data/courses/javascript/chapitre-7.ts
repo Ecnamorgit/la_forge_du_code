@@ -49,6 +49,7 @@ Retourne le contenu HTML actuel du body — utile pour debugger ce qu'on vient d
         { id: "o1a", label: "Utiliser document.createElement" },
         { id: "o1b", label: "Afficher 'Centre de commande' dans le innerHTML" },
       ],
+      docRefs: ["js/dom"],
       missionIcon: "➕",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIER ELEMENT",

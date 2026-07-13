@@ -43,6 +43,7 @@ Pour forcer l'ordre, utilise des parenthèses : \`(a + b) * c\`.
         { id: "o1a", label: "Utiliser une opération arithmétique" },
         { id: "o1b", label: "Afficher le bon résultat (56)" },
       ],
+      docRefs: ["js/conditions"],
       missionIcon: "➗",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIER CALCUL",

@@ -42,6 +42,7 @@ REST (REpresentational State Transfer) est une convention pour structurer les AP
         { id: "o1a", label: "Utiliser fetch sans option (GET par défaut)" },
         { id: "o1b", label: "Vérifier response.ok et logger les données" },
       ],
+      docRefs: ["js/rest"],
       missionIcon: "🛰",
       missionTag: "PROTOCOLE 01",
       missionTtl: "LECTURE REST",

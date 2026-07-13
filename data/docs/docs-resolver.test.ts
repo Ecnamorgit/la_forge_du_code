@@ -8,6 +8,9 @@ describe("getDocEntry (multi-domaine)", () => {
   it("résout une fiche CSS", () => {
     expect(getDocEntry("css/flexbox")?.id).toBe("css/flexbox");
   });
+  it("résout une fiche JS", () => {
+    expect(getDocEntry("js/fetch")?.id).toBe("js/fetch");
+  });
   it("renvoie undefined pour un id inconnu", () => {
     expect(getDocEntry("css/inconnu")).toBeUndefined();
   });

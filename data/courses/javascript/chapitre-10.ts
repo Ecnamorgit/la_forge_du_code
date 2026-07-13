@@ -49,6 +49,7 @@ Dans cet éditeur, le localStorage est un **polyfill en mémoire** : les valeurs
         { id: "o1a", label: "Utiliser localStorage.setItem('theme', 'dark')" },
         { id: "o1b", label: "Afficher 'dark' via getItem" },
       ],
+      docRefs: ["js/localstorage"],
       missionIcon: "💾",
       missionTag: "PROTOCOLE 01",
       missionTtl: "ÉCRITURE & LECTURE",

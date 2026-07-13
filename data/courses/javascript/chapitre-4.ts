@@ -44,6 +44,7 @@ Avec un **index commencant a 0** :
         { id: "o1a", label: "Declarer un tableau (au moins 3 elements)" },
         { id: "o1b", label: "L'afficher avec console.log" },
       ],
+      docRefs: ["js/tableaux"],
       missionIcon: "📦",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIER INVENTAIRE",
