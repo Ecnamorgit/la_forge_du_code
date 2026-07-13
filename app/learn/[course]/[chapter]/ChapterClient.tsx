@@ -26,7 +26,7 @@ import { getBadgeForChapter } from "@/lib/courses-meta";
 import { combatThemeForCourse } from "@/lib/combat-theme";
 import { badgeFrameById } from "@/lib/badges-catalog";
 import { renderLessonMarkdown } from "@/lib/markdown";
-import { getDocEntry } from "@/data/docs/html";
+import { getDocEntry } from "@/data/docs";
 import DocPanel from "@/components/docs/DocPanel";
 
 interface ChapterClientProps {

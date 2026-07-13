@@ -46,6 +46,7 @@ Chaque élément HTML est une **boîte** rectangulaire. Width et height définis
         { id: "o1a", label: "Définir une width" },
         { id: "o1b", label: "Définir une height" },
       ],
+      docRefs: ["css/box-model"],
       missionIcon: "📏",
       missionTag: "PROTOCOLE 01",
       missionTtl: "CALIBRER LE MODULE",

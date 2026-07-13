@@ -45,6 +45,7 @@ Les **enfants directs** du conteneur (.item) deviennent des **flex items** et s'
       objectives: [
         { id: "o1a", label: "Activer display: flex sur .container" },
       ],
+      docRefs: ["css/flexbox"],
       missionIcon: "🛬",
       missionTag: "PROTOCOLE 01",
       missionTtl: "DEPLOIEMENT EN LIGNE",

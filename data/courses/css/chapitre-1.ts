@@ -41,6 +41,7 @@ export const chapitre1: ChapterData = {
         { id: "o1a", label: "Ajouter une balise <style> dans <head>" },
         { id: "o1b", label: "Fermer la balise </style>" },
       ],
+      docRefs: ["css/style"],
       missionIcon: "🖌",
       missionTag: "PROTOCOLE 01",
       missionTtl: "BRANCHER LA CONSOLE",

@@ -48,6 +48,7 @@ L'élément **reste dans le flux** (les autres éléments gardent leur place), m
         { id: "o1a", label: "Définir position: relative sur .badge" },
         { id: "o1b", label: "Ajouter top et left non nuls" },
       ],
+      docRefs: ["css/position"],
       missionIcon: "📍",
       missionTag: "PROTOCOLE 01",
       missionTtl: "DÉPLACEMENT RELATIF",

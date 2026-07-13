@@ -49,6 +49,7 @@ Cible un élément **quand le curseur le survole**.
         { id: "o1a", label: "Cibler .btn:hover" },
         { id: "o1b", label: "Changer une propriété (background, color, etc.)" },
       ],
+      docRefs: ["css/pseudo-classes"],
       missionIcon: "👆",
       missionTag: "PROTOCOLE 01",
       missionTtl: "REACTION AU SURVOL",
