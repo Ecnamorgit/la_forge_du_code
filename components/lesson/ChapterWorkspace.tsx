@@ -20,6 +20,7 @@ import {
   type ErrorTone,
 } from "@/lib/narrative-feedback";
 import { CHARACTERS } from "@/lib/characters";
+import type { CombatTheme } from "@/lib/combat-theme";
 
 type Language = "html" | "javascript" | "sql";
 
@@ -27,6 +28,8 @@ interface ChapterWorkspaceProps {
   step: Step;
   validate: Validator;
   language?: Language;
+  /** Cursus combat theme, passed through to the CombatVisualizer. */
+  combatTheme?: CombatTheme;
   /** Per-step seed/verify SQL, required for the SQL cursus. */
   sqlConfig?: SqlRunOptions;
   /** On screens below `lg`, only one internal panel is shown at a time. */
@@ -62,6 +65,7 @@ export default function ChapterWorkspace({
   step,
   validate,
   language = "html",
+  combatTheme = "turret",
   sqlConfig,
   mobilePanel,
   onStepSuccess,
@@ -233,6 +237,7 @@ export default function ChapterWorkspace({
           <CombatVisualizer
             outcome={enemyState.type}
             trigger={enemyState.trigger}
+            theme={combatTheme}
           />
           {feedback.type === "idle" && (
             <>

@@ -723,6 +723,8 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-emitter-charge,
   .animate-laser-fire,
+  .animate-combat-repair,
+  .animate-combat-field,
   .animate-screen-shake,
   .animate-enemy-fly,
   .animate-enemy-explode,
@@ -743,6 +745,42 @@
   border-bottom: 7px solid transparent;
   border-left: 12px solid var(--cyan, #00f0ff);
   filter: drop-shadow(0 0 4px var(--cyan, #00f0ff));
+}
+
+/* HTML "repair" : un segment de structure s'assemble avec un flash de soudure vert. */
+@keyframes combat-repair {
+  0%   { opacity: 0; transform: translateY(-50%) scale(0.3); filter: brightness(1); }
+  40%  { opacity: 1; transform: translateY(-50%) scale(1.15); filter: brightness(2.4) drop-shadow(0 0 10px var(--green, #00ff88)); }
+  100% { opacity: 1; transform: translateY(-50%) scale(1); filter: brightness(1); }
+}
+.animate-combat-repair {
+  animation: combat-repair 0.55s ease-out forwards;
+}
+/* Segment structurel vert. */
+.combat-brick {
+  width: 14px;
+  height: 14px;
+  background: var(--green, #00ff88);
+  box-shadow: 0 0 6px var(--green, #00ff88);
+}
+
+/* CSS "field" : un dôme d'énergie cyan se déploie autour de l'émetteur. */
+@keyframes combat-field {
+  0%   { opacity: 0; transform: translateY(-50%) scale(0.2); }
+  50%  { opacity: 0.9; transform: translateY(-50%) scale(1.1); }
+  100% { opacity: 0.35; transform: translateY(-50%) scale(1); }
+}
+.animate-combat-field {
+  animation: combat-field 0.6s ease-out forwards;
+}
+/* Dôme d'énergie cyan translucide. */
+.combat-field {
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  border: 2px solid var(--cyan, #00f0ff);
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.18), transparent 70%);
+  box-shadow: 0 0 12px var(--cyan, #00f0ff);
 }
 
 /* Cinématique d'intro */
