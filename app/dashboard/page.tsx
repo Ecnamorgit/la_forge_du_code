@@ -39,6 +39,17 @@ export default function DashboardPage() {
     }
   }, [hydrated, state, router]);
 
+  if (!hydrated || !hasAvatar(state)) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-nebula-bg text-nebula-cyan font-tech text-xs tracking-widest uppercase">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-nebula-cyan border-t-transparent" />
+          <span>Liaison orbitale...</span>
+        </div>
+      </div>
+    );
+  }
+
   const username = session?.user?.username || state.username || "Cadet";
   const totalXp = state.totalXp;
   const level = levelFromXp(totalXp);
