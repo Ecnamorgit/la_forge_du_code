@@ -34,6 +34,24 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const { state, hydrated } = useUser();
 
+  // Pick the user's current course from their progress.
+  const activeCourseSlug = useMemo(() => {
+    const candidateSlugs = COURSES_CATALOG.map((c) => c.slug);
+    const totalStepsByCourse = Object.fromEntries(
+      candidateSlugs.map((slug) => [
+        slug,
+        (CHAPTER_SUMMARIES[slug] ?? []).reduce((s, c) => s + c.totalSteps, 0),
+      ])
+    );
+    return getActiveCourseSlug(state, candidateSlugs, totalStepsByCourse);
+  }, [state]);
+
+  const activeCourse = getCourseInfo(activeCourseSlug);
+  const chaptersMeta = useMemo(
+    () => getChaptersMeta(activeCourseSlug),
+    [activeCourseSlug]
+  );
+
   // First-time gate: show intro cinematic first if unseen, then send to /avatar
   useEffect(() => {
     if (!hydrated) return;
@@ -67,24 +85,6 @@ export default function DashboardPage() {
   const rank = rankFromXp(totalXp);
   const streak = state.streak || 1;
   const badges = state.badges.length;
-
-  // Pick the user's current course from their progress.
-  const activeCourseSlug = useMemo(() => {
-    const candidateSlugs = COURSES_CATALOG.map((c) => c.slug);
-    const totalStepsByCourse = Object.fromEntries(
-      candidateSlugs.map((slug) => [
-        slug,
-        (CHAPTER_SUMMARIES[slug] ?? []).reduce((s, c) => s + c.totalSteps, 0),
-      ])
-    );
-    return getActiveCourseSlug(state, candidateSlugs, totalStepsByCourse);
-  }, [state]);
-
-  const activeCourse = getCourseInfo(activeCourseSlug);
-  const chaptersMeta = useMemo(
-    () => getChaptersMeta(activeCourseSlug),
-    [activeCourseSlug]
-  );
 
   const courseProgress = getCourseProgress(state, activeCourseSlug, chaptersMeta);
   const nextStep = getNextStep(state, activeCourseSlug, chaptersMeta);
