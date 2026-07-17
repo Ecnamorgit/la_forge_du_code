@@ -61,10 +61,9 @@ export default function DashboardPage() {
   }, [hydrated, state, router]);
 
   if (!hydrated || !hasAvatar(state)) {
-    const showIntro = !hasSeenIntro();
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-nebula-bg text-nebula-cyan font-tech text-xs tracking-widest uppercase">
-        {showIntro ? (
+        {hydrated && !hasAvatar(state) ? (
           <IntroCinematic
             open={true}
             onClose={() => router.replace("/avatar?from=/dashboard")}

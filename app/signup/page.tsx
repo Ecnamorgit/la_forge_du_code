@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
 
 import BrandLogo from "@/components/ui/BrandLogo";
 
@@ -52,13 +53,19 @@ export default function SignupPage() {
         return;
       }
 
-      if (data.emailSent === false) {
-        setEmailWarning(
-          data.emailError ??
-            "Compte créé, mais l'email de confirmation n'a pas pu être envoyé. Contacte le support."
-        );
+      // Automatically sign in the user to trigger immediate onboarding
+      const loginRes = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (loginRes?.error) {
+        // Fallback if auto-login failed: show completion notice
+        setSentTo(email);
+      } else {
+        window.location.href = "/dashboard";
       }
-      setSentTo(email);
     } catch {
       setError("Erreur réseau. Réessayez.");
       setPending(false);
