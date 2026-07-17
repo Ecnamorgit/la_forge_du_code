@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
@@ -27,7 +27,6 @@ import { COURSES_CATALOG, getCourseInfo } from "@/lib/courses-catalog";
 import { CHAPTER_SUMMARIES } from "@/lib/chapter-summaries";
 
 import IntroCinematic from "@/components/intro/IntroCinematic";
-import { hasSeenIntro } from "@/lib/intro";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -52,13 +51,7 @@ export default function DashboardPage() {
     [activeCourseSlug]
   );
 
-  // First-time gate: show intro cinematic first if unseen, then send to /avatar
-  useEffect(() => {
-    if (!hydrated) return;
-    if (!hasAvatar(state) && hasSeenIntro()) {
-      router.replace("/avatar?from=/dashboard");
-    }
-  }, [hydrated, state, router]);
+  // First-time gate: display intro cinematic until completed/closed, then transition to /avatar
 
   if (!hydrated || !hasAvatar(state)) {
     return (
