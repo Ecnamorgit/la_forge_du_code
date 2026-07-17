@@ -28,83 +28,27 @@ interface IntroCinematicProps {
   reducedMotion?: boolean;
 }
 
-/** Rend le visuel d'une scène : sprite si l'art est prêt, sinon placeholder. */
+/** Rend le visuel d'une scène avec l'image pixel art correspondante. */
 function SceneVisual({
   scene,
-  reducedMotion,
 }: {
   scene: IntroScene;
   reducedMotion: boolean;
 }) {
-  if (SPRITE_SHEETS_READY.intro) {
-    return <Sprite sheet={INTRO_CINEMATIC} frame={scene.id} displaySize={320} />;
-  }
   const pixel = { imageRendering: "pixelated" as const };
-  switch (scene.visual) {
-    case "logo":
-      return (
-        <Image
-          src="/brand_logo_pixel.png"
-          alt=""
-          width={128}
-          height={128}
-          className={reducedMotion ? "" : "animate-planet-rotate"}
-          style={pixel}
-        />
-      );
-    case "cadet":
-      return (
-        <Image src="/role-ingenieur-v2.png" alt="" width={140} height={140} style={pixel} />
-      );
-    case "orbit":
-      return (
-        <div className="relative h-40 w-40">
-          <Image
-            src="/brand_logo_pixel.png"
-            alt=""
-            width={56}
-            height={56}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-            style={pixel}
-          />
-          {["HTML", "CSS", "JS"].map((label, i) => (
-            <span
-              key={label}
-              className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${
-                reducedMotion ? "" : "animate-intro-orbit"
-              }`}
-              style={{ animationDelay: `${i * -2}s` }}
-            >
-              <span className="rounded-sm border border-nebula-cyan/50 bg-nebula-bg-panel px-2 py-1 font-tech text-[10px] tracking-widest text-nebula-cyan">
-                {label}
-              </span>
-            </span>
-          ))}
-        </div>
-      );
-    case "planet":
-      return (
-        <Image
-          src="/planet-ring-v2.png"
-          alt=""
-          width={160}
-          height={160}
-          className={reducedMotion ? "" : "animate-intro-planet-settle"}
-          style={pixel}
-        />
-      );
-    case "invite":
-      return (
-        <Image
-          src="/planet-gas-v2.png"
-          alt=""
-          width={120}
-          height={120}
-          className={reducedMotion ? "" : "animate-planet-rotate"}
-          style={pixel}
-        />
-      );
-  }
+  return (
+    <div className="relative overflow-hidden rounded-md border border-nebula-cyan/40 shadow-[0_0_30px_rgba(0,240,255,0.25)]">
+      <Image
+        src={`/sprites/intro/scene-${scene.id}.png`}
+        alt={scene.narration}
+        width={640}
+        height={360}
+        priority
+        className="h-auto max-h-[300px] w-full max-w-[560px] object-cover sm:max-h-[360px]"
+        style={pixel}
+      />
+    </div>
+  );
 }
 
 export default function IntroCinematic({
@@ -223,7 +167,7 @@ export default function IntroCinematic({
 
       <div
         key={reducedMotion ? "static" : index}
-        className={`relative flex h-56 w-full max-w-2xl items-center justify-center ${
+        className={`relative flex h-auto my-2 w-full max-w-2xl items-center justify-center px-4 ${
           reducedMotion ? "" : "animate-intro-scene-in"
         }`}
       >
