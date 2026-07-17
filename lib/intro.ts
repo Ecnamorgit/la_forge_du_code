@@ -19,15 +19,15 @@ export interface IntroScene {
 }
 
 export const INTRO_SCENES: IntroScene[] = [
-  { id: 0, narration: "Bienvenue à bord de Nebula Command", visual: "logo" },
-  { id: 1, narration: "Tu es Cadet-Ingénieur de la station", visual: "cadet" },
-  { id: 2, narration: "Chaque langage est une pièce maîtresse", visual: "orbit" },
+  { id: 0, narration: "Alerte système : Liaison établie avec la station orbitale Nebula Command.", visual: "logo" },
+  { id: 1, narration: "Enfile ta combinaison de Cadet et prépare-toi à restaurer les protocoles de la flotte.", visual: "cadet" },
+  { id: 2, narration: "Maîtrise le HTML, le CSS et le JavaScript pour reconstruire les systèmes informatiques de bord.", visual: "orbit" },
   {
     id: 3,
-    narration: "La console scelle le code — une planète se stabilise",
+    narration: "Écris ton code dans l'éditeur, valide tes lignes en direct et stabilise les anomalies de la galaxie.",
     visual: "planet",
   },
-  { id: 4, narration: "Choisis ton premier cursus", visual: "invite" },
+  { id: 4, narration: "Gagne de l'XP, débloque des grades, remporte des badges et commence ton cursus d'apprentissage !", visual: "invite" },
 ];
 
 /**
