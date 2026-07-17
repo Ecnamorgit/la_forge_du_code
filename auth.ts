@@ -61,12 +61,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return null;
 
-        // Block login until the email is verified. We throw a CredentialsSignin
-        // error with a tag in the URL so /login can show a specific message and
-        // a "resend verification" button.
-        if (!user.emailVerified) {
-          throw new CredentialsSignin("email_unverified");
-        }
+        // TEMPORARILY DISABLED FOR TESTING (Option A):
+        // Allow testers to log in without needing to verify email addresses.
+        // if (!user.emailVerified) {
+        //   throw new CredentialsSignin("email_unverified");
+        // }
 
         return {
           id: user.id,

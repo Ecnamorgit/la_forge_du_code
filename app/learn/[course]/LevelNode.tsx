@@ -160,7 +160,7 @@ export default function LevelNodeComponent({
             isCompleted ? "text-nebula-green" : "text-nebula-text-dim"
           }`}
         >
-          {node.icon} CH.{index + 1}
+          CH.{index + 1}
         </span>
         {hovered && (
           <div
