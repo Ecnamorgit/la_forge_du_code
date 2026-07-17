@@ -26,26 +26,37 @@ import { getChaptersMeta } from "@/lib/courses-meta";
 import { COURSES_CATALOG, getCourseInfo } from "@/lib/courses-catalog";
 import { CHAPTER_SUMMARIES } from "@/lib/chapter-summaries";
 
+import IntroCinematic from "@/components/intro/IntroCinematic";
+import { hasSeenIntro } from "@/lib/intro";
+
 export default function DashboardPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const { state, hydrated } = useUser();
 
-  // First-time gate: send the user to /avatar before they can use the dashboard.
+  // First-time gate: show intro cinematic first if unseen, then send to /avatar
   useEffect(() => {
     if (!hydrated) return;
-    if (!hasAvatar(state)) {
+    if (!hasAvatar(state) && hasSeenIntro()) {
       router.replace("/avatar?from=/dashboard");
     }
   }, [hydrated, state, router]);
 
   if (!hydrated || !hasAvatar(state)) {
+    const showIntro = !hasSeenIntro();
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-nebula-bg text-nebula-cyan font-tech text-xs tracking-widest uppercase">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-nebula-cyan border-t-transparent" />
-          <span>Liaison orbitale...</span>
-        </div>
+        {showIntro ? (
+          <IntroCinematic
+            open={true}
+            onClose={() => router.replace("/avatar?from=/dashboard")}
+          />
+        ) : (
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-nebula-cyan border-t-transparent" />
+            <span>Liaison orbitale...</span>
+          </div>
+        )}
       </div>
     );
   }

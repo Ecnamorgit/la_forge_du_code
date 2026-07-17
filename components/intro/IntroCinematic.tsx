@@ -240,18 +240,11 @@ export default function IntroCinematic({
       {isLast && (
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
-            href="/signup"
+            href="/avatar?from=/dashboard"
             onClick={finish}
             className="rounded-sm bg-nebula-cyan px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest transition-all hover:translate-y-px active:translate-y-[3px]"
           >
-            {"> "}Démarrer la mission
-          </Link>
-          <Link
-            href="/learn"
-            onClick={finish}
-            className="rounded-sm border border-nebula-cyan-dim px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-cyan transition-all hover:border-nebula-cyan"
-          >
-            Explorer les cursus
+            {"> "}Configurer mon Cadet
           </Link>
         </div>
       )}

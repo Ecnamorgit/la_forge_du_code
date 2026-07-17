@@ -19,15 +19,31 @@ export interface IntroScene {
 }
 
 export const INTRO_SCENES: IntroScene[] = [
-  { id: 0, narration: "Alerte système : Liaison établie avec la station orbitale Nebula Command.", visual: "logo" },
-  { id: 1, narration: "Enfile ta combinaison de Cadet et prépare-toi à restaurer les protocoles de la flotte.", visual: "cadet" },
-  { id: 2, narration: "Maîtrise le HTML, le CSS et le JavaScript pour reconstruire les systèmes informatiques de bord.", visual: "orbit" },
+  {
+    id: 0,
+    narration: "ALERTE CORRUPTION : Le virus inconnu SPECTRE s'est infiltré dans les serveurs de la galaxie. Les systèmes orbitaux s'effondrent.",
+    visual: "logo",
+  },
+  {
+    id: 1,
+    narration: "La flotte Nebula Command est paralysée. Tu es le dernier Cadet-Ingénieur encore opérationnel en secteur 7.",
+    visual: "cadet",
+  },
+  {
+    id: 2,
+    narration: "« Initialisation... Bonjour Cadet. Je suis KIRA, ton I.A. de bord. Je vais guider chacun de tes pas. »",
+    visual: "orbit",
+  },
   {
     id: 3,
-    narration: "Écris ton code dans l'éditeur, valide tes lignes en direct et stabilise les anomalies de la galaxie.",
+    narration: "Pour repousser Spectre, tu vas devoir réécrire les protocoles informatiques. Chaque ligne de code valide restaure la station.",
     visual: "planet",
   },
-  { id: 4, narration: "Gagne de l'XP, débloque des grades, remporte des badges et commence ton cursus d'apprentissage !", visual: "invite" },
+  {
+    id: 4,
+    narration: "Configure ton profil de Cadet et prépare-toi à lancer ta première mission. La galaxie compte sur toi !",
+    visual: "invite",
+  },
 ];
 
 /**
