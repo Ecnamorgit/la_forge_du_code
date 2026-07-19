@@ -47,24 +47,11 @@ export const INTRO_SCENES: IntroScene[] = [
 ];
 
 /**
- * N'auto-joue la cinématique qu'à une première visite ET si l'utilisateur n'a
- * pas demandé à réduire les animations. Pur : le composant résout les booléens.
+ * Persiste que l'intro a été vue ; no-op si le storage est indisponible.
+ * NB : la lecture automatique ne dépend plus de ce drapeau — elle n'a lieu
+ * qu'au premier login (dashboard, compte sans avatar). Le drapeau reste
+ * écrit à titre d'historique.
  */
-export function shouldAutoPlayIntro(seen: boolean, reducedMotion: boolean): boolean {
-  return !seen && !reducedMotion;
-}
-
-/** Lit le drapeau « déjà vue » ; `false` si le storage est indisponible. */
-export function hasSeenIntro(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.localStorage.getItem(INTRO_STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
-/** Persiste que l'intro a été vue ; no-op si le storage est indisponible. */
 export function markIntroSeen(): void {
   if (typeof window === "undefined") return;
   try {
