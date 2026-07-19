@@ -85,6 +85,7 @@ export default function LandingPage() {
           <BrandLogo
             size={128}
             priority
+            fx
             className="mb-8 drop-shadow-[0_0_30px_rgba(0,240,255,0.3)]"
           />
 

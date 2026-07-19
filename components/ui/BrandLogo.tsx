@@ -1,36 +1,33 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
-const ThreeLogoCanvas = dynamic(() => import("./ThreeLogoCanvas"), {
-  ssr: false,
-});
+import PixelLogo from "./PixelLogo";
 
 type BrandLogoProps = {
   size?: number;
   className?: string;
   /** Kept for call-site compatibility (was forwarded to next/image). */
   priority?: boolean;
+  /** Main-menu extra: missed laser bolts escape and cross the screen. */
+  fx?: boolean;
 };
 
 /**
- * Brand logo — full pixel-art 3D scene (see ThreeLogoCanvas): gravitating
- * gold core, two rotating rings and a voxel ship orbiting the whole thing.
- *
- * The canvas overflows the layout box (inset -22%) so the logo renders
- * larger and the ship's orbit isn't clipped, without pushing surrounding
- * layout around.
+ * Brand logo — the Nebula Command fleet crest in true 2D pixel art
+ * (see PixelLogo): spinning gold-bordered écusson (orange star over the
+ * cyan `</>`) orbited by a human fighter chasing an alien saucer.
  */
-export default function BrandLogo({ size = 40, className = "" }: BrandLogoProps) {
+export default function BrandLogo({
+  size = 40,
+  className = "",
+  fx = false,
+}: BrandLogoProps) {
   return (
     <div
-      className={`relative shrink-0 ${className}`.trim()}
+      className={`relative shrink-0 flex items-center justify-center ${className}`.trim()}
       style={{ width: size, height: size }}
       aria-hidden="true"
     >
-      <div className="pointer-events-none absolute inset-[-22%]">
-        <ThreeLogoCanvas />
-      </div>
+      <PixelLogo size={size} fx={fx} />
     </div>
   );
 }
