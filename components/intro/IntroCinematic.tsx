@@ -4,14 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import Sprite from "@/components/ui/Sprite";
+import IntroSceneCanvas from "@/components/intro/IntroSceneCanvas";
 import {
   INTRO_SCENES,
   INTRO_SCENE_DURATION_MS,
   markIntroSeen,
   type IntroScene,
 } from "@/lib/intro";
-import { INTRO_CINEMATIC, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import {
   setSoundEnabled,
   unlockAudio,
@@ -28,25 +27,33 @@ interface IntroCinematicProps {
   reducedMotion?: boolean;
 }
 
-/** Rend le visuel d'une scène avec l'image pixel art correspondante. */
+/**
+ * Rend le visuel d'une scène : mini-cinématique three.js pixelisée par-dessus
+ * l'image pixel art (IntroSceneCanvas), ou l'image seule en reduced-motion.
+ */
 function SceneVisual({
   scene,
+  reducedMotion,
 }: {
   scene: IntroScene;
   reducedMotion: boolean;
 }) {
-  const pixel = { imageRendering: "pixelated" as const };
+  const src = `/sprites/intro/scene-${scene.id}.png`;
   return (
     <div className="relative overflow-hidden rounded-md border border-nebula-cyan/40 shadow-[0_0_30px_rgba(0,240,255,0.25)]">
-      <Image
-        src={`/sprites/intro/scene-${scene.id}.png`}
-        alt={scene.narration}
-        width={640}
-        height={360}
-        priority
-        className="h-auto max-h-[300px] w-full max-w-[560px] object-cover sm:max-h-[360px]"
-        style={pixel}
-      />
+      {reducedMotion ? (
+        <Image
+          src={src}
+          alt={scene.narration}
+          width={640}
+          height={360}
+          priority
+          className="h-auto max-h-[300px] w-full max-w-[560px] object-cover sm:max-h-[360px]"
+          style={{ imageRendering: "pixelated" }}
+        />
+      ) : (
+        <IntroSceneCanvas sceneId={scene.id} src={src} alt={scene.narration} />
+      )}
     </div>
   );
 }
@@ -79,14 +86,12 @@ export default function IntroCinematic({
   useEffect(() => {
     if (!open || reducedMotion) return;
     clearTimeout(timerRef.current);
+    // `index` vient des deps de l'effet : pas d'updater fonctionnel ici, car
+    // appeler `finish()` (setState du parent) dans un updater — censé être
+    // pur — déclenche « Cannot update a component while rendering… ».
     timerRef.current = setTimeout(() => {
-      setIndex((i) => {
-        if (i >= INTRO_SCENES.length - 1) {
-          finish();
-          return i;
-        }
-        return i + 1;
-      });
+      if (index >= INTRO_SCENES.length - 1) finish();
+      else setIndex(index + 1);
     }, INTRO_SCENE_DURATION_MS);
     return () => clearTimeout(timerRef.current);
   }, [open, index, reducedMotion, finish]);

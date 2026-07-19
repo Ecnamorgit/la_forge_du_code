@@ -790,6 +790,35 @@
 }
 .animate-intro-scene-in { animation: intro-scene-in 0.6s ease-out both; }
 
+/* Dérives caméra des mini-cinématiques (IntroSceneCanvas) — appliquées au
+   wrapper image+effets pour que tout bouge d'un bloc. Légère sur-échelle de
+   base pour ne jamais révéler les bords. */
+@keyframes intro-cam-pan {
+  from { transform: scale(1.07) translateX(-1.4%); }
+  to   { transform: scale(1.07) translateX(1.4%); }
+}
+.animate-intro-cam-pan { animation: intro-cam-pan 6s ease-in-out both; }
+
+@keyframes intro-cam-sway {
+  0%   { transform: scale(1.06) translate(0, 0); }
+  35%  { transform: scale(1.06) translate(-0.7%, 0.4%); }
+  70%  { transform: scale(1.06) translate(0.6%, -0.3%); }
+  100% { transform: scale(1.06) translate(-0.2%, 0.2%); }
+}
+.animate-intro-cam-sway { animation: intro-cam-sway 6s ease-in-out both; }
+
+@keyframes intro-cam-zoom-in {
+  from { transform: scale(1.05); }
+  to   { transform: scale(1.11); }
+}
+.animate-intro-cam-zoom-in { animation: intro-cam-zoom-in 6s ease-out both; }
+
+@keyframes intro-cam-zoom-out {
+  from { transform: scale(1.11); }
+  to   { transform: scale(1.05); }
+}
+.animate-intro-cam-zoom-out { animation: intro-cam-zoom-out 6s ease-out both; }
+
 @keyframes intro-orbit {
   from { transform: rotate(0deg) translateX(78px) rotate(0deg); }
   to   { transform: rotate(360deg) translateX(78px) rotate(-360deg); }
