@@ -31,7 +31,7 @@ export const INTRO_SCENES: IntroScene[] = [
   },
   {
     id: 2,
-    narration: "« Initialisation... Bonjour Cadet. Je suis KIRA, ton I.A. de bord. Je vais guider chacun de tes pas. »",
+    narration: "« Transmissions ouvertes... Bonjour Cadet. Je suis l'Ingénieure en Chef Kira Vesper. Assistée de l'I.A. H.E.L.P., nous allons guider chacun de tes pas. »",
     visual: "orbit",
   },
   {

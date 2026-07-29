@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import IntroSceneCanvas from "@/components/intro/IntroSceneCanvas";
+import StarWarsCrawl from "@/components/intro/StarWarsCrawl";
 import {
   INTRO_SCENES,
   INTRO_SCENE_DURATION_MS,
@@ -63,6 +64,7 @@ export default function IntroCinematic({
   onClose,
   reducedMotion = false,
 }: IntroCinematicProps) {
+  const [mode, setMode] = useState<"crawl" | "scenes">("crawl");
   const [index, setIndex] = useState(0);
   const [soundOn, setSoundOn] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -77,14 +79,14 @@ export default function IntroCinematic({
   // (reset intentionnel : le composant reste monté entre deux ouvertures).
   useEffect(() => {
     if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset volontaire à l'ouverture
+      setMode("crawl");
       setIndex(0);
     }
   }, [open]);
 
-  // Auto-défilement (désactivé en reduced-motion).
+  // Auto-défilement des scènes (désactivé en mode crawl ou en reduced-motion).
   useEffect(() => {
-    if (!open || reducedMotion) return;
+    if (!open || mode !== "scenes" || reducedMotion) return;
     clearTimeout(timerRef.current);
     // `index` vient des deps de l'effet : pas d'updater fonctionnel ici, car
     // appeler `finish()` (setState du parent) dans un updater — censé être
@@ -94,14 +96,14 @@ export default function IntroCinematic({
       else setIndex(index + 1);
     }, INTRO_SCENE_DURATION_MS);
     return () => clearTimeout(timerRef.current);
-  }, [open, index, reducedMotion, finish]);
+  }, [open, mode, index, reducedMotion, finish]);
 
   // Cue sonore par scène (uniquement si le son est activé).
   useEffect(() => {
-    if (!open || !soundOn) return;
+    if (!open || !soundOn || mode !== "scenes") return;
     if (index === INTRO_SCENES.length - 1) playFanfare();
     else playDeployBip();
-  }, [open, index, soundOn]);
+  }, [open, mode, index, soundOn]);
 
   // Échap ferme ; Tab est piégé dans l'overlay (aria-modal doit contenir le focus).
   useEffect(() => {
@@ -168,60 +170,17 @@ export default function IntroCinematic({
       tabIndex={-1}
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-nebula-bg-darkest outline-none"
     >
-      <div className="pointer-events-none absolute inset-0 bg-nebula-stars opacity-40" />
-
-      <div
-        key={reducedMotion ? "static" : index}
-        className={`relative flex h-auto my-2 w-full max-w-2xl items-center justify-center px-4 ${
-          reducedMotion ? "" : "animate-intro-scene-in"
-        }`}
-      >
-        <SceneVisual scene={scene} reducedMotion={reducedMotion} />
+      {/* Bouton de bascule de mode en haut à gauche */}
+      <div className="absolute left-4 top-4 z-30 flex items-center gap-2">
+        <button
+          onClick={() => setMode(mode === "crawl" ? "scenes" : "crawl")}
+          className="rounded-sm border border-nebula-border bg-nebula-bg-panel/80 px-3 py-1.5 font-tech text-xs uppercase tracking-widest text-nebula-cyan backdrop-blur-sm hover:border-nebula-cyan"
+        >
+          {mode === "crawl" ? "🖼️ Passer aux scènes" : "📜 Prologue 3D (Lore)"}
+        </button>
       </div>
 
-      <p
-        aria-live="polite"
-        className="mt-6 max-w-xl px-6 text-center font-tech text-lg tracking-wide text-nebula-cyan sm:text-xl"
-      >
-        {scene.narration}
-      </p>
-
-      {isLast && (
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Link
-            href="/avatar?from=/dashboard"
-            onClick={finish}
-            className="rounded-sm bg-nebula-cyan px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest transition-all hover:translate-y-px active:translate-y-[3px]"
-          >
-            {"> "}Configurer mon Cadet
-          </Link>
-        </div>
-      )}
-
-      <div className="mt-8 flex items-center gap-3">
-        <div className="flex gap-2">
-          {INTRO_SCENES.map((s, i) => (
-            <button
-              key={s.id}
-              aria-label={`Aller à la scène ${i + 1}`}
-              onClick={() => setIndex(i)}
-              className={`h-2 w-2 rounded-full transition-colors ${
-                i === index ? "bg-nebula-cyan" : "bg-nebula-border"
-              }`}
-            />
-          ))}
-        </div>
-        {reducedMotion && !isLast && (
-          <button
-            onClick={goNext}
-            className="ml-2 font-tech text-xs uppercase tracking-widest text-nebula-cyan hover:underline"
-          >
-            Suivant →
-          </button>
-        )}
-      </div>
-
-      <div className="absolute right-4 top-4 flex items-center gap-4">
+      <div className="absolute right-4 top-4 z-30 flex items-center gap-4">
         <button
           onClick={toggleSound}
           aria-label={soundOn ? "Couper le son" : "Activer le son"}
@@ -233,9 +192,86 @@ export default function IntroCinematic({
           onClick={finish}
           className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan"
         >
-          Passer ✕
+          Fermer ✕
         </button>
       </div>
+
+      {mode === "crawl" ? (
+        <StarWarsCrawl
+          onSkip={() => {
+            setIndex(0);
+            setMode("scenes");
+          }}
+          onComplete={() => {
+            setIndex(0);
+            setMode("scenes");
+          }}
+        />
+      ) : (
+        <>
+          <div className="pointer-events-none absolute inset-0 bg-nebula-stars opacity-50" />
+
+          <div
+            key={reducedMotion ? "static" : index}
+            className={`relative my-2 flex h-auto w-full max-w-2xl items-center justify-center px-4 ${
+              reducedMotion ? "" : "animate-intro-scene-in"
+            }`}
+          >
+            <SceneVisual scene={scene} reducedMotion={reducedMotion} />
+          </div>
+
+          <p
+            aria-live="polite"
+            className="mt-4 min-h-[4rem] max-w-xl px-6 text-center font-tech text-lg tracking-wide text-nebula-cyan sm:text-xl"
+          >
+            {scene.narration}
+          </p>
+
+          {/* Navigation manuelle explicite inter-slides */}
+          <div className="mt-4 flex items-center justify-center gap-4 z-20">
+            {index > 0 && (
+              <button
+                onClick={() => setIndex((i) => Math.max(0, i - 1))}
+                className="rounded-sm border border-nebula-border bg-nebula-bg-panel/80 px-4 py-2 font-tech text-xs uppercase tracking-widest text-nebula-cyan transition-colors hover:border-nebula-cyan"
+              >
+                ← Précédent
+              </button>
+            )}
+
+            {!isLast ? (
+              <button
+                onClick={goNext}
+                className="rounded-sm bg-nebula-cyan px-5 py-2 font-tech text-xs font-bold uppercase tracking-widest text-nebula-bg-darkest transition-all hover:brightness-110"
+              >
+                Suivant →
+              </button>
+            ) : (
+              <Link
+                href="/avatar?from=/dashboard"
+                onClick={finish}
+                className="rounded-sm bg-nebula-cyan px-6 py-2.5 text-center font-tech text-xs font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest transition-all hover:translate-y-px active:translate-y-[3px]"
+              >
+                {"> "}Configurer mon Cadet
+              </Link>
+            )}
+          </div>
+
+          <div className="mt-6 flex items-center gap-3 z-20">
+            <div className="flex gap-2">
+              {INTRO_SCENES.map((s, i) => (
+                <button
+                  key={s.id}
+                  aria-label={`Aller à la scène ${i + 1}`}
+                  onClick={() => setIndex(i)}
+                  className={`h-2.5 w-2.5 rounded-full transition-all ${
+                    i === index ? "bg-nebula-cyan scale-125 shadow-[0_0_8px_rgba(0,240,255,0.8)]" : "bg-nebula-border hover:bg-nebula-cyan/50"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
