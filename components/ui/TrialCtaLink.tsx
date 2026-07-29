@@ -1,8 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 
-export default function TrialCtaLink({ className }: { className?: string }) {
+import { TRIAL_CHAPTER, TRIAL_COURSE } from "@/lib/public-routes";
+
+export default function TrialCtaLink({
+  className,
+  children,
+}: {
+  className?: string;
+  /** Libellé du lien, propre à chaque appelant. */
+  children: ReactNode;
+}) {
   const ping = () => {
     void fetch("/api/track", {
       method: "POST",
@@ -15,8 +25,12 @@ export default function TrialCtaLink({ className }: { className?: string }) {
   };
 
   return (
-    <Link href="/learn/html/chapitre-1" onClick={ping} className={className}>
-      {"> "}Essayer sans compte
+    <Link
+      href={`/learn/${TRIAL_COURSE}/${TRIAL_CHAPTER}`}
+      onClick={ping}
+      className={className}
+    >
+      {children}
     </Link>
   );
 }

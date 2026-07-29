@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { LORE_SECTIONS } from "@/lib/lore";
 import PublicHeader from "@/components/ui/PublicHeader";
+import TrialCtaLink from "@/components/ui/TrialCtaLink";
 
 export const metadata: Metadata = {
   title: "Codex — Nebula Command",
@@ -17,12 +17,9 @@ export default function CodexPage() {
       <div className="fixed inset-0 z-0 bg-nebula-stars opacity-30" />
 
       <PublicHeader>
-        <Link
-          href="/learn/html/chapitre-1"
-          className="rounded-sm bg-nebula-cyan px-4 py-2 font-tech text-xs font-bold uppercase tracking-widest text-nebula-bg-darkest sm:text-sm"
-        >
+        <TrialCtaLink className="rounded-sm bg-nebula-cyan px-4 py-2 font-tech text-xs font-bold uppercase tracking-widest text-nebula-bg-darkest sm:text-sm">
           Essayer sans compte
-        </Link>
+        </TrialCtaLink>
       </PublicHeader>
 
       <main className="relative z-10 mx-auto w-full max-w-3xl px-4 py-12 sm:px-6">
@@ -53,12 +50,9 @@ export default function CodexPage() {
           <p className="mb-5 font-body text-base text-nebula-text-secondary">
             La flotte a besoin d&apos;ingénieurs.
           </p>
-          <Link
-            href="/learn/html/chapitre-1"
-            className="inline-block rounded-sm bg-nebula-cyan px-8 py-4 font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)]"
-          >
+          <TrialCtaLink className="inline-block rounded-sm bg-nebula-cyan px-8 py-4 font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)]">
             {"> "}Première mission
-          </Link>
+          </TrialCtaLink>
         </div>
       </main>
     </div>
