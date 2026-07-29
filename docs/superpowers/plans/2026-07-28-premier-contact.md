@@ -1988,10 +1988,18 @@ model TrackEvent {
 }
 ```
 
-Générer la migration :
+Générer puis appliquer la migration.
+
+⚠️ **`DATABASE_URL` pointe sur la base Supabase de production.** Ne jamais lancer `prisma migrate dev` sans `--create-only` : sur détection de dérive il propose un reset complet de la base. La séquence ci-dessous génère le SQL sans l'appliquer, puis l'applique en avant seulement.
 
 ```bash
-pnpm prisma migrate dev --name add_track_event
+pnpm prisma migrate dev --name add_track_event --create-only
+```
+
+Relire le SQL généré dans `prisma/migrations/<timestamp>_add_track_event/migration.sql` : il doit contenir uniquement un `CREATE TABLE "TrackEvent"` et un `CREATE INDEX`. S'il contient le moindre `DROP`, s'arrêter et signaler.
+
+```bash
+pnpm prisma migrate deploy
 ```
 
 - [ ] **Step 6: Écrire la route**
