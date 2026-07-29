@@ -16,7 +16,7 @@ import ParticleLayer, { spawnParticles, spawnLevelUpBurst } from "@/components/u
 import VFXBurst from "@/components/ui/VFXBurst";
 import LevelUpOverlay from "@/components/ui/LevelUpOverlay";
 import { unlockAudio, playFanfare } from "@/lib/audio";
-import { useUser } from "@/lib/use-user";
+import { useUserContext } from "@/lib/user-context";
 import { getCompletedSteps, levelFromXp } from "@/lib/user-store";
 import { xpForStep } from "@/lib/xp";
 import { getChapterBackground, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
@@ -35,7 +35,7 @@ interface ChapterClientProps {
 }
 
 export default function ChapterClient({ course, chapter }: ChapterClientProps) {
-  const { state, completeStep, markCourseVisited } = useUser();
+  const { state, completeStep, markCourseVisited } = useUserContext();
   const validators = getValidators(course, chapter.slug);
 
   // Tag this course as the user's current focus so the dashboard's
