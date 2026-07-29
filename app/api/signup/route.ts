@@ -87,6 +87,9 @@ export async function POST(request: Request) {
   const token = await createToken({ userId: user.id, kind: "email_verify" });
   const mailRes = await sendVerificationEmail({ to: user.email, token });
 
+  // Comptage minimal, sans identifiant : ne doit jamais faire échouer l'inscription.
+  await prisma.trackEvent.create({ data: { name: "inscription" } }).catch(() => {});
+
   return NextResponse.json({
     ok: true,
     emailSent: mailRes.ok,

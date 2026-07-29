@@ -5,12 +5,16 @@ import BrandLogo from "@/components/ui/BrandLogo";
 import IntroCinematicMount from "@/components/intro/IntroCinematicMount";
 import ReplayIntroButton from "@/components/intro/ReplayIntroButton";
 import PublicHeader from "@/components/ui/PublicHeader";
+import TrackLandingView from "@/components/ui/TrackLandingView";
+import TrialCtaLink from "@/components/ui/TrialCtaLink";
 
 export default function LandingPage() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden overflow-y-auto">
       {/* Cinématique d'intro (auto-play 1re visite, rejouable) */}
       <IntroCinematicMount />
+      {/* Comptage minimal : une vue = un évènement, sans identifiant */}
+      <TrackLandingView />
 
       {/* Background layers */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-bg" />
@@ -108,12 +112,7 @@ export default function LandingPage() {
           </p>
 
           <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
-            <Link
-              href="/learn/html/chapitre-1"
-              className="rounded-sm bg-nebula-cyan px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-8 sm:py-4 sm:text-base"
-            >
-              {"> "}Essayer sans compte
-            </Link>
+            <TrialCtaLink className="rounded-sm bg-nebula-cyan px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-8 sm:py-4 sm:text-base" />
             <Link
               href="/signup"
               className="rounded-sm border border-nebula-cyan-dim bg-transparent px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-cyan transition-all hover:border-nebula-cyan hover:bg-nebula-cyan-faint sm:px-8 sm:py-4 sm:text-base"

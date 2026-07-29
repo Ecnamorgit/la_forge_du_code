@@ -119,3 +119,14 @@ model StepCompletion {
 
   @@unique([userId, course, chapter, stepIndex])
 }
+
+/// Comptage agrégé du tunnel d'acquisition. Aucune donnée personnelle :
+/// pas d'IP, pas d'identifiant de visiteur, seulement un nom d'évènement
+/// et une date.
+model TrackEvent {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+}
