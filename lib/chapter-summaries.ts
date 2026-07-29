@@ -57,6 +57,7 @@ export const CHAPTER_SUMMARIES: Record<string, ChapterSummary[]> = {
     { slug: "chapitre-3", title: "REACT & useEffect", totalSteps: 4 },
     { slug: "chapitre-4", title: "REACT ROUTER & NAVIGATION", totalSteps: 4 },
     { slug: "chapitre-5", title: "REACT & LISTES", totalSteps: 4 },
+    { slug: "chapitre-6", title: "REACT & FORMULAIRES", totalSteps: 4 },
   ],
   typescript: [{ slug: "chapitre-1", title: "TYPESCRIPT & TYPAGE STATIQUE", totalSteps: 4 }],
   git: [{ slug: "chapitre-1", title: "GIT & VERSIONS", totalSteps: 4 }],
