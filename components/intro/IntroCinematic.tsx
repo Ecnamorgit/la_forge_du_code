@@ -64,9 +64,10 @@ export default function IntroCinematic({
   onClose,
   reducedMotion = false,
 }: IntroCinematicProps) {
-  const [mode, setMode] = useState<"crawl" | "scenes">("crawl");
+  const [mode, setMode] = useState<"crawl" | "scenes">("scenes");
   const [index, setIndex] = useState(0);
   const [soundOn, setSoundOn] = useState(false);
+  const [prevOpen, setPrevOpen] = useState(open);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -75,14 +76,18 @@ export default function IntroCinematic({
     onClose();
   }, [onClose]);
 
-  // Repart à la première scène à chaque ouverture
-  // (reset intentionnel : le composant reste monté entre deux ouvertures).
-  useEffect(() => {
+  // Repart aux scènes à chaque ouverture (reset intentionnel : le composant
+  // reste monté entre deux ouvertures). Ajusté pendant le rendu plutôt que
+  // dans un effet — c'est le fonctionnement post-signup, le crawl a déjà été
+  // vu sur la landing et ne doit pas rejouer ici ; le mode "crawl" reste
+  // accessible via le bouton de bascule manuel ci-dessous.
+  if (open !== prevOpen) {
+    setPrevOpen(open);
     if (open) {
-      setMode("crawl");
+      setMode("scenes");
       setIndex(0);
     }
-  }, [open]);
+  }
 
   // Auto-défilement des scènes (désactivé en mode crawl ou en reduced-motion).
   useEffect(() => {
