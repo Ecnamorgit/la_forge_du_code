@@ -2,11 +2,10 @@ import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 
 import { authConfig } from "@/auth.config";
-import { isPublicRoute } from "@/lib/public-routes";
+import { PROTECTED_PREFIXES, isPublicRoute } from "@/lib/public-routes";
 
 const { auth } = NextAuth(authConfig);
 
-const PROTECTED_PREFIXES = ["/dashboard", "/learn", "/profil", "/leaderboard", "/avatar"];
 const AUTH_PAGES = new Set(["/login", "/signup"]);
 
 export default auth((req) => {
