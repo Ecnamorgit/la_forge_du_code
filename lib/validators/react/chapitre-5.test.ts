@@ -54,6 +54,21 @@ describe("React chapitre 5 — etape 1 (.map() sur un tableau)", () => {
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/JSX/);
   });
+
+  it("echoue si un composant sans rapport retourne du JSX mais que .map() ne le fait pas (regression Finding 3)", () => {
+    // Le Debug component renvoie bien du JSX en dehors du callback map : le
+    // check ne doit pas se laisser convaincre par une correspondance ailleurs
+    // dans le fichier.
+    const code = `
+      const Debug = () => <span>debug</span>;
+      function ListeFlotte() {
+        return <ul>{flotte.map(v => v.nom)}</ul>;
+      }
+    `;
+    const r = v(code);
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/JSX/);
+  });
 });
 
 describe("React chapitre 5 — etape 2 (la prop key)", () => {
@@ -136,6 +151,19 @@ describe("React chapitre 5 — etape 3 (filtrer avant de rendre)", () => {
     const r = v(code);
     expect(r.ok).toBe(false);
   });
+
+  it("valide un filter->map correct meme precede d'un .map() sans rapport (regression Finding 1)", () => {
+    // Un .map() anterieur et sans lien avec le rendu ne doit pas faire
+    // echouer la detection de la VRAIE chaine filter->map plus bas.
+    const code = `
+      function ListeFlotte() {
+        const ids = flotte.map(v => v.id);
+        return <ul>{flotte.filter(v => v.statut === 'operationnel').map(v => <li key={v.id}>{v.nom}</li>)}</ul>;
+      }
+    `;
+    const r = v(code);
+    expect(r.ok).toBe(true);
+  });
 });
 
 describe("React chapitre 5 — etape 4 (liste vide)", () => {
@@ -196,5 +224,22 @@ describe("React chapitre 5 — etape 4 (liste vide)", () => {
     `;
     const r = v(code);
     expect(r.ok).toBe(false);
+  });
+
+  it("echoue si length est teste sur le tableau source flotte, pas sur operationnels (regression Finding 2)", () => {
+    // flotte n'est jamais vide dans cet exercice : ce test ne peut donc
+    // jamais se declencher. Le brief cible precisement cette erreur.
+    const code = `
+      function ListeFlotte() {
+        const operationnels = flotte.filter(v => v.statut === 'operationnel');
+        if (flotte.length === 0) {
+          return <p>Aucun vaisseau operationnel.</p>;
+        }
+        return <ul>{operationnels.map(v => <li key={v.id}>{v.nom}</li>)}</ul>;
+      }
+    `;
+    const r = v(code);
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/length/);
   });
 });
