@@ -33,9 +33,24 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
   title: "CodeForge — Nebula Command",
   description:
     "Plateforme d'apprentissage du code gamifiée — Univers Nebula Command",
+  openGraph: {
+    type: "website",
+    siteName: "Nebula Command",
+    locale: "fr_FR",
+    title: "CodeForge — Nebula Command",
+    description:
+      "Apprends à coder dans un univers spatial gamifié. HTML, CSS, JavaScript, React.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CodeForge — Nebula Command",
+    description:
+      "Apprends à coder dans un univers spatial gamifié. HTML, CSS, JavaScript, React.",
+  },
 };
 
 export default function RootLayout({
