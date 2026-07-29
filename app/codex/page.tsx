@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LORE_SECTIONS } from "@/lib/lore";
-import BrandLogo from "@/components/ui/BrandLogo";
+import PublicHeader from "@/components/ui/PublicHeader";
 
 export const metadata: Metadata = {
   title: "Codex — Nebula Command",
@@ -16,20 +16,14 @@ export default function CodexPage() {
       <div className="fixed inset-0 z-0 bg-nebula-bg" />
       <div className="fixed inset-0 z-0 bg-nebula-stars opacity-30" />
 
-      <header className="relative z-50 flex h-16 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/80 px-4 backdrop-blur-md sm:px-6">
-        <Link href="/" className="flex items-center gap-3">
-          <BrandLogo size={40} />
-          <span className="font-tech text-sm tracking-widest text-nebula-cyan sm:text-base">
-            NEBULA COMMAND
-          </span>
-        </Link>
+      <PublicHeader>
         <Link
           href="/learn/html/chapitre-1"
           className="rounded-sm bg-nebula-cyan px-4 py-2 font-tech text-xs font-bold uppercase tracking-widest text-nebula-bg-darkest sm:text-sm"
         >
           Essayer sans compte
         </Link>
-      </header>
+      </PublicHeader>
 
       <main className="relative z-10 mx-auto w-full max-w-3xl px-4 py-12 sm:px-6">
         <h1 className="mb-3 font-display text-2xl tracking-[0.06em] text-nebula-cyan sm:text-4xl">

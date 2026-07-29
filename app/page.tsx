@@ -4,6 +4,7 @@ import Image from "next/image";
 import BrandLogo from "@/components/ui/BrandLogo";
 import IntroCinematicMount from "@/components/intro/IntroCinematicMount";
 import ReplayIntroButton from "@/components/intro/ReplayIntroButton";
+import PublicHeader from "@/components/ui/PublicHeader";
 
 export default function LandingPage() {
   return (
@@ -49,30 +50,20 @@ export default function LandingPage() {
       </div>
 
       {/* Nav */}
-      <header className="relative z-50 flex h-16 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/80 px-4 backdrop-blur-md sm:px-6">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <BrandLogo size={40} />
-          <div className="truncate font-tech text-sm tracking-widest sm:text-base">
-            <span className="text-nebula-cyan">NEBULA</span>
-            <span className="ml-1 hidden text-nebula-text-secondary sm:inline">COMMAND</span>
-          </div>
-        </div>
-
-        <nav className="flex shrink-0 items-center gap-3 sm:gap-6">
-          <Link
-            href="/login"
-            className="whitespace-nowrap font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan sm:text-sm"
-          >
-            Se connecter
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-sm bg-nebula-cyan px-3 py-2 font-tech text-xs font-bold uppercase tracking-widest text-nebula-bg-darkest shadow-[0_3px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_2px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-4 sm:text-sm"
-          >
-            S&apos;inscrire
-          </Link>
-        </nav>
-      </header>
+      <PublicHeader>
+        <Link
+          href="/login"
+          className="whitespace-nowrap font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan sm:text-sm"
+        >
+          Se connecter
+        </Link>
+        <Link
+          href="/signup"
+          className="rounded-sm bg-nebula-cyan px-3 py-2 font-tech text-xs font-bold uppercase tracking-widest text-nebula-bg-darkest shadow-[0_3px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_2px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-4 sm:text-sm"
+        >
+          S&apos;inscrire
+        </Link>
+      </PublicHeader>
 
       {/*
         Content wrapper :
