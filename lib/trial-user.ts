@@ -32,8 +32,6 @@ export interface TrialStepRef {
   stepIndex: number;
 }
 
-const EMPTY: TrialState = { completedSteps: [], xp: 0 };
-
 function isTrialState(value: unknown): value is TrialState {
   if (typeof value !== "object" || value === null) return false;
   const v = value as Record<string, unknown>;
@@ -53,23 +51,27 @@ function isTrialState(value: unknown): value is TrialState {
  * de forme invalide — jamais d'exception.
  */
 export function parseTrialState(raw: string | null): TrialState {
-  if (!raw) return { ...EMPTY };
+  // Chaque chemin « état par défaut » renvoie un littéral frais (et non un
+  // spread d'une constante partagée) : sinon tous ces appels renverraient la
+  // même référence de tableau pour `completedSteps`, et un `push` par un
+  // appelant corromprait l'état par défaut pour tout le processus.
+  if (!raw) return { completedSteps: [], xp: 0 };
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (!isTrialState(parsed)) return { ...EMPTY };
+    if (!isTrialState(parsed)) return { completedSteps: [], xp: 0 };
     return { completedSteps: [...parsed.completedSteps], xp: parsed.xp };
   } catch {
-    return { ...EMPTY };
+    return { completedSteps: [], xp: 0 };
   }
 }
 
 /** Lit l'état d'essai ; état vide si le storage est indisponible. */
 export function readTrialState(): TrialState {
-  if (typeof window === "undefined") return { ...EMPTY };
+  if (typeof window === "undefined") return { completedSteps: [], xp: 0 };
   try {
     return parseTrialState(window.localStorage.getItem(TRIAL_STORAGE_KEY));
   } catch {
-    return { ...EMPTY };
+    return { completedSteps: [], xp: 0 };
   }
 }
 
@@ -125,6 +127,12 @@ export function applyTrialStep(
 export function trialStateToUserState(state: TrialState): UserState {
   return {
     ...DEFAULT_USER,
+    // `DEFAULT_USER` est un singleton d'état applicatif réel (cf.
+    // lib/use-user.ts), pas une constante jetable : le spread ci-dessus ne
+    // clone pas ses champs de type référence. `badges` doit donc être cloné
+    // explicitement, sans quoi un `push` sur l'état d'essai corromprait
+    // l'état par défaut de tous les utilisateurs du processus.
+    badges: [...DEFAULT_USER.badges],
     username: "Cadet",
     totalXp: state.xp,
     lastVisitedCourse: TRIAL_COURSE,

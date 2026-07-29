@@ -3,11 +3,13 @@ import { describe, expect, it } from "vitest";
 import {
   applyTrialStep,
   parseTrialState,
+  readTrialState,
   trialCompletedSteps,
   trialStateToUserState,
 } from "./trial-user";
 import { xpForStep } from "./xp";
 import { TRIAL_CHAPTER, TRIAL_COURSE } from "./public-routes";
+import { DEFAULT_USER } from "./user-store";
 
 describe("applyTrialStep", () => {
   it("ajoute une étape et attribue l'XP de lib/xp", () => {
@@ -71,6 +73,21 @@ describe("parseTrialState", () => {
     parsed.completedSteps.push(99);
     expect(parseTrialState(JSON.stringify({ completedSteps: [0], xp: 25 })).completedSteps).toEqual([0]);
   });
+
+  it("ne partage pas le tableau `completedSteps` entre deux appels sur un chemin par défaut", () => {
+    // Mute le tableau renvoyé par un premier appel « état par défaut » (JSON
+    // corrompu) : un second appel « état par défaut » (raw absent) ne doit
+    // jamais voir cette mutation, sans quoi les deux chemins partagent le
+    // même singleton `EMPTY.completedSteps`.
+    const corrupted = parseTrialState("{ pas du json");
+    corrupted.completedSteps.push(999);
+    expect(parseTrialState(null).completedSteps).toEqual([]);
+
+    const invalidShape = parseTrialState(JSON.stringify({ xp: "beaucoup" }));
+    invalidShape.completedSteps.push(999);
+    expect(parseTrialState("").completedSteps).toEqual([]);
+    expect(readTrialState().completedSteps).toEqual([]);
+  });
 });
 
 describe("trialStateToUserState", () => {
@@ -79,6 +96,13 @@ describe("trialStateToUserState", () => {
     expect(user.totalXp).toBe(80);
     expect(user.completedSteps[`${TRIAL_COURSE}/${TRIAL_CHAPTER}`]).toEqual([0, 1]);
     expect(user.username).toBe("Cadet");
+  });
+
+  it("ne partage pas la référence `badges` avec le singleton DEFAULT_USER", () => {
+    const user = trialStateToUserState({ completedSteps: [], xp: 0 });
+    expect(user.badges).not.toBe(DEFAULT_USER.badges);
+    user.badges.push("badge-triche");
+    expect(DEFAULT_USER.badges).toEqual([]);
   });
 });
 
