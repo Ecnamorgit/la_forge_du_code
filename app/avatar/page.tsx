@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,6 +14,7 @@ import {
   type SpeciesId,
   type UniformColorId,
 } from "@/lib/avatar";
+import { clearTrialState, readTrialState, trialCompletedSteps } from "@/lib/trial-user";
 import { useUser } from "@/lib/use-user";
 
 type Mode = "create" | "edit";
@@ -58,6 +59,27 @@ function AvatarPageInner() {
     if (state.uniformColor) setUniformColor(state.uniformColor as UniformColorId);
     if (state.role) setRole(state.role as RoleId);
   }
+
+  // Importe la progression accumulée en mode essai puis la purge du storage
+  // local. Best-effort : un échec ne doit jamais bloquer l'onboarding, la
+  // perte maximale est la progression d'un seul chapitre d'essai.
+  useEffect(() => {
+    const trialState = readTrialState();
+    if (trialState.completedSteps.length === 0) return;
+
+    void (async () => {
+      try {
+        const res = await fetch("/api/me/trial-import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ steps: trialCompletedSteps(trialState) }),
+        });
+        if (res.ok) clearTrialState();
+      } catch {
+        /* l'onboarding continue : la progression d'essai est perdue, pas le compte */
+      }
+    })();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
