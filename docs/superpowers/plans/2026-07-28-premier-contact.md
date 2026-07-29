@@ -849,25 +849,26 @@ git commit -m "feat(trial): ouvre html/chapitre-1 aux visiteurs, allowlist en eg
 
 **Interfaces:**
 - Consumes: `UserState`, `DEFAULT_USER` (`lib/user-store.ts`) · `xpForStep` (`lib/xp.ts`) · `TRIAL_COURSE`, `TRIAL_CHAPTER` (Task 5)
-- Produces: `TRIAL_STORAGE_KEY`, `TrialState`, `readTrialState()`, `writeTrialState(s)`, `clearTrialState()`, `applyTrialStep(state, stepIndex, objectivesCount)`, `trialStateToUserState(s)`, `trialCompletedSteps(s)`
+- Produces: `TRIAL_STORAGE_KEY`, `TrialState`, `parseTrialState(raw)`, `readTrialState()`, `writeTrialState(s)`, `clearTrialState()`, `applyTrialStep(state, stepIndex, objectivesCount)`, `trialStateToUserState(s)`, `trialCompletedSteps(s)`
 
 Aucune dépendance React ici : la logique doit être testable en environnement node, comme le reste de `lib/`.
+
+**Décision de pré-vol (contrôleur).** La version initiale de cette tâche faisait basculer Vitest en `jsdom` pour tester `readTrialState`. C'est disproportionné : `vitest.config.ts` fixe `environment: "node"` avec le commentaire « Aucune dépendance à la base ni au navigateur », et ça changerait l'environnement des 290 tests existants pour quelques assertions de storage.
+
+À la place, toute la logique de décodage vit dans `parseTrialState(raw: string | null): TrialState`, une fonction pure testée en node. `readTrialState` et `writeTrialState` deviennent des enveloppes triviales autour de `localStorage`, sans logique propre à tester. **Ne pas installer `jsdom`. Ne pas modifier `vitest.config.ts`.**
 
 - [ ] **Step 1: Écrire le test qui échoue**
 
 `lib/trial-user.test.ts` :
 
 ```ts
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
-  TRIAL_STORAGE_KEY,
   applyTrialStep,
-  clearTrialState,
-  readTrialState,
+  parseTrialState,
   trialCompletedSteps,
   trialStateToUserState,
-  writeTrialState,
 } from "./trial-user";
 import { xpForStep } from "./xp";
 import { TRIAL_CHAPTER, TRIAL_COURSE } from "./public-routes";
@@ -902,34 +903,37 @@ describe("applyTrialStep", () => {
   });
 });
 
-describe("readTrialState", () => {
-  beforeEach(() => {
-    window.localStorage.clear();
-  });
+describe("parseTrialState", () => {
+  const EMPTY = { completedSteps: [], xp: 0 };
 
   it("retourne l'état par défaut quand rien n'est stocké", () => {
-    expect(readTrialState()).toEqual({ completedSteps: [], xp: 0 });
+    expect(parseTrialState(null)).toEqual(EMPTY);
+    expect(parseTrialState("")).toEqual(EMPTY);
   });
 
-  it("relit ce qui a été écrit", () => {
-    writeTrialState({ completedSteps: [0, 1], xp: 66 });
-    expect(readTrialState()).toEqual({ completedSteps: [0, 1], xp: 66 });
+  it("décode un état valide", () => {
+    expect(parseTrialState(JSON.stringify({ completedSteps: [0, 1], xp: 66 }))).toEqual({
+      completedSteps: [0, 1],
+      xp: 66,
+    });
   });
 
   it("retombe sur l'état par défaut si le JSON est corrompu", () => {
-    window.localStorage.setItem(TRIAL_STORAGE_KEY, "{ pas du json");
-    expect(readTrialState()).toEqual({ completedSteps: [], xp: 0 });
+    expect(parseTrialState("{ pas du json")).toEqual(EMPTY);
   });
 
   it("retombe sur l'état par défaut si la forme est invalide", () => {
-    window.localStorage.setItem(TRIAL_STORAGE_KEY, JSON.stringify({ xp: "beaucoup" }));
-    expect(readTrialState()).toEqual({ completedSteps: [], xp: 0 });
+    expect(parseTrialState(JSON.stringify({ xp: "beaucoup" }))).toEqual(EMPTY);
+    expect(parseTrialState(JSON.stringify({ completedSteps: "0", xp: 1 }))).toEqual(EMPTY);
+    expect(parseTrialState(JSON.stringify({ completedSteps: [0, "1"], xp: 1 }))).toEqual(EMPTY);
+    expect(parseTrialState(JSON.stringify([1, 2, 3]))).toEqual(EMPTY);
+    expect(parseTrialState("null")).toEqual(EMPTY);
   });
 
-  it("efface l'état", () => {
-    writeTrialState({ completedSteps: [0], xp: 25 });
-    clearTrialState();
-    expect(readTrialState()).toEqual({ completedSteps: [], xp: 0 });
+  it("ne partage pas la référence du tableau décodé", () => {
+    const parsed = parseTrialState(JSON.stringify({ completedSteps: [0], xp: 25 }));
+    parsed.completedSteps.push(99);
+    expect(parseTrialState(JSON.stringify({ completedSteps: [0], xp: 25 })).completedSteps).toEqual([0]);
   });
 });
 
@@ -952,21 +956,7 @@ describe("trialCompletedSteps", () => {
 });
 ```
 
-- [ ] **Step 2: Vérifier que vitest a un environnement DOM**
-
-Ouvrir `vitest.config.ts`. Si `environment` n'est pas `"jsdom"`, ajouter dans `test` :
-
-```ts
-environment: "jsdom",
-```
-
-et installer le paquet :
-
-```bash
-pnpm add -D jsdom
-```
-
-- [ ] **Step 3: Lancer le test pour vérifier qu'il échoue**
+- [ ] **Step 2: Lancer le test pour vérifier qu'il échoue**
 
 ```bash
 pnpm vitest run lib/trial-user.test.ts
@@ -1025,15 +1015,30 @@ function isTrialState(value: unknown): value is TrialState {
   );
 }
 
-/** Lit l'état d'essai ; retourne l'état vide si absent, corrompu ou invalide. */
-export function readTrialState(): TrialState {
-  if (typeof window === "undefined") return { ...EMPTY };
+/**
+ * Décode l'état d'essai depuis sa forme stockée.
+ *
+ * Toute la logique de décodage vit ici, en pur, pour être testable en
+ * environnement node : `readTrialState` n'est qu'une enveloppe autour de
+ * `localStorage`. Retourne l'état vide si l'entrée est absente, corrompue ou
+ * de forme invalide — jamais d'exception.
+ */
+export function parseTrialState(raw: string | null): TrialState {
+  if (!raw) return { ...EMPTY };
   try {
-    const raw = window.localStorage.getItem(TRIAL_STORAGE_KEY);
-    if (!raw) return { ...EMPTY };
     const parsed: unknown = JSON.parse(raw);
     if (!isTrialState(parsed)) return { ...EMPTY };
     return { completedSteps: [...parsed.completedSteps], xp: parsed.xp };
+  } catch {
+    return { ...EMPTY };
+  }
+}
+
+/** Lit l'état d'essai ; état vide si le storage est indisponible. */
+export function readTrialState(): TrialState {
+  if (typeof window === "undefined") return { ...EMPTY };
+  try {
+    return parseTrialState(window.localStorage.getItem(TRIAL_STORAGE_KEY));
   } catch {
     return { ...EMPTY };
   }
@@ -1110,28 +1115,26 @@ export function trialCompletedSteps(state: TrialState): TrialStepRef[] {
 }
 ```
 
-- [ ] **Step 5: Lancer le test pour vérifier qu'il passe**
+- [ ] **Step 4: Lancer le test pour vérifier qu'il passe**
 
 ```bash
 pnpm vitest run lib/trial-user.test.ts
 ```
 
-Attendu : PASS, 11 tests.
+Attendu : PASS, 12 tests.
 
-- [ ] **Step 6: Vérifier qu'aucun test existant n'a cassé**
-
-Le passage éventuel en `jsdom` change l'environnement de toute la suite.
+- [ ] **Step 5: Vérifier qu'aucun test existant n'a cassé**
 
 ```bash
 pnpm test:run
 ```
 
-Attendu : PASS pour les 286 tests existants + les nouveaux.
+Attendu : PASS pour les 300 tests existants + les nouveaux.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add lib/trial-user.ts lib/trial-user.test.ts vitest.config.ts package.json pnpm-lock.yaml
+git add lib/trial-user.ts lib/trial-user.test.ts
 git commit -m "feat(trial): etat de progression local du mode essai (logique pure)"
 ```
 
