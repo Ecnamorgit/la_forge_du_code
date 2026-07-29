@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { logger } from "@/lib/logger";
 import { InvalidStepError, completeStep } from "@/lib/me-server";
-import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
+import { rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import { filterTrialSteps } from "@/lib/trial-import";
 
 export async function POST(req: Request) {
@@ -12,7 +12,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  const limit = await rateLimit(`trial-import:${getClientIp(req)}`, {
+  // Clé sur l'utilisateur authentifié, pas sur l'IP : la route est déjà
+  // authentifiée à ce stade, et l'IP se prête à un partage de bucket (proxy
+  // sans en-tête normalisé -> "unknown" pour tout le monde) ou à une rotation
+  // triviale par l'appelant.
+  const limit = await rateLimit(`trial-import:${session.user.id}`, {
     limit: 10,
     windowMs: 15 * 60 * 1000,
   });
@@ -25,7 +29,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "JSON invalide" }, { status: 400 });
   }
 
-  const steps = filterTrialSteps((raw as { steps?: unknown } | null)?.steps);
+  const rawSteps = (raw as { steps?: unknown } | null)?.steps;
+  const steps = filterTrialSteps(rawSteps);
 
   let imported = 0;
   for (const step of steps) {
@@ -44,6 +49,10 @@ export async function POST(req: Request) {
     }
   }
 
-  logger.info("trial_import", { imported, submitted: steps.length });
+  // On journalise à la fois le nombre reçu (avant filtrage) et le nombre
+  // retenu (après allowlist) : l'écart entre les deux est le seul signal
+  // qui révélerait une tentative de sonder l'endpoint.
+  const rawCount = Array.isArray(rawSteps) ? rawSteps.length : 0;
+  logger.info("trial_import", { imported, submittedRaw: rawCount, submittedFiltered: steps.length });
   return NextResponse.json({ imported });
 }

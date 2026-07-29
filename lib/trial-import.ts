@@ -12,6 +12,17 @@ import type { TrialStepRef } from "./trial-user";
 /** Borne défensive : le chapitre d'essai n'a qu'une poignée d'étapes. */
 const MAX_STEPS = 50;
 
+// Deux protections indépendantes cohabitent ici, et il ne faut retirer
+// aucune des deux en pensant que l'autre suffit :
+//  1. Les branches de rejet en égalité stricte ci-dessous (le garde-fou
+//     principal) : elles éliminent toute entrée qui ne correspond pas
+//     exactement au cursus/chapitre d'essai attendu, quelle que soit sa forme
+//     (objet piégé, prototype pollué, tableau, etc.).
+//  2. La défense en profondeur : l'objet renvoyé par ce filtre construit
+//     `course`/`chapter` en dur à partir de TRIAL_COURSE/TRIAL_CHAPTER, il ne
+//     recopie jamais les valeurs fournies par l'appelant. Même si le garde 1
+//     avait une faille, aucune valeur arbitraire ne pourrait s'échapper par
+//     ce chemin.
 export function filterTrialSteps(steps: unknown): TrialStepRef[] {
   if (!Array.isArray(steps)) return [];
 

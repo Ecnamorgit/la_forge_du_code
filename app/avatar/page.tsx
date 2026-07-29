@@ -74,9 +74,17 @@ function AvatarPageInner() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ steps: trialCompletedSteps(trialState) }),
         });
-        if (res.ok) clearTrialState();
-      } catch {
-        /* l'onboarding continue : la progression d'essai est perdue, pas le compte */
+        if (res.ok) {
+          clearTrialState();
+        } else {
+          // Message stable et greppable : signal le seul endroit où l'échec
+          // de l'import d'essai est visible (le serveur ne log que le succès).
+          console.warn("trial_import_failed", { status: res.status });
+        }
+      } catch (err) {
+        // Idem en cas de coupure réseau : l'onboarding continue, mais l'échec
+        // ne doit plus disparaître silencieusement.
+        console.warn("trial_import_failed", { error: err });
       }
     })();
   }, []);

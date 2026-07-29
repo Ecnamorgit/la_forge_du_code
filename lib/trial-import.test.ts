@@ -49,4 +49,36 @@ describe("filterTrialSteps", () => {
     const mixed = [valid, { course: "css", chapter: "chapitre-1", stepIndex: 0 }];
     expect(filterTrialSteps(mixed)).toEqual([valid]);
   });
+
+  // Pins de régression pour les cas adverses envisagés à la revue mais non
+  // encore couverts : le comportement est déjà correct aujourd'hui, ces tests
+  // ne font que l'épingler.
+
+  it("rejette une charge utile en forme de pollution de prototype", () => {
+    // Les champs valides sont glissés sous "__proto__" plutôt qu'en
+    // propriétés propres de l'entrée. JSON.parse crée "__proto__" comme une
+    // simple clé de données (pas comme le setter de prototype), donc
+    // l'entrée n'a réellement aucune propriété propre course/chapter/
+    // stepIndex : elle doit être rejetée, et le prototype global ne doit pas
+    // être touché.
+    const polluted = JSON.parse(
+      `{"__proto__": {"course": "${TRIAL_COURSE}", "chapter": "${TRIAL_CHAPTER}", "stepIndex": 0}}`
+    );
+    expect(filterTrialSteps([polluted])).toEqual([]);
+    expect((Object.prototype as Record<string, unknown>).course).toBeUndefined();
+  });
+
+  it("rejette un tableau utilisé à la place d'une entrée objet", () => {
+    expect(filterTrialSteps([[TRIAL_COURSE, TRIAL_CHAPTER, 0]])).toEqual([]);
+  });
+
+  it("rejette stepIndex fourni sous forme de chaîne", () => {
+    expect(filterTrialSteps([{ ...valid, stepIndex: "0" }])).toEqual([]);
+  });
+
+  it("rejette NaN et Infinity comme stepIndex", () => {
+    expect(filterTrialSteps([{ ...valid, stepIndex: NaN }])).toEqual([]);
+    expect(filterTrialSteps([{ ...valid, stepIndex: Infinity }])).toEqual([]);
+    expect(filterTrialSteps([{ ...valid, stepIndex: -Infinity }])).toEqual([]);
+  });
 });
