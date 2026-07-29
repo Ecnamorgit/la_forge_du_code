@@ -111,6 +111,10 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
   const [levelUp, setLevelUp] = useState({ trigger: 0, level: 1 });
   const [openDocId, setOpenDocId] = useState<string | null>(null);
   const previousLevelRef = useRef<number>(levelFromXp(state.totalXp));
+  // Ancre de la carte de conversion d'essai (cf. goNextStep) : permet de la
+  // faire défiler jusqu'à l'écran quand le visiteur clique sur le contrôle de
+  // fin de chapitre, au lieu de la laisser sous la ligne de flottaison.
+  const conversionRef = useRef<HTMLDivElement>(null);
 
   const hintTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const xpPopupTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -182,11 +186,23 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
     setShowBanner(false);
     if (currentStep === chapter.steps.length - 1) {
       playFanfare();
+      if (isTrial) {
+        // En essai, CompletionScreen (plein écran, sans contrôle de fermeture
+        // quand `href` est fourni) masquerait la carte de conversion au lieu
+        // de la révéler. La vraie destination de ce clic est cette carte,
+        // déjà montée au moment de ce clic (showConversion suit la
+        // progression d'essai, mise à jour de façon synchrone) : on la fait
+        // défiler jusqu'à l'écran, sans passer par requestAnimationFrame —
+        // superflu ici puisque le nœud est déjà commité, et non fiable si la
+        // page n'est pas au premier plan (rAF gelé, cf. onglets d'arrière-plan).
+        conversionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
       setShowCompletion(true);
       return;
     }
     setCurrentStep(currentStep + 1);
-  }, [currentStep, chapter.steps.length, setCurrentStep]);
+  }, [currentStep, chapter.steps.length, setCurrentStep, isTrial]);
 
   const toggleHint = useCallback(() => {
     setShowHint(true);
@@ -232,7 +248,11 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
         onDimClick={() => setShowBanner(false)}
       />
       <CompletionScreen
-        show={showCompletion}
+        // En essai, ce plein écran n'a ni bouton de fermeture utilisable ni
+        // rapport avec la carte de conversion (cf. goNextStep) : on ne le
+        // monte jamais pour un visiteur sans compte. Comportement connecté
+        // inchangé.
+        show={showCompletion && !isTrial}
         totalXp={xp}
         badgeIcon={chapter.completionBadge}
         badgeLabel={chapter.completionBadgeLabel}
@@ -242,7 +262,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             : undefined
         }
         badgeId={getBadgeForChapter(course, chapter.slug) ?? undefined}
-        href={isTrial ? "/signup" : `/learn/${course}`}
+        href={`/learn/${course}`}
       />
       <HintBox show={showHint} html={step.hint} />
       <DocPanel
@@ -255,10 +275,15 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
       <header className="relative z-50 flex h-14 shrink-0 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/70 px-4 backdrop-blur-md lg:px-6">
         <div className="flex items-center gap-2 lg:gap-4">
           <Link
-            href={`/learn/${course}`}
+            // En essai, `/learn/${course}` retombe derrière le mur d'auth
+            // (middleware -> /login) : la navigation la plus visible du
+            // chapitre enverrait un visiteur sans compte droit dans l'écran
+            // que ce mode existe justement pour éviter. On le renvoie vers
+            // l'accueil, seule destination réellement atteignable pour lui.
+            href={isTrial ? "/" : `/learn/${course}`}
             className="font-tech text-sm uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan"
           >
-            ← Retour
+            {isTrial ? "← Accueil" : "← Retour"}
           </Link>
           <div className="hidden h-5 w-px bg-nebula-border lg:block" />
           <BrandLogo size={32} className="hidden lg:block" />
@@ -468,7 +493,11 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
           </div>
         </div>
 
-        {showConversion && <TrialConversion xp={state.totalXp} />}
+        {showConversion && (
+          <div ref={conversionRef}>
+            <TrialConversion xp={state.totalXp} />
+          </div>
+        )}
       </div>
 
       {/* Footer */}
