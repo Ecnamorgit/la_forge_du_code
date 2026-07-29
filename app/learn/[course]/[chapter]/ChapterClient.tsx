@@ -17,7 +17,9 @@ import VFXBurst from "@/components/ui/VFXBurst";
 import LevelUpOverlay from "@/components/ui/LevelUpOverlay";
 import { unlockAudio, playFanfare } from "@/lib/audio";
 import { useUserContext } from "@/lib/user-context";
-import { getCompletedSteps, levelFromXp } from "@/lib/user-store";
+import { getCompletedSteps, isChapterComplete, levelFromXp } from "@/lib/user-store";
+import TrialBanner from "@/components/lesson/TrialBanner";
+import TrialConversion from "@/components/lesson/TrialConversion";
 import { xpForStep } from "@/lib/xp";
 import { getChapterBackground, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import { CHARACTERS } from "@/lib/characters";
@@ -35,8 +37,10 @@ interface ChapterClientProps {
 }
 
 export default function ChapterClient({ course, chapter }: ChapterClientProps) {
-  const { state, completeStep, markCourseVisited } = useUserContext();
+  const { state, completeStep, markCourseVisited, isTrial } = useUserContext();
   const validators = getValidators(course, chapter.slug);
+  const chapterDone = isChapterComplete(state, course, chapter.slug, chapter.steps.length);
+  const showConversion = isTrial && chapterDone;
 
   // Tag this course as the user's current focus so the dashboard's
   // "Reprendre la mission" picks it on next render. Fire-and-forget.
@@ -196,6 +200,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
+      {isTrial && <TrialBanner />}
       {/* Background */}
       <div
         className="fixed inset-0 pointer-events-none z-0 bg-center bg-cover bg-no-repeat"
@@ -237,7 +242,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             : undefined
         }
         badgeId={getBadgeForChapter(course, chapter.slug) ?? undefined}
-        href={`/learn/${course}`}
+        href={isTrial ? "/signup" : `/learn/${course}`}
       />
       <HintBox show={showHint} html={step.hint} />
       <DocPanel
@@ -447,6 +452,8 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
           />
         </div>
       </div>
+
+      {showConversion && <TrialConversion xp={state.totalXp} />}
 
       {/* Footer */}
       <footer className="relative z-50 flex h-14 shrink-0 items-center justify-between gap-2 border-t border-nebula-border/70 bg-nebula-bg-darkest/70 px-3 backdrop-blur-md lg:h-16 lg:px-6">

@@ -52,6 +52,12 @@ export default function LandingPage() {
       {/* Nav */}
       <PublicHeader>
         <Link
+          href="/codex"
+          className="whitespace-nowrap font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan sm:text-sm"
+        >
+          Codex
+        </Link>
+        <Link
           href="/login"
           className="whitespace-nowrap font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan sm:text-sm"
         >
@@ -103,16 +109,16 @@ export default function LandingPage() {
 
           <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
             <Link
-              href="/signup"
+              href="/learn/html/chapitre-1"
               className="rounded-sm bg-nebula-cyan px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-8 sm:py-4 sm:text-base"
             >
-              {"> "}Démarrer la mission
+              {"> "}Essayer sans compte
             </Link>
             <Link
-              href="/login"
+              href="/signup"
               className="rounded-sm border border-nebula-cyan-dim bg-transparent px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-cyan transition-all hover:border-nebula-cyan hover:bg-nebula-cyan-faint sm:px-8 sm:py-4 sm:text-base"
             >
-              J&apos;ai déjà un compte
+              S&apos;inscrire
             </Link>
           </div>
 

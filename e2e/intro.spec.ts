@@ -7,11 +7,8 @@ test.describe("intro d'arrivée", () => {
     await expect(skip).toBeVisible();
     await skip.click();
     await expect(skip).toBeHidden();
-    // NB : le lien « essayer sans compte » (Task 5, pas encore posé à ce
-    // stade du plan) n'existe pas encore sur la landing. On vérifie ici que
-    // la page en dessous du crawl redevient bien interactive.
     await expect(
-      page.getByRole("heading", { name: /nebula command/i })
+      page.getByRole("link", { name: /essayer sans compte/i })
     ).toBeVisible();
   });
 
