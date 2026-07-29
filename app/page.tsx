@@ -4,12 +4,17 @@ import Image from "next/image";
 import BrandLogo from "@/components/ui/BrandLogo";
 import IntroCinematicMount from "@/components/intro/IntroCinematicMount";
 import ReplayIntroButton from "@/components/intro/ReplayIntroButton";
+import PublicHeader from "@/components/ui/PublicHeader";
+import TrackLandingView from "@/components/ui/TrackLandingView";
+import TrialCtaLink from "@/components/ui/TrialCtaLink";
 
 export default function LandingPage() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden overflow-y-auto">
       {/* Cinématique d'intro (auto-play 1re visite, rejouable) */}
       <IntroCinematicMount />
+      {/* Comptage minimal : une vue = un évènement, sans identifiant */}
+      <TrackLandingView />
 
       {/* Background layers */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-bg" />
@@ -49,30 +54,26 @@ export default function LandingPage() {
       </div>
 
       {/* Nav */}
-      <header className="relative z-50 flex h-16 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/80 px-4 backdrop-blur-md sm:px-6">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <BrandLogo size={40} />
-          <div className="truncate font-tech text-sm tracking-widest sm:text-base">
-            <span className="text-nebula-cyan">NEBULA</span>
-            <span className="ml-1 hidden text-nebula-text-secondary sm:inline">COMMAND</span>
-          </div>
-        </div>
-
-        <nav className="flex shrink-0 items-center gap-3 sm:gap-6">
-          <Link
-            href="/login"
-            className="whitespace-nowrap font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan sm:text-sm"
-          >
-            Se connecter
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-sm bg-nebula-cyan px-3 py-2 font-tech text-xs font-bold uppercase tracking-widest text-nebula-bg-darkest shadow-[0_3px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_2px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-4 sm:text-sm"
-          >
-            S&apos;inscrire
-          </Link>
-        </nav>
-      </header>
+      <PublicHeader>
+        <Link
+          href="/codex"
+          className="whitespace-nowrap font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan sm:text-sm"
+        >
+          Codex
+        </Link>
+        <Link
+          href="/login"
+          className="whitespace-nowrap font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan sm:text-sm"
+        >
+          Se connecter
+        </Link>
+        <Link
+          href="/signup"
+          className="rounded-sm bg-nebula-cyan px-3 py-2 font-tech text-xs font-bold uppercase tracking-widest text-nebula-bg-darkest shadow-[0_3px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_2px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-4 sm:text-sm"
+        >
+          S&apos;inscrire
+        </Link>
+      </PublicHeader>
 
       {/*
         Content wrapper :
@@ -111,17 +112,14 @@ export default function LandingPage() {
           </p>
 
           <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+            <TrialCtaLink className="rounded-sm bg-nebula-cyan px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-8 sm:py-4 sm:text-base">
+              {"> "}Essayer sans compte
+            </TrialCtaLink>
             <Link
               href="/signup"
-              className="rounded-sm bg-nebula-cyan px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none sm:px-8 sm:py-4 sm:text-base"
-            >
-              {"> "}Démarrer la mission
-            </Link>
-            <Link
-              href="/login"
               className="rounded-sm border border-nebula-cyan-dim bg-transparent px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-cyan transition-all hover:border-nebula-cyan hover:bg-nebula-cyan-faint sm:px-8 sm:py-4 sm:text-base"
             >
-              J&apos;ai déjà un compte
+              S&apos;inscrire
             </Link>
           </div>
 

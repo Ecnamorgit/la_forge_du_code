@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 
 import { authConfig } from "@/auth.config";
+import { isPublicRoute } from "@/lib/public-routes";
 
 const { auth } = NextAuth(authConfig);
 
@@ -12,9 +13,9 @@ export default auth((req) => {
   const { pathname, search } = req.nextUrl;
   const isAuthed = !!req.auth;
 
-  const isProtected = PROTECTED_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`)
-  );
+  const isProtected =
+    PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`)) &&
+    !isPublicRoute(pathname);
 
   if (isProtected && !isAuthed) {
     const url = req.nextUrl.clone();

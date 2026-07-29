@@ -31,7 +31,7 @@ export const INTRO_SCENES: IntroScene[] = [
   },
   {
     id: 2,
-    narration: "« Initialisation... Bonjour Cadet. Je suis KIRA, ton I.A. de bord. Je vais guider chacun de tes pas. »",
+    narration: "« Transmissions ouvertes... Bonjour Cadet. Je suis l'Ingénieure en Chef Kira Vesper. Assistée de l'I.A. H.E.L.P., nous allons guider chacun de tes pas. »",
     visual: "orbit",
   },
   {
@@ -48,9 +48,8 @@ export const INTRO_SCENES: IntroScene[] = [
 
 /**
  * Persiste que l'intro a été vue ; no-op si le storage est indisponible.
- * NB : la lecture automatique ne dépend plus de ce drapeau — elle n'a lieu
- * qu'au premier login (dashboard, compte sans avatar). Le drapeau reste
- * écrit à titre d'historique.
+ * Lu par `hasSeenIntro()` pour n'auto-jouer le crawl qu'une fois par
+ * navigateur.
  */
 export function markIntroSeen(): void {
   if (typeof window === "undefined") return;
@@ -58,5 +57,16 @@ export function markIntroSeen(): void {
     window.localStorage.setItem(INTRO_STORAGE_KEY, "true");
   } catch {
     /* ignore */
+  }
+}
+
+/** L'intro a-t-elle déjà été vue dans ce navigateur ? */
+export function hasSeenIntro(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    return window.localStorage.getItem(INTRO_STORAGE_KEY) === "true";
+  } catch {
+    // Storage indisponible : ne pas imposer l'intro à chaque navigation.
+    return true;
   }
 }

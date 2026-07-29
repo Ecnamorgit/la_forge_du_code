@@ -45,9 +45,9 @@ export const SPECTRE_TAUNT_THRESHOLD = 2;
  * à la fois, choisie de façon déterministe par le compteur d'échecs pour rester
  * testable et éviter la répétition immédiate.
  */
-const SPECTRE_TAUNTS: readonly string[] = [
+export const SPECTRE_TAUNTS: readonly string[] = [
   "Encore une anomalie. Le systeme te rejette, Cadet.",
-  "Chaque erreur nourrit le Null. Poursuis.",
+  "Chaque erreur nourrit le Spectre. Poursuis.",
   "Ton code se fissure. Je n'ai qu'a attendre.",
   "Deploiement refuse. Comme prevu.",
   "Tu confonds agitation et competence.",

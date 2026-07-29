@@ -17,6 +17,7 @@ import {
   playDeployBip,
   playFanfare,
 } from "@/lib/audio";
+import { useModalOverlay } from "@/lib/use-modal-overlay";
 
 interface IntroCinematicProps {
   /** Quand false, rien n'est rendu. */
@@ -65,6 +66,7 @@ export default function IntroCinematic({
 }: IntroCinematicProps) {
   const [index, setIndex] = useState(0);
   const [soundOn, setSoundOn] = useState(false);
+  const [prevOpen, setPrevOpen] = useState(open);
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -73,16 +75,17 @@ export default function IntroCinematic({
     onClose();
   }, [onClose]);
 
-  // Repart à la première scène à chaque ouverture
-  // (reset intentionnel : le composant reste monté entre deux ouvertures).
-  useEffect(() => {
-    if (open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset volontaire à l'ouverture
-      setIndex(0);
-    }
-  }, [open]);
+  // Repart aux scènes à chaque ouverture (reset intentionnel : le composant
+  // reste monté entre deux ouvertures). Ajusté pendant le rendu plutôt que
+  // dans un effet — c'est le fonctionnement post-signup, le crawl a déjà été
+  // vu sur la landing (IntroCinematicMount + StarWarsCrawl) et ne rejoue
+  // jamais ici : ce composant ne montre que les cinq scènes.
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) setIndex(0);
+  }
 
-  // Auto-défilement (désactivé en reduced-motion).
+  // Auto-défilement des scènes (désactivé en reduced-motion).
   useEffect(() => {
     if (!open || reducedMotion) return;
     clearTimeout(timerRef.current);
@@ -103,45 +106,9 @@ export default function IntroCinematic({
     else playDeployBip();
   }, [open, index, soundOn]);
 
-  // Échap ferme ; Tab est piégé dans l'overlay (aria-modal doit contenir le focus).
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        finish();
-        return;
-      }
-      if (e.key !== "Tab") return;
-      const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
-      if (!focusables || focusables.length === 0) return;
-      const list = Array.from(focusables);
-      const first = list[0];
-      const last = list[list.length - 1];
-      const active = document.activeElement;
-      if (e.shiftKey && (active === first || active === dialogRef.current)) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && active === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, finish]);
-
-  // Focus l'overlay à l'ouverture, et rend le focus à l'élément déclencheur
-  // (ex. bouton « Revoir l'intro ») à la fermeture.
-  useEffect(() => {
-    if (!open) return;
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    dialogRef.current?.focus();
-    return () => {
-      previouslyFocused?.focus?.();
-    };
-  }, [open]);
+  // Échap ferme, Tab reste piégé dans l'overlay, et le focus initial va au
+  // conteneur (comportement standard partagé — voir use-modal-overlay).
+  useModalOverlay(dialogRef, { open, onClose: finish });
 
   if (!open) return null;
 
@@ -168,60 +135,7 @@ export default function IntroCinematic({
       tabIndex={-1}
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-nebula-bg-darkest outline-none"
     >
-      <div className="pointer-events-none absolute inset-0 bg-nebula-stars opacity-40" />
-
-      <div
-        key={reducedMotion ? "static" : index}
-        className={`relative flex h-auto my-2 w-full max-w-2xl items-center justify-center px-4 ${
-          reducedMotion ? "" : "animate-intro-scene-in"
-        }`}
-      >
-        <SceneVisual scene={scene} reducedMotion={reducedMotion} />
-      </div>
-
-      <p
-        aria-live="polite"
-        className="mt-6 max-w-xl px-6 text-center font-tech text-lg tracking-wide text-nebula-cyan sm:text-xl"
-      >
-        {scene.narration}
-      </p>
-
-      {isLast && (
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <Link
-            href="/avatar?from=/dashboard"
-            onClick={finish}
-            className="rounded-sm bg-nebula-cyan px-6 py-3 text-center font-tech text-sm font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest transition-all hover:translate-y-px active:translate-y-[3px]"
-          >
-            {"> "}Configurer mon Cadet
-          </Link>
-        </div>
-      )}
-
-      <div className="mt-8 flex items-center gap-3">
-        <div className="flex gap-2">
-          {INTRO_SCENES.map((s, i) => (
-            <button
-              key={s.id}
-              aria-label={`Aller à la scène ${i + 1}`}
-              onClick={() => setIndex(i)}
-              className={`h-2 w-2 rounded-full transition-colors ${
-                i === index ? "bg-nebula-cyan" : "bg-nebula-border"
-              }`}
-            />
-          ))}
-        </div>
-        {reducedMotion && !isLast && (
-          <button
-            onClick={goNext}
-            className="ml-2 font-tech text-xs uppercase tracking-widest text-nebula-cyan hover:underline"
-          >
-            Suivant →
-          </button>
-        )}
-      </div>
-
-      <div className="absolute right-4 top-4 flex items-center gap-4">
+      <div className="absolute right-4 top-4 z-30 flex items-center gap-4">
         <button
           onClick={toggleSound}
           aria-label={soundOn ? "Couper le son" : "Activer le son"}
@@ -233,8 +147,70 @@ export default function IntroCinematic({
           onClick={finish}
           className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan"
         >
-          Passer ✕
+          Fermer ✕
         </button>
+      </div>
+
+      <div className="pointer-events-none absolute inset-0 bg-nebula-stars opacity-50" />
+
+      <div
+        key={reducedMotion ? "static" : index}
+        className={`relative my-2 flex h-auto w-full max-w-2xl items-center justify-center px-4 ${
+          reducedMotion ? "" : "animate-intro-scene-in"
+        }`}
+      >
+        <SceneVisual scene={scene} reducedMotion={reducedMotion} />
+      </div>
+
+      <p
+        aria-live="polite"
+        className="mt-4 min-h-[4rem] max-w-xl px-6 text-center font-tech text-lg tracking-wide text-nebula-cyan sm:text-xl"
+      >
+        {scene.narration}
+      </p>
+
+      {/* Navigation manuelle explicite inter-slides */}
+      <div className="mt-4 flex items-center justify-center gap-4 z-20">
+        {index > 0 && (
+          <button
+            onClick={() => setIndex((i) => Math.max(0, i - 1))}
+            className="rounded-sm border border-nebula-border bg-nebula-bg-panel/80 px-4 py-2 font-tech text-xs uppercase tracking-widest text-nebula-cyan transition-colors hover:border-nebula-cyan"
+          >
+            ← Précédent
+          </button>
+        )}
+
+        {!isLast ? (
+          <button
+            onClick={goNext}
+            className="rounded-sm bg-nebula-cyan px-5 py-2 font-tech text-xs font-bold uppercase tracking-widest text-nebula-bg-darkest transition-all hover:brightness-110"
+          >
+            Suivant →
+          </button>
+        ) : (
+          <Link
+            href="/avatar?from=/dashboard"
+            onClick={finish}
+            className="rounded-sm bg-nebula-cyan px-6 py-2.5 text-center font-tech text-xs font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest transition-all hover:translate-y-px active:translate-y-[3px]"
+          >
+            {"> "}Configurer mon Cadet
+          </Link>
+        )}
+      </div>
+
+      <div className="mt-6 flex items-center gap-3 z-20">
+        <div className="flex gap-2">
+          {INTRO_SCENES.map((s, i) => (
+            <button
+              key={s.id}
+              aria-label={`Aller à la scène ${i + 1}`}
+              onClick={() => setIndex(i)}
+              className={`h-2.5 w-2.5 rounded-full transition-all ${
+                i === index ? "bg-nebula-cyan scale-125 shadow-[0_0_8px_rgba(0,240,255,0.8)]" : "bg-nebula-border hover:bg-nebula-cyan/50"
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

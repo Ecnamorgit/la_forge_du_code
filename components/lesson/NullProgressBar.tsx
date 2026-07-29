@@ -2,7 +2,7 @@
 
 import { useUser } from "@/lib/use-user";
 import { getCourseProgress } from "@/lib/user-store";
-import { nullProgressLabel } from "@/lib/null-progress";
+import { nullProgressLabel, nullProgressAriaLabel } from "@/lib/null-progress";
 
 interface NullProgressBarProps {
   course: string;
@@ -11,7 +11,7 @@ interface NullProgressBarProps {
 }
 
 /**
- * Jauge « recul du Null » d'un cursus : la corruption (violet) est repoussée
+ * Jauge « recul du Spectre » d'un cursus : la corruption (violet) est repoussée
  * par un remplissage cyan→vert à mesure des étapes validées. Progression lue
  * via getCourseProgress ; rendu stable (0 %) tant que le store n'est pas hydraté.
  */
@@ -22,7 +22,7 @@ export default function NullProgressBar({ course, chapters }: NullProgressBarPro
   const isPurged = tone === "purged";
 
   return (
-    <div aria-label={`Recul du Null : ${pct}% du secteur purgé`}>
+    <div aria-label={nullProgressAriaLabel(pct)}>
       <div className="mb-1 flex items-center justify-between">
         <span
           className={`font-tech text-[10px] uppercase tracking-[0.3em] ${

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,6 +14,7 @@ import {
   type SpeciesId,
   type UniformColorId,
 } from "@/lib/avatar";
+import { clearTrialState, readTrialState, trialCompletedSteps } from "@/lib/trial-user";
 import { useUser } from "@/lib/use-user";
 
 type Mode = "create" | "edit";
@@ -58,6 +59,35 @@ function AvatarPageInner() {
     if (state.uniformColor) setUniformColor(state.uniformColor as UniformColorId);
     if (state.role) setRole(state.role as RoleId);
   }
+
+  // Importe la progression accumulée en mode essai puis la purge du storage
+  // local. Best-effort : un échec ne doit jamais bloquer l'onboarding, la
+  // perte maximale est la progression d'un seul chapitre d'essai.
+  useEffect(() => {
+    const trialState = readTrialState();
+    if (trialState.completedSteps.length === 0) return;
+
+    void (async () => {
+      try {
+        const res = await fetch("/api/me/trial-import", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ steps: trialCompletedSteps(trialState) }),
+        });
+        if (res.ok) {
+          clearTrialState();
+        } else {
+          // Message stable et greppable : signal le seul endroit où l'échec
+          // de l'import d'essai est visible (le serveur ne log que le succès).
+          console.warn("trial_import_failed", { status: res.status });
+        }
+      } catch (err) {
+        // Idem en cas de coupure réseau : l'onboarding continue, mais l'échec
+        // ne doit plus disparaître silencieusement.
+        console.warn("trial_import_failed", { error: err });
+      }
+    })();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

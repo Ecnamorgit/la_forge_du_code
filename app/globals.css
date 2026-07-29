@@ -89,6 +89,15 @@
   filter: brightness(0.42) saturate(0.55);
 }
 
+.bg-nebula-stars {
+  background-image: url("/space-background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  filter: brightness(0.7) saturate(0.75);
+}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar {
   width: 5px;
@@ -831,3 +840,29 @@
   100% { opacity: 1; transform: scale(1) rotate(0deg); }
 }
 .animate-intro-planet-settle { animation: intro-planet-settle 1.2s ease-out both; }
+
+/* ── STAR WARS STYLE CRAWL 3D ── */
+.starwars-crawl-container {
+  perspective: 550px;
+  perspective-origin: 50% 100%;
+}
+.starwars-crawl-content {
+  transform: rotateX(16deg);
+  transform-origin: 50% 100%;
+  /* Durée pilotée par le composant via --crawl-duration (défaut : teaser). */
+  animation: starwars-crawl var(--crawl-duration, 15s) linear forwards;
+}
+@keyframes starwars-crawl {
+  0% {
+    transform: rotateX(16deg) translateY(85%);
+    opacity: 0.98;
+  }
+  85% {
+    opacity: 0.98;
+  }
+  100% {
+    transform: rotateX(16deg) translateY(-165%);
+    opacity: 0;
+  }
+}
+

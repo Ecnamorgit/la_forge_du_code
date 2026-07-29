@@ -74,6 +74,11 @@ La session utilise un **cookie d'authentification** (JWT signé, `httpOnly`),
 strictement nécessaire au fonctionnement — pas de consentement requis pour ce
 seul usage. Aucun cookie publicitaire ni de mesure d'audience tierce.
 
+Un **comptage interne** enregistre trois évènements agrégés (`landing_vue`,
+`essai_lance`, `inscription`) : un nom et un horodatage, sans adresse IP, sans
+cookie et sans identifiant de visiteur. Il ne permet pas de reconstituer un
+parcours individuel et n'implique aucun sous-traitant tiers.
+
 ## 9. À finaliser
 
 - Publier une **politique de confidentialité** et des **mentions légales**.
