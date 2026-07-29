@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import StarWarsCrawl from "./StarWarsCrawl";
 import { hasSeenIntro, markIntroSeen } from "@/lib/intro";
+import { useModalOverlay } from "@/lib/use-modal-overlay";
 
 /** Évènement window déclenchant une relecture depuis n'importe quel bouton. */
 export const REPLAY_INTRO_EVENT = "nebula:replay-intro";
@@ -20,6 +21,7 @@ export const REPLAY_INTRO_EVENT = "nebula:replay-intro";
 export default function IntroCinematicMount() {
   const [open, setOpen] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   const handleClose = useCallback(() => {
     markIntroSeen();
@@ -36,10 +38,29 @@ export default function IntroCinematicMount() {
     return () => window.removeEventListener(REPLAY_INTRO_EVENT, onReplay);
   }, []);
 
+  // Même contrat modal que la cinématique post-inscription (Échap, piège à
+  // Tab) : la landing reste rendue dessous pour les crawlers, mais ne doit
+  // pas être atteignable au clavier tant que le crawl est ouvert. Le focus
+  // initial va au bouton « Passer »/« Continuer » plutôt qu'au conteneur, car
+  // c'est le seul contrôle utile ici.
+  useModalOverlay(overlayRef, {
+    open,
+    onClose: handleClose,
+    getInitialFocusTarget: () =>
+      overlayRef.current?.querySelector<HTMLElement>("button") ?? null,
+  });
+
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100]">
+    <div
+      ref={overlayRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Transmission d'introduction Nebula Command"
+      tabIndex={-1}
+      className="fixed inset-0 z-[100] outline-none"
+    >
       <StarWarsCrawl
         reducedMotion={reducedMotion}
         onComplete={handleClose}

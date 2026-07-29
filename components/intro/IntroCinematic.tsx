@@ -17,6 +17,7 @@ import {
   playDeployBip,
   playFanfare,
 } from "@/lib/audio";
+import { useModalOverlay } from "@/lib/use-modal-overlay";
 
 interface IntroCinematicProps {
   /** Quand false, rien n'est rendu. */
@@ -105,45 +106,9 @@ export default function IntroCinematic({
     else playDeployBip();
   }, [open, index, soundOn]);
 
-  // Échap ferme ; Tab est piégé dans l'overlay (aria-modal doit contenir le focus).
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        finish();
-        return;
-      }
-      if (e.key !== "Tab") return;
-      const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
-      if (!focusables || focusables.length === 0) return;
-      const list = Array.from(focusables);
-      const first = list[0];
-      const last = list[list.length - 1];
-      const active = document.activeElement;
-      if (e.shiftKey && (active === first || active === dialogRef.current)) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && active === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, finish]);
-
-  // Focus l'overlay à l'ouverture, et rend le focus à l'élément déclencheur
-  // (ex. bouton « Revoir l'intro ») à la fermeture.
-  useEffect(() => {
-    if (!open) return;
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    dialogRef.current?.focus();
-    return () => {
-      previouslyFocused?.focus?.();
-    };
-  }, [open]);
+  // Échap ferme, Tab reste piégé dans l'overlay, et le focus initial va au
+  // conteneur (comportement standard partagé — voir use-modal-overlay).
+  useModalOverlay(dialogRef, { open, onClose: finish });
 
   if (!open) return null;
 

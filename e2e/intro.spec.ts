@@ -3,10 +3,13 @@ import { expect, test } from "@playwright/test";
 test.describe("intro d'arrivée", () => {
   test("joue le crawl à la première visite et le laisse passer", async ({ page }) => {
     await page.goto("/");
+    const overlay = page.getByRole("dialog", { name: /transmission/i });
+    await expect(overlay).toBeVisible();
     const skip = page.getByRole("button", { name: /passer|continuer/i });
     await expect(skip).toBeVisible();
     await skip.click();
     await expect(skip).toBeHidden();
+    await expect(overlay).toBeHidden();
     await expect(
       page.getByRole("link", { name: /essayer sans compte/i })
     ).toBeVisible();
