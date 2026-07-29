@@ -16,7 +16,7 @@ export const chapitre6: ChapterData = {
         "J'ai coupé le fil entre ton clavier et l'état, Cadet. Tape tout ce que tu veux, ce champ n'en gardera pas une lettre — retrouve l'onChange manquant, si tu en es capable.",
       placeholder: "// <input value={nom} onChange={(e) => setNom(e.target.value)} />",
       narrator:
-        "Un input controle affiche exactement ce que contient l'etat React, jamais autre chose. Pour que l'utilisateur puisse taper, l'etat doit se mettre a jour a chaque frappe : c'est le role de onChange. Sans lui, le champ affiche l'etat mais ignore totalement le clavier.",
+        "Un input controle affiche exactement ce que contient l'etat React, jamais autre chose. Pour taper au clavier, tu dois mettre a jour l'etat a chaque frappe : c'est le role de onChange. Sans lui, ton champ affiche l'etat mais ignore totalement tes frappes au clavier.",
       hint: "import { useState } from 'react';\n\nfunction ConsoleSaisie() {\n  const [nom, setNom] = useState('');\n  return (\n    <input value={nom} onChange={(e) => setNom(e.target.value)} />\n  );\n}",
       briefing: {
         title: "L'input controle : value + onChange",

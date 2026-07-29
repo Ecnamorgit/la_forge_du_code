@@ -69,6 +69,19 @@ describe("React chapitre 6 — etape 1 (input controle, piege Spectre)", () => {
     const r = v(code);
     expect(r.ok).toBe(false);
   });
+
+  it("valide un onChange qui delegue a un handler nomme appelant le setter (finding 2)", () => {
+    const code = `
+      import { useState } from 'react';
+      function ConsoleSaisie() {
+        const [nom, setNom] = useState('');
+        function handleChange(e) { setNom(e.target.value); }
+        return <input value={nom} onChange={handleChange} />;
+      }
+    `;
+    const r = v(code);
+    expect(r.ok).toBe(true);
+  });
 });
 
 describe("React chapitre 6 — etape 2 (objet d'etat pour plusieurs champs)", () => {
@@ -134,6 +147,21 @@ describe("React chapitre 6 — etape 2 (objet d'etat pour plusieurs champs)", ()
       function handleChange(e) {
         const { name, value } = e.target;
         setFormulaire({ [name]: value });
+      }
+    `;
+    const r = v(code);
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/spread|copie|\.\.\./i);
+  });
+
+  it("echoue si un appel setFormulaire ecrase l'etat meme quand un AUTRE appel utilise le spread (finding 1)", () => {
+    const code = `
+      const [formulaire, setFormulaire] = useState({ nom: '', email: '' });
+      function handleNomChange(e) {
+        setFormulaire({ nom: e.target.value });
+      }
+      function handleEmailChange(e) {
+        setFormulaire({ ...formulaire, email: e.target.value });
       }
     `;
     const r = v(code);

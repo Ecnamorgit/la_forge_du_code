@@ -166,3 +166,167 @@ export function hasEmptyLengthCheck(code: string, varName: string): boolean {
     new RegExp(`!\\s*${v}\\.length\\b`).test(code)
   );
 }
+
+// ---------------------------------------------------------------------------
+// Helpers JSX / appels bruts, partages par les validateurs statiques qui
+// scannent du JSX (props d'une balise, indirection vers une fonction nommee).
+// Promus depuis lib/validators/react/chapitre-6.ts (voir finding 4 de la
+// revue) car chapitre-6 n'est pas le seul a en avoir besoin : chapitre-7
+// (hooks personnalises) et chapitre-8 (contexte, useReducer) manipulent eux
+// aussi des appels BRUTS (`useReducer(...)`, `createContext(...)`, pas des
+// `.methodName(...)`) et de l'indirection de handler JSX.
+// ---------------------------------------------------------------------------
+
+/**
+ * Localise une balise JSX `<tagName ...>` (ouvrante ou auto-fermante) et
+ * renvoie le texte de ses attributs, en equilibrant les accolades `{ }` (et
+ * en ignorant '..' , "..", `..`) pour qu'un `>` a l'interieur d'une fleche
+ * (`onChange={(e) => ...}`) ne termine pas la balise trop tot.
+ *
+ * Limite : un scanner heuristique, pas un parseur JSX. Ne gere pas un enfant
+ * JSX passe en valeur de prop avant la fin de la balise ciblee. Suffisant
+ * pour reperer LA balise <input>/<form>/<button> unique de ces exercices.
+ */
+export function findJsxTagAttrs(
+  code: string,
+  tagName: string,
+  fromIndex = 0
+): { body: string; start: number; end: number } | null {
+  const openRe = new RegExp(`<${tagName}\\b`);
+  const rel = code.slice(fromIndex).search(openRe);
+  if (rel === -1) return null;
+  const start = fromIndex + rel;
+  let i = start + tagName.length + 1;
+  let depth = 0;
+  while (i < code.length) {
+    const ch = code[i];
+    if (ch === "'" || ch === '"' || ch === "`") {
+      i = skipStringLiteral(code, i, ch) + 1;
+      continue;
+    }
+    if (ch === "{") depth++;
+    else if (ch === "}") depth--;
+    else if (ch === ">" && depth === 0) {
+      return { body: code.slice(start, i + 1), start, end: i + 1 };
+    }
+    i++;
+  }
+  return null;
+}
+
+/**
+ * Extrait le contenu entre accolades d'une prop JSX `attrName={ ... }`, en
+ * equilibrant les accolades internes (fleche avec corps bloc, objet litteral
+ * imbrique...). Renvoie null si la prop est absente de `tagBody`.
+ */
+export function extractAttrValue(tagBody: string, attrName: string): string | null {
+  const marker = new RegExp(`\\b${escapeRegExp(attrName)}\\s*=\\s*\\{`);
+  const m = marker.exec(tagBody);
+  if (!m) return null;
+  let i = m.index + m[0].length;
+  let depth = 1;
+  const start = i;
+  while (i < tagBody.length && depth > 0) {
+    const ch = tagBody[i];
+    if (ch === "'" || ch === '"' || ch === "`") {
+      i = skipStringLiteral(tagBody, i, ch) + 1;
+      continue;
+    }
+    if (ch === "{") depth++;
+    else if (ch === "}") depth--;
+    i++;
+  }
+  return tagBody.slice(start, i - 1);
+}
+
+/**
+ * Trouve la prochaine occurrence d'un appel de fonction BARE (pas de `.` qui
+ * precede, contrairement a `findCallBody` ci-dessus qui cible specifiquement
+ * `.methodName(...)`) — utile pour `setFormulaire(...)`, `useReducer(...)`,
+ * `createContext(...)`, qui sont des appels de fonction directs, pas des
+ * methodes d'objet. Equilibre les parentheses et ignore les chaines, pour
+ * capturer tout l'argument meme s'il contient lui-meme des parentheses (ex:
+ * une fleche `(prev) => ({...})`).
+ *
+ * Appeler avec `fromIndex = match.end` pour iterer sur toutes les
+ * occurrences, comme pour `findCallBody`.
+ */
+export function findBareCallBody(
+  code: string,
+  fnName: string,
+  fromIndex = 0
+): { body: string; start: number; end: number } | null {
+  const nameRe = new RegExp(`\\b${escapeRegExp(fnName)}\\s*\\(`);
+  let searchFrom = fromIndex;
+  while (searchFrom <= code.length) {
+    const rel = code.slice(searchFrom).search(nameRe);
+    if (rel === -1) return null;
+    const m = nameRe.exec(code.slice(searchFrom));
+    const start = searchFrom + rel;
+    const openIdx = start + (m ? m[0].length - 1 : 0);
+    let depth = 0;
+    let i = openIdx;
+    let closeIdx = -1;
+    for (; i < code.length; i++) {
+      const ch = code[i];
+      if (ch === "'" || ch === '"' || ch === "`") {
+        i = skipStringLiteral(code, i, ch);
+        continue;
+      }
+      if (ch === "(") depth++;
+      else if (ch === ")") {
+        depth--;
+        if (depth === 0) {
+          closeIdx = i;
+          break;
+        }
+      }
+    }
+    if (closeIdx === -1) {
+      searchFrom = openIdx + 1;
+      continue;
+    }
+    return { body: code.slice(openIdx + 1, closeIdx), start, end: closeIdx + 1 };
+  }
+  return null;
+}
+
+/**
+ * Retrouve le corps d'une fonction NOMMEE (declaration `function nom(...) {}`
+ * ou `const nom = (...) => {}` / `const nom = function(...) {}`), en
+ * equilibrant les accolades. Sert a suivre une indirection JSX (ex:
+ * `onSubmit={handleSubmit}`, `onChange={handleChange}`) jusqu'a la
+ * definition de la fonction quand la prop ne contient qu'un identifiant
+ * plutot qu'une fleche inline.
+ *
+ * Limite : ne resout qu'UN niveau d'indirection (pas de handler qui renvoie
+ * lui-meme une autre fonction), et suppose un corps de bloc `{ ... }` — un
+ * corps expression sans accolades (`const f = (e) => e.preventDefault()`)
+ * n'est pas suivi par ce helper.
+ */
+export function findNamedFunctionBody(code: string, name: string): string | null {
+  const n = escapeRegExp(name);
+  let m = new RegExp(`function\\s+${n}\\s*\\([^)]*\\)\\s*\\{`).exec(code);
+  if (!m) {
+    m = new RegExp(
+      `(?:const|let|var)\\s+${n}\\s*=\\s*(?:function\\s*)?\\([^)]*\\)\\s*(?:=>)?\\s*\\{`
+    ).exec(code);
+  }
+  if (!m) return null;
+  const braceStart = m.index + m[0].length - 1;
+  let depth = 0;
+  let i = braceStart;
+  for (; i < code.length; i++) {
+    const ch = code[i];
+    if (ch === "'" || ch === '"' || ch === "`") {
+      i = skipStringLiteral(code, i, ch);
+      continue;
+    }
+    if (ch === "{") depth++;
+    else if (ch === "}") {
+      depth--;
+      if (depth === 0) break;
+    }
+  }
+  return code.slice(braceStart + 1, i);
+}

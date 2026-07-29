@@ -1,187 +1,42 @@
 import type { Validator } from "@/data/courses/html/types";
-import { stripLineComments, fail, pass } from "../_static-utils";
+import {
+  stripLineComments,
+  fail,
+  pass,
+  findJsxTagAttrs,
+  extractAttrValue,
+  findBareCallBody,
+  findNamedFunctionBody,
+} from "../_static-utils";
 
 const strip = (code: string) => stripLineComments(code, "//");
 
 // ---------------------------------------------------------------------------
-// Helpers locaux, scopes a ce fichier.
-//
-// _static-utils expose des helpers pour des APPELS de methode (`.map(...)`),
-// mais rien pour une prop JSX (`onChange={...}`) : la syntaxe est differente
-// (accolades, pas parentheses) et une prop peut contenir une fleche qui
-// embarque elle-meme un `=>`, donc un `>` — un `[^>]*` naif couperait la
-// balise en plein milieu de `(e) => setNom(...)`. D'ou les deux scanners
-// ci-dessous, qui equilibrent les accolades et ignorent les chaines, plutot
-// qu'une regex globale sur tout le fichier.
+// findJsxTagAttrs / extractAttrValue / findBareCallBody / findNamedFunctionBody
+// vivent desormais dans _static-utils.ts (generiques, reutilisees par les
+// chapitres suivants sur les hooks/le contexte). Voir leurs doc-comments
+// la-bas pour le detail de leurs heuristiques et limites.
 // ---------------------------------------------------------------------------
 
-function skipString(code: string, start: number, quote: string): number {
-  let i = start + 1;
-  while (i < code.length) {
-    if (code[i] === "\\") {
-      i += 2;
-      continue;
-    }
-    if (code[i] === quote) return i;
-    i++;
-  }
-  return i;
-}
-
-function escapeRegExp(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 /**
- * Localise une balise JSX `<tagName ...>` (ouvrante ou auto-fermante) et
- * renvoie le texte de ses attributs, en equilibrant les accolades `{ }` (et
- * en ignorant '..' , "..", `..`) pour qu'un `>` a l'interieur d'une fleche
- * (`onChange={(e) => ...}`) ne termine pas la balise trop tot.
- *
- * Limite : un scanner heuristique, pas un parseur JSX. Ne gere pas un enfant
- * JSX passe en valeur de prop avant la fin de la balise ciblee. Suffisant
- * pour reperer LA balise <input>/<form>/<button> unique de ces exercices.
+ * Resout la valeur d'une prop handler JSX (onChange, onSubmit...) vers le
+ * code a inspecter : si c'est un identifiant nu (`handleSubmit`) ou une
+ * fleche qui delegue directement a un nom (`(e) => handleSubmit(e)`), suit
+ * la definition de la fonction nommee correspondante via
+ * `findNamedFunctionBody`. Sinon (fleche avec un corps propre), renvoie la
+ * valeur telle quelle. Si le nom resolu n'est pas une fonction nommee
+ * trouvable (ex: un setter comme `setNom`), retombe sur la valeur d'origine
+ * plutot que d'echouer.
  */
-function findJsxTagAttrs(
-  code: string,
-  tagName: string,
-  fromIndex = 0
-): { body: string; start: number; end: number } | null {
-  const openRe = new RegExp(`<${tagName}\\b`);
-  const rel = code.slice(fromIndex).search(openRe);
-  if (rel === -1) return null;
-  const start = fromIndex + rel;
-  let i = start + tagName.length + 1;
-  let depth = 0;
-  while (i < code.length) {
-    const ch = code[i];
-    if (ch === "'" || ch === '"' || ch === "`") {
-      i = skipString(code, i, ch) + 1;
-      continue;
-    }
-    if (ch === "{") depth++;
-    else if (ch === "}") depth--;
-    else if (ch === ">" && depth === 0) {
-      return { body: code.slice(start, i + 1), start, end: i + 1 };
-    }
-    i++;
-  }
-  return null;
-}
-
-/**
- * Extrait le contenu entre accolades d'une prop JSX `attrName={ ... }`, en
- * equilibrant les accolades internes (fleche avec corps bloc, objet litteral
- * imbrique...). Renvoie null si la prop est absente de `tagBody`.
- */
-function extractAttrValue(tagBody: string, attrName: string): string | null {
-  const marker = new RegExp(`\\b${escapeRegExp(attrName)}\\s*=\\s*\\{`);
-  const m = marker.exec(tagBody);
-  if (!m) return null;
-  let i = m.index + m[0].length;
-  let depth = 1;
-  const start = i;
-  while (i < tagBody.length && depth > 0) {
-    const ch = tagBody[i];
-    if (ch === "'" || ch === '"' || ch === "`") {
-      i = skipString(tagBody, i, ch) + 1;
-      continue;
-    }
-    if (ch === "{") depth++;
-    else if (ch === "}") depth--;
-    i++;
-  }
-  return tagBody.slice(start, i - 1);
-}
-
-/**
- * Trouve la prochaine occurrence d'un appel de fonction BARE (pas de `.` qui
- * precede, contrairement a `findCallBody` de _static-utils qui cible
- * specifiquement `.methodName(...)`) — utile ici pour `setFormulaire(...)`,
- * qui est un appel de fonction directe, pas une methode d'objet. Equilibre
- * les parentheses et ignore les chaines, pour capturer tout l'argument meme
- * s'il contient lui-meme des parentheses (ex: une fleche `(prev) => ({...})`).
- *
- * Appeler avec `fromIndex = match.end` pour iterer sur toutes les occurrences,
- * comme pour `findCallBody`.
- */
-function findBareCallBody(
-  code: string,
-  fnName: string,
-  fromIndex = 0
-): { body: string; start: number; end: number } | null {
-  const nameRe = new RegExp(`\\b${escapeRegExp(fnName)}\\s*\\(`);
-  let searchFrom = fromIndex;
-  while (searchFrom <= code.length) {
-    const rel = code.slice(searchFrom).search(nameRe);
-    if (rel === -1) return null;
-    const m = nameRe.exec(code.slice(searchFrom));
-    const start = searchFrom + rel;
-    const openIdx = start + (m ? m[0].length - 1 : 0);
-    let depth = 0;
-    let i = openIdx;
-    let closeIdx = -1;
-    for (; i < code.length; i++) {
-      const ch = code[i];
-      if (ch === "'" || ch === '"' || ch === "`") {
-        i = skipString(code, i, ch);
-        continue;
-      }
-      if (ch === "(") depth++;
-      else if (ch === ")") {
-        depth--;
-        if (depth === 0) {
-          closeIdx = i;
-          break;
-        }
-      }
-    }
-    if (closeIdx === -1) {
-      searchFrom = openIdx + 1;
-      continue;
-    }
-    return { body: code.slice(openIdx + 1, closeIdx), start, end: closeIdx + 1 };
-  }
-  return null;
-}
-
-/**
- * Retrouve le corps d'une fonction NOMMEE (declaration `function nom(...) {}`
- * ou `const nom = (...) => {}` / `const nom = function(...) {}`), en
- * equilibrant les accolades. Sert a suivre `onSubmit={handleSubmit}` jusqu'a
- * la definition de `handleSubmit` quand la prop ne contient qu'un identifiant
- * plutot qu'une fleche inline.
- *
- * Limite : ne resout qu'UN niveau d'indirection (pas de handler qui renvoie
- * lui-meme une autre fonction), et suppose un corps de bloc `{ ... }` — un
- * corps expression sans accolades (`const f = (e) => e.preventDefault()`)
- * n'est pas suivi par ce helper.
- */
-function findNamedFunctionBody(code: string, name: string): string | null {
-  const n = escapeRegExp(name);
-  let m = new RegExp(`function\\s+${n}\\s*\\([^)]*\\)\\s*\\{`).exec(code);
-  if (!m) {
-    m = new RegExp(
-      `(?:const|let|var)\\s+${n}\\s*=\\s*(?:function\\s*)?\\([^)]*\\)\\s*(?:=>)?\\s*\\{`
-    ).exec(code);
-  }
-  if (!m) return null;
-  const braceStart = m.index + m[0].length - 1;
-  let depth = 0;
-  let i = braceStart;
-  for (; i < code.length; i++) {
-    const ch = code[i];
-    if (ch === "'" || ch === '"' || ch === "`") {
-      i = skipString(code, i, ch);
-      continue;
-    }
-    if (ch === "{") depth++;
-    else if (ch === "}") {
-      depth--;
-      if (depth === 0) break;
-    }
-  }
-  return code.slice(braceStart + 1, i);
+function resolveHandlerSource(code: string, attrValue: string): string {
+  const identMatch = /^\s*([A-Za-z_$][\w$]*)\s*$/.exec(attrValue);
+  const delegateMatch = identMatch
+    ? null
+    : /^\s*\([^)]*\)\s*=>\s*([A-Za-z_$][\w$]*)\s*\([^)]*\)\s*;?\s*$/.exec(attrValue);
+  const name = identMatch ? identMatch[1] : delegateMatch ? delegateMatch[1] : null;
+  if (!name) return attrValue;
+  const fnBody = findNamedFunctionBody(code, name);
+  return fnBody !== null ? fnBody : attrValue;
 }
 
 export const validators: Validator[] = [
@@ -202,7 +57,13 @@ export const validators: Validator[] = [
         "Le Spectre a coupe l'ecoute du clavier : ajoute onChange={(e) => setNom(e.target.value)} sur l'input."
       );
     }
-    if (!/\bset[A-Z]\w*\s*\(/.test(onChangeValue)) {
+    // onChange peut etre une fleche inline OU un identifiant qui delegue a un
+    // handler nomme (ex: onChange={handleChange}) — c'est justement le motif
+    // enseigne par l'etape 2 suivante. On suit cette indirection avant de
+    // chercher l'appel au setter, sinon la forme la plus idiomatique du
+    // controlled input est rejetee a tort.
+    const handlerSource = resolveHandlerSource(c, onChangeValue);
+    if (!/\bset[A-Z]\w*\s*\(/.test(handlerSource)) {
       return fail(
         "Ton onChange existe mais ne met a jour aucun etat : appelle le setter (ex: setNom(e.target.value)) a l'interieur."
       );
@@ -213,6 +74,20 @@ export const validators: Validator[] = [
   // Step 2: useState({ ... }) + mise a jour par spread, avec soit une cle
   // calculee ([name]: value), soit les deux champs geres separement (mais
   // toujours via spread, jamais en ecrasant l'objet).
+  //
+  // Chaque appel a setFormulaire(...) est evalue INDEPENDAMMENT (finding 1
+  // de la revue) : l'ancienne version faisait un OU global sur hasSpread a
+  // travers TOUS les appels, si bien qu'un seul appel correct (avec spread)
+  // "blanchissait" un autre appel du meme fichier qui ecrasait l'etat sans
+  // spread — exactement le bug que cette etape est censee faire echouer.
+  // On garde volontairement le framing "au moins UN bon appel, AUCUN mauvais
+  // appel" plutot que "un unique appel qui reunit toutes les conditions" :
+  // le cas legitime "nom et email geres par deux handlers separes" (test
+  // ci-dessous) n'a JAMAIS un seul appel qui contient a la fois nom ET
+  // email — la couverture des deux champs se lit forcement a travers
+  // plusieurs appels. Seule la regle d'immutabilite (spread) doit valoir
+  // pour CHAQUE appel individuellement, car un seul appel sans spread suffit
+  // a perdre des donnees a chaque frappe, meme si un autre appel est correct.
   (code) => {
     const c = strip(code);
     if (!/useState\s*\(\s*\{/.test(c)) {
@@ -226,20 +101,26 @@ export const validators: Validator[] = [
         "Mets a jour l'etat via le setter de l'objet (setFormulaire({ ...formulaire, ... }))."
       );
     }
-    let hasSpread = false;
+    let hasBadCall = false;
     let hasComputedKey = false;
     const literalKeys = new Set<string>();
     while (match) {
-      if (/\.\.\.\s*[A-Za-z_$][\w$]*/.test(match.body)) hasSpread = true;
-      if (/\[\s*[\w.]+\s*\]\s*:/.test(match.body)) hasComputedKey = true;
-      for (const m of match.body.matchAll(/\b(nom|email)\s*:/g)) {
-        literalKeys.add(m[1]);
+      const spread = /\.\.\.\s*[A-Za-z_$][\w$]*/.test(match.body);
+      if (!spread) {
+        // Cet appel precis ecrase l'etat : peu importe qu'un AUTRE appel
+        // fasse le spread correctement, celui-ci perd des donnees.
+        hasBadCall = true;
+      } else {
+        if (/\[\s*[\w.]+\s*\]\s*:/.test(match.body)) hasComputedKey = true;
+        for (const m of match.body.matchAll(/\b(nom|email)\s*:/g)) {
+          literalKeys.add(m[1]);
+        }
       }
       match = findBareCallBody(c, "setFormulaire", match.end);
     }
-    if (!hasSpread) {
+    if (hasBadCall) {
       return fail(
-        "Mets a jour l'etat par copie : setFormulaire({ ...formulaire, ... }), jamais en ecrasant l'objet entier."
+        "Mets a jour l'etat par copie : setFormulaire({ ...formulaire, ... }), jamais en ecrasant l'objet entier. Verifie que TOUS tes appels a setFormulaire font le spread, pas seulement certains."
       );
     }
     if (!hasComputedKey && literalKeys.size < 2) {
@@ -262,12 +143,12 @@ export const validators: Validator[] = [
       );
     }
     const onSubmitValue = extractAttrValue(formTag.body, "onSubmit") ?? "";
-    let handlerSource = onSubmitValue;
-    const identMatch = /^\s*([A-Za-z_$][\w$]*)\s*$/.exec(onSubmitValue);
-    if (identMatch) {
-      const fnBody = findNamedFunctionBody(c, identMatch[1]);
-      if (fnBody !== null) handlerSource = fnBody;
-    }
+    // Suit aussi bien une reference nue (onSubmit={handleSubmit}) qu'un
+    // wrapper qui delegue directement (onSubmit={(e) => handleSubmit(e)}) :
+    // ce dernier est un style courant qui ne doit pas etre penalise juste
+    // parce que le preventDefault vit dans la fonction nommee et pas dans
+    // la fleche elle-meme.
+    const handlerSource = resolveHandlerSource(c, onSubmitValue);
     if (!/\.preventDefault\s*\(\s*\)/.test(handlerSource)) {
       return fail(
         "Empeche le rechargement de la page : appelle e.preventDefault() dans le gestionnaire attache a onSubmit."
