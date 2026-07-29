@@ -25,3 +25,10 @@ test("un utilisateur vérifié peut se connecter", async ({ page }) => {
   await page.getByRole("button", { name: /se connecter/i }).click();
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
 });
+
+test("le codex est public et rend le lore", async ({ page }) => {
+  const response = await page.goto("/codex");
+  expect(response?.status()).toBe(200);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText(/codex/i);
+  await expect(page.getByRole("heading", { name: /spectre/i })).toBeVisible();
+});
