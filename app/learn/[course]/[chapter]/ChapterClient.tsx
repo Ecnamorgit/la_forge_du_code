@@ -479,7 +479,13 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
               step={step}
               validate={validate}
               language={
-                course === "javascript" ? "javascript" : course === "sql" ? "sql" : "html"
+                course === "javascript"
+                  ? "javascript"
+                  : course === "sql"
+                    ? "sql"
+                    : course === "react"
+                      ? "react"
+                      : "html"
               }
               sqlConfig={
                 course === "sql" ? getSqlStepConfig(chapter.slug, currentStep) : undefined
