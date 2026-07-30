@@ -5,6 +5,7 @@ import {
   pass,
   findBareCallBody,
   findNamedFunctionBody,
+  matchClosing,
 } from "../_static-utils";
 
 const strip = (code: string) => stripLineComments(code, "//");
@@ -48,36 +49,6 @@ function findHookBodyMatching(
 }
 
 /**
- * Trouve la position de la parenthese fermante correspondant a l'ouvrante en
- * `openIdx`, ou -1. Utilitaire local pour l'etape 4, qui doit delimiter les
- * blocs `if (...) { ... }`.
- */
-function matchParen(code: string, openIdx: number): number {
-  let depth = 0;
-  for (let i = openIdx; i < code.length; i++) {
-    if (code[i] === "(") depth++;
-    else if (code[i] === ")") {
-      depth--;
-      if (depth === 0) return i;
-    }
-  }
-  return -1;
-}
-
-/** Idem pour une accolade. */
-function matchBrace(code: string, openIdx: number): number {
-  let depth = 0;
-  for (let i = openIdx; i < code.length; i++) {
-    if (code[i] === "{") depth++;
-    else if (code[i] === "}") {
-      depth--;
-      if (depth === 0) return i;
-    }
-  }
-  return -1;
-}
-
-/**
  * Un appel de hook (`useXxx(`) est-il enferme dans un bloc `if (...) { ... }` ?
  *
  * Limite assumee, et volontairement etroite : on ne voit que les `if` suivis
@@ -92,7 +63,7 @@ function hookCallInsideIfBlock(code: string): boolean {
   let m: RegExpExecArray | null;
   while ((m = ifRe.exec(code)) !== null) {
     const openParen = m.index + m[0].length - 1;
-    const closeParen = matchParen(code, openParen);
+    const closeParen = matchClosing(code, openParen);
     if (closeParen === -1) continue;
 
     const after = code.slice(closeParen + 1);
@@ -100,7 +71,7 @@ function hookCallInsideIfBlock(code: string): boolean {
     if (braceOffset === -1 || after[braceOffset] !== "{") continue;
 
     const openBrace = closeParen + 1 + braceOffset;
-    const closeBrace = matchBrace(code, openBrace);
+    const closeBrace = matchClosing(code, openBrace);
     if (closeBrace === -1) continue;
 
     const block = code.slice(openBrace, closeBrace);

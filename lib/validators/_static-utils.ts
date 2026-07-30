@@ -86,6 +86,38 @@ function skipStringLiteral(code: string, start: number, quote: string): number {
 }
 
 /**
+ * Trouve l'index du delimiteur fermant correspondant a celui ouvert en
+ * `openIdx`. Accepte `(`, `{` et `[`, en ignorant le contenu des chaines
+ * '...', "..." et `...`. Renvoie -1 si le delimiteur n'est pas equilibre, ou
+ * si `openIdx` ne pointe pas sur un delimiteur ouvrant connu.
+ *
+ * Meme limite que le reste de ce module : c'est un compteur de profondeur, pas
+ * un parseur. Il ne voit pas les delimiteurs dans une regex litterale.
+ */
+export function matchClosing(code: string, openIdx: number): number {
+  const pairs: Record<string, string> = { "(": ")", "{": "}", "[": "]" };
+  const open = code[openIdx];
+  if (open === undefined) return -1;
+  const close = pairs[open];
+  if (close === undefined) return -1;
+
+  let depth = 0;
+  for (let i = openIdx; i < code.length; i++) {
+    const ch = code[i];
+    if (ch === "'" || ch === '"' || ch === "`") {
+      i = skipStringLiteral(code, i, ch);
+      continue;
+    }
+    if (ch === open) depth++;
+    else if (ch === close) {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+/**
  * Cherche le prochain appel `.methodName(...)` a partir de `fromIndex` et
  * renvoie le contenu de ses parentheses en equilibrant leur profondeur —
  * plutot qu'en cherchant juste la position du PREMIER `.methodName(` et du

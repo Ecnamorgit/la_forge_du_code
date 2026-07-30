@@ -81,6 +81,7 @@ const BADGE_BY_CHAPTER: Record<string, Record<string, string>> = {
     "chapitre-5": "react-fleet",
     "chapitre-6": "react-forms",
     "chapitre-7": "react-hooks",
+    "chapitre-8": "react-context",
   },
   typescript: { "chapitre-1": "ts-shield" },
   git: { "chapitre-1": "git-archivist" },

@@ -35,6 +35,7 @@ import { chapitre4 as reactCh4 } from "@/data/courses/react/chapitre-4";
 import { chapitre5 as reactCh5 } from "@/data/courses/react/chapitre-5";
 import { chapitre6 as reactCh6 } from "@/data/courses/react/chapitre-6";
 import { chapitre7 as reactCh7 } from "@/data/courses/react/chapitre-7";
+import { chapitre8 as reactCh8 } from "@/data/courses/react/chapitre-8";
 import { chapitre1 as tsCh1 } from "@/data/courses/typescript/chapitre-1";
 import { chapitre1 as gitCh1 } from "@/data/courses/git/chapitre-1";
 import { chapitre1 as sqlCh1 } from "@/data/courses/sql/chapitre-1";
@@ -57,7 +58,16 @@ const REGISTRY: Record<string, Record<string, ChapterData>> = {
   javascript: toMap([
     jsCh1, jsCh2, jsCh3, jsCh4, jsCh5, jsCh6, jsCh7, jsCh8, jsCh9, jsCh10, jsCh11, jsCh12,
   ]),
-  react: toMap([reactCh1, reactCh2, reactCh3, reactCh4, reactCh5, reactCh6, reactCh7]),
+  react: toMap([
+    reactCh1,
+    reactCh2,
+    reactCh3,
+    reactCh4,
+    reactCh5,
+    reactCh6,
+    reactCh7,
+    reactCh8,
+  ]),
   typescript: toMap([tsCh1]),
   git: toMap([gitCh1]),
   sql: toMap([sqlCh1]),
