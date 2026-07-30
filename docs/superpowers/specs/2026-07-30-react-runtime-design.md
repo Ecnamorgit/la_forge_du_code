@@ -235,8 +235,16 @@ d'écrire le reste.
 
 **Vérifié le 2026-07-30** sous CSP de production : `script-src 'self'` autorise
 bien une iframe `srcdoc` à origine opaque à charger un script depuis l'origine
-du parent. Le repli par inlining n'est pas nécessaire. Gardé par
-`e2e/csp-srcdoc-script.spec.ts`.
+du parent. Le repli par inlining n'est pas nécessaire.
+
+`e2e/csp-srcdoc-script.spec.ts` prouve cette propriété quand il tourne contre
+un build de production (`pnpm build && pnpm start`) : il lit l'en-tête CSP de
+la réponse et échoue si le script ne charge pas. Contre le serveur de
+développement, l'en-tête est absent (`next.config.ts`, garde `isProd`) et le
+test se saute explicitement plutôt que de passer pour la mauvaise raison. Le
+job e2e de la CI (`.github/workflows/ci.yml`) démarre `pnpm dev`, donc **ce
+test ne garde rien automatiquement en CI aujourd'hui** — il faut le lancer à
+la main contre un build de production pour ré-vérifier cette propriété.
 
 ---
 

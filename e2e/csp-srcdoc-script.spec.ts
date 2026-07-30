@@ -12,7 +12,22 @@ import { expect, test } from "@playwright/test";
  * tard, l'apercu React casse et ce test le dit.
  */
 test("une iframe srcdoc charge un script de l'origine du parent", async ({ page }) => {
-  await page.goto("/");
+  const response = await page.goto("/");
+  const csp = response?.headers()["content-security-policy"];
+
+  // La CSP n'est emise qu'en production (next.config.ts, garde `isProd`). Sans
+  // en-tete, ce test ne prouve rien : on le saute explicitement plutot que de
+  // le laisser passer pour la mauvaise raison.
+  test.skip(
+    !csp,
+    "CSP absente : lance ce test contre `pnpm build && pnpm start`, pas contre le serveur de developpement."
+  );
+
+  // Garde-fou supplementaire : si `script-src` disparaissait de la CSP (par
+  // exemple une regression dans next.config.ts), le test suivant passerait
+  // pour la mauvaise raison — n'importe quel script serait autorise. On
+  // verifie donc explicitement que la directive est bien presente.
+  expect(csp, "La CSP ne contient pas de directive script-src.").toContain("script-src");
 
   const recu = await page.evaluate(() => {
     return new Promise<string>((resolve) => {

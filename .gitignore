@@ -21,6 +21,9 @@
 
 # monaco assets self-hébergés (copiés par scripts/copy-monaco.mjs)
 /public/monaco/
+# bundle du runtime React genere par scripts/build-react-runtime.mjs — sauf
+# probe.js, ecrit a la main et suivi par git (force-add), qui sert la sonde
+# CSP e2e (e2e/csp-srcdoc-script.spec.ts).
 /public/react-runtime/
 
 # next.js
