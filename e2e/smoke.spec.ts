@@ -32,3 +32,30 @@ test("le codex est public et rend le lore", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toContainText(/codex/i);
   await expect(page.getByRole("heading", { name: /spectre/i })).toBeVisible();
 });
+
+test("le cursus React annonce une analyse statique, pas un faux apercu", async ({ page }) => {
+  await page.goto("/login");
+  await page.locator("#email").fill(E2E_USER.email);
+  await page.locator("#password").fill(E2E_USER.password);
+  await page.getByRole("button", { name: /se connecter/i }).click();
+  await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
+
+  await page.goto("/learn/react/chapitre-7");
+
+  // L'onglet de l'editeur ne doit plus mentir en annoncant du HTML.
+  await expect(page.getByText("App.jsx", { exact: true })).toBeVisible();
+  await expect(page.getByText("index.html", { exact: true })).toHaveCount(0);
+
+  // Le panneau annonce ce qu'il fait vraiment, et l'iframe d'apercu HTML —
+  // qui affichait le JSX en desordre — n'est plus montee.
+  await expect(page.getByText(/Analyse statique/i).first()).toBeVisible();
+  await expect(page.getByText(/Apercu en direct/i)).toHaveCount(0);
+  await expect(page.locator('iframe[title="Apercu"]')).toHaveCount(0);
+});
+
+test("le cursus HTML garde son apercu en direct", async ({ page }) => {
+  await page.goto("/learn/html/chapitre-1");
+  await expect(page.getByText("index.html", { exact: true })).toBeVisible();
+  await expect(page.locator('iframe[title="Apercu"]')).toHaveCount(1);
+  await expect(page.getByText(/Analyse statique/i)).toHaveCount(0);
+});

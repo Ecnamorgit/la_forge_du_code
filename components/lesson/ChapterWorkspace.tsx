@@ -22,7 +22,7 @@ import {
 import { CHARACTERS } from "@/lib/characters";
 import type { CombatTheme } from "@/lib/combat-theme";
 
-type Language = "html" | "javascript" | "sql";
+type Language = "html" | "javascript" | "sql" | "react";
 
 interface ChapterWorkspaceProps {
   step: Step;
@@ -74,6 +74,11 @@ export default function ChapterWorkspace({
 }: ChapterWorkspaceProps) {
   const isJs = language === "javascript";
   const isSql = language === "sql";
+  // React : pas encore d'apercu execute. Le code de l'apprenant n'est pas
+  // transforme (JSX) ni monte, la validation est purement statique. On l'annonce
+  // au lieu d'injecter le JSX dans l'iframe HTML, ce qui affichait du texte en
+  // desordre sous une etiquette « Apercu en direct » — une fausse promesse.
+  const isReact = language === "react";
   const [code, setCode] = useState(step.startCode);
   const [sqlView, setSqlView] = useState<SqlQueryResult | null>(null);
   const [feedback, setFeedback] = useState<{
@@ -112,10 +117,10 @@ export default function ChapterWorkspace({
   }, []);
 
   useEffect(() => {
-    if (!isJs && iframeRef.current) {
+    if (!isJs && !isReact && iframeRef.current) {
       iframeRef.current.srcdoc = step.startCode;
     }
-  }, [isJs, step.startCode]);
+  }, [isJs, isReact, step.startCode]);
 
   const handleCodeChange = useCallback(
     (newCode: string) => {
@@ -205,8 +210,15 @@ export default function ChapterWorkspace({
   const spectreTaunt =
     feedback.type === "err" ? getSpectreTaunt(failCount) : null;
 
-  const editorTabLabel = isJs ? "script.js" : isSql ? "query.sql" : "index.html";
-  const editorLanguage = isJs ? "javascript" : isSql ? "sql" : "html";
+  const editorTabLabel = isJs
+    ? "script.js"
+    : isSql
+      ? "query.sql"
+      : isReact
+        ? "App.jsx"
+        : "index.html";
+  // Monaco n'a pas de mode "jsx" distinct : javascript colore correctement le JSX.
+  const editorLanguage = isJs || isReact ? "javascript" : isSql ? "sql" : "html";
 
   return (
     <section className="flex min-h-0 flex-1 flex-col bg-nebula-bg-dark/30 backdrop-blur-md">
@@ -254,7 +266,14 @@ export default function ChapterWorkspace({
             <>
               <div className="h-2.5 w-2.5 rounded-full bg-nebula-green shadow-[0_0_8px_rgba(0,255,136,0.6)]" />
               <span className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary">
-                {"> "}{isJs ? "Console" : isSql ? "Resultat" : "Apercu en direct"}
+                {"> "}
+                {isJs
+                  ? "Console"
+                  : isSql
+                    ? "Resultat"
+                    : isReact
+                      ? "Analyse statique"
+                      : "Apercu en direct"}
               </span>
               <span className="font-body text-sm italic text-nebula-text-dim">
                 — En attente du prochain deploiement<span className="terminal-cursor">_</span>
@@ -382,6 +401,24 @@ export default function ChapterWorkspace({
               ))}
             </ul>
           )}
+        </div>
+      ) : isReact ? (
+        <div
+          className={`flex-1 min-h-0 overflow-y-auto bg-nebula-bg-darkest/80 px-5 py-4 ${
+            mobilePanel === "editor" ? "hidden lg:block" : "block"
+          }`}
+        >
+          <div className="mb-3 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
+            {"> "}Analyse statique
+          </div>
+          <p className="mb-2 font-body text-sm leading-relaxed text-nebula-text-secondary">
+            Ton code React est <strong className="text-nebula-cyan">analyse</strong>, pas execute :
+            la structure est verifiee etape par etape, et le message ci-dessus te dit ce qui
+            manque.
+          </p>
+          <p className="font-body text-sm leading-relaxed text-nebula-text-dim">
+            L&apos;apercu visuel des composants n&apos;est pas encore disponible sur ce cursus.
+          </p>
         </div>
       ) : (
         <iframe

@@ -86,12 +86,16 @@ export function inferToneFromError(error: string | null): ErrorTone | undefined 
  * → structure ; JS/SQL restent génériques (undefined → « BRECHE DETECTEE »).
  */
 const DEFAULT_TONE_BY_LANGUAGE: Record<
-  "html" | "javascript" | "sql",
+  "html" | "javascript" | "sql" | "react",
   ErrorTone | undefined
 > = {
   html: "structure",
   javascript: undefined,
   sql: undefined,
+  // React : les validateurs du cursus posent une tonalité explicite quand elle
+  // compte (structure vs logic). Rester générique ici évite d'étiqueter une
+  // erreur de logique comme un défaut de structure.
+  react: undefined,
 };
 
 /**
@@ -101,7 +105,7 @@ const DEFAULT_TONE_BY_LANGUAGE: Record<
 export function resolveErrorTone(
   validatorTone: ErrorTone | undefined,
   jsError: string | null,
-  language: "html" | "javascript" | "sql",
+  language: "html" | "javascript" | "sql" | "react",
 ): ErrorTone | undefined {
   return validatorTone ?? inferToneFromError(jsError) ?? DEFAULT_TONE_BY_LANGUAGE[language];
 }
