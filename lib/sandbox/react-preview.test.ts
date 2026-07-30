@@ -38,14 +38,26 @@ describe("buildPreviewSrcdoc", () => {
     expect(html).toContain("unhandledrejection");
   });
 
-  it("emet preview:rendered juste apres root.render", () => {
-    // Signal de succes necessaire au chien de garde du parent (ReactPreview) :
-    // sans lui, un rendu reussi et un rendu fige dans une boucle infinie sont
-    // indiscernables de l'exterieur.
-    const renderIdx = html.indexOf("root.render(");
-    const renderedIdx = html.indexOf('"preview:rendered"');
-    expect(renderIdx).toBeGreaterThan(-1);
-    expect(renderedIdx).toBeGreaterThan(renderIdx);
+  it("acquitte le rendu depuis un effet monte, pas apres root.render", () => {
+    // La proximite avec root.render est la MAUVAISE propriete a verifier : React
+    // 19 ne rend pas de facon synchrone, il planifie. Un accuse poste juste
+    // apres root.render partirait avant que le composant de l'apprenant ait
+    // tourne une seule fois, et desarmerait le chien de garde precisement dans
+    // le cas qu'il doit attraper (une boucle infinie).
+    //
+    // Ce qui compte : l'accuse part d'un useEffect, donc apres le commit.
+    expect(html).toContain("preview:rendered");
+    expect(html).toMatch(/React\.useEffect\([\s\S]{0,120}preview:rendered/);
+
+    // Et il n'est PAS emis dans la foulee de root.render.
+    const apresRender = html.slice(html.indexOf("root.render("));
+    const finDuRender = apresRender.slice(0, apresRender.indexOf("} catch"));
+    expect(finDuRender).not.toContain("preview:rendered");
+  });
+
+  it("transmet le nonce du rendu a l'accuse", () => {
+    // Sans nonce, l'accuse du rendu n desarmerait la surveillance du rendu n+1.
+    expect(html).toContain("nonce: props.nonce");
   });
 
   it("derive les globales de React au lieu de les enumerer", () => {
@@ -64,10 +76,19 @@ describe("parsePreviewMessage", () => {
     });
   });
 
-  it("accepte rendered", () => {
-    expect(parsePreviewMessage(evt({ type: "preview:rendered" }), source)).toEqual({
+  it("accepte rendered avec son nonce", () => {
+    expect(parsePreviewMessage(evt({ type: "preview:rendered", nonce: 7 }), source)).toEqual({
       type: "rendered",
+      nonce: 7,
     });
+  });
+
+  it("rejette rendered sans nonce exploitable", () => {
+    // Un accuse sans identifiant desarmerait n'importe quelle surveillance.
+    expect(parsePreviewMessage(evt({ type: "preview:rendered" }), source)).toBeNull();
+    expect(
+      parsePreviewMessage(evt({ type: "preview:rendered", nonce: "7" }), source)
+    ).toBeNull();
   });
 
   it("accepte une erreur portee", () => {

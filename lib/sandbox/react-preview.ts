@@ -13,7 +13,7 @@ export type PreviewErrorKind = "transform" | "mount" | "runtime";
 
 export type PreviewMessage =
   | { type: "ready" }
-  | { type: "rendered" }
+  | { type: "rendered"; nonce: number }
   | { type: "error"; kind: PreviewErrorKind; message: string };
 
 /**
@@ -32,16 +32,27 @@ export function parsePreviewMessage(
 ): PreviewMessage | null {
   if (source === null || event.source !== source) return null;
 
-  const data = event.data as { type?: unknown; kind?: unknown; message?: unknown } | null;
+  const data = event.data as {
+    type?: unknown;
+    kind?: unknown;
+    message?: unknown;
+    nonce?: unknown;
+  } | null;
   if (typeof data !== "object" || data === null) return null;
 
   if (data.type === "preview:ready") return { type: "ready" };
 
-  // Emis par l'iframe juste apres un montage reussi. Sert de signal de succes
-  // au chien de garde du parent (ReactPreview) : sans lui, un rendu fige (boucle
-  // infinie dans le composant) ne se distingue en rien d'un rendu simplement
-  // lent, puisqu'aucune erreur n'est levee dans les deux cas.
-  if (data.type === "preview:rendered") return { type: "rendered" };
+  // Émis depuis un effet MONTÉ dans l'arbre, donc après commit — jamais juste
+  // après `root.render`, qui ne fait que planifier. Sert de signal de succès au
+  // chien de garde du parent : sans lui, un rendu figé par une boucle infinie
+  // ne se distingue pas d'un rendu simplement lent.
+  //
+  // Le `nonce` identifie le rendu acquitté : sans lui, l'accusé du rendu n
+  // désarmerait le chien de garde armé pour le rendu n+1.
+  if (data.type === "preview:rendered") {
+    if (typeof data.nonce !== "number") return null;
+    return { type: "rendered", nonce: data.nonce };
+  }
 
   if (data.type === "preview:error") {
     if (typeof data.message !== "string") return null;
@@ -139,7 +150,22 @@ export function buildPreviewSrcdoc(origin: string): string {
           return /^use[A-Z]/.test(k) || k === "createContext" || k === "Fragment" || k === "memo";
         });
 
-        var monter = function (js, mount) {
+        // Sonde de montage : son effet ne tourne qu'APRES le commit React. Si le
+        // composant de l'apprenant ne rend jamais la main (boucle infinie dans
+        // son corps), le commit n'a pas lieu, cet effet ne tourne pas, aucun
+        // accuse n'est poste, et le chien de garde du parent se declenche.
+        //
+        // Poster juste apres la demande de rendu serait faux : React 19 ne rend
+        // pas de facon synchrone, il planifie. L'accuse arriverait avant que le
+        // code de l'apprenant ait tourne une seule fois.
+        var Sonde = function (props) {
+          React.useEffect(function () {
+            envoyer({ type: "preview:rendered", nonce: props.nonce });
+          }, []);
+          return null;
+        };
+
+        var monter = function (js, mount, nonce) {
           try {
             // On detache AVANT de demonter : si unmount leve, root ne reste
             // pas pointe sur une racine morte que chaque deploiement suivant
@@ -173,11 +199,15 @@ export function buildPreviewSrcdoc(origin: string): string {
             }
 
             root = ReactDOM.createRoot(conteneur);
-            root.render(React.createElement(Frontiere, null, React.createElement(Composant)));
-            // Signal de succes pour le chien de garde du parent : sans lui, un
-            // rendu qui a reussi et un rendu fige dans une boucle infinie sont
-            // indiscernables de l'exterieur (aucun des deux ne leve).
-            envoyer({ type: "preview:rendered" });
+            // La Sonde est montee A COTE du composant : c'est son effet, donc
+            // le commit, qui acquitte le rendu. Aucun envoi ici, root.render
+            // ne fait que planifier.
+            root.render(
+              React.createElement(Frontiere, null, [
+                React.createElement(Composant, { key: "composant" }),
+                React.createElement(Sonde, { key: "sonde", nonce: nonce }),
+              ])
+            );
           } catch (err) {
             erreur("runtime", err && err.message ? err.message : err);
           }
@@ -195,11 +225,12 @@ export function buildPreviewSrcdoc(origin: string): string {
           var data = event.data;
           if (!data || data.type !== "preview:render") return;
           if (typeof data.js !== "string" || typeof data.mount !== "string") return;
+          if (typeof data.nonce !== "number") return;
           if (!reNomComposant.test(data.mount)) {
             erreur("mount", "Nom de composant invalide dans les donnees du cours : " + data.mount);
             return;
           }
-          monter(data.js, data.mount);
+          monter(data.js, data.mount, data.nonce);
         });
 
         envoyer({ type: "preview:ready" });

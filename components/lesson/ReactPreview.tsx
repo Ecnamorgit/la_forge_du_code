@@ -10,34 +10,33 @@ import {
   type PreviewErrorKind,
 } from "@/lib/sandbox/react-preview";
 
-/** Delai au-dela duquel on considere que l'iframe ne repondra pas. */
+/** Délai au-delà duquel on considère que l'iframe ne répondra pas. */
 const READY_TIMEOUT_MS = 5000;
 
 /**
- * Delai au-dela duquel on considere un rendu fige : une boucle qui ne se
+ * Délai au-delà duquel on considère un rendu figé : une boucle qui ne se
  * termine jamais (`while (true)` dans le corps du composant) bloque le thread
- * unique de l'iframe DANS `root.render`, ce qui ne leve rien, ne declenche
- * aucune frontiere d'erreur, et n'appelle jamais `window.onerror` — le parent
- * n'entend tout simplement plus rien. `run-js.ts` utilise 3s pour une
- * execution headless en une seule passe ; ici le message doit en plus faire
- * l'aller-retour complet (poster `preview:render`, demonter, remonter,
- * peindre, poster `preview:rendered` en retour), d'ou une marge un peu plus
- * large.
+ * unique de l'iframe, ce qui ne lève rien, ne déclenche aucune frontière
+ * d'erreur et n'appelle jamais `window.onerror` — le parent n'entend plus rien.
+ * `run-js.ts` utilise 3 s pour une exécution headless ; ici le message doit en
+ * plus faire l'aller-retour complet (poster, démonter, remonter, commiter,
+ * acquitter), d'où une marge un peu plus large.
  */
 const RENDER_TIMEOUT_MS = 4000;
 
 interface ReactPreviewProps {
-  /** Code courant de l'editeur, non transforme. */
+  /** Code courant de l'éditeur, non transformé. */
   code: string;
-  /** Nom du composant a monter. Absent = chapitre sans apercu. */
+  /** Nom du composant à monter. Absent = chapitre sans aperçu. */
   mount?: string;
-  /** Incremente par le parent a chaque clic sur DEPLOYER. 0 = jamais deploye. */
+  /** Incrémenté par le parent à chaque clic sur DÉPLOYER. 0 = jamais déployé. */
   deployNonce: number;
   className?: string;
 }
 
 type Etat =
   | { phase: "attente" }
+  | { phase: "sans-apercu" }
   | { phase: "indisponible" }
   | { phase: "rendu" }
   | { phase: "erreur"; kind: PreviewErrorKind; message: string };
@@ -49,17 +48,32 @@ export default function ReactPreview({
   className = "",
 }: ReactPreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [pret, setPret] = useState(false);
   const [etat, setEtat] = useState<Etat>({ phase: "attente" });
-  // Dernier code transforme, garde en file tant que l'iframe n'a pas dit `ready`.
-  // Sans ca, un deploiement pendant le chargement de React serait perdu en
-  // silence : un postMessage envoye trop tot n'est pas remis.
-  const enAttenteRef = useRef<{ js: string; mount: string } | null>(null);
-  // Force le remontage complet de l'iframe (nouvel element, nouveau contexte
-  // de navigation) quand le chien de garde constate un rendu fige : une frame
-  // bloquee dans une boucle synchrone ne se debloque jamais d'elle-meme.
+
+  // La disponibilité de l'iframe vit dans un ref, PAS dans un état.
+  //
+  // En dépendance de l'effet de déploiement, elle provoquait deux bugs : le
+  // chien de garde, qui la remet à false, relançait l'effet et effaçait sa
+  // propre explication tout en redéployant le code figé en boucle ; et un
+  // déploiement lancé avant la poignée de main montait le composant deux fois,
+  // une fois par la file et une fois par la relance de l'effet.
+  const pretRef = useRef(false);
+  const [pretPourFilet, setPretPourFilet] = useState(false);
+
+  // Dernier code transformé, gardé en file tant que l'iframe n'a pas dit
+  // `ready` : un postMessage envoyé trop tôt n'est jamais remis, il serait
+  // perdu en silence.
+  const enAttenteRef = useRef<{ js: string; mount: string; nonce: number } | null>(null);
+
+  // Force le remontage complet de l'iframe quand le chien de garde constate un
+  // rendu figé : une frame bloquée dans une boucle synchrone ne se débloque
+  // jamais d'elle-même.
   const [iframeKey, setIframeKey] = useState(0);
+
   const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Identifie le rendu en cours. Sans lui, l'accusé du rendu n désarmerait le
+  // chien de garde armé pour le rendu n+1.
+  const nonceRef = useRef(0);
 
   const arreterWatchdog = useCallback(() => {
     if (watchdogRef.current !== null) {
@@ -68,59 +82,58 @@ export default function ReactPreview({
     }
   }, []);
 
-  // Demarre (ou redemarre) le chien de garde apres un envoi de rendu. Il
-  // s'arrete tout seul sur `rendered` ou `error` ; s'il arrive a echeance,
-  // c'est qu'aucun des deux n'est jamais arrive, donc que la frame est figee.
   const demarrerWatchdog = useCallback(() => {
     arreterWatchdog();
     watchdogRef.current = setTimeout(() => {
       watchdogRef.current = null;
-      // La frame gelee ne repondra plus jamais : on la remplace plutot que
-      // d'attendre. `pret` retombe a false pour que le prochain deploiement
-      // attende la nouvelle poignee de main `ready` au lieu de poster dans le
-      // vide.
-      setPret(false);
+      // La frame gelée ne répondra plus jamais : on la remplace. `pretRef`
+      // retombe à false pour que le prochain déploiement attende la nouvelle
+      // poignée de main au lieu de poster dans le vide — et comme c'est un ref,
+      // ça ne relance pas l'effet de déploiement, donc ce message survit.
+      pretRef.current = false;
+      setPretPourFilet(false);
       enAttenteRef.current = null;
       setEtat({
         phase: "erreur",
         kind: "runtime",
         message:
-          "Le rendu ne repond plus, probablement une boucle qui ne se termine jamais " +
-          "(par exemple un while (true) dans le composant). L'apercu a ete redemarre : " +
-          "corrige ton code et redeploie.",
+          "Le rendu ne répond plus, probablement une boucle qui ne se termine jamais " +
+          "(par exemple un while (true) dans le composant). L'aperçu a été redémarré : " +
+          "corrige ton code et redéploie.",
       });
       setIframeKey((k) => k + 1);
     }, RENDER_TIMEOUT_MS);
   }, [arreterWatchdog]);
 
-  const envoyer = useCallback((payload: { js: string; mount: string }) => {
+  /** Poste vers l'iframe. Renvoie false si la frame n'est pas joignable. */
+  const envoyer = useCallback((payload: { js: string; mount: string; nonce: number }) => {
     const fenetre = iframeRef.current?.contentWindow;
-    if (!fenetre) return;
-    // L'iframe est a origine opaque : "*" est la seule cible possible pour
+    if (!fenetre) return false;
+    // L'iframe est à origine opaque : "*" est la seule cible possible pour
     // postMessage. Acceptable, la charge utile est le code de l'apprenant
-    // lui-meme et non un secret ; l'iframe verifie event.source === parent.
+    // lui-même et non un secret ; l'iframe vérifie `event.source === parent`.
     fenetre.postMessage({ type: "preview:render", ...payload }, "*");
+    return true;
   }, []);
 
-  // Envoie ET arme le chien de garde : les deux points d'envoi (immediat si
-  // `pret`, differe a la reception de `ready` sinon) doivent l'un comme
-  // l'autre surveiller la reponse.
+  // N'arme le chien de garde que si l'envoi a réellement eu lieu : sinon son
+  // message parlerait d'une boucle infinie pour une frame simplement absente.
   const envoyerEtSurveiller = useCallback(
-    (payload: { js: string; mount: string }) => {
-      envoyer(payload);
-      demarrerWatchdog();
+    (payload: { js: string; mount: string; nonce: number }) => {
+      if (envoyer(payload)) demarrerWatchdog();
     },
     [envoyer, demarrerWatchdog]
   );
 
-  // Ecoute des messages de l'iframe.
+  // Écoute des messages de l'iframe.
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       const msg = parsePreviewMessage(event, iframeRef.current?.contentWindow ?? null);
       if (!msg) return;
 
       if (msg.type === "ready") {
-        setPret(true);
+        pretRef.current = true;
+        setPretPourFilet(true);
         const enFile = enAttenteRef.current;
         if (enFile) {
           enAttenteRef.current = null;
@@ -130,7 +143,9 @@ export default function ReactPreview({
       }
 
       if (msg.type === "rendered") {
-        arreterWatchdog();
+        // Un accusé qui ne correspond pas au rendu courant est périmé : il ne
+        // doit pas désarmer la surveillance du rendu en cours.
+        if (msg.nonce === nonceRef.current) arreterWatchdog();
         return;
       }
 
@@ -142,41 +157,47 @@ export default function ReactPreview({
     return () => window.removeEventListener("message", onMessage);
   }, [envoyerEtSurveiller, arreterWatchdog]);
 
-  // Filet : si `ready` n'arrive jamais, l'apercu se declare indisponible et la
-  // lecon continue. L'apercu n'est jamais un chemin critique.
+  // Filet : si `ready` n'arrive jamais, l'aperçu se déclare indisponible et la
+  // leçon continue. L'aperçu n'est jamais un chemin critique.
   useEffect(() => {
     const t = setTimeout(() => {
-      if (!pret) setEtat((e) => (e.phase === "attente" ? { phase: "indisponible" } : e));
+      if (!pretRef.current) {
+        setEtat((e) => (e.phase === "attente" ? { phase: "indisponible" } : e));
+      }
     }, READY_TIMEOUT_MS);
     return () => clearTimeout(t);
-  }, [pret]);
+  }, [pretPourFilet, iframeKey]);
 
-  // Le chien de garde ne doit pas survivre au demontage du composant, ni
-  // laisser un timer courir apres qu'on a quitte la lecon.
+  // Le chien de garde ne doit pas survivre au démontage du composant.
   useEffect(() => arreterWatchdog, [arreterWatchdog]);
 
-  // Le code courant, lu au moment du deploiement. Un ref plutot qu'une
-  // dependance de l'effet de deploiement plus bas : mettre `code` dans SES
-  // deps remonterait l'apercu a chaque frappe au clavier, et le desactiver
-  // avec exhaustive-deps masquerait le probleme au lieu de le resoudre. La
-  // synchronisation elle-meme passe par un effet (plutot qu'une ecriture
-  // directe pendant le rendu) : react-hooks/refs interdit d'ecrire un ref
-  // pendant le rendu, meme pour ce patron de "derniere valeur connue".
+  // Chapitre sans aperçu (chapitre 4, exempté) : on le dit, au lieu de laisser
+  // une iframe vide et muette occuper le panneau.
+  useEffect(() => {
+    if (!mount) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- dérivé d'une donnée de cours, pas une resynchronisation différée
+      setEtat({ phase: "sans-apercu" });
+    }
+  }, [mount]);
+
+  // Le code courant, lu au moment du déploiement. Un ref plutôt qu'une
+  // dépendance de l'effet de déploiement : mettre `code` dans ses deps
+  // remonterait l'aperçu à chaque frappe au clavier.
   const codeRef = useRef(code);
   useEffect(() => {
     codeRef.current = code;
   }, [code]);
 
-  // Transformation + envoi a chaque deploiement.
+  // Transformation + envoi à chaque déploiement.
   useEffect(() => {
     if (deployNonce === 0 || !mount) return;
 
     if (!PREVIEW_MOUNT_NAME_RE.test(mount)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- reaction a une donnee de cours invalide (previewMount malforme), pas une resynchronisation externe differee
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- réaction à une donnée de cours invalide, pas une resynchronisation différée
       setEtat({
         phase: "erreur",
         kind: "mount",
-        message: `Nom de composant invalide dans les donnees du cours : « ${mount} ».`,
+        message: `Nom de composant invalide dans les données du cours : « ${mount} ».`,
       });
       return;
     }
@@ -192,53 +213,68 @@ export default function ReactPreview({
       }
 
       setEtat({ phase: "rendu" });
-      const payload = { js: r.js, mount };
-      if (pret) envoyerEtSurveiller(payload);
+      nonceRef.current += 1;
+      const payload = { js: r.js, mount, nonce: nonceRef.current };
+      if (pretRef.current) envoyerEtSurveiller(payload);
       else enAttenteRef.current = payload;
     })();
 
     return () => {
       annule = true;
     };
-  }, [deployNonce, mount, pret, envoyerEtSurveiller]);
+  }, [deployNonce, mount, envoyerEtSurveiller]);
 
-  // Construit apres le montage, jamais au rendu : `buildPreviewSrcdoc` a besoin
-  // de `window.location.origin`, et un repli "" cote serveur puis la vraie
-  // valeur cote client provoquerait un ecart d'hydratation sur l'attribut.
+  // Construit après le montage, jamais au rendu : `buildPreviewSrcdoc` a besoin
+  // de `window.location.origin`, et un repli "" côté serveur puis la vraie
+  // valeur côté client provoquerait un écart d'hydratation sur l'attribut.
   const [srcdoc, setSrcdoc] = useState<string | null>(null);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture ponctuelle de l'origine au montage
     setSrcdoc(buildPreviewSrcdoc(window.location.origin));
   }, []);
 
+  const sansIframe = etat.phase === "indisponible" || etat.phase === "sans-apercu";
+
   return (
     <div className={`flex min-h-0 flex-1 flex-col ${className}`}>
       <div className="shrink-0 border-b border-nebula-border/40 px-5 py-2 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
-        {"> "}Apercu du composant
+        {"> "}Aperçu du composant
       </div>
 
       {etat.phase === "erreur" && (
         <div className="shrink-0 border-b border-nebula-red/40 bg-nebula-red/10 px-5 py-3">
           <p className="mb-1 font-tech text-[10px] uppercase tracking-widest text-nebula-red">
             {etat.kind === "transform"
-              ? "Syntaxe refusee"
+              ? "Syntaxe refusée"
               : etat.kind === "mount"
                 ? "Composant introuvable"
-                : "Erreur a l'execution"}
+                : "Erreur à l'exécution"}
           </p>
           <p className="font-code text-xs leading-relaxed text-nebula-red/90">{etat.message}</p>
         </div>
       )}
 
-      {etat.phase === "indisponible" ? (
-        <p className="px-5 py-4 font-body text-sm text-nebula-text-dim">
-          Apercu indisponible. Ton code est toujours analyse et validable.
+      {etat.phase === "sans-apercu" && (
+        <p className="px-5 py-4 font-body text-sm leading-relaxed text-nebula-text-dim">
+          Ce chapitre n&apos;a pas d&apos;aperçu : il enseigne la navigation, qui demande un
+          routeur autour de tes composants. Ton code reste analysé et validable normalement.
         </p>
-      ) : (
+      )}
+
+      {etat.phase === "indisponible" && (
+        // Porte à sens unique, volontairement : l'iframe est démontée, donc un
+        // `ready` tardif ne peut plus être honoré. Le panneau s'explique, et la
+        // validation continue de fonctionner — l'aperçu n'est pas critique.
+        <p className="px-5 py-4 font-body text-sm text-nebula-text-dim">
+          Aperçu indisponible. Ton code est toujours analysé et validable.
+        </p>
+      )}
+
+      {!sansIframe && (
         <>
           {deployNonce === 0 && (
             <p className="px-5 py-4 font-body text-sm text-nebula-text-dim">
-              Deploie pour voir ton composant s&apos;executer.
+              Déploie pour voir ton composant s&apos;exécuter.
             </p>
           )}
           {srcdoc !== null && (
@@ -250,7 +286,7 @@ export default function ReactPreview({
                 deployNonce === 0 ? "hidden" : "block"
               }`}
               sandbox="allow-scripts"
-              title="Apercu du composant React"
+              title="Aperçu du composant React"
             />
           )}
         </>

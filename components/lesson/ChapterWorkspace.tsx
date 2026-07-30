@@ -75,10 +75,10 @@ export default function ChapterWorkspace({
 }: ChapterWorkspaceProps) {
   const isJs = language === "javascript";
   const isSql = language === "sql";
-  // React : le composant se monte reellement dans l'iframe dediee de
+  // React : le composant se monte réellement dans l'iframe dédiée de
   // ReactPreview (transformation Sucrase + protocole de messages). La
   // validation reste par ailleurs purement statique, comme pour les autres
-  // cursus — l'apercu affiche, il ne juge pas.
+  // cursus — l'aperçu affiche, il ne juge pas.
   const isReact = language === "react";
   const [code, setCode] = useState(step.startCode);
   const [sqlView, setSqlView] = useState<SqlQueryResult | null>(null);
