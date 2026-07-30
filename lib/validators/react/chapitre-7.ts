@@ -1,0 +1,275 @@
+import type { Validator } from "@/data/courses/html/types";
+import {
+  stripLineComments,
+  fail,
+  pass,
+  findBareCallBody,
+  findNamedFunctionBody,
+} from "../_static-utils";
+
+const strip = (code: string) => stripLineComments(code, "//");
+
+/** Repere le nom du premier hook personnalise declare (`function useX` ou `const useX =`). */
+function findCustomHookNames(code: string): string[] {
+  const names: string[] = [];
+  const re = /(?:function|const|let|var)\s+(use[A-Z]\w*)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(code)) !== null) names.push(m[1]!);
+  return names;
+}
+
+/**
+ * Le hook `name` est-il APPELE quelque part, en plus d'etre declare ?
+ *
+ * On retire d'abord `function <name>` du code : sans ca, la declaration
+ * `function useCompteur()` compterait elle-meme comme un appel. La forme
+ * `const useCompteur = () =>` ne pose pas le probleme (le `=` separe le nom
+ * de la parenthese), d'ou le seul cas a neutraliser.
+ */
+function isHookCalled(code: string, name: string): boolean {
+  const withoutDecl = code.replace(new RegExp(`function\\s+${name}`, "g"), "");
+  return new RegExp(`\\b${name}\\s*\\(`).test(withoutDecl);
+}
+
+/**
+ * Cherche le corps du premier hook personnalise dont le corps satisfait
+ * `predicate`. Evalue chaque hook INDEPENDAMMENT : un hook correct ailleurs
+ * dans le fichier ne doit pas valider un hook incomplet, et inversement.
+ */
+function findHookBodyMatching(
+  code: string,
+  predicate: (body: string) => boolean
+): { name: string; body: string } | null {
+  for (const name of findCustomHookNames(code)) {
+    const body = findNamedFunctionBody(code, name);
+    if (body !== null && predicate(body)) return { name, body };
+  }
+  return null;
+}
+
+/**
+ * Trouve la position de la parenthese fermante correspondant a l'ouvrante en
+ * `openIdx`, ou -1. Utilitaire local pour l'etape 4, qui doit delimiter les
+ * blocs `if (...) { ... }`.
+ */
+function matchParen(code: string, openIdx: number): number {
+  let depth = 0;
+  for (let i = openIdx; i < code.length; i++) {
+    if (code[i] === "(") depth++;
+    else if (code[i] === ")") {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+/** Idem pour une accolade. */
+function matchBrace(code: string, openIdx: number): number {
+  let depth = 0;
+  for (let i = openIdx; i < code.length; i++) {
+    if (code[i] === "{") depth++;
+    else if (code[i] === "}") {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+/**
+ * Un appel de hook (`useXxx(`) est-il enferme dans un bloc `if (...) { ... }` ?
+ *
+ * Limite assumee, et volontairement etroite : on ne voit que les `if` suivis
+ * d'un bloc a accolades. Un `if` sans accolades sur une seule ligne, une
+ * branche `else`, un ternaire, une boucle ou un `switch` ne sont PAS detectes.
+ * C'est suffisant pour cet exercice, dont le `startCode` place l'appel dans un
+ * `if { }` explicite — mais ce n'est pas une analyse statique generale, et il
+ * ne faut pas s'en servir comme telle.
+ */
+function hookCallInsideIfBlock(code: string): boolean {
+  const ifRe = /\bif\s*\(/g;
+  let m: RegExpExecArray | null;
+  while ((m = ifRe.exec(code)) !== null) {
+    const openParen = m.index + m[0].length - 1;
+    const closeParen = matchParen(code, openParen);
+    if (closeParen === -1) continue;
+
+    const after = code.slice(closeParen + 1);
+    const braceOffset = after.search(/\S/);
+    if (braceOffset === -1 || after[braceOffset] !== "{") continue;
+
+    const openBrace = closeParen + 1 + braceOffset;
+    const closeBrace = matchBrace(code, openBrace);
+    if (closeBrace === -1) continue;
+
+    const block = code.slice(openBrace, closeBrace);
+    if (/\buse[A-Z]\w*\s*\(/.test(block)) return true;
+  }
+  return false;
+}
+
+export const validators: Validator[] = [
+  // Etape 1 : extraire la logique dans un hook personnalise, et l'appeler.
+  (code) => {
+    const c = strip(code);
+
+    const hook = findHookBodyMatching(c, (body) => /\buseState\s*\(/.test(body));
+    if (!hook) {
+      const names = findCustomHookNames(c);
+      if (names.length === 0) {
+        return fail(
+          "Declare une fonction prefixee par use, par exemple function useCompteur() { ... }.",
+          "structure"
+        );
+      }
+      return fail(
+        `Deplace l'appel useState a l'interieur de ${names[0]} : c'est le hook qui doit porter l'etat, pas le composant.`,
+        "structure"
+      );
+    }
+
+    if (!isHookCalled(c, hook.name)) {
+      return fail(
+        `${hook.name} est declare mais jamais appele. Recupere-le dans ton composant avec ${hook.name}().`
+      );
+    }
+
+    return pass("Logique extraite.", ["o1a", "o1b"]);
+  },
+
+  // Etape 2 : le hook retourne valeur + action, le composant destructure.
+  (code) => {
+    const c = strip(code);
+
+    const hook = findHookBodyMatching(c, (body) => /\buseState\s*\(/.test(body));
+    if (!hook) {
+      return fail(
+        "Declare un hook prefixe par use qui appelle useState.",
+        "structure"
+      );
+    }
+
+    // On cherche un `return { ... }` ou `return [ ... ]` DANS le corps du hook,
+    // et on exige au moins deux sorties (la valeur et l'action).
+    const objReturn = /return\s*\{([^}]*)\}/.exec(hook.body);
+    const arrReturn = /return\s*\[([^\]]*)\]/.exec(hook.body);
+    const membersRaw = objReturn?.[1] ?? arrReturn?.[1] ?? null;
+
+    if (membersRaw === null) {
+      return fail(
+        `${hook.name} ne retourne rien : le composant recevra undefined. Termine-le par return { valeur, action }.`,
+        "logic"
+      );
+    }
+
+    const members = membersRaw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (members.length < 2) {
+      return fail(
+        "Retourne DEUX sorties : la valeur a afficher et l'action qui la modifie.",
+        "logic"
+      );
+    }
+
+    // Cote appelant : destructuration du resultat du hook.
+    const destructured = new RegExp(
+      `(?:const|let|var)\\s*(?:\\{[^}]*\\}|\\[[^\\]]*\\])\\s*=\\s*${hook.name}\\s*\\(`
+    ).test(c);
+    if (!destructured) {
+      return fail(
+        `Destructure le resultat dans le composant : const { valeur, action } = ${hook.name}();`
+      );
+    }
+
+    return pass("Module branche.", ["o2a", "o2b"]);
+  },
+
+  // Etape 3 : hook avec useEffect, abonnement ET desabonnement dans le cleanup.
+  (code) => {
+    const c = strip(code);
+
+    const hook = findHookBodyMatching(c, (body) => /\buseEffect\s*\(/.test(body));
+    if (!hook) {
+      return fail(
+        "Declare un hook prefixe par use qui appelle useEffect.",
+        "structure"
+      );
+    }
+
+    // On isole le corps de l'appel useEffect DU HOOK, pas n'importe lequel du
+    // fichier : c'est l'abonnement de ce hook qu'on verifie.
+    const effect = findBareCallBody(hook.body, "useEffect");
+    if (!effect) {
+      return fail("Appelle useEffect a l'interieur de ton hook.", "structure");
+    }
+
+    if (!/addEventListener\s*\(/.test(effect.body)) {
+      return fail(
+        "Abonne-toi a l'evenement dans l'effet : window.addEventListener('resize', handler)."
+      );
+    }
+
+    const returnIdx = effect.body.search(/\breturn\b/);
+    if (returnIdx === -1) {
+      return fail(
+        "Il manque la fonction de cleanup : termine l'effet par return () => ... pour te desabonner.",
+        "logic"
+      );
+    }
+    if (!/removeEventListener\s*\(/.test(effect.body.slice(returnIdx))) {
+      return fail(
+        "Le desabonnement doit vivre DANS le cleanup : return () => window.removeEventListener('resize', handler).",
+        "logic"
+      );
+    }
+
+    if (!/\buseState\s*\(/.test(hook.body)) {
+      return fail(
+        "Stocke la largeur dans un etat avec useState, sinon l'affichage ne se mettra jamais a jour.",
+        "logic"
+      );
+    }
+
+    return pass("Hublot calibre.", ["o3a", "o3b"]);
+  },
+
+  // Etape 4 : les regles des hooks — aucun appel dans un bloc conditionnel.
+  (code) => {
+    const c = strip(code);
+
+    if (!/\buseState\s*\(/.test(c)) {
+      return fail("Garde l'appel useState : c'est sa POSITION qui doit changer.");
+    }
+
+    if (hookCallInsideIfBlock(c)) {
+      return fail(
+        "Un appel de hook est encore enferme dans un if. Remonte-le au niveau superieur du composant, avant tout if et tout return.",
+        "structure"
+      );
+    }
+
+    // o4b : le comportement conditionnel doit subsister, et l'appel de hook
+    // doit venir AVANT lui.
+    const firstIf = c.search(/\bif\s*\(/);
+    const hasTernaryOrIf = firstIf !== -1 || /\?[^:]*:/.test(c);
+    if (!hasTernaryOrIf) {
+      return fail(
+        "Ne supprime pas le comportement conditionnel : le panneau doit toujours pouvoir ne rien afficher.",
+        "logic"
+      );
+    }
+
+    const firstHook = c.search(/\buseState\s*\(/);
+    if (firstIf !== -1 && firstHook > firstIf) {
+      return fail(
+        "L'appel useState doit preceder la condition, pas la suivre. Place-le en premiere ligne du composant.",
+        "structure"
+      );
+    }
+
+    return pass("Regles des hooks respectees.", ["o4a", "o4b"], true);
+  },
+];
