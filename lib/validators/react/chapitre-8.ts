@@ -6,6 +6,9 @@ import {
   findBareCallBody,
   findNamedFunctionBody,
   matchClosing,
+  statementEnd,
+  findJsxTagAttrs,
+  extractAttrValue,
 } from "../_static-utils";
 
 const strip = (code: string) => stripLineComments(code, "//");
@@ -13,26 +16,72 @@ const strip = (code: string) => stripLineComments(code, "//");
 /** Un `<X.Provider ...>` est-il present ? */
 const providerRe = /<\s*[A-Za-z_$][\w$]*\s*\.\s*Provider\b/;
 
+/** Meme motif, mais capture le nom (dote) de la balise pour la reperer. */
+const providerTagNameRe = /<\s*([A-Za-z_$][\w$]*\s*\.\s*Provider)\b/;
+
 /**
- * Extrait le contenu de l'attribut `value={...}` du premier `<X.Provider>`.
+ * Extrait le contenu de l'attribut `value={...}` du premier `<X.Provider>` —
+ * SCOPE a la balise du Provider elle-meme, via `findJsxTagAttrs` (qui isole
+ * les attributs d'UNE balise en equilibrant `{ }`) puis `extractAttrValue`.
  *
- * On equilibre les accolades plutot que de couper au premier `}` : un
- * `value={{ etat, dispatch }}` en contient deux niveaux, et un `[^}]*`
- * s'arreterait au milieu en laissant croire que `dispatch` est absent.
+ * Avant cette version, la recherche de `value={` portait sur TOUT le texte
+ * apres le Provider : un Provider sans value suivi, plus loin, d'un
+ * `<input value={x} />` quelconque (reliquat du chapitre 6, par exemple)
+ * faisait passer cette fonction pour un Provider correctement alimente.
  *
- * Renvoie null s'il n'y a pas de Provider, ou pas d'attribut `value`.
+ * `findJsxTagAttrs` attend un nom de balise litteral ; un nom dote comme
+ * `ContexteFlotte.Provider` y est insere tel quel dans une regex, ou le `.`
+ * agit comme "un caractere quelconque" plutot que le point litteral — sans
+ * consequence ici puisqu'on lui passe le nom REELLEMENT trouve a cet endroit
+ * du code (le seul caractere qui puisse s'y trouver EST ce point).
+ *
+ * Renvoie null s'il n'y a pas de Provider, ou pas d'attribut `value` sur SA
+ * balise.
  */
 function providerValueBody(code: string): string | null {
-  const tagIdx = code.search(providerRe);
-  if (tagIdx === -1) return null;
-
-  const m = /value\s*=\s*\{/.exec(code.slice(tagIdx));
+  const m = providerTagNameRe.exec(code);
   if (!m) return null;
 
-  const braceIdx = tagIdx + m.index + m[0].length - 1;
-  const close = matchClosing(code, braceIdx);
-  if (close === -1) return null;
-  return code.slice(braceIdx + 1, close);
+  const tagName = m[1]!;
+  const tag = findJsxTagAttrs(code, tagName, m.index);
+  if (!tag) return null;
+
+  return extractAttrValue(tag.body, "value");
+}
+
+/**
+ * Nom de la fonction qui ENGLOBE la position `pos` dans `code` — le
+ * composant ou hook dont le corps contient cet appel (ex: l'appel a
+ * `useContext` ou le `dispatch(...)` qu'on veut verifier).
+ *
+ * Necessaire pour scoper une verification ("cette valeur est-elle affichee ?",
+ * "dispatch est-il appele ICI ?") au bon composant plutot qu'a tout le
+ * fichier : un fichier a plusieurs composants (un Provider ou un AUTRE
+ * consommateur ailleurs) ne doit pas laisser le comportement d'un composant
+ * en valider un autre.
+ *
+ * Cherche toutes les declarations `function nom(...) {` et
+ * `const nom = (...) => {}` / `const nom = function (...) {}`, retient celles
+ * dont le corps (accolades equilibrees via `matchClosing`) contient `pos`, et
+ * renvoie la plus imbriquee (la plus petite plage) — au cas ou une fonction
+ * en definirait une autre localement.
+ */
+function enclosingFunctionName(code: string, pos: number): string | null {
+  const declRe =
+    /(?:function\s+([A-Za-z_$][\w$]*)\s*\([^)]*\)\s*\{|(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:function\s*)?\([^)]*\)\s*(?:=>)?\s*\{)/g;
+  let best: { name: string; start: number; end: number } | null = null;
+  let m: RegExpExecArray | null;
+  while ((m = declRe.exec(code)) !== null) {
+    const name = m[1] ?? m[2];
+    if (!name) continue;
+    const braceStart = m.index + m[0].length - 1;
+    const braceEnd = matchClosing(code, braceStart);
+    if (braceEnd === -1) continue;
+    if (pos > braceStart && pos < braceEnd && (!best || braceEnd - braceStart < best.end - best.start)) {
+      best = { name, start: braceStart, end: braceEnd };
+    }
+  }
+  return best ? best.name : null;
 }
 
 /** Noms destructures depuis `useContext(...)`, ou [] si pas de destructuration. */
@@ -65,6 +114,46 @@ function countActionBranches(body: string): number {
   while ((m = cmpRe.exec(body)) !== null) cases.add(m[1]!);
 
   return cases.size;
+}
+
+/**
+ * Le reducteur a-t-il un repli qui RETOURNE reellement quelque chose pour
+ * une action inconnue ?
+ *
+ * - Reducteur a `switch` : il faut un `default:` dont la branche — le texte
+ *   entre `default:` et le `case` suivant (ou la fin du switch) — contient un
+ *   `return`. `default: break;` est present textuellement mais ne retourne
+ *   rien : rejete, contrairement a l'ancienne verification qui se contentait
+ *   de chercher le MOT `default` n'importe ou dans le corps.
+ * - Reducteur a base de `if` (pas de `switch`) : on exige que le DERNIER
+ *   `return` du corps ne soit suivi que de delimiteurs fermants / `;` —
+ *   c'est-a-dire qu'il termine effectivement la fonction. Contrairement a
+ *   l'ancienne regex ancree `return\s+etat\s*;?\s*\}?\s*$`, ceci accepte
+ *   `return { ...etat };` (qui contient des accolades qu'un `$` ne tolere
+ *   pas) et un commentaire de fin de ligne apres le `;` (que
+ *   `stripLineComments` ne retire pas, lui, ne retirant que les lignes
+ *   ENTIEREMENT commentees).
+ */
+function hasFallbackReturn(reducerBody: string): boolean {
+  if (/\bswitch\s*\(/.test(reducerBody)) {
+    const defaultMatch = /\bdefault\s*:/.exec(reducerBody);
+    if (!defaultMatch) return false;
+    const afterDefault = reducerBody.slice(defaultMatch.index + defaultMatch[0].length);
+    const nextCaseIdx = afterDefault.search(/\bcase\b/);
+    const branch = nextCaseIdx === -1 ? afterDefault : afterDefault.slice(0, nextCaseIdx);
+    return /\breturn\b/.test(branch);
+  }
+
+  const re = /\breturn\b/g;
+  let lastIdx = -1;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(reducerBody)) !== null) lastIdx = m.index;
+  if (lastIdx === -1) return false;
+
+  const exprStart = lastIdx + "return".length;
+  const exprEnd = statementEnd(reducerBody, exprStart);
+  const rest = reducerBody.slice(exprEnd).replace(/\/\/[^\n]*/g, "");
+  return /^[;\s}]*$/.test(rest);
 }
 
 export const validators: Validator[] = [
@@ -113,16 +202,24 @@ export const validators: Validator[] = [
     // o2b : la valeur lue doit reellement etre affichee, sinon l'etape ne
     // demontre rien. On accepte la destructuration comme l'acces par variable.
     //
+    // On scope cette verification au corps du COMPOSANT qui appelle
+    // useContext, pas a tout le fichier : sans ca, un `{ amiral: 'Vesper' }`
+    // porte par le Provider (qui contient litteralement `amiral`) ou l'objet
+    // rendu par un AUTRE composant suffit a faire passer un composant dont la
+    // valeur lue n'est jamais affichee.
+    const compName = enclosingFunctionName(c, call.start);
+    const scope = (compName !== null ? findNamedFunctionBody(c, compName) : null) ?? c;
+
     // On retire d'abord la ligne de declaration : sans ca, le motif `{ amiral }`
     // de la destructuration elle-meme compterait comme une interpolation JSX, et
     // un composant qui lit le contexte sans jamais l'afficher passerait.
-    const withoutDecl = c.replace(
+    const withoutDecl = scope.replace(
       /(?:const|let|var)\s*(?:\{[^}]*\}|[A-Za-z_$][\w$]*)\s*=\s*useContext\s*\([^)]*\)\s*;?/g,
       ""
     );
 
-    const names = contextDestructuredNames(c);
-    const varName = contextVarName(c);
+    const names = contextDestructuredNames(scope);
+    const varName = contextVarName(scope);
 
     const rendered =
       names.some((n) => new RegExp(`\\{\\s*${n}\\b`).test(withoutDecl)) ||
@@ -172,7 +269,7 @@ export const validators: Validator[] = [
       );
     }
 
-    if (!/\bdefault\s*:/.test(reducerBody) && !/return\s+etat\s*;?\s*\}?\s*$/.test(reducerBody)) {
+    if (!hasFallbackReturn(reducerBody)) {
       return fail(
         "Ajoute un cas default qui retourne l'etat inchange, sinon une action inconnue effacerait ton etat.",
         "logic"
@@ -206,21 +303,30 @@ export const validators: Validator[] = [
         "structure"
       );
     }
-    if (!/\bdispatch\b/.test(value)) {
+    if (!/\betat\b/.test(value) || !/\bdispatch\b/.test(value)) {
       return fail(
-        "La value du Provider doit transporter dispatch, sinon les descendants pourront lire l'etat sans jamais le modifier.",
+        "La value du Provider doit transporter etat ET dispatch : value={{ etat, dispatch }}. Sans etat les descendants ne peuvent rien lire, sans dispatch ils ne peuvent rien modifier.",
         "logic"
       );
     }
 
-    if (!findBareCallBody(c, "useContext")) {
+    const call = findBareCallBody(c, "useContext");
+    if (!call) {
       return fail(
         "Console doit lire le contexte : const { etat, dispatch } = useContext(ContexteAlerte);",
         "structure"
       );
     }
 
-    if (!/\bdispatch\s*\(\s*\{/.test(c)) {
+    // On scope la verification "dispatch est-il declenche ?" au COMPOSANT qui
+    // consomme le contexte (celui qui appelle useContext), pas a tout le
+    // fichier : un `dispatch(` appele depuis un AUTRE composant (par exemple
+    // App, ou dispatch est deja en scope local sans passer par le contexte)
+    // ne demontre rien sur le canal qu'on est en train de verifier.
+    const consumerName = enclosingFunctionName(c, call.start);
+    const consumerBody = (consumerName !== null ? findNamedFunctionBody(c, consumerName) : null) ?? c;
+
+    if (!/\bdispatch\s*\(\s*\{/.test(consumerBody)) {
       return fail(
         "Declenche une transition depuis Console : onClick={() => dispatch({ type: 'monter' })}."
       );

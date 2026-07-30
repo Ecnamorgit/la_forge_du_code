@@ -116,7 +116,7 @@ Tous les consommateurs d'un contexte se re-rendent quand sa \`value\` change. Un
         "// Le niveau d'alerte monte et descend. Avec useState, la logique se\n// disperse dans les handlers. Ecris un reducteur qui gere les actions\n// 'monter' et 'descendre', puis branche-le avec useReducer.\nfunction Alerte() {\n  return <div>Niveau : ???</div>;\n}\n",
       placeholder: "// const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });",
       narrator:
-        "Quand plusieurs actions modifient le meme etat selon des regles precises, useState eparpille ces regles dans autant de handlers. useReducer les rassemble en un seul endroit : une fonction qui prend l'etat et une action, et renvoie le nouvel etat. Les composants n'envoient plus que des intentions.",
+        "Cadet, quand plusieurs actions modifient le meme etat selon des regles precises, useState eparpille tes regles en autant de handlers. useReducer les rassemble au meme endroit : une fonction qui prend l'etat et une action, et renvoie le nouvel etat. Fais que tes composants n'envoient que des intentions.",
       hint: "function reducteur(etat, action) {\n  switch (action.type) {\n    case 'monter':\n      return { niveau: etat.niveau + 1 };\n    case 'descendre':\n      return { niveau: etat.niveau - 1 };\n    default:\n      return etat;\n  }\n}\n\nfunction Alerte() {\n  const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });\n  return (\n    <div>\n      Niveau : {etat.niveau}\n      <button onClick={() => dispatch({ type: 'monter' })}>Monter</button>\n      <button onClick={() => dispatch({ type: 'descendre' })}>Descendre</button>\n    </div>\n  );\n}",
       briefing: {
         title: "useReducer : centraliser les transitions",

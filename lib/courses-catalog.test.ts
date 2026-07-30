@@ -4,6 +4,7 @@ import {
   COURSE_COMPLETE_MIN_CHAPTERS,
   COURSES_CATALOG,
 } from "./courses-catalog";
+import { CHAPTER_SUMMARIES } from "./chapter-summaries";
 
 describe("getCourseStatus", () => {
   it("classe un cursus avec assez de chapitres comme complet", () => {
@@ -22,7 +23,11 @@ describe("getCourseStatus", () => {
 
   it("utilise le seuil exporté comme frontière (>= seuil => complet)", () => {
     expect(COURSE_COMPLETE_MIN_CHAPTERS).toBe(4);
-    // typescript est le cursus pilote qui frôle le seuil sans l'atteindre.
+    // Aucun cursus du catalogue ne se trouve actuellement PRES de cette
+    // frontière : les cursus pilotes (dont typescript) n'ont qu'1 chapitre,
+    // et tous les cursus complets (dont react) en ont au moins 8. typescript
+    // sert donc ici seulement d'exemple de cursus pilote — pas d'un cas qui
+    // frôlerait le seuil de 4.
     expect(getCourseStatus("typescript")).toBe("preview");
     expect(getCourseStatus("react")).toBe("complete");
   });
@@ -41,14 +46,20 @@ describe("getCourseStatus", () => {
  * decalage.
  */
 describe("integrite du cursus React", () => {
-  it("resout les 8 chapitres, avec leurs validateurs et leur badge", async () => {
+  it("resout tous les chapitres declares, avec leurs validateurs et leur badge", async () => {
     const { getChapterData } = await import("./courses-registry");
     const { VALIDATORS_BY_CHAPTER } = await import("./validators/react");
     const { getBadgeForChapter } = await import("./courses-meta");
-    const { CHAPTER_SUMMARIES } = await import("./chapter-summaries");
     const { getBadge } = await import("./badges-catalog");
 
-    for (let n = 1; n <= 8; n++) {
+    // Derive du nombre de chapitres declares dans CHAPTER_SUMMARIES.react
+    // plutot qu'une borne codee en dur : un chapitre-9 ajoute plus tard sera
+    // automatiquement couvert par cette boucle, sans qu'il faille se
+    // souvenir de remonter un "8" quelque part dans ce fichier.
+    const reactChapterCount = CHAPTER_SUMMARIES.react.length;
+    expect(reactChapterCount).toBeGreaterThan(0);
+
+    for (let n = 1; n <= reactChapterCount; n++) {
       const slug = `chapitre-${n}`;
       const data = getChapterData("react", slug);
       expect(data, `${slug} absent du registre`).not.toBeNull();
@@ -65,6 +76,9 @@ describe("integrite du cursus React", () => {
       expect(getBadge(badgeId!), `badge ${badgeId} absent du catalogue`).toBeDefined();
     }
 
-    expect(CHAPTER_SUMMARIES.react).toHaveLength(8);
+    // Le cursus React doit rester "complet" au sens du catalogue : un
+    // reglage independant du nombre exact de chapitres, contrairement a
+    // l'ancien `toHaveLength(8)` qui aurait fige cette valeur.
+    expect(reactChapterCount).toBeGreaterThanOrEqual(COURSE_COMPLETE_MIN_CHAPTERS);
   });
 });

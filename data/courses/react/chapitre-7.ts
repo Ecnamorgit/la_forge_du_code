@@ -117,7 +117,7 @@ Oublier le \`return\`. La fonction s'execute, l'etat existe, et le composant rec
         "// Ecris un hook useLargeurHublot qui suit la largeur de la fenetre.\n// Il doit : stocker la largeur, s'abonner a l'evenement 'resize',\n// et se DESABONNER dans le cleanup du useEffect.\n// Puis affiche la largeur dans Hublot.\nfunction Hublot() {\n  return <div>Largeur du hublot : ???</div>;\n}\n",
       placeholder: "// window.addEventListener('resize', ...) puis removeEventListener",
       narrator:
-        "Un hublot doit connaitre sa propre taille. Ce hook combine un etat et un effet : il s'abonne a un evenement du navigateur et, surtout, il se desabonne quand le composant disparait. Sans ce nettoyage, chaque montage laisse un ecouteur fantome derriere lui.",
+        "Cadet, ton hublot doit connaitre sa taille. Combine un etat et un effet dans ce hook : abonne-toi a l'evenement du navigateur et, surtout, desabonne-toi quand le composant disparait. Sans ce nettoyage, chaque montage laisse un ecouteur fantome derriere toi.",
       hint: "function useLargeurHublot() {\n  const [largeur, setLargeur] = useState(window.innerWidth);\n\n  useEffect(() => {\n    const surResize = () => setLargeur(window.innerWidth);\n    window.addEventListener('resize', surResize);\n    return () => window.removeEventListener('resize', surResize);\n  }, []);\n\n  return largeur;\n}\n\nfunction Hublot() {\n  const largeur = useLargeurHublot();\n  return <div>Largeur du hublot : {largeur}px</div>;\n}",
       briefing: {
         title: "Un hook qui s'abonne et se desabonne",

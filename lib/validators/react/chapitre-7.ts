@@ -6,6 +6,7 @@ import {
   findBareCallBody,
   findNamedFunctionBody,
   matchClosing,
+  statementEnd,
 } from "../_static-utils";
 
 const strip = (code: string) => stripLineComments(code, "//");
@@ -80,6 +81,64 @@ function hookCallInsideIfBlock(code: string): boolean {
   return false;
 }
 
+/**
+ * Extrait le contenu d'un `return { ... }` ou `return [ ... ]`, en
+ * equilibrant les delimiteurs plutot qu'en coupant au premier `}`/`]`
+ * rencontre — un `return { etat: { charge }, recharger };` contient une
+ * accolade imbriquee, et un `[^}]*` s'arreterait au milieu en ne comptant
+ * qu'un seul membre. Renvoie null si le corps ne retourne rien.
+ */
+function extractReturnMembers(body: string): string | null {
+  const m = /return\s*([{[])/.exec(body);
+  if (!m) return null;
+  const openIdx = m.index + m[0].length - 1;
+  const closeIdx = matchClosing(body, openIdx);
+  if (closeIdx === -1) return null;
+  return body.slice(openIdx + 1, closeIdx);
+}
+
+/**
+ * Le useEffect retourne-t-il une fonction de cleanup — et pas juste le
+ * RESULTAT d'un appel — qui contient `removeEventListener` ?
+ *
+ * On isole l'EXPRESSION renvoyee par le `return` (jusqu'au `;` de profondeur
+ * zero, ou jusqu'a la fin du bloc englobant) et on determine sa nature :
+ *   - une fleche inline `(...) => ...` ou une expression `function (...) {}` :
+ *     la fonction elle-meme, on cherche removeEventListener dedans ;
+ *   - un simple identifiant (`return nettoyer;`) : un cleanup NOMME, declare
+ *     plus haut dans l'effet ou dans le hook — on resout sa definition et on
+ *     cherche removeEventListener dans SON corps.
+ *
+ * `return window.removeEventListener(...)` — qui APPELLE removeEventListener
+ * au lieu de retourner une fonction qui l'appelle, et l'execute donc au
+ * montage sans jamais nettoyer quoi que ce soit — ne correspond a aucun des
+ * deux cas : l'expression n'est ni une fonction ni un simple identifiant.
+ *
+ * Limite assumee : scanner heuristique par comptage de delimiteurs (voir
+ * `statementEnd`), pas un parseur. Suffisant pour ces exercices dont le code
+ * attendu ne dissimule pas le retour derriere une construction plus exotique.
+ */
+function returnedCleanupBody(effectBody: string, hookBody: string): string | null {
+  const returnIdx = effectBody.search(/\breturn\b/);
+  if (returnIdx === -1) return null;
+
+  const exprStart = returnIdx + "return".length;
+  const exprEnd = statementEnd(effectBody, exprStart);
+  const expr = effectBody.slice(exprStart, exprEnd).trim();
+
+  if (/^\([^)]*\)\s*=>/.test(expr) || /^function\b/.test(expr)) {
+    return expr;
+  }
+
+  const nameMatch = /^([A-Za-z_$][\w$]*)$/.exec(expr);
+  if (nameMatch) {
+    const name = nameMatch[1]!;
+    return findNamedFunctionBody(effectBody, name) ?? findNamedFunctionBody(hookBody, name);
+  }
+
+  return null;
+}
+
 export const validators: Validator[] = [
   // Etape 1 : extraire la logique dans un hook personnalise, et l'appeler.
   (code) => {
@@ -123,9 +182,7 @@ export const validators: Validator[] = [
 
     // On cherche un `return { ... }` ou `return [ ... ]` DANS le corps du hook,
     // et on exige au moins deux sorties (la valeur et l'action).
-    const objReturn = /return\s*\{([^}]*)\}/.exec(hook.body);
-    const arrReturn = /return\s*\[([^\]]*)\]/.exec(hook.body);
-    const membersRaw = objReturn?.[1] ?? arrReturn?.[1] ?? null;
+    const membersRaw = extractReturnMembers(hook.body);
 
     if (membersRaw === null) {
       return fail(
@@ -190,7 +247,15 @@ export const validators: Validator[] = [
         "logic"
       );
     }
-    if (!/removeEventListener\s*\(/.test(effect.body.slice(returnIdx))) {
+
+    const cleanupBody = returnedCleanupBody(effect.body, hook.body);
+    if (cleanupBody === null) {
+      return fail(
+        "Le cleanup doit RETOURNER une fonction, pas appeler removeEventListener directement : return () => window.removeEventListener('resize', handler) plutot que return window.removeEventListener(...).",
+        "logic"
+      );
+    }
+    if (!/removeEventListener\s*\(/.test(cleanupBody)) {
       return fail(
         "Le desabonnement doit vivre DANS le cleanup : return () => window.removeEventListener('resize', handler).",
         "logic"
@@ -223,9 +288,12 @@ export const validators: Validator[] = [
     }
 
     // o4b : le comportement conditionnel doit subsister, et l'appel de hook
-    // doit venir AVANT lui.
+    // doit venir AVANT lui. Un if, un ternaire, ou un `&&`/`||` de rendu
+    // conditionnel (`{visible && <Truc />}`, tres frequent en JSX et tout
+    // aussi valide qu'un if ou un ternaire) comptent tous les trois.
     const firstIf = c.search(/\bif\s*\(/);
-    const hasTernaryOrIf = firstIf !== -1 || /\?[^:]*:/.test(c);
+    const hasTernaryOrIf =
+      firstIf !== -1 || /\?[^:]*:/.test(c) || /(?:&&|\|\|)\s*\(?\s*</.test(c);
     if (!hasTernaryOrIf) {
       return fail(
         "Ne supprime pas le comportement conditionnel : le panneau doit toujours pouvoir ne rien afficher.",

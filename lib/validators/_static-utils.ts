@@ -50,28 +50,6 @@ export interface CallMatch {
   end: number;
 }
 
-/**
- * Trouve la parenthese fermante correspondant a celle ouverte en `openIdx`,
- * en ignorant le contenu des chaines '...', "..." et `...` (pour ne pas se
- * faire piquer par une parenthese textuelle dans une chaine de caracteres).
- */
-function findMatchingParen(code: string, openIdx: number): number {
-  let depth = 0;
-  for (let i = openIdx; i < code.length; i++) {
-    const ch = code[i];
-    if (ch === "'" || ch === '"' || ch === "`") {
-      i = skipStringLiteral(code, i, ch);
-      continue;
-    }
-    if (ch === "(") depth++;
-    else if (ch === ")") {
-      depth--;
-      if (depth === 0) return i;
-    }
-  }
-  return -1;
-}
-
 function skipStringLiteral(code: string, start: number, quote: string): number {
   let i = start + 1;
   while (i < code.length) {
@@ -93,6 +71,16 @@ function skipStringLiteral(code: string, start: number, quote: string): number {
  *
  * Meme limite que le reste de ce module : c'est un compteur de profondeur, pas
  * un parseur. Il ne voit pas les delimiteurs dans une regex litterale.
+ *
+ * `findCallBody` s'appuie dessus pour equilibrer les parentheses d'un appel
+ * `.methodName(...)` (un ancien `findMatchingParen` prive faisait la meme
+ * chose en double, specialise sur `(`/`)` uniquement — collapse ici). La
+ * boucle interne de `findBareCallBody`, plus bas, reste volontairement
+ * independante : elle a besoin de connaitre l'indice de depart de l'appel
+ * AVANT de savoir ou s'arreter, ce que `matchClosing(code, openIdx)` ne
+ * renvoie pas directement (il faudrait deja avoir localise `openIdx`, ce que
+ * la fonction fait elle-meme en cherchant le nom suivi de `(`) ; la demeler
+ * risquerait de changer son comportement sans necessite.
  */
 export function matchClosing(code: string, openIdx: number): number {
   const pairs: Record<string, string> = { "(": ")", "{": "}", "[": "]" };
@@ -115,6 +103,36 @@ export function matchClosing(code: string, openIdx: number): number {
     }
   }
   return -1;
+}
+
+/**
+ * Renvoie l'indice de fin (exclu) de l'expression qui commence a `fromIdx` —
+ * jusqu'au premier `;` de profondeur zero, ou jusqu'au premier delimiteur
+ * fermant qui ferait descendre la profondeur sous zero (la fin du bloc
+ * englobant, quand l'expression n'est pas terminee par un point-virgule
+ * explicite). Ignore le contenu des chaines '...', "..." et `...`.
+ *
+ * Sert a isoler la valeur d'un `return X` sans dependre d'un `;` explicite ni
+ * presumer l'absence de parentheses/accolades/crochets dans X (ex : `return
+ * { ...etat };`, qu'un `[^;]*` ou un `$` ancre sur la fin de chaine casserait).
+ */
+export function statementEnd(code: string, fromIdx: number): number {
+  let depth = 0;
+  for (let i = fromIdx; i < code.length; i++) {
+    const ch = code[i];
+    if (ch === "'" || ch === '"' || ch === "`") {
+      i = skipStringLiteral(code, i, ch);
+      continue;
+    }
+    if (ch === "(" || ch === "{" || ch === "[") depth++;
+    else if (ch === ")" || ch === "}" || ch === "]") {
+      if (depth === 0) return i;
+      depth--;
+    } else if (ch === ";" && depth === 0) {
+      return i;
+    }
+  }
+  return code.length;
 }
 
 /**
@@ -156,7 +174,7 @@ export function findCallBody(
       searchFrom = dotIdx + marker.length;
       continue;
     }
-    const closeIdx = findMatchingParen(code, cursor);
+    const closeIdx = matchClosing(code, cursor);
     if (closeIdx === -1) {
       searchFrom = dotIdx + marker.length;
       continue;

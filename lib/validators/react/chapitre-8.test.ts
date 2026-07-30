@@ -54,6 +54,20 @@ function App() {
 }`;
     expect(etape1!(code).ok).toBe(true);
   });
+
+  it("refuse un Provider sans value meme si un element PLUS LOIN en a une (finding 6)", () => {
+    const code = `const ContexteFlotte = createContext(null);
+function App() {
+  return (
+    <ContexteFlotte.Provider>
+      <input value={nom} />
+    </ContexteFlotte.Provider>
+  );
+}`;
+    const r = etape1!(code);
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/value/);
+  });
 });
 
 describe("react/chapitre-8 — etape 2 : consommer avec useContext", () => {
@@ -100,6 +114,24 @@ function Console() {
 function Console() {
   const { amiral } = useContext(ContexteFlotte);
   return <div>Pont de commandement</div>;
+}`;
+    const r = etape2!(code);
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/Affiche/);
+  });
+
+  it("refuse une valeur lue dans Console mais affichee seulement dans un AUTRE composant (finding 3)", () => {
+    const code = `const ContexteFlotte = createContext(null);
+function Console() {
+  const { amiral } = useContext(ContexteFlotte);
+  return <div>Amiral : ???</div>;
+}
+function App() {
+  return (
+    <ContexteFlotte.Provider value={{ amiral: 'Vesper' }}>
+      <Console />
+    </ContexteFlotte.Provider>
+  );
 }`;
     const r = etape2!(code);
     expect(r.ok).toBe(false);
@@ -197,6 +229,57 @@ function Alerte() {
     expect(r.msg).toMatch(/dispatch/);
   });
 
+  it("refuse un default qui ne retourne rien (finding 4, loose)", () => {
+    const code = `function reducteur(etat, action) {
+  switch (action.type) {
+    case 'monter':
+      return { niveau: etat.niveau + 1 };
+    case 'descendre':
+      return { niveau: etat.niveau - 1 };
+    default:
+      break;
+  }
+}
+function Alerte() {
+  const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });
+  return <button onClick={() => dispatch({ type: 'monter' })}>{etat.niveau}</button>;
+}`;
+    const r = etape3!(code);
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/default/);
+  });
+
+  it("accepte un default avec un commentaire de fin de ligne apres le return (finding 4, brittle)", () => {
+    const code = `function reducteur(etat, action) {
+  switch (action.type) {
+    case 'monter':
+      return { niveau: etat.niveau + 1 };
+    case 'descendre':
+      return { niveau: etat.niveau - 1 };
+    default:
+      return etat; // action inconnue
+  }
+}
+function Alerte() {
+  const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });
+  return <button onClick={() => dispatch({ type: 'monter' })}>{etat.niveau}</button>;
+}`;
+    expect(etape3!(code).ok).toBe(true);
+  });
+
+  it("accepte un reducteur if/else se terminant par return { ...etat } (finding 4, brittle)", () => {
+    const code = `function reducteur(etat, action) {
+  if (action.type === 'monter') return { ...etat, niveau: etat.niveau + 1 };
+  if (action.type === 'descendre') return { ...etat, niveau: etat.niveau - 1 };
+  return { ...etat };
+}
+function Alerte() {
+  const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });
+  return <button onClick={() => dispatch({ type: 'monter' })}>{etat.niveau}</button>;
+}`;
+    expect(etape3!(code).ok).toBe(true);
+  });
+
   it("ne se laisse pas valider par un switch sans rapport avec le reducteur", () => {
     const code = `function autreChose(x) {
   switch (x.type) {
@@ -277,6 +360,41 @@ function App() {
     const r = etape4!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/useReducer/);
+  });
+
+  it("refuse un dispatch declenche depuis App plutot que depuis le consommateur (finding 5)", () => {
+    const code = `const ContexteAlerte = createContext(null);
+function reducteur(etat, action) {
+  switch (action.type) {
+    case 'monter':
+      return { niveau: etat.niveau + 1 };
+    default:
+      return etat;
+  }
+}
+function Console() {
+  const { etat, dispatch } = useContext(ContexteAlerte);
+  return <button>Alerte {etat.niveau}</button>;
+}
+function App() {
+  const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });
+  return (
+    <ContexteAlerte.Provider value={{ etat, dispatch }}>
+      <Console />
+      <button onClick={() => dispatch({ type: 'monter' })}>Depuis App</button>
+    </ContexteAlerte.Provider>
+  );
+}`;
+    const r = etape4!(code);
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/transition|dispatch/);
+  });
+
+  it("refuse une value qui ne transporte que dispatch, sans etat (finding 5)", () => {
+    const code = complet.replace("value={{ etat, dispatch }}", "value={{ dispatch }}");
+    const r = etape4!(code);
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/etat/);
   });
 });
 

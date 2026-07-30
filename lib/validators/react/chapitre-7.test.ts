@@ -113,6 +113,19 @@ function Bouclier() {
     expect(r.msg).toMatch(/retourne rien/);
   });
 
+  it("compte correctement les sorties quand un membre du retour contient un objet imbrique", () => {
+    const code = `function useBouclier() {
+  const [charge, setCharge] = useState({ valeur: 100 });
+  const recharger = () => setCharge({ valeur: 100 });
+  return { etat: { charge }, recharger };
+}
+function Bouclier() {
+  const { etat, recharger } = useBouclier();
+  return <div onClick={recharger}>{etat.charge.valeur}</div>;
+}`;
+    expect(etape2!(code).ok).toBe(true);
+  });
+
   it("refuse un retour a une seule sortie", () => {
     const code = `function useBouclier() {
   const [charge, setCharge] = useState(100);
@@ -183,6 +196,37 @@ function Hublot() {
     const r = etape3!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/cleanup/);
+  });
+
+  it("refuse un cleanup qui APPELLE removeEventListener au lieu de le retourner (finding 2)", () => {
+    const code = `function useLargeurHublot() {
+  const [largeur, setLargeur] = useState(window.innerWidth);
+  useEffect(() => {
+    const surResize = () => setLargeur(window.innerWidth);
+    window.addEventListener('resize', surResize);
+    return window.removeEventListener('resize', surResize);
+  }, []);
+  return largeur;
+}`;
+    const r = etape3!(code);
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/cleanup/);
+  });
+
+  it("accepte un cleanup NOMME declare puis retourne par reference", () => {
+    const code = `function useLargeurHublot() {
+  const [largeur, setLargeur] = useState(window.innerWidth);
+  useEffect(() => {
+    function nettoyer() {
+      window.removeEventListener('resize', surResize);
+    }
+    const surResize = () => setLargeur(window.innerWidth);
+    window.addEventListener('resize', surResize);
+    return nettoyer;
+  }, []);
+  return largeur;
+}`;
+    expect(etape3!(code).ok).toBe(true);
   });
 
   it("refuse un hook sans etat (l'affichage ne se mettrait jamais a jour)", () => {
@@ -277,6 +321,14 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
     const code = `function Panneau({ visible }) {
   const [mode, setMode] = useState('auto');
   return visible ? <div>{mode}</div> : null;
+}`;
+    expect(etape4!(code).ok).toBe(true);
+  });
+
+  it("accepte && comme comportement conditionnel (finding 1)", () => {
+    const code = `function Panneau({ visible }) {
+  const [mode, setMode] = useState('auto');
+  return <div>{visible && <span>Mode : {mode}</span>}</div>;
 }`;
     expect(etape4!(code).ok).toBe(true);
   });
