@@ -13,6 +13,7 @@ export const chapitre2: ChapterData = {
       startCode:
         "// Importe useState depuis 'react'.\n// Dans le composant Compteur, declare un etat 'count' initialise a 0.\n// Affiche-le dans le <div>.\nfunction Compteur() {\n  return <div>Score : 0</div>;\n}\n",
       placeholder: "// const [count, setCount] = useState(0);",
+      previewMount: "Compteur",
       narrator:
         "Tes composants sont jusqu'ici figes. Pour qu'ils reagissent aux evenements, ils ont besoin d'une memoire interne : c'est l'etat. Le hook useState est ta nouvelle arme.",
       hint: "import { useState } from 'react';\n\nfunction Compteur() {\n  const [count, setCount] = useState(0);\n  return <div>Score : {count}</div>;\n}",
@@ -56,6 +57,7 @@ Une variable JS classique n'avertit pas React quand elle change. L'interface ne 
       startCode:
         "// Ajoute un <button> qui, au clic, incremente count de 1.\n// Utilise l'attribut onClick et la fonction setCount.\nimport { useState } from 'react';\n\nfunction Compteur() {\n  const [count, setCount] = useState(0);\n  return <div>Score : {count}</div>;\n}\n",
       placeholder: "// <button onClick={() => setCount(count + 1)}>+1</button>",
+      previewMount: "Compteur",
       narrator:
         "L'etat existe, mais rien ne le modifie. Ajoute un bouton qui incremente le compteur a chaque clic. Tu vas voir l'interface se redessiner toute seule. C'est la magie de React.",
       hint: "import { useState } from 'react';\n\nfunction Compteur() {\n  const [count, setCount] = useState(0);\n  return (\n    <div>\n      Score : {count}\n      <button onClick={() => setCount(count + 1)}>+1</button>\n    </div>\n  );\n}",
@@ -100,6 +102,7 @@ Plus sur dans les cas d'updates multiples rapides.
       startCode:
         "// Cree un composant Pilote avec un etat 'profil' initialise a { nom: 'Lia', xp: 0 }.\n// Affiche le nom et l'xp. Ajoute un bouton qui ajoute 10 xp.\n// ATTENTION : ne modifie pas profil directement, cree un nouvel objet.\n",
       placeholder: "// setProfil({ ...profil, xp: profil.xp + 10 })",
+      previewMount: "Pilote",
       narrator:
         "Stocker un objet entier dans un etat est tres courant. Mais attention : React n'accepte PAS qu'on mute l'objet existant. Il faut creer un nouvel objet a chaque mise a jour.",
       hint: "import { useState } from 'react';\n\nfunction Pilote() {\n  const [profil, setProfil] = useState({ nom: 'Lia', xp: 0 });\n  return (\n    <div>\n      <p>{profil.nom} - {profil.xp} XP</p>\n      <button onClick={() => setProfil({ ...profil, xp: profil.xp + 10 })}>\n        +10 XP\n      </button>\n    </div>\n  );\n}",
@@ -144,6 +147,7 @@ JAMAIS \`liste.push()\`, \`liste.splice()\`, \`liste[0] = ...\`.
       startCode:
         "// Le parent TableauDeBord possede l'etat 'alerte' (booleen).\n// Il passe alerte ET la fonction setAlerte au composant enfant Bouton.\n// Le Bouton, au clic, doit basculer alerte (true <-> false).\nimport { useState } from 'react';\n\nfunction TableauDeBord() {\n  return <div>...</div>;\n}\n\nfunction Bouton(props) {\n  return <button>Toggle</button>;\n}\n",
       placeholder: "// <Bouton alerte={alerte} setAlerte={setAlerte} />",
+      previewMount: "TableauDeBord",
       narrator:
         "L'etat doit souvent etre partage entre plusieurs composants. La regle React : faire remonter l'etat dans le parent commun, puis le passer aux enfants via les props. C'est le 'state lifting'.",
       hint: "import { useState } from 'react';\n\nfunction TableauDeBord() {\n  const [alerte, setAlerte] = useState(false);\n  return (\n    <div>\n      <p>Statut : {alerte ? 'ALERTE' : 'OK'}</p>\n      <Bouton alerte={alerte} setAlerte={setAlerte} />\n    </div>\n  );\n}\n\nfunction Bouton({ alerte, setAlerte }) {\n  return <button onClick={() => setAlerte(!alerte)}>Toggle</button>;\n}",

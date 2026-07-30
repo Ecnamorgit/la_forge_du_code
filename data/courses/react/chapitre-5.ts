@@ -13,6 +13,7 @@ export const chapitre5: ChapterData = {
       startCode:
         "// La Station de Replication Multiplicative vient de deployer trois sous-vaisseaux.\n// Le tableau flotte contient leurs donnees, mais le rendu ci-dessous est code en dur.\n// Remplace les trois <li> fixes par un rendu dynamique via flotte.map().\nconst flotte = [\n  { id: 1, nom: 'Aigle' },\n  { id: 2, nom: 'Faucon' },\n  { id: 3, nom: 'Phenix' },\n];\n\nfunction ListeFlotte() {\n  return (\n    <ul>\n      <li>Aigle</li>\n      <li>Faucon</li>\n      <li>Phenix</li>\n    </ul>\n  );\n}\n",
       placeholder: "// {flotte.map(v => <li>{v.nom}</li>)}",
+      previewMount: "ListeFlotte",
       narrator:
         "Trois sous-vaisseaux viennent d'etre repliques, mais leur affichage est fige : si la flotte grandit, tu devras recopier des <li> a la main jusqu'a la fin des temps. La methode .map() transforme un tableau de donnees en tableau d'elements JSX, en une seule expression qui s'adapte automatiquement a la taille de la flotte.",
       hint: "const flotte = [\n  { id: 1, nom: 'Aigle' },\n  { id: 2, nom: 'Faucon' },\n  { id: 3, nom: 'Phenix' },\n];\n\nfunction ListeFlotte() {\n  return (\n    <ul>\n      {flotte.map(v => <li>{v.nom}</li>)}\n    </ul>\n  );\n}",
@@ -59,6 +60,7 @@ Une boucle \`for\` classique modifie des variables et ne retourne rien : elle ne
       startCode:
         "// La flotte n'est plus figee : des vaisseaux rejoignent et quittent la formation.\n// React affiche un avertissement dans la console : chaque element de liste a besoin d'une prop key.\nconst flotte = [\n  { id: 1, nom: 'Aigle' },\n  { id: 2, nom: 'Faucon' },\n  { id: 3, nom: 'Phenix' },\n];\n\nfunction ListeFlotte() {\n  return (\n    <ul>\n      {flotte.map(v => <li>{v.nom}</li>)}\n    </ul>\n  );\n}\n",
       placeholder: "// <li key={v.id}>{v.nom}</li>",
+      previewMount: "ListeFlotte",
       narrator:
         "Regarde la console : React reclame une prop key sur chaque element de liste. Sans elle, quand la flotte bouge (un vaisseau rejoint, un autre est detruit), React ne sait plus reconnaitre quel <li> correspond a quel vaisseau. La clef doit etre stable et unique : l'identifiant du vaisseau, jamais sa position dans le tableau.",
       hint: "const flotte = [\n  { id: 1, nom: 'Aigle' },\n  { id: 2, nom: 'Faucon' },\n  { id: 3, nom: 'Phenix' },\n];\n\nfunction ListeFlotte() {\n  return (\n    <ul>\n      {flotte.map(v => <li key={v.id}>{v.nom}</li>)}\n    </ul>\n  );\n}",
@@ -100,6 +102,7 @@ Utilise une valeur qui identifie le vaisseau LUI-MEME, pas sa place dans le tabl
       startCode:
         "// Certains vaisseaux de la flotte sont hors service apres l'escarmouche.\n// N'affiche que les vaisseaux dont le statut est 'operationnel'.\nconst flotte = [\n  { id: 1, nom: 'Aigle', statut: 'operationnel' },\n  { id: 2, nom: 'Faucon', statut: 'hors service' },\n  { id: 3, nom: 'Phenix', statut: 'operationnel' },\n];\n\nfunction ListeFlotte() {\n  return (\n    <ul>\n      {flotte.map(v => <li key={v.id}>{v.nom}</li>)}\n    </ul>\n  );\n}\n",
       placeholder: "// flotte.filter(v => v.statut === 'operationnel').map(v => <li key={v.id}>{v.nom}</li>)",
+      previewMount: "ListeFlotte",
       narrator:
         "Le poste de commandement ne veut voir QUE les vaisseaux operationnels : afficher un vaisseau hors service dans la liste de patrouille serait une erreur tactique. .filter() garde uniquement les elements qui remplissent une condition, AVANT que .map() les transforme en JSX. Les deux methodes se chainent.",
       hint: "const flotte = [\n  { id: 1, nom: 'Aigle', statut: 'operationnel' },\n  { id: 2, nom: 'Faucon', statut: 'hors service' },\n  { id: 3, nom: 'Phenix', statut: 'operationnel' },\n];\n\nfunction ListeFlotte() {\n  return (\n    <ul>\n      {flotte.filter(v => v.statut === 'operationnel').map(v => <li key={v.id}>{v.nom}</li>)}\n    </ul>\n  );\n}",
@@ -143,6 +146,7 @@ Le filtrage ne change rien a la regle precedente : chaque <li> genere garde sa k
       startCode:
         "// Apres l'attaque, il se peut qu'aucun vaisseau ne soit operationnel.\n// Affiche un message clair a la place d'une liste vide et silencieuse.\nconst flotte = [\n  { id: 1, nom: 'Aigle', statut: 'hors service' },\n  { id: 2, nom: 'Faucon', statut: 'hors service' },\n];\n\nfunction ListeFlotte() {\n  const operationnels = flotte.filter(v => v.statut === 'operationnel');\n  return (\n    <ul>\n      {operationnels.map(v => <li key={v.id}>{v.nom}</li>)}\n    </ul>\n  );\n}\n",
       placeholder: "// if (operationnels.length === 0) return <p>Aucun vaisseau operationnel.</p>;",
+      previewMount: "ListeFlotte",
       narrator:
         "Zero vaisseau operationnel, zero <li> : la liste rend un <ul> vide, et le Cadet au poste de commandement voit un blanc en se demandant si l'ecran a plante. Une collection vide EST une information — elle doit etre annoncee, pas cachee. Teste operationnels.length et affiche un message de repli si la flotte est a sec.",
       hint: "function ListeFlotte() {\n  const operationnels = flotte.filter(v => v.statut === 'operationnel');\n  if (operationnels.length === 0) {\n    return <p>Aucun vaisseau operationnel.</p>;\n  }\n  return (\n    <ul>\n      {operationnels.map(v => <li key={v.id}>{v.nom}</li>)}\n    </ul>\n  );\n}",

@@ -13,6 +13,7 @@ export const chapitre8: ChapterData = {
       startCode:
         "// L'amiral doit etre lisible partout dans la station, sans le passer\n// en prop a chaque etage. Cree un contexte ContexteFlotte et diffuse\n// une valeur depuis App.\nfunction Pont() {\n  return <div>Pont de commandement</div>;\n}\n\nfunction App() {\n  return <Pont />;\n}\n",
       placeholder: "// const ContexteFlotte = createContext(null);",
+      previewMount: "App",
       narrator:
         "Cadet, faire descendre une donnee etage par etage devient vite intenable : chaque composant intermediaire doit la transporter sans jamais s'en servir. Un contexte ouvre un canal direct entre le sommet de ton arbre et n'importe quel descendant. Ouvre ce canal.",
       hint: "const ContexteFlotte = createContext(null);\n\nfunction Pont() {\n  return <div>Pont de commandement</div>;\n}\n\nfunction App() {\n  return (\n    <ContexteFlotte.Provider value={{ amiral: 'Vesper' }}>\n      <Pont />\n    </ContexteFlotte.Provider>\n  );\n}",
@@ -63,6 +64,7 @@ Passer un objet litteral en \`value\` dans un composant qui se re-rend souvent :
       startCode:
         "// Le canal est ouvert mais personne n'ecoute. Console est un\n// descendant profond de App : fais-lui lire l'amiral dans le contexte,\n// sans aucune prop.\nconst ContexteFlotte = createContext(null);\n\nfunction Console() {\n  return <div>Amiral : ???</div>;\n}\n\nfunction Pont() {\n  return <Console />;\n}\n",
       placeholder: "// const { amiral } = useContext(ContexteFlotte);",
+      previewMount: "App",
       narrator:
         "Le canal est ouvert, mais aucun recepteur n'est branche. useContext accroche un composant au Provider le plus proche au-dessus de lui, quelle que soit la distance. Branche ta console — et remarque que Pont n'a rien a transporter.",
       hint: "const ContexteFlotte = createContext(null);\n\nfunction Console() {\n  const { amiral } = useContext(ContexteFlotte);\n  return <div>Amiral : {amiral}</div>;\n}\n\nfunction Pont() {\n  return <Console />;\n}\n\nfunction App() {\n  return (\n    <ContexteFlotte.Provider value={{ amiral: 'Vesper' }}>\n      <Pont />\n    </ContexteFlotte.Provider>\n  );\n}",
@@ -115,6 +117,7 @@ Tous les consommateurs d'un contexte se re-rendent quand sa \`value\` change. Un
       startCode:
         "// Le niveau d'alerte monte et descend. Avec useState, la logique se\n// disperse dans les handlers. Ecris un reducteur qui gere les actions\n// 'monter' et 'descendre', puis branche-le avec useReducer.\nfunction Alerte() {\n  return <div>Niveau : ???</div>;\n}\n",
       placeholder: "// const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });",
+      previewMount: "Alerte",
       narrator:
         "Cadet, quand plusieurs actions modifient le meme etat selon des regles precises, useState eparpille tes regles en autant de handlers. useReducer les rassemble au meme endroit : une fonction qui prend l'etat et une action, et renvoie le nouvel etat. Fais que tes composants n'envoient que des intentions.",
       hint: "function reducteur(etat, action) {\n  switch (action.type) {\n    case 'monter':\n      return { niveau: etat.niveau + 1 };\n    case 'descendre':\n      return { niveau: etat.niveau - 1 };\n    default:\n      return etat;\n  }\n}\n\nfunction Alerte() {\n  const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });\n  return (\n    <div>\n      Niveau : {etat.niveau}\n      <button onClick={() => dispatch({ type: 'monter' })}>Monter</button>\n      <button onClick={() => dispatch({ type: 'descendre' })}>Descendre</button>\n    </div>\n  );\n}",
@@ -175,6 +178,7 @@ Pour un booleen isole, \`useState\` reste plus lisible.
       startCode:
         "// Derniere manoeuvre : rends le niveau d'alerte pilotable depuis\n// n'importe ou. Diffuse etat ET dispatch dans le contexte, puis\n// fais agir Console sans lui passer une seule prop.\nconst ContexteAlerte = createContext(null);\n\nfunction reducteur(etat, action) {\n  switch (action.type) {\n    case 'monter':\n      return { niveau: etat.niveau + 1 };\n    default:\n      return etat;\n  }\n}\n\nfunction Console() {\n  return <button>Monter l'alerte</button>;\n}\n",
       placeholder: "// value={{ etat, dispatch }}",
+      previewMount: "App",
       narrator:
         "Voici la combinaison qui fait tenir les vraies applications : le reducteur tient l'etat et ses regles, le contexte le diffuse. N'importe quel descendant peut alors lire l'etat et declencher une transition, sans qu'aucun etage intermediaire ne transporte quoi que ce soit. Termine la manoeuvre, Cadet.",
       hint: "const ContexteAlerte = createContext(null);\n\nfunction reducteur(etat, action) {\n  switch (action.type) {\n    case 'monter':\n      return { niveau: etat.niveau + 1 };\n    default:\n      return etat;\n  }\n}\n\nfunction Console() {\n  const { etat, dispatch } = useContext(ContexteAlerte);\n  return (\n    <button onClick={() => dispatch({ type: 'monter' })}>\n      Alerte {etat.niveau}\n    </button>\n  );\n}\n\nfunction App() {\n  const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });\n  return (\n    <ContexteAlerte.Provider value={{ etat, dispatch }}>\n      <Console />\n    </ContexteAlerte.Provider>\n  );\n}",

@@ -13,6 +13,7 @@ export const chapitre1: ChapterData = {
       startCode:
         "// Declare une fonction Radar() qui retourne <div>Scan en cours</div>.\n// N'oublie pas le return.\n",
       placeholder: "// function Radar() { ... }",
+      previewMount: "Radar",
       narrator:
         "Bienvenue dans l'ere moderne, cadet. React permet de creer des blocs d'interface reutilisables appeles 'composants'. Cree ton premier composant fonctionnel 'Radar' qui retourne un div avec le texte 'Scan en cours'.",
       hint: "function Radar() {\n  return <div>Scan en cours</div>;\n}",
@@ -49,6 +50,7 @@ C'est cette syntaxe etrange qui ressemble a du HTML directement ecrit dans le Ja
       startCode:
         "// Modifie le composant pour accepter un parametre 'props'.\n// Affiche 'Cible : ' suivi de props.cible dans le div.\nfunction Radar() {\n  return <div>Scan en cours</div>;\n}\n",
       placeholder: "// function Radar(props) { ... }",
+      previewMount: "Radar",
       narrator:
         "Un composant fige ne sert pas a grand chose. Modifie ton Radar pour qu'il accepte un parametre 'props' et affiche dynamiquement la 'cible' qu'on lui transmettra.",
       hint: "function Radar(props) {\n  return <div>Cible : {props.cible}</div>;\n}",
@@ -89,6 +91,7 @@ Plutot que d'ecrire \`props.cible\`, les developpeurs React destructurent souven
       startCode:
         "// Utilise les accolades et une condition ternaire pour afficher un <span>ALERTE</span>\n// si props.menace est true.\nfunction Radar(props) {\n  return <div>Cible : {props.cible}</div>;\n}\n",
       placeholder: "// {props.menace ? <span>...</span> : null}",
+      previewMount: "Radar",
       narrator:
         "Le radar doit reagir visuellement. S'il detecte une menace, il doit afficher une alerte. Utilise le rendu conditionnel en JSX pour accomplir cela.",
       hint: "function Radar(props) {\n  return <div>Cible : {props.cible} {props.menace && <span>ALERTE</span>}</div>;\n}",
@@ -128,6 +131,7 @@ Si \`props.menace\` est vrai, le span s'affiche. Sinon, React l'ignore completem
       startCode:
         "function Radar({cible, menace}) {\n  return <div>{cible} {menace && '(!)'}</div>;\n}\n\n// Cree un composant TableauDeBord.\n// Il doit retourner un <div> contenant deux <Radar />.\n// L'un avec cible='Lune', l'autre avec cible='Mars' et menace={true}.\n",
       placeholder: "// function TableauDeBord() { return <div><Radar ... /></div>; }",
+      previewMount: "TableauDeBord",
       narrator:
         "L'assemblage final ! Cree un composant parent 'TableauDeBord' qui va utiliser ton composant Radar plusieurs fois avec des donnees differentes. C'est la force absolue de React.",
       hint: "function TableauDeBord() {\n  return (\n    <div>\n      <Radar cible='Lune' />\n      <Radar cible='Mars' menace={true} />\n    </div>\n  );\n}",

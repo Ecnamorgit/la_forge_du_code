@@ -13,6 +13,7 @@ export const chapitre7: ChapterData = {
       startCode:
         "// Ce composant melange sa logique de comptage et son affichage.\n// Extrais la logique dans un hook personnalise nomme useCompteur,\n// puis appelle-le depuis Reacteur.\nfunction Reacteur() {\n  const [poussee, setPoussee] = useState(0);\n  const augmenter = () => setPoussee(poussee + 1);\n\n  return <button onClick={augmenter}>Poussee : {poussee}</button>;\n}\n",
       placeholder: "// function useCompteur() { ... }",
+      previewMount: "Reacteur",
       narrator:
         "Cadet, tu viens d'ecrire trois fois la meme logique de comptage dans trois modules differents. Un hook personnalise est une fonction prefixee par use qui appelle d'autres hooks : tu l'ecris une fois, tu la rebranche partout. Sors cette logique de ton composant.",
       hint: "function useCompteur() {\n  const [poussee, setPoussee] = useState(0);\n  const augmenter = () => setPoussee(poussee + 1);\n  return { poussee, augmenter };\n}\n\nfunction Reacteur() {\n  const { poussee, augmenter } = useCompteur();\n  return <button onClick={augmenter}>Poussee : {poussee}</button>;\n}",
@@ -66,6 +67,7 @@ Extraire la logique mais oublier de retourner ce dont le composant a besoin. Le 
       startCode:
         "// Ce hook garde son etat pour lui : le composant ne peut rien afficher.\n// Fais-lui retourner la valeur ET l'action, puis destructure-les\n// dans Bouclier.\nfunction useBouclier() {\n  const [charge, setCharge] = useState(100);\n  const recharger = () => setCharge(100);\n}\n\nfunction Bouclier() {\n  return <div>Bouclier : ???</div>;\n}\n",
       placeholder: "// return { charge, recharger };",
+      previewMount: "Bouclier",
       narrator:
         "Un hook qui ne retourne rien est un module scelle : sa logique tourne, mais aucun composant ne peut la lire. Definis son contrat de sortie — la valeur a afficher et les actions qui la modifient — puis recupere-les par destructuration.",
       hint: "function useBouclier() {\n  const [charge, setCharge] = useState(100);\n  const recharger = () => setCharge(100);\n  return { charge, recharger };\n}\n\nfunction Bouclier() {\n  const { charge, recharger } = useBouclier();\n  return (\n    <div>\n      Bouclier : {charge}%\n      <button onClick={recharger}>Recharger</button>\n    </div>\n  );\n}",
@@ -116,6 +118,7 @@ Oublier le \`return\`. La fonction s'execute, l'etat existe, et le composant rec
       startCode:
         "// Ecris un hook useLargeurHublot qui suit la largeur de la fenetre.\n// Il doit : stocker la largeur, s'abonner a l'evenement 'resize',\n// et se DESABONNER dans le cleanup du useEffect.\n// Puis affiche la largeur dans Hublot.\nfunction Hublot() {\n  return <div>Largeur du hublot : ???</div>;\n}\n",
       placeholder: "// window.addEventListener('resize', ...) puis removeEventListener",
+      previewMount: "Hublot",
       narrator:
         "Cadet, ton hublot doit connaitre sa taille. Combine un etat et un effet dans ce hook : abonne-toi a l'evenement du navigateur et, surtout, desabonne-toi quand le composant disparait. Sans ce nettoyage, chaque montage laisse un ecouteur fantome derriere toi.",
       hint: "function useLargeurHublot() {\n  const [largeur, setLargeur] = useState(window.innerWidth);\n\n  useEffect(() => {\n    const surResize = () => setLargeur(window.innerWidth);\n    window.addEventListener('resize', surResize);\n    return () => window.removeEventListener('resize', surResize);\n  }, []);\n\n  return largeur;\n}\n\nfunction Hublot() {\n  const largeur = useLargeurHublot();\n  return <div>Largeur du hublot : {largeur}px</div>;\n}",
@@ -167,6 +170,7 @@ Lire \`window.innerWidth\` directement dans le rendu au lieu de le mettre en eta
       startCode:
         "// Ce code viole les regles des hooks : l'appel a useState est\n// enferme dans un if. React perd le fil de l'ordre des hooks.\n// Remonte l'appel au niveau superieur du composant et garde le\n// comportement conditionnel dans l'affichage.\nfunction Panneau({ visible }) {\n  if (visible) {\n    const [mode, setMode] = useState('auto');\n    return <div>Mode : {mode}</div>;\n  }\n  return null;\n}\n",
       placeholder: "// Appelle useState AVANT tout if / return",
+      previewMount: "Panneau",
       narrator:
         "Le Spectre adore ce genre de faille. React identifie chaque hook par son ORDRE d'appel, pas par son nom : si un if saute un appel, tous les hooks suivants se decalent et lisent l'etat du voisin. Remonte cet appel tout en haut du composant.",
       hint: "function Panneau({ visible }) {\n  const [mode, setMode] = useState('auto');\n\n  if (!visible) return null;\n\n  return <div>Mode : {mode}</div>;\n}",
