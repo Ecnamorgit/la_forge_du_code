@@ -233,6 +233,11 @@ chapitre — pas à chaque déploiement — c'est supportable.
 nécessaire, il change la forme de `buildPreviewSrcdoc` : autant le savoir avant
 d'écrire le reste.
 
+**Vérifié le 2026-07-30** sous CSP de production : `script-src 'self'` autorise
+bien une iframe `srcdoc` à origine opaque à charger un script depuis l'origine
+du parent. Le repli par inlining n'est pas nécessaire. Gardé par
+`e2e/csp-srcdoc-script.spec.ts`.
+
 ---
 
 ## Périmètre
