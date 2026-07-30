@@ -1039,6 +1039,13 @@ export default function ReactPreview({
     return () => clearTimeout(t);
   }, [pret]);
 
+  // Le code courant, lu au moment du deploiement. Un ref plutot qu'une
+  // dependance d'effet : mettre `code` dans les deps remonterait l'apercu a
+  // chaque frappe au clavier, et le desactiver avec exhaustive-deps masquerait
+  // le probleme au lieu de le resoudre.
+  const codeRef = useRef(code);
+  codeRef.current = code;
+
   // Transformation + envoi a chaque deploiement.
   useEffect(() => {
     if (deployNonce === 0 || !mount) return;
@@ -1054,7 +1061,7 @@ export default function ReactPreview({
 
     let annule = false;
     void (async () => {
-      const r = await transformJsx(code);
+      const r = await transformJsx(codeRef.current);
       if (annule) return;
 
       if (!r.ok) {
@@ -1071,9 +1078,6 @@ export default function ReactPreview({
     return () => {
       annule = true;
     };
-    // `code` est lu au moment du deploiement : il ne doit PAS declencher l'effet,
-    // sinon l'apercu se remonterait a chaque frappe au clavier.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deployNonce, mount, pret, envoyer]);
 
   // Construit apres le montage, jamais au rendu : `buildPreviewSrcdoc` a besoin
