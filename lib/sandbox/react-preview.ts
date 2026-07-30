@@ -13,6 +13,7 @@ export type PreviewErrorKind = "transform" | "mount" | "runtime";
 
 export type PreviewMessage =
   | { type: "ready" }
+  | { type: "rendered" }
   | { type: "error"; kind: PreviewErrorKind; message: string };
 
 /**
@@ -35,6 +36,12 @@ export function parsePreviewMessage(
   if (typeof data !== "object" || data === null) return null;
 
   if (data.type === "preview:ready") return { type: "ready" };
+
+  // Emis par l'iframe juste apres un montage reussi. Sert de signal de succes
+  // au chien de garde du parent (ReactPreview) : sans lui, un rendu fige (boucle
+  // infinie dans le composant) ne se distingue en rien d'un rendu simplement
+  // lent, puisqu'aucune erreur n'est levee dans les deux cas.
+  if (data.type === "preview:rendered") return { type: "rendered" };
 
   if (data.type === "preview:error") {
     if (typeof data.message !== "string") return null;
@@ -167,6 +174,10 @@ export function buildPreviewSrcdoc(origin: string): string {
 
             root = ReactDOM.createRoot(conteneur);
             root.render(React.createElement(Frontiere, null, React.createElement(Composant)));
+            // Signal de succes pour le chien de garde du parent : sans lui, un
+            // rendu qui a reussi et un rendu fige dans une boucle infinie sont
+            // indiscernables de l'exterieur (aucun des deux ne leve).
+            envoyer({ type: "preview:rendered" });
           } catch (err) {
             erreur("runtime", err && err.message ? err.message : err);
           }

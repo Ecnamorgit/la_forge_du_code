@@ -38,6 +38,16 @@ describe("buildPreviewSrcdoc", () => {
     expect(html).toContain("unhandledrejection");
   });
 
+  it("emet preview:rendered juste apres root.render", () => {
+    // Signal de succes necessaire au chien de garde du parent (ReactPreview) :
+    // sans lui, un rendu reussi et un rendu fige dans une boucle infinie sont
+    // indiscernables de l'exterieur.
+    const renderIdx = html.indexOf("root.render(");
+    const renderedIdx = html.indexOf('"preview:rendered"');
+    expect(renderIdx).toBeGreaterThan(-1);
+    expect(renderedIdx).toBeGreaterThan(renderIdx);
+  });
+
   it("derive les globales de React au lieu de les enumerer", () => {
     expect(html).toContain("Object.keys(React)");
   });
@@ -51,6 +61,12 @@ describe("parsePreviewMessage", () => {
   it("accepte ready", () => {
     expect(parsePreviewMessage(evt({ type: "preview:ready" }), source)).toEqual({
       type: "ready",
+    });
+  });
+
+  it("accepte rendered", () => {
+    expect(parsePreviewMessage(evt({ type: "preview:rendered" }), source)).toEqual({
+      type: "rendered",
     });
   });
 

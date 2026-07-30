@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Step, ValidationResult, Validator } from "@/data/courses/html/types";
 import MonacoEditor from "@/components/editor/MonacoEditor";
 import CombatVisualizer from "@/components/lesson/CombatVisualizer";
+import ReactPreview from "@/components/lesson/ReactPreview";
 import {
   playBreach,
   playDeployBip,
@@ -74,10 +75,10 @@ export default function ChapterWorkspace({
 }: ChapterWorkspaceProps) {
   const isJs = language === "javascript";
   const isSql = language === "sql";
-  // React : pas encore d'apercu execute. Le code de l'apprenant n'est pas
-  // transforme (JSX) ni monte, la validation est purement statique. On l'annonce
-  // au lieu d'injecter le JSX dans l'iframe HTML, ce qui affichait du texte en
-  // desordre sous une etiquette « Apercu en direct » — une fausse promesse.
+  // React : le composant se monte reellement dans l'iframe dediee de
+  // ReactPreview (transformation Sucrase + protocole de messages). La
+  // validation reste par ailleurs purement statique, comme pour les autres
+  // cursus — l'apercu affiche, il ne juge pas.
   const isReact = language === "react";
   const [code, setCode] = useState(step.startCode);
   const [sqlView, setSqlView] = useState<SqlQueryResult | null>(null);
@@ -95,6 +96,9 @@ export default function ChapterWorkspace({
   const [shakeTrigger, setShakeTrigger] = useState(0);
   // Consecutive failures on the current step; drives the Spectre's intrusion.
   const [failCount, setFailCount] = useState(0);
+  // Incremente a chaque DEPLOYER : c'est le seul signal que ReactPreview
+  // consomme. ChapterWorkspace ignore Sucrase comme le protocole de messages.
+  const [deployNonce, setDeployNonce] = useState(0);
 
   const detectedTagsRef = useRef<Set<string>>(detectClosedTags(step.startCode));
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -150,6 +154,7 @@ export default function ChapterWorkspace({
 
   const runCode = useCallback(async () => {
     onDeploy?.();
+    if (isReact) setDeployNonce((n) => n + 1);
     let result: ValidationResult;
     let jsError: string | null = null;
 
@@ -205,7 +210,7 @@ export default function ChapterWorkspace({
     playBreach();
     setEnemyState((prev) => ({ type: "fly", trigger: prev.trigger + 1 }));
     setShakeTrigger((p) => p + 1);
-  }, [code, isJs, isSql, sqlConfig, language, onDeploy, onStepSuccess, validate]);
+  }, [code, isJs, isSql, isReact, sqlConfig, language, onDeploy, onStepSuccess, validate]);
 
   const spectreTaunt =
     feedback.type === "err" ? getSpectreTaunt(failCount) : null;
@@ -272,7 +277,7 @@ export default function ChapterWorkspace({
                   : isSql
                     ? "Resultat"
                     : isReact
-                      ? "Analyse statique"
+                      ? "Apercu"
                       : "Apercu en direct"}
               </span>
               <span className="font-body text-sm italic text-nebula-text-dim">
@@ -403,23 +408,12 @@ export default function ChapterWorkspace({
           )}
         </div>
       ) : isReact ? (
-        <div
-          className={`flex-1 min-h-0 overflow-y-auto bg-nebula-bg-darkest/80 px-5 py-4 ${
-            mobilePanel === "editor" ? "hidden lg:block" : "block"
-          }`}
-        >
-          <div className="mb-3 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
-            {"> "}Analyse statique
-          </div>
-          <p className="mb-2 font-body text-sm leading-relaxed text-nebula-text-secondary">
-            Ton code React est <strong className="text-nebula-cyan">analyse</strong>, pas execute :
-            la structure est verifiee etape par etape, et le message ci-dessus te dit ce qui
-            manque.
-          </p>
-          <p className="font-body text-sm leading-relaxed text-nebula-text-dim">
-            L&apos;apercu visuel des composants n&apos;est pas encore disponible sur ce cursus.
-          </p>
-        </div>
+        <ReactPreview
+          code={code}
+          mount={step.previewMount}
+          deployNonce={deployNonce}
+          className={mobilePanel === "editor" ? "hidden lg:flex" : "flex"}
+        />
       ) : (
         <iframe
           ref={iframeRef}
