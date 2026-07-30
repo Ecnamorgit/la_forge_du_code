@@ -129,14 +129,24 @@ describe("buildPreviewSrcdoc — garde-fous ajoutes apres revue", () => {
 
   it("n'enumere aucun hook en dur a cote de la derivation", () => {
     // Une liste ecrite a la main AJOUTEE a cote de Object.keys(React) passerait
-    // le test de derivation. Ces litteraux sont sa signature.
-    expect(html).not.toContain('"useState"');
-    expect(html).not.toContain('"useRef"');
+    // le test de derivation : ces litteraux sont sa signature. On couvre les
+    // deux styles de guillemets et plusieurs hooks, sinon la garde ne tient que
+    // pour la forme exacte qu'on a imaginee.
+    for (const hook of ["useState", "useRef", "useContext", "useMemo", "useEffect"]) {
+      expect(html, `hook ${hook} enumere en dur`).not.toContain(`"${hook}"`);
+      expect(html, `hook ${hook} enumere en dur`).not.toContain(`'${hook}'`);
+    }
   });
 
   it("produit un script inline syntaxiquement valide", () => {
-    // La classe de bug qui a du etre corrigee a la main : un backtick non
-    // echappe terminait le template literal.
+    // Ce que ce test attrape reellement : une interpolation qui produirait du JS
+    // invalide dans le script assemble.
+    //
+    // Ce qu'il n'attrape PAS, malgre l'intuition : un backtick non echappe dans
+    // un commentaire du template literal. Celui-la est une erreur de syntaxe
+    // TypeScript dans le module lui-meme, donc ce fichier de test echoue au
+    // chargement avant qu'aucune assertion ne tourne. C'est arrive deux fois sur
+    // ce fichier ; le signal est un echec de transformation, pas ce test.
     const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]!);
     expect(scripts.length).toBeGreaterThan(0);
     for (const s of scripts) {

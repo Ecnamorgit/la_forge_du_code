@@ -56,9 +56,10 @@ export function buildPreviewSrcdoc(origin: string): string {
   // produirait `//`) et on neutralise le guillemet, seul caractere capable de
   // sortir de l'attribut. C'est la seule interpolation non echappee qui
   // subsistait dans ce fichier.
+  // encodeURI percent-encode deja le guillemet, seul caractere capable de sortir
+  // de l'attribut ; inutile d'ajouter un remplacement par-dessus.
   const runtimeSrc =
-    encodeURI(origin.replace(/\/+$/, "")).replace(/"/g, "%22") +
-    "/react-runtime/runtime.js";
+    encodeURI(origin.replace(/\/+$/, "")) + "/react-runtime/runtime.js";
   const mountNameRe = JSON.stringify(PREVIEW_MOUNT_NAME_RE.source);
 
   return `<!doctype html>
