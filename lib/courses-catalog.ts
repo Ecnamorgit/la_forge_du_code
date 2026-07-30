@@ -57,7 +57,7 @@ export const COURSES_CATALOG: CourseInfo[] = [
     icon: "⚛",
     color: "cyan",
     description:
-      "Construis des interfaces modernes : composants, useState, useEffect et React Router.",
+      "Construis des interfaces modernes : composants, hooks, listes, formulaires, contexte et routage.",
   },
   {
     slug: "typescript",

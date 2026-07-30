@@ -59,6 +59,10 @@ export const BADGES: BadgeDef[] = [
   { id: "react-state", icon: "🧠", label: "Ingénieur Réactivité", description: "useState et état" },
   { id: "react-effects", icon: "🔁", label: "Maître des Cycles", description: "useEffect et cycle de vie" },
   { id: "react-router", icon: "🗺", label: "Navigateur Spatial", description: "React Router et navigation" },
+  { id: "react-fleet", icon: "🛰", label: "Cartographe de Flotte", description: "Listes et cles React" },
+  { id: "react-forms", icon: "🎛", label: "Opérateur de Console", description: "Formulaires controles" },
+  { id: "react-hooks", icon: "🔧", label: "Forgeron de Hooks", description: "Hooks personnalises" },
+  { id: "react-context", icon: "📡", label: "Coordinateur de Flotte", description: "Contexte et useReducer" },
   // --- Mono-chapitre ---
   { id: "ts-shield", icon: "🛡", label: "Ingénieur Types", description: "TypeScript et typage statique" },
   { id: "git-archivist", icon: "🗂", label: "Archiviste du Code", description: "Git et versioning" },
