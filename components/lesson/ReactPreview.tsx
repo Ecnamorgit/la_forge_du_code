@@ -10,7 +10,7 @@ import {
   type PreviewErrorKind,
 } from "@/lib/sandbox/react-preview";
 
-/** Délai au-delà duquel on considère que l'iframe ne répondra pas. */
+/** Délai au-delà duquel on considère que l'iframe ne répondra jamais. */
 const READY_TIMEOUT_MS = 5000;
 
 /**
@@ -36,7 +36,6 @@ interface ReactPreviewProps {
 
 type Etat =
   | { phase: "attente" }
-  | { phase: "sans-apercu" }
   | { phase: "indisponible" }
   | { phase: "rendu" }
   | { phase: "erreur"; kind: PreviewErrorKind; message: string };
@@ -55,10 +54,8 @@ export default function ReactPreview({
   // En dépendance de l'effet de déploiement, elle provoquait deux bugs : le
   // chien de garde, qui la remet à false, relançait l'effet et effaçait sa
   // propre explication tout en redéployant le code figé en boucle ; et un
-  // déploiement lancé avant la poignée de main montait le composant deux fois,
-  // une fois par la file et une fois par la relance de l'effet.
+  // déploiement lancé avant la poignée de main montait le composant deux fois.
   const pretRef = useRef(false);
-  const [pretPourFilet, setPretPourFilet] = useState(false);
 
   // Dernier code transformé, gardé en file tant que l'iframe n'a pas dit
   // `ready` : un postMessage envoyé trop tôt n'est jamais remis, il serait
@@ -71,6 +68,7 @@ export default function ReactPreview({
   const [iframeKey, setIframeKey] = useState(0);
 
   const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fileRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Identifie le rendu en cours. Sans lui, l'accusé du rendu n désarmerait le
   // chien de garde armé pour le rendu n+1.
   const nonceRef = useRef(0);
@@ -79,6 +77,13 @@ export default function ReactPreview({
     if (watchdogRef.current !== null) {
       clearTimeout(watchdogRef.current);
       watchdogRef.current = null;
+    }
+  }, []);
+
+  const arreterAttenteFile = useCallback(() => {
+    if (fileRef.current !== null) {
+      clearTimeout(fileRef.current);
+      fileRef.current = null;
     }
   }, []);
 
@@ -91,7 +96,6 @@ export default function ReactPreview({
       // poignée de main au lieu de poster dans le vide — et comme c'est un ref,
       // ça ne relance pas l'effet de déploiement, donc ce message survit.
       pretRef.current = false;
-      setPretPourFilet(false);
       enAttenteRef.current = null;
       setEtat({
         phase: "erreur",
@@ -104,6 +108,23 @@ export default function ReactPreview({
       setIframeKey((k) => k + 1);
     }, RENDER_TIMEOUT_MS);
   }, [arreterWatchdog]);
+
+  /**
+   * Surveille un déploiement mis en file. Sans ça, une iframe dont le script
+   * ne démarre jamais laisse la charge utile en attente indéfiniment : aucun
+   * chien de garde n'a été armé puisque rien n'a été posté, et le filet
+   * d'attente ne rattrape que l'état initial — l'apprenant resterait devant un
+   * cadre blanc muet.
+   */
+  const demarrerAttenteFile = useCallback(() => {
+    arreterAttenteFile();
+    fileRef.current = setTimeout(() => {
+      fileRef.current = null;
+      if (pretRef.current) return;
+      enAttenteRef.current = null;
+      setEtat({ phase: "indisponible" });
+    }, READY_TIMEOUT_MS);
+  }, [arreterAttenteFile]);
 
   /** Poste vers l'iframe. Renvoie false si la frame n'est pas joignable. */
   const envoyer = useCallback((payload: { js: string; mount: string; nonce: number }) => {
@@ -118,11 +139,17 @@ export default function ReactPreview({
 
   // N'arme le chien de garde que si l'envoi a réellement eu lieu : sinon son
   // message parlerait d'une boucle infinie pour une frame simplement absente.
+  // Si l'envoi échoue, la charge repart en file plutôt que d'être perdue.
   const envoyerEtSurveiller = useCallback(
     (payload: { js: string; mount: string; nonce: number }) => {
-      if (envoyer(payload)) demarrerWatchdog();
+      if (envoyer(payload)) {
+        demarrerWatchdog();
+      } else {
+        enAttenteRef.current = payload;
+        demarrerAttenteFile();
+      }
     },
-    [envoyer, demarrerWatchdog]
+    [envoyer, demarrerWatchdog, demarrerAttenteFile]
   );
 
   // Écoute des messages de l'iframe.
@@ -133,7 +160,7 @@ export default function ReactPreview({
 
       if (msg.type === "ready") {
         pretRef.current = true;
-        setPretPourFilet(true);
+        arreterAttenteFile();
         const enFile = enAttenteRef.current;
         if (enFile) {
           enAttenteRef.current = null;
@@ -150,15 +177,18 @@ export default function ReactPreview({
       }
 
       arreterWatchdog();
+      arreterAttenteFile();
       setEtat({ phase: "erreur", kind: msg.kind, message: msg.message });
     };
 
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [envoyerEtSurveiller, arreterWatchdog]);
+  }, [envoyerEtSurveiller, arreterWatchdog, arreterAttenteFile]);
 
-  // Filet : si `ready` n'arrive jamais, l'aperçu se déclare indisponible et la
-  // leçon continue. L'aperçu n'est jamais un chemin critique.
+  // Filet initial : si `ready` n'arrive jamais alors que rien n'a encore été
+  // déployé, l'aperçu se déclare indisponible. Réarmé à chaque remplacement
+  // d'iframe. Le cas « déployé puis jamais prêt » est couvert séparément par
+  // `demarrerAttenteFile`.
   useEffect(() => {
     const t = setTimeout(() => {
       if (!pretRef.current) {
@@ -166,19 +196,15 @@ export default function ReactPreview({
       }
     }, READY_TIMEOUT_MS);
     return () => clearTimeout(t);
-  }, [pretPourFilet, iframeKey]);
+  }, [iframeKey]);
 
-  // Le chien de garde ne doit pas survivre au démontage du composant.
-  useEffect(() => arreterWatchdog, [arreterWatchdog]);
-
-  // Chapitre sans aperçu (chapitre 4, exempté) : on le dit, au lieu de laisser
-  // une iframe vide et muette occuper le panneau.
+  // Aucun minuteur ne doit survivre au démontage du composant.
   useEffect(() => {
-    if (!mount) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- dérivé d'une donnée de cours, pas une resynchronisation différée
-      setEtat({ phase: "sans-apercu" });
-    }
-  }, [mount]);
+    return () => {
+      arreterWatchdog();
+      arreterAttenteFile();
+    };
+  }, [arreterWatchdog, arreterAttenteFile]);
 
   // Le code courant, lu au moment du déploiement. Un ref plutôt qu'une
   // dépendance de l'effet de déploiement : mettre `code` dans ses deps
@@ -215,14 +241,18 @@ export default function ReactPreview({
       setEtat({ phase: "rendu" });
       nonceRef.current += 1;
       const payload = { js: r.js, mount, nonce: nonceRef.current };
-      if (pretRef.current) envoyerEtSurveiller(payload);
-      else enAttenteRef.current = payload;
+      if (pretRef.current) {
+        envoyerEtSurveiller(payload);
+      } else {
+        enAttenteRef.current = payload;
+        demarrerAttenteFile();
+      }
     })();
 
     return () => {
       annule = true;
     };
-  }, [deployNonce, mount, envoyerEtSurveiller]);
+  }, [deployNonce, mount, envoyerEtSurveiller, demarrerAttenteFile]);
 
   // Construit après le montage, jamais au rendu : `buildPreviewSrcdoc` a besoin
   // de `window.location.origin`, et un repli "" côté serveur puis la vraie
@@ -233,7 +263,11 @@ export default function ReactPreview({
     setSrcdoc(buildPreviewSrcdoc(window.location.origin));
   }, []);
 
-  const sansIframe = etat.phase === "indisponible" || etat.phase === "sans-apercu";
+  // Dérivé au rendu plutôt que posé par un effet : un effet ferait clignoter
+  // l'invitation « Déploie… » pendant une frame sur un chapitre qui n'a jamais
+  // d'aperçu, et resterait bloqué si `mount` devenait défini plus tard.
+  const sansApercu = !mount;
+  const sansIframe = sansApercu || etat.phase === "indisponible";
 
   return (
     <div className={`flex min-h-0 flex-1 flex-col ${className}`}>
@@ -254,17 +288,18 @@ export default function ReactPreview({
         </div>
       )}
 
-      {etat.phase === "sans-apercu" && (
+      {sansApercu && (
         <p className="px-5 py-4 font-body text-sm leading-relaxed text-nebula-text-dim">
           Ce chapitre n&apos;a pas d&apos;aperçu : il enseigne la navigation, qui demande un
           routeur autour de tes composants. Ton code reste analysé et validable normalement.
         </p>
       )}
 
-      {etat.phase === "indisponible" && (
-        // Porte à sens unique, volontairement : l'iframe est démontée, donc un
-        // `ready` tardif ne peut plus être honoré. Le panneau s'explique, et la
-        // validation continue de fonctionner — l'aperçu n'est pas critique.
+      {!sansApercu && etat.phase === "indisponible" && (
+        // L'iframe est démontée ici, mais l'état n'est pas verrouillé : un
+        // déploiement ultérieur la remonte, elle envoie une nouvelle poignée de
+        // main et l'aperçu repart. La leçon n'a de toute façon jamais dépendu
+        // de lui.
         <p className="px-5 py-4 font-body text-sm text-nebula-text-dim">
           Aperçu indisponible. Ton code est toujours analysé et validable.
         </p>

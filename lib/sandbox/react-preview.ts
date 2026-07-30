@@ -68,6 +68,16 @@ export function parsePreviewMessage(
  * absolue pour le runtime (une URL relative ne resout rien depuis
  * `about:srcdoc`) et de cible aux postMessage vers le parent.
  */
+/**
+ * ⚠️ Tout ce qui suit le `return` vit dans un template literal. **Aucun backtick
+ * dans les commentaires**, même pour citer un identifiant : il termine le
+ * littéral et casse la compilation du module. Ce piège a été rencontré trois
+ * fois pendant l'écriture de ce fichier. Écrire `props.children` sans quotes.
+ *
+ * Les tests ne peuvent pas l'attraper : le module ne compile plus, donc le
+ * fichier de test échoue au chargement avant toute assertion. Le signal est une
+ * erreur de transformation, pas un test rouge.
+ */
 export function buildPreviewSrcdoc(origin: string): string {
   const parentOrigin = JSON.stringify(origin);
   // L'origine part aussi dans un attribut HTML : on retire un slash final (qui
@@ -150,14 +160,14 @@ export function buildPreviewSrcdoc(origin: string): string {
           return /^use[A-Z]/.test(k) || k === "createContext" || k === "Fragment" || k === "memo";
         });
 
-        // Sonde de montage : son effet ne tourne qu'APRES le commit React. Si le
+        // Sonde de montage : son effet ne tourne qu'APRÈS le commit React. Si le
         // composant de l'apprenant ne rend jamais la main (boucle infinie dans
         // son corps), le commit n'a pas lieu, cet effet ne tourne pas, aucun
-        // accuse n'est poste, et le chien de garde du parent se declenche.
+        // accusé n'est posté, et le chien de garde du parent se déclenche.
         //
-        // Poster juste apres la demande de rendu serait faux : React 19 ne rend
-        // pas de facon synchrone, il planifie. L'accuse arriverait avant que le
-        // code de l'apprenant ait tourne une seule fois.
+        // Poster juste après la demande de rendu serait faux : React 19 ne rend
+        // pas de façon synchrone, il planifie. L'accusé arriverait avant que le
+        // code de l'apprenant ait tourné une seule fois.
         var Sonde = function (props) {
           React.useEffect(function () {
             envoyer({ type: "preview:rendered", nonce: props.nonce });
@@ -194,14 +204,19 @@ export function buildPreviewSrcdoc(origin: string): string {
             );
 
             if (!Composant) {
-              erreur("mount", "Le composant " + mount + " n'a pas ete trouve. Verifie son nom.");
+              erreur("mount", "Le composant " + mount + " n'a pas été trouvé. Vérifie son nom.");
               return;
             }
 
             root = ReactDOM.createRoot(conteneur);
-            // La Sonde est montee A COTE du composant : c'est son effet, donc
-            // le commit, qui acquitte le rendu. Aucun envoi ici, root.render
-            // ne fait que planifier.
+            // La Sonde est montée À CÔTÉ du composant, et APRÈS lui dans le
+            // tableau : React vide alors l'effet du composant avant celui de la
+            // sonde, donc une boucle infinie placée dans un useEffect de
+            // l'apprenant est elle aussi rattrapée par le chien de garde. Ne pas
+            // réordonner sans le savoir.
+            //
+            // Un enfant plutôt qu'un frère serait faux : il ne se monterait que
+            // si l'apprenant rend props.children, ce qu'aucun exercice n'impose.
             root.render(
               React.createElement(Frontiere, null, [
                 React.createElement(Composant, { key: "composant" }),
@@ -227,7 +242,10 @@ export function buildPreviewSrcdoc(origin: string): string {
           if (typeof data.js !== "string" || typeof data.mount !== "string") return;
           if (typeof data.nonce !== "number") return;
           if (!reNomComposant.test(data.mount)) {
-            erreur("mount", "Nom de composant invalide dans les donnees du cours : " + data.mount);
+            erreur(
+              "mount",
+              "Nom de composant invalide dans les données du cours : " + data.mount
+            );
             return;
           }
           monter(data.js, data.mount, data.nonce);

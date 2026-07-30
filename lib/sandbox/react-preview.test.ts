@@ -191,3 +191,18 @@ describe("buildPreviewSrcdoc — garde-fous ajoutes apres revue", () => {
     }
   });
 });
+
+describe("buildPreviewSrcdoc — garde-fous du protocole de rendu", () => {
+  const html = buildPreviewSrcdoc(ORIGIN);
+
+  it("monte reellement la Sonde dans l'arbre rendu", () => {
+    // Definir la Sonde sans l'inclure dans root.render passerait les autres
+    // tests : aucun accuse ne partirait jamais et le chien de garde se
+    // declencherait sur chaque rendu, meme reussi.
+    expect(html).toContain("React.createElement(Sonde");
+  });
+
+  it("exige un nonce sur la demande de rendu entrante", () => {
+    expect(html).toContain('typeof data.nonce !== "number"');
+  });
+});
