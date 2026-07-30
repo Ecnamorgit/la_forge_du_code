@@ -97,3 +97,50 @@ describe("PREVIEW_MOUNT_NAME_RE", () => {
     expect(PREVIEW_MOUNT_NAME_RE.test("Mon Composant")).toBe(false);
   });
 });
+
+describe("buildPreviewSrcdoc — garde-fous ajoutes apres revue", () => {
+  const html = buildPreviewSrcdoc(ORIGIN);
+
+  it("insere un saut de ligne avant le return injecte", () => {
+    // Sans ca, un code d'apprenant finissant par un commentaire `//` avale le
+    // `return` : le composant est declare introuvable alors qu'il est correct.
+    // Le srcdoc porte la sequence a DEUX caracteres `\` puis `n` : c'est le
+    // code de l'iframe qui la transforme en vrai saut de ligne au moment de
+    // construire le corps evalue.
+    expect(html).toContain(String.raw`\n; return typeof`);
+  });
+
+  it("valide le nom du composant avant de l'interpoler", () => {
+    // PREVIEW_MOUNT_NAME_RE existait mais n'etait jamais applique : un nom
+    // invalide produisait une SyntaxError opaque au lieu d'un message clair.
+    // La source est injectee via JSON.stringify, donc ses antislashs sont
+    // echappes dans le srcdoc. On compare a la meme forme, ce qui verifie du
+    // meme coup que les deux expressions ne peuvent pas diverger.
+    expect(html).toContain(JSON.stringify(PREVIEW_MOUNT_NAME_RE.source));
+  });
+
+  it("recupere le message de l'objet error dans window.onerror", () => {
+    // Le bundle est charge cross-origin : les exceptions signalees pendant son
+    // execution sont remplacees par "Script error." sans details. L'objet
+    // error est alors le seul chemin vers un message utilisable.
+    expect(html).toMatch(/onerror\s*=\s*function\s*\([^)]*error[^)]*\)/);
+    expect(html).toContain("error.message");
+  });
+
+  it("n'enumere aucun hook en dur a cote de la derivation", () => {
+    // Une liste ecrite a la main AJOUTEE a cote de Object.keys(React) passerait
+    // le test de derivation. Ces litteraux sont sa signature.
+    expect(html).not.toContain('"useState"');
+    expect(html).not.toContain('"useRef"');
+  });
+
+  it("produit un script inline syntaxiquement valide", () => {
+    // La classe de bug qui a du etre corrigee a la main : un backtick non
+    // echappe terminait le template literal.
+    const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]!);
+    expect(scripts.length).toBeGreaterThan(0);
+    for (const s of scripts) {
+      expect(() => new Function(s)).not.toThrow();
+    }
+  });
+});

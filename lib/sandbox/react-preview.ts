@@ -52,6 +52,14 @@ export function parsePreviewMessage(
  */
 export function buildPreviewSrcdoc(origin: string): string {
   const parentOrigin = JSON.stringify(origin);
+  // L'origine part aussi dans un attribut HTML : on retire un slash final (qui
+  // produirait `//`) et on neutralise le guillemet, seul caractere capable de
+  // sortir de l'attribut. C'est la seule interpolation non echappee qui
+  // subsistait dans ce fichier.
+  const runtimeSrc =
+    encodeURI(origin.replace(/\/+$/, "")).replace(/"/g, "%22") +
+    "/react-runtime/runtime.js";
+  const mountNameRe = JSON.stringify(PREVIEW_MOUNT_NAME_RE.source);
 
   return `<!doctype html>
 <html lang="fr">
@@ -64,20 +72,36 @@ export function buildPreviewSrcdoc(origin: string): string {
   </head>
   <body>
     <div id="racine"></div>
-    <script src="${origin}/react-runtime/runtime.js"></script>
+    <script src="${runtimeSrc}"></script>
     <script>
       (function () {
         "use strict";
         var envoyer = function (msg) { parent.postMessage(msg, ${parentOrigin}); };
+        var lisible = function (v) {
+          if (v == null) return "Erreur inconnue";
+          if (typeof v === "string") return v;
+          if (v.message) return v.message;
+          // Sans ca, un rejet porte par un objet nu donnerait "[object Object]".
+          try { return JSON.stringify(v); } catch (e) { return String(v); }
+        };
         var erreur = function (kind, message) {
-          envoyer({ type: "preview:error", kind: kind, message: String(message) });
+          envoyer({ type: "preview:error", kind: kind, message: lisible(message) });
         };
 
         // Filets pour ce qu'une frontiere d'erreur React ne voit pas : une
         // exception dans un setTimeout d'un useEffect, une promesse rejetee.
-        window.onerror = function (message) { erreur("runtime", message); return true; };
+        //
+        // On prend la signature complete pour recuperer l'objet error : le
+        // bundle React est charge cross-origin par rapport a l'origine opaque de
+        // cette iframe, donc les exceptions signalees pendant son execution sont
+        // remplacees par la chaine "Script error." sans details. L'objet error
+        // est alors le seul chemin vers un message utilisable.
+        window.onerror = function (message, source, ligne, colonne, error) {
+          erreur("runtime", (error && error.message) || message);
+          return true;
+        };
         window.addEventListener("unhandledrejection", function (e) {
-          erreur("runtime", (e.reason && e.reason.message) || e.reason || "Promesse rejetee");
+          erreur("runtime", e.reason);
         });
 
         if (!window.React || !window.ReactDOM) {
@@ -109,11 +133,20 @@ export function buildPreviewSrcdoc(origin: string): string {
 
         var monter = function (js, mount) {
           try {
-            if (root) { root.unmount(); root = null; }
+            // On detache AVANT de demonter : si unmount leve, root ne reste
+            // pas pointe sur une racine morte que chaque deploiement suivant
+            // tenterait de redemonter.
+            var precedente = root;
+            root = null;
+            if (precedente) precedente.unmount();
             conteneur.innerHTML = "";
 
+            // Le saut de ligne avant le return n'est pas cosmetique : Sucrase
+            // n'emet pas de newline final, donc un code d'apprenant terminant
+            // par un commentaire de ligne avalerait le return et son composant
+            // serait declare introuvable alors qu'il est correct.
             var corps = '"use strict";' + js +
-              "; return typeof " + mount + " !== 'undefined' ? " + mount + " : null;";
+              "\\n; return typeof " + mount + " !== 'undefined' ? " + mount + " : null;";
             // Function.apply SANS \`new\` : \`new Function.apply(...)\` se lirait
             // \`new (Function.apply)(...)\` et leverait. Appeler Function comme une
             // fonction construit la meme chose.
@@ -138,11 +171,22 @@ export function buildPreviewSrcdoc(origin: string): string {
           }
         };
 
+        // Le nom du composant est interpole dans un corps de fonction : on le
+        // valide ici, avec la MEME expression que PREVIEW_MOUNT_NAME_RE cote
+        // parent (injectee, jamais recopiee, pour qu'elles ne divergent pas).
+        // Sans ce garde, une coquille dans les donnees du cours produirait une
+        // SyntaxError opaque etiquetee "runtime" au lieu d'un message clair.
+        var reNomComposant = new RegExp(${mountNameRe});
+
         window.addEventListener("message", function (event) {
           if (event.source !== parent) return;
           var data = event.data;
           if (!data || data.type !== "preview:render") return;
           if (typeof data.js !== "string" || typeof data.mount !== "string") return;
+          if (!reNomComposant.test(data.mount)) {
+            erreur("mount", "Nom de composant invalide dans les donnees du cours : " + data.mount);
+            return;
+          }
           monter(data.js, data.mount);
         });
 
