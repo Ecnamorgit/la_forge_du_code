@@ -86,6 +86,13 @@ jobs:
       # (e2e/global-setup.ts crée l'utilisateur déjà vérifié, en base).
       APP_URL: https://ci.codeforge.invalid
       RESEND_API_KEY: ci-e2e-key-not-used
+      # Auth.js ne fait confiance à l'hôte automatiquement qu'en développement ;
+      # sous NODE_ENV=production il refuse localhost avec UntrustedHost.
+      # En local le problème ne se voit pas : `next start` charge `.env`, qui
+      # définit cette variable. La CI n'a pas de `.env` — d'où la ligne ici.
+      # `lib/env.ts` la déclare optional() : ne pas être validée ne veut pas
+      # dire être facultative. Requise en production (cf. docs/DEPLOYMENT.md).
+      AUTH_TRUST_HOST: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
