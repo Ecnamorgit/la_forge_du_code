@@ -2,6 +2,18 @@ import "dotenv/config";
 import { defineConfig, devices } from "@playwright/test";
 
 /**
+ * Contre `pnpm dev`, aucune CSP n'est émise (next.config.ts, garde `isProd`) :
+ * `e2e/csp-srcdoc-script.spec.ts` se saute et ne prouve rien, et le script
+ * inline du srcdoc de l'aperçu n'est jamais exercé sous la vraie politique.
+ *
+ * `E2E_PROD=1` lance donc un vrai build de production. C'est ce que fait la CI
+ * (.github/workflows/ci.yml). En local, `pnpm start` exige en plus une APP_URL
+ * https non-localhost et une RESEND_API_KEY (lib/env.ts) : d'où l'interrupteur
+ * plutôt qu'un basculement sec.
+ */
+const enProduction = process.env.E2E_PROD === "1";
+
+/**
  * Configuration des tests e2e (CF-8).
  *
  * Le serveur est démarré automatiquement (`webServer`). En CI, une base
@@ -27,9 +39,10 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "pnpm dev",
+    command: enProduction ? "pnpm build && pnpm start" : "pnpm dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    // Le build de production s'ajoute au démarrage : 2 min ne suffisent pas.
+    timeout: enProduction ? 300_000 : 120_000,
   },
 });
