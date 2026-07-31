@@ -209,6 +209,32 @@ l'abonnement, pourrait planter en silence.
 termine son chapitre sans aperçu. Cette contrainte décide de toutes les autres :
 l'aperçu est un bonus, pas un chemin critique.
 
+### Une boucle infinie ne peut pas être rattrapée après coup
+
+**Ajouté le 2026-07-31, après vérification au navigateur.**
+
+L'implémentation avait monté un chien de garde côté parent : poster le code, et
+remplacer l'iframe si aucun accusé n'arrivait dans le délai. **Ça ne peut pas
+fonctionner.** Une iframe `srcdoc` à origine opaque partage le thread principal
+du parent dans Chromium : un `while (true)` dans le composant de l'apprenant a
+gelé l'onglet **entier**, parent compris, pendant 58 secondes, jusqu'à ce que
+Playwright tue la page. Le `setTimeout` du parent ne s'exécute jamais.
+
+Deux revues de code successives avaient lu et validé la logique du chien de
+garde. Aucune ne pouvait attraper ça : il fallait l'exécuter. C'est l'argument
+le plus concret de tout ce chantier en faveur d'une vérification empirique.
+
+Puisqu'aucune récupération n'est possible une fois le code envoyé, on **refuse
+d'envoyer** : `lib/sandbox/loop-guard.ts` détecte les formes littérales
+(`while (true)`, `for (;;)`, `while (1)`) en ignorant les chaînes de caractères,
+et le panneau nomme la forme et explique la conséquence.
+
+C'est un **filet pédagogique, pas une sécurité** : `let x = true; while (x) {}`
+le contourne trivialement. Assumé — le sandbox exécute déjà du code arbitraire
+et l'apprenant ne piège que lui-même. Le seul vrai correctif serait de servir
+l'aperçu depuis une autre origine pour obtenir un processus séparé, ce qui est
+un chantier d'infrastructure à part entière.
+
 **Rien avant le premier déploiement.** Le panneau affiche « Déploie pour voir
 ton composant ». Rendre le `startCode` d'entrée serait tentant, mais les
 `startCode` sont délibérément incomplets — celui du chapitre 8 étape 2 n'a même
