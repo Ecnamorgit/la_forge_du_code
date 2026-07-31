@@ -74,6 +74,18 @@ jobs:
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
       DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
       AUTH_SECRET: ci-e2e-secret-not-used-1234567890
+      # La suite tourne contre `pnpm build && pnpm start`, pas `pnpm dev` :
+      # c'est la seule façon d'émettre la CSP (next.config.ts, garde `isProd`)
+      # et donc d'exercer réellement l'aperçu React sous la vraie politique.
+      # Cf. docs/BRIEF_CSP_GARDE_FOU.md
+      E2E_PROD: "1"
+      # `instrumentation.ts` valide l'environnement avant la première requête,
+      # et `lib/env.ts` durcit ses règles sous NODE_ENV=production : APP_URL
+      # https non-localhost, et RESEND_API_KEY présente. Valeurs factices —
+      # aucune spec n'envoie d'email ni ne clique un lien de vérification
+      # (e2e/global-setup.ts crée l'utilisateur déjà vérifié, en base).
+      APP_URL: https://ci.codeforge.invalid
+      RESEND_API_KEY: ci-e2e-key-not-used
     steps:
       - name: Checkout
         uses: actions/checkout@v4

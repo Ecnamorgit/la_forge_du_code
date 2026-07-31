@@ -8,8 +8,10 @@ import { expect, test } from "@playwright/test";
  * n'a de valeur que lance contre `pnpm build && pnpm start`. Contre le serveur
  * de developpement il passe toujours et ne prouve rien.
  *
- * C'est aussi un garde-fou permanent : si quelqu'un resserre `script-src` plus
- * tard, l'apercu React casse et ce test le dit.
+ * La CI le lance contre un build de production (E2E_PROD=1, cf.
+ * .github/workflows/ci.yml), donc il ne se saute plus la-bas : si quelqu'un
+ * resserre `script-src`, l'apercu React casse et ce test le dit. En local
+ * contre `pnpm dev` il se saute toujours — c'est attendu.
  */
 test("une iframe srcdoc charge un script de l'origine du parent", async ({ page }) => {
   const response = await page.goto("/");
