@@ -13,6 +13,7 @@ export const chapitre3: ChapterData = {
       startCode:
         "// Importe useEffect.\n// Au montage du composant, logge 'Composant en ligne' dans la console.\n// Indice : utilise un tableau de dependances vide [].\nimport { useState } from 'react';\n\nfunction Console() {\n  return <div>Pret</div>;\n}\n",
       placeholder: "// useEffect(() => { ... }, []);",
+      previewMount: "Console",
       narrator:
         "Un composant pur ne devrait jamais avoir d'effets exterieurs durant son rendu. Pour interagir avec le monde reel (logs, fetch, abonnements), React fournit useEffect. Premier protocole : detecter le montage du composant.",
       hint: "import { useState, useEffect } from 'react';\n\nfunction Console() {\n  useEffect(() => {\n    console.log('Composant en ligne');\n  }, []);\n  return <div>Pret</div>;\n}",
@@ -66,6 +67,7 @@ Ca s'execute a CHAQUE rendu, meme inutile. useEffect te donne un contexte contro
       startCode:
         "// Quand 'count' change, change le titre de l'onglet via document.title.\n// Indique la valeur : 'Score : N'.\nimport { useState, useEffect } from 'react';\n\nfunction Compteur() {\n  const [count, setCount] = useState(0);\n  return (\n    <div>\n      Score : {count}\n      <button onClick={() => setCount(count + 1)}>+1</button>\n    </div>\n  );\n}\n",
       placeholder: "// useEffect(() => { document.title = ... }, [count]);",
+      previewMount: "Compteur",
       narrator:
         "Le vrai pouvoir de useEffect : reagir aux changements. En passant 'count' dans les dependances, l'effet se relance chaque fois que la valeur change. Synchronise l'onglet du navigateur avec le score.",
       hint: "import { useState, useEffect } from 'react';\n\nfunction Compteur() {\n  const [count, setCount] = useState(0);\n  useEffect(() => {\n    document.title = 'Score : ' + count;\n  }, [count]);\n  return (\n    <div>\n      Score : {count}\n      <button onClick={() => setCount(count + 1)}>+1</button>\n    </div>\n  );\n}",
@@ -119,6 +121,7 @@ La regle \`react-hooks/exhaustive-deps\` te le rappelle automatiquement. Active-
       startCode:
         "// Cree un composant Chronometre.\n// A chaque seconde, incremente un compteur affiche dans le composant.\n// CRITIQUE : nettoie l'interval quand le composant est demonte.\nimport { useState, useEffect } from 'react';\n\nfunction Chronometre() {\n  const [s, setS] = useState(0);\n  return <div>Temps : {s}s</div>;\n}\n",
       placeholder: "// useEffect(() => { const id = setInterval(...); return () => clearInterval(id); }, []);",
+      previewMount: "Chronometre",
       narrator:
         "Certains effets laissent des traces : timers, abonnements, connexions. Si tu ne les nettoies pas, ils survivent au composant et provoquent des fuites memoire. useEffect te donne une fonction de cleanup.",
       hint: "import { useState, useEffect } from 'react';\n\nfunction Chronometre() {\n  const [s, setS] = useState(0);\n  useEffect(() => {\n    const id = setInterval(() => setS(prev => prev + 1), 1000);\n    return () => clearInterval(id);\n  }, []);\n  return <div>Temps : {s}s</div>;\n}",
@@ -170,6 +173,7 @@ En dev, React monte et demonte chaque composant deux fois pour detecter les effe
       startCode:
         "// Au montage, fetch 'https://api.codeforge.space/vaisseau/42'.\n// Stocke le resultat dans un state 'vaisseau' (initialise a null).\n// Affiche 'Chargement...' tant que vaisseau est null, sinon le nom du vaisseau.\nimport { useState, useEffect } from 'react';\n\nfunction FicheVaisseau() {\n  return <div>...</div>;\n}\n",
       placeholder: "// useEffect avec async function interne + fetch",
+      previewMount: "FicheVaisseau",
       narrator:
         "Le pattern le plus utilise de toute la programmation React : fetch des donnees au montage et les afficher. Combine tout ce que tu as appris — useState, useEffect, async/await et response.ok.",
       hint: "import { useState, useEffect } from 'react';\n\nfunction FicheVaisseau() {\n  const [vaisseau, setVaisseau] = useState(null);\n  useEffect(() => {\n    async function charger() {\n      const res = await fetch('https://api.codeforge.space/vaisseau/42');\n      if (!res.ok) throw new Error('HTTP ' + res.status);\n      const data = await res.json();\n      setVaisseau(data);\n    }\n    charger();\n  }, []);\n  if (!vaisseau) return <div>Chargement...</div>;\n  return <div>{vaisseau.nom}</div>;\n}",

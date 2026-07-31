@@ -33,7 +33,18 @@ test("le codex est public et rend le lore", async ({ page }) => {
   await expect(page.getByRole("heading", { name: /spectre/i })).toBeVisible();
 });
 
-test("le cursus React annonce une analyse statique, pas un faux apercu", async ({ page }) => {
+// Mis a jour par le chantier react-runtime (RT1-RT6) : le cursus React est
+// passe de "pas d'apercu, juste une etiquette d'analyse statique" a un vrai
+// apercu monte en direct dans une iframe a origine opaque. L'assertion
+// d'origine (`/Analyse statique/i`) verifiait la DECISION PRECEDENTE, delibe-
+// rement remplacee par ce chantier ; la garder aurait fait echouer ce test
+// pour la mauvaise raison (une regression de copie qui n'existe pas), en
+// masquant la vraie question posee ici : le cursus React n'affiche plus la
+// fausse iframe HTML qui rendait le JSX en desordre, et affiche desormais la
+// vraie.
+test("le cursus React a un vrai apercu en direct, plus l'ancienne etiquette d'analyse statique", async ({
+  page,
+}) => {
   await page.goto("/login");
   await page.locator("#email").fill(E2E_USER.email);
   await page.locator("#password").fill(E2E_USER.password);
@@ -46,11 +57,13 @@ test("le cursus React annonce une analyse statique, pas un faux apercu", async (
   await expect(page.getByText("App.jsx", { exact: true })).toBeVisible();
   await expect(page.getByText("index.html", { exact: true })).toHaveCount(0);
 
-  // Le panneau annonce ce qu'il fait vraiment, et l'iframe d'apercu HTML —
-  // qui affichait le JSX en desordre — n'est plus montee.
-  await expect(page.getByText(/Analyse statique/i).first()).toBeVisible();
-  await expect(page.getByText(/Apercu en direct/i)).toHaveCount(0);
+  // Le panneau annonce ce qu'il fait vraiment : un vrai apercu, plus l'ancienne
+  // etiquette d'analyse statique ni l'iframe HTML generique qui rendait le
+  // JSX en desordre.
+  await expect(page.getByText(/Aperçu du composant/i).first()).toBeVisible();
+  await expect(page.getByText(/Analyse statique/i)).toHaveCount(0);
   await expect(page.locator('iframe[title="Apercu"]')).toHaveCount(0);
+  await expect(page.locator('iframe[title="Aperçu du composant React"]')).toHaveCount(1);
 });
 
 test("le cursus HTML garde son apercu en direct", async ({ page }) => {

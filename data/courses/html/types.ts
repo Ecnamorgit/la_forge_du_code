@@ -37,6 +37,14 @@ export interface Step {
   objectives: StepObjective[];
   /** Ids de fiches de référence pertinentes pour cette étape (optionnel). */
   docRefs?: string[];
+  /**
+   * Nom du composant a monter dans l'apercu React (cursus react uniquement).
+   * Explicite par etape : il n'y a pas de regle deductible — selon l'etape
+   * c'est le composant de l'exercice, ou le parent qui porte un Provider.
+   * Absent sur les cursus sans apercu et sur les chapitres exemptes
+   * (cf. lib/sandbox/preview-exemptions.ts).
+   */
+  previewMount?: string;
   bannerIcon: string;
   /** Optional frame index in /sprites/banner-icons.png. Falls back to bannerIcon emoji. */
   bannerFrame?: number;
