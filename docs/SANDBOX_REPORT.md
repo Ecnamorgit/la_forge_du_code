@@ -22,9 +22,12 @@ Deux mécanismes distincts selon le type de cursus :
 |---|---|---|
 | **JavaScript** (et cursus exécutés) | `runJs()` dans une iframe isolée, console capturée | analyse de la sortie (`logs`, `error`, `lastValue`) |
 | **HTML / CSS** | aperçu live dans une iframe `sandbox` | analyse **statique** du code source (pas d'exécution) |
-| **Cursus statiques** (Git, SQL, Python, React, TS, Node…) | aucune exécution | analyse statique par motifs (pattern-matching) |
+| **React** | composant monté et rendu dans une iframe `sandbox` persistante (JSX transformé par Sucrase **dans le navigateur**) | analyse **statique** du code source — l'aperçu affiche, il ne juge pas |
+| **Cursus statiques** (Git, SQL, Python, TS, Node…) | aucune exécution | analyse statique par motifs (pattern-matching) |
 
-Le principe directeur : **on n'exécute du code que lorsque c'est nécessaire (JS), et toujours dans une iframe `sandbox` à origine opaque.** Tout le reste est validé en lisant le texte saisi, ce qui supprime entièrement la surface d'attaque pour la majorité des cursus.
+Le principe directeur : **on n'exécute du code que lorsque c'est nécessaire (JS, React), et toujours dans une iframe `sandbox` à origine opaque.** Tout le reste est validé en lisant le texte saisi, ce qui supprime entièrement la surface d'attaque pour ces cursus.
+
+Le cas React mérite d'être distingué : le code y est **exécuté pour être montré**, jamais pour être jugé. La validation reste purement statique, donc l'exécution n'a aucune autorité sur la progression de l'apprenant.
 
 ---
 
@@ -124,7 +127,8 @@ Autrement dit, l'exécution du code étudiant a été pensée **conjointement** 
 | Vol de session / cookies | Origine opaque (`sandbox` sans `allow-same-origin`) → pas d'accès same-origin |
 | Accès au `localStorage` de l'app | Idem + shim en mémoire isolé dans l'iframe |
 | XSS sur le DOM principal | Le code ne s'exécute jamais dans le document de l'app, seulement dans l'iframe |
-| Boucle infinie / script bloquant | Timeout parent 3 s + suppression de l'iframe |
+| Boucle infinie / script bloquant — **cursus JS** | Timeout parent 3 s + suppression de l'iframe (`run-js.ts`, iframe headless) |
+| Boucle infinie / script bloquant — **cursus React** | **Non mitigeable après envoi.** Voir la note ci-dessous. Refus statique avant envoi (`loop-guard.ts`) |
 | Message forgé vers le parent | Vérification `event.source` **et** `event.origin === "null"` |
 | Navigation / popups / formulaires malicieux | Non autorisés par le sandbox (`allow-scripts` seul) |
 | Exfiltration réseau | Bornée par la CSP (`connect-src 'self'` + jsdelivr) |
@@ -135,7 +139,13 @@ Autrement dit, l'exécution du code étudiant a été pensée **conjointement** 
 
 - **Pas de limite mémoire/CPU stricte.** Le timeout borne la **durée**, pas la consommation. Une allocation massive (`new Array(1e9)`) peut momentanément peser sur l'onglet avant les 3 s. Un vrai isolat (Web Worker dédié + terminaison forcée) offrirait un contrôle plus fin.
 - **Exécution côté client uniquement.** Le sandbox tourne dans le navigateur de l'apprenant : il protège **l'application**, pas la machine de l'utilisateur contre son propre code (ce qui est acceptable ici). Les cursus « serveur » (Node, SQL) sont volontairement validés en statique, sans backend d'exécution.
-- **`postMessage(..., "*")`.** L'iframe poste vers le parent avec une cible `"*"` ; comme l'iframe est éphémère et locale, le risque est faible, mais une cible d'origine explicite serait plus stricte.
+- **`postMessage(..., "*")`.** L'iframe poste vers le parent avec une cible `"*"` ; comme l'iframe est éphémère et locale, le risque est faible, mais une cible d'origine explicite serait plus stricte. *(Corrigé depuis pour le sandbox JS et l'aperçu React : l'iframe cible désormais l'origine du parent.)*
+
+- **Asymétrie assumée sur l'aperçu React : le parent poste vers `"*"`.** Dans l'autre sens, `postMessage` n'accepte aucune autre cible — l'iframe est à origine opaque, et `"null"` n'est pas une valeur de cible valide. Acceptable ici parce que la charge utile est le code de l'apprenant lui-même, pas un secret, et que l'iframe vérifie `event.source === parent`. Mais c'est une vraie asymétrie avec le reste du sandbox, à ne pas enterrer.
+
+- **Une boucle infinie React fige l'onglet, et rien ne peut la rattraper.** Vérifié au navigateur le 2026-07-31 : une iframe `srcdoc` à origine opaque **partage le thread principal du parent** dans Chromium. Un `while (true)` dans le composant a gelé l'onglet entier pendant 58 secondes ; un chien de garde côté parent ne peut donc jamais s'exécuter. Le contraste avec le cursus JS est instructif : là-bas l'iframe est *headless*, donc le timeout parent fonctionne — ici elle est visible et interactive, ce qui impose le partage de thread.
+
+  Conséquence : `lib/sandbox/loop-guard.ts` **refuse d'envoyer** un code contenant une boucle littéralement sans fin, plutôt que de prétendre le rattraper. C'est un filet pédagogique, **pas une sécurité** : `let x = true; while (x) {}` le contourne trivialement. Assumé — l'apprenant ne piège que lui-même et recharge la page. Le seul vrai correctif serait de servir l'aperçu depuis une **autre origine**, ce qui lui donnerait son propre processus ; c'est un chantier d'infrastructure à part entière.
 - **Validation statique contournable.** Pour les cursus non exécutés, un apprenant déterminé pourrait « tromper » le pattern-matching. Ce n'est pas un risque de sécurité (aucune exécution), seulement une limite pédagogique assumée.
 
 ---
@@ -144,7 +154,11 @@ Autrement dit, l'exécution du code étudiant a été pensée **conjointement** 
 
 | Fichier | Rôle |
 |---|---|
-| `lib/sandbox/run-js.ts` | Cœur du sandbox JS : iframe isolée, console/localStorage simulés, timeout, postMessage |
-| `components/lesson/ChapterWorkspace.tsx` | Orchestration : appel à `runJs`, aperçu HTML/CSS, affichage console |
+| `lib/sandbox/run-js.ts` | Cœur du sandbox JS : iframe isolée **headless et à un coup**, console/localStorage simulés, timeout, postMessage |
+| `lib/sandbox/react-preview.ts` | Sandbox React : `srcdoc` de l'iframe **persistante et visible**, protocole de messages, frontière d'erreur |
+| `lib/sandbox/jsx-transform.ts` | Transformation JSX → JS par Sucrase, **dans le navigateur** — le code de l'apprenant ne part jamais sur le réseau |
+| `lib/sandbox/loop-guard.ts` | Refus avant envoi des boucles littérales sans fin (voir la note sur le thread partagé) |
+| `components/lesson/ReactPreview.tsx` | Cycle de vie de l'aperçu React : poignée de main, file d'attente, affichage des erreurs |
+| `components/lesson/ChapterWorkspace.tsx` | Orchestration : appel à `runJs`, aperçu HTML/CSS, aperçu React, affichage console |
 | `next.config.ts` | CSP et en-têtes de sécurité alignés sur le sandbox |
 | `lib/validators/**` | Validation (exécutée pour JS, statique pour le reste) — voir le rapport dédié |

@@ -54,3 +54,16 @@ describe("messageBoucleInfinie", () => {
     expect(msg).toMatch(/condition d'arr[eê]t/i);
   });
 });
+
+describe("detecterBoucleInfinie — commentaires", () => {
+  it("ne se laisse pas piéger par un commentaire", () => {
+    // Refuser de deployer parce que l'apprenant MENTIONNE une boucle dans un
+    // commentaire serait absurde.
+    expect(detecterBoucleInfinie("// evite le while (true)\nconst a = 1;")).toBeNull();
+    expect(detecterBoucleInfinie("/* pas de for (;;) ici */\nconst a = 1;")).toBeNull();
+  });
+
+  it("attrape la boucle meme si un commentaire en mentionne une", () => {
+    expect(detecterBoucleInfinie("// pas de for (;;)\nwhile (true) {}")).toBe("while (true)");
+  });
+});

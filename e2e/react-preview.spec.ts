@@ -167,15 +167,6 @@ test.describe("apercu React", () => {
   });
 
   /**
-   * Report carrie depuis RT5/RT6 : une boucle synchrone qui ne se termine
-   * jamais (`while (true) {}`) bloque le thread unique de l'iframe. Aucun
-   * throw, aucune frontiere d'erreur, aucun window.onerror : le parent
-   * n'entend plus rien tant que le chien de garde (RENDER_TIMEOUT_MS, 4s)
-   * n'a pas tranche. La moitie qui compte autant que la detection : un
-   * deploiement correct APRES doit fonctionner, preuve que l'iframe a ete
-   * remontee et non laissee dans un etat mort.
-   */
-  /**
    * Une boucle infinie est REFUSEE AVANT l'envoi, pas rattrapee apres.
    *
    * La conception initiale prevoyait un chien de garde cote parent. Ce test
@@ -200,8 +191,12 @@ test.describe("apercu React", () => {
 
     await page.getByRole("button", { name: /deployer/i }).click();
 
-    await expect(page.getByText(/Boucle sans fin/i)).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText(/ne se termine jamais/i)).toBeVisible();
+    // Titre du bandeau, cible en exact : le corps du message contient lui aussi
+    // les mots « boucle sans fin », ce qui rendrait un match souple ambigu.
+    await expect(page.getByText("Boucle sans fin", { exact: true })).toBeVisible({
+      timeout: 10_000,
+    });
+    await expect(page.getByText(/risque de ne jamais se terminer/i)).toBeVisible();
 
     // L'onglet doit etre rester vivant : si le code avait ete envoye, cette
     // interaction serait impossible.

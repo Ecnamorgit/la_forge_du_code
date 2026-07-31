@@ -23,6 +23,11 @@
  */
 
 const STRIP_STRINGS = /(['"`])(?:\\.|(?!\1)[^\\])*\1/g;
+/**
+ * Les commentaires sont retirés eux aussi : sans ça, un apprenant qui écrit
+ * `// evite le while (true)` verrait son déploiement refusé pour du texte.
+ */
+const STRIP_COMMENTS = /\/\*[\s\S]*?\*\/|\/\/[^\n]*/g;
 
 /** Motifs de condition toujours vraie, dans une boucle. */
 const MOTIFS: readonly { re: RegExp; forme: string }[] = [
@@ -39,18 +44,26 @@ const MOTIFS: readonly { re: RegExp; forme: string }[] = [
  * boucle, et refuser de déployer pour ça serait pire que le problème.
  */
 export function detecterBoucleInfinie(code: string): string | null {
-  const sansChaines = code.replace(STRIP_STRINGS, '""');
+  const nettoye = code.replace(STRIP_COMMENTS, " ").replace(STRIP_STRINGS, '""');
   for (const { re, forme } of MOTIFS) {
-    if (re.test(sansChaines)) return forme;
+    if (re.test(nettoye)) return forme;
   }
   return null;
 }
 
-/** Message affiché à l'apprenant quand une boucle est refusée. */
+/**
+ * Message affiché à l'apprenant quand une boucle est refusée.
+ *
+ * Formulé au conditionnel : `while (true) { … break; }` est une forme
+ * parfaitement légitime que ce détecteur refuse quand même, faute de savoir
+ * lire un `break`. Affirmer « ne se termine jamais » serait faux dans ce cas,
+ * et l'apprenant se demanderait ce qu'on lui reproche.
+ */
 export function messageBoucleInfinie(forme: string): string {
   return (
-    `Déploiement refusé : ${forme} ne se termine jamais. ` +
-    "Une boucle infinie fige l'onglet entier, aperçu compris, et il faudrait " +
-    "recharger la page. Donne-lui une condition d'arrêt, puis redéploie."
+    `Déploiement refusé : ${forme} risque de ne jamais se terminer. ` +
+    "Une boucle sans fin fige l'onglet entier, aperçu compris, et il faudrait " +
+    "recharger la page — l'aperçu ne peut pas s'en remettre tout seul. " +
+    "Donne-lui une condition d'arrêt visible, puis redéploie."
   );
 }

@@ -23,14 +23,14 @@ export type PreviewMessage =
  */
 export const PREVIEW_MOUNT_NAME_RE = /^[A-Za-z_$][\w$]*$/;
 
-const ERROR_KINDS: readonly PreviewErrorKind[] = [
-  "transform",
-  "mount",
-  "runtime",
-  // Émis par le parent seul : il refuse d'envoyer un code dont la boucle ne se
-  // termine pas, parce qu'aucune récupération n'est possible une fois envoyé.
-  "boucle",
-];
+/**
+ * Genres d'erreur que l'iframe a le droit d'émettre.
+ *
+ * `"transform"` et `"boucle"` en sont volontairement absents : ils naissent
+ * dans le parent, avant tout envoi. Les accepter ici élargirait la surface du
+ * protocole entrant d'un genre que rien ne poste jamais.
+ */
+const INBOUND_ERROR_KINDS: readonly PreviewErrorKind[] = ["mount", "runtime"];
 
 export function parsePreviewMessage(
   event: MessageEvent,
@@ -49,7 +49,7 @@ export function parsePreviewMessage(
 
   if (data.type === "preview:error") {
     if (typeof data.message !== "string") return null;
-    if (!ERROR_KINDS.includes(data.kind as PreviewErrorKind)) return null;
+    if (!INBOUND_ERROR_KINDS.includes(data.kind as PreviewErrorKind)) return null;
     return { type: "error", kind: data.kind as PreviewErrorKind, message: data.message };
   }
 
@@ -73,12 +73,9 @@ export function parsePreviewMessage(
  */
 export function buildPreviewSrcdoc(origin: string): string {
   const parentOrigin = JSON.stringify(origin);
-  // L'origine part aussi dans un attribut HTML : on retire un slash final (qui
-  // produirait `//`) et on neutralise le guillemet, seul caractere capable de
-  // sortir de l'attribut. C'est la seule interpolation non echappee qui
-  // subsistait dans ce fichier.
-  // encodeURI percent-encode deja le guillemet, seul caractere capable de sortir
-  // de l'attribut ; inutile d'ajouter un remplacement par-dessus.
+  // L'origine part aussi dans un attribut HTML : on retire un slash final, qui
+  // produirait une double barre. encodeURI percent-encode deja le guillemet,
+  // seul caractere capable de sortir de l'attribut.
   const runtimeSrc =
     encodeURI(origin.replace(/\/+$/, "")) + "/react-runtime/runtime.js";
   const mountNameRe = JSON.stringify(PREVIEW_MOUNT_NAME_RE.source);
