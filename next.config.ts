@@ -1,36 +1,8 @@
 import type { NextConfig } from "next";
 
-const isProd = process.env.NODE_ENV === "production";
+import { csp } from "./lib/security/csp";
 
-/**
- * Content-Security-Policy.
- *
- * Tuned for this app's runtime needs:
- * - Monaco is self-hosted from /public/monaco (CF-16), so no external CDN is
- *   needed — everything loads from 'self'. Its tokenizer runs in blob: workers.
- * - Next.js injects inline bootstrap/hydration scripts and Tailwind inline
- *   styles, hence 'unsafe-inline'. 'unsafe-eval' is required by Monaco AND by
- *   the lesson runner (`new Function` inside the srcdoc iframe), so it cannot
- *   be removed without breaking the core feature.
- *
- * Only enforced in production: dev needs eval + ws: for HMR/React Refresh.
- */
-const csp = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "frame-ancestors 'none'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "style-src 'self' 'unsafe-inline'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-  "connect-src 'self'",
-  "worker-src 'self' blob:",
-  "child-src 'self' blob:",
-  "frame-src 'self' blob:",
-  "form-action 'self'",
-  "upgrade-insecure-requests",
-].join("; ");
+const isProd = process.env.NODE_ENV === "production";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
