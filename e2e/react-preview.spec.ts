@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { E2E_USER } from "./global-setup";
+import { STORAGE_STATE } from "./global-setup";
 
 /**
  * L'apercu React de bout en bout. L'iframe est a origine opaque : Playwright y
@@ -80,13 +80,10 @@ async function allerAChapitre7EtRevenirEtape1(page: Page) {
 }
 
 test.describe("apercu React", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/login");
-    await page.locator("#email").fill(E2E_USER.email);
-    await page.locator("#password").fill(E2E_USER.password);
-    await page.getByRole("button", { name: /se connecter/i }).click();
-    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
-  });
+  // Session partagee ecrite par global-setup : `auth.ts` limite les connexions
+  // a 10 par 5 minutes et par IP, et la suite depassait ce seuil quand chaque
+  // spec se connectait pour son compte.
+  test.use({ storageState: STORAGE_STATE });
 
   test("monte le composant et reagit au clic", async ({ page }) => {
     await allerAChapitre7EtRevenirEtape1(page);

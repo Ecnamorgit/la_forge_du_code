@@ -18,6 +18,8 @@
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+# Session e2e partagee, ecrite par e2e/global-setup.ts
+/playwright/.auth/
 
 # monaco assets self-hébergés (copiés par scripts/copy-monaco.mjs)
 /public/monaco/

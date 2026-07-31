@@ -1,17 +1,15 @@
 import { test, expect } from "@playwright/test";
 
-import { E2E_USER } from "./global-setup";
+import { STORAGE_STATE } from "./global-setup";
+
+// Session partagée écrite par global-setup : `auth.ts` limite les connexions à
+// 10 par 5 minutes et par IP, et la suite dépassait ce seuil quand chaque spec
+// se connectait pour son compte.
+test.use({ storageState: STORAGE_STATE });
 
 test("le panneau de doc s'ouvre depuis un chip et se ferme avec Échap", async ({
   page,
 }) => {
-  // Connexion (route /learn protégée).
-  await page.goto("/login");
-  await page.locator("#email").fill(E2E_USER.email);
-  await page.locator("#password").fill(E2E_USER.password);
-  await page.getByRole("button", { name: /se connecter/i }).click();
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
-
   await page.goto("/learn/html/chapitre-1");
 
   const panel = page.getByTestId("doc-panel");

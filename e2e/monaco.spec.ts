@@ -1,6 +1,11 @@
 import { test, expect } from "@playwright/test";
 
-import { E2E_USER } from "./global-setup";
+import { STORAGE_STATE } from "./global-setup";
+
+// Session partagée écrite par global-setup : `auth.ts` limite les connexions à
+// 10 par 5 minutes et par IP, et la suite dépassait ce seuil quand chaque spec
+// se connectait pour son compte.
+test.use({ storageState: STORAGE_STATE });
 
 /**
  * Vérifie CF-16 / CF-15 : l'éditeur Monaco se charge bien depuis les assets
@@ -12,12 +17,8 @@ test("Monaco se charge en local, sans le CDN jsdelivr", async ({ page }) => {
     if (req.url().includes("cdn.jsdelivr.net")) cdnHits.push(req.url());
   });
 
-  // Connexion avec l'utilisateur vérifié seedé.
-  await page.goto("/login");
-  await page.locator("#email").fill(E2E_USER.email);
-  await page.locator("#password").fill(E2E_USER.password);
-  await page.getByRole("button", { name: /se connecter/i }).click();
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
+  // La session vient de global-setup (cf. test.use ci-dessus) : plus de
+  // connexion ici, le seuil anti-brute-force de auth.ts est partagé par IP.
 
   // Ouvre une leçon qui monte l'éditeur Monaco.
   await page.goto("/learn/javascript/chapitre-1");
