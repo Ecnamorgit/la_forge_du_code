@@ -136,25 +136,32 @@ test.describe("apercu React", () => {
     await expect(apercu.getByRole("button", { name: /Poussee : 1/ })).toBeVisible();
   });
 
-  test("remonte l'erreur de React quand un hook est dans un if", async ({ page }) => {
+  /**
+   * Une exception levee PENDANT le rendu doit remonter au panneau via la
+   * frontiere d'erreur de l'iframe.
+   *
+   * Ce test visait au depart le message « Rendered fewer hooks than expected »
+   * en placant un useState dans un if. Il ne le declenchait pas : avec une
+   * condition constante (if (true)), le nombre de hooks ne change jamais d'un
+   * rendu a l'autre, donc React n'a rien a signaler. C'est la regle qui est
+   * enseignee au chapitre 7, pas une erreur que l'apercu peut provoquer sur un
+   * montage unique. On verifie donc ce que la frontiere garantit reellement.
+   */
+  test("une exception levee pendant le rendu remonte au panneau", async ({ page }) => {
     await allerAChapitre7EtRevenirEtape1(page);
 
     await definirCodeEditeur(
       page,
-      "function Panneau() {\n" +
-        "if (true) {\n" +
-        "const [mode, setMode] = useState('auto');\n" +
-        "return <div>{mode}</div>;\n" +
-        "}\n" +
-        "return null;\n" +
-        "}\n" +
-        "function Reacteur() { return <Panneau />; }"
+      "function Reacteur() {\n" +
+        "throw new Error('Reacteur en surchauffe');\n" +
+        "}"
     );
 
     await page.getByRole("button", { name: /deployer/i }).click();
-    await expect(page.getByText(/Erreur à l'exécution|Syntaxe refusée/i)).toBeVisible({
-      timeout: 15_000,
-    });
+
+    await expect(page.getByText(/Erreur à l'exécution/i)).toBeVisible({ timeout: 15_000 });
+    // Le message de l'apprenant doit arriver tel quel, pas un generique.
+    await expect(page.getByText(/Reacteur en surchauffe/)).toBeVisible();
   });
 
   test("le chapitre 4, exempte, n'affiche pas d'apercu", async ({ page }) => {
@@ -171,7 +178,20 @@ test.describe("apercu React", () => {
    * deploiement correct APRES doit fonctionner, preuve que l'iframe a ete
    * remontee et non laissee dans un etat mort.
    */
-  test("le chien de garde detecte une boucle infinie puis un deploiement normal fonctionne", async ({
+  /**
+   * Une boucle infinie est REFUSEE AVANT l'envoi, pas rattrapee apres.
+   *
+   * La conception initiale prevoyait un chien de garde cote parent. Ce test
+   * l'a dementi : une iframe srcdoc a origine opaque partage le thread
+   * principal du parent dans Chromium, donc un while(true) a gele l'onglet
+   * ENTIER pendant 58 secondes et le setTimeout du parent n'a jamais pu
+   * s'executer. Aucune recuperation n'est possible une fois le code envoye,
+   * d'ou le garde-fou statique (lib/sandbox/loop-guard.ts).
+   *
+   * Ce test est donc aussi la preuve que l'onglet ne gele plus : s'il repassait
+   * en timeout de 60s, c'est que le garde-fou a ete contourne ou retire.
+   */
+  test("une boucle infinie est refusee avant l'envoi, et le deploiement suivant marche", async ({
     page,
   }) => {
     await allerAChapitre7EtRevenirEtape1(page);
@@ -183,12 +203,11 @@ test.describe("apercu React", () => {
 
     await page.getByRole("button", { name: /deployer/i }).click();
 
-    // Le chien de garde doit se declencher (message de boucle infinie), au-dela
-    // du delai normal de rendu mais dans la fenetre du test.
-    await expect(page.getByText(/ne répond plus/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/Boucle sans fin/i)).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/ne se termine jamais/i)).toBeVisible();
 
-    // Recuperation : un composant correct doit ensuite se monter normalement,
-    // preuve que l'iframe remontee par le chien de garde repond a nouveau.
+    // L'onglet doit etre rester vivant : si le code avait ete envoye, cette
+    // interaction serait impossible.
     await definirCodeEditeur(
       page,
       "function Reacteur() {\n" + "return <button>Systeme retabli</button>;\n" + "}"

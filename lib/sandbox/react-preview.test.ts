@@ -38,28 +38,6 @@ describe("buildPreviewSrcdoc", () => {
     expect(html).toContain("unhandledrejection");
   });
 
-  it("acquitte le rendu depuis un effet monte, pas apres root.render", () => {
-    // La proximite avec root.render est la MAUVAISE propriete a verifier : React
-    // 19 ne rend pas de facon synchrone, il planifie. Un accuse poste juste
-    // apres root.render partirait avant que le composant de l'apprenant ait
-    // tourne une seule fois, et desarmerait le chien de garde precisement dans
-    // le cas qu'il doit attraper (une boucle infinie).
-    //
-    // Ce qui compte : l'accuse part d'un useEffect, donc apres le commit.
-    expect(html).toContain("preview:rendered");
-    expect(html).toMatch(/React\.useEffect\([\s\S]{0,120}preview:rendered/);
-
-    // Et il n'est PAS emis dans la foulee de root.render.
-    const apresRender = html.slice(html.indexOf("root.render("));
-    const finDuRender = apresRender.slice(0, apresRender.indexOf("} catch"));
-    expect(finDuRender).not.toContain("preview:rendered");
-  });
-
-  it("transmet le nonce du rendu a l'accuse", () => {
-    // Sans nonce, l'accuse du rendu n desarmerait la surveillance du rendu n+1.
-    expect(html).toContain("nonce: props.nonce");
-  });
-
   it("derive les globales de React au lieu de les enumerer", () => {
     expect(html).toContain("Object.keys(React)");
   });
@@ -74,21 +52,6 @@ describe("parsePreviewMessage", () => {
     expect(parsePreviewMessage(evt({ type: "preview:ready" }), source)).toEqual({
       type: "ready",
     });
-  });
-
-  it("accepte rendered avec son nonce", () => {
-    expect(parsePreviewMessage(evt({ type: "preview:rendered", nonce: 7 }), source)).toEqual({
-      type: "rendered",
-      nonce: 7,
-    });
-  });
-
-  it("rejette rendered sans nonce exploitable", () => {
-    // Un accuse sans identifiant desarmerait n'importe quelle surveillance.
-    expect(parsePreviewMessage(evt({ type: "preview:rendered" }), source)).toBeNull();
-    expect(
-      parsePreviewMessage(evt({ type: "preview:rendered", nonce: "7" }), source)
-    ).toBeNull();
   });
 
   it("accepte une erreur portee", () => {
@@ -189,20 +152,5 @@ describe("buildPreviewSrcdoc — garde-fous ajoutes apres revue", () => {
     for (const s of scripts) {
       expect(() => new Function(s)).not.toThrow();
     }
-  });
-});
-
-describe("buildPreviewSrcdoc — garde-fous du protocole de rendu", () => {
-  const html = buildPreviewSrcdoc(ORIGIN);
-
-  it("monte reellement la Sonde dans l'arbre rendu", () => {
-    // Definir la Sonde sans l'inclure dans root.render passerait les autres
-    // tests : aucun accuse ne partirait jamais et le chien de garde se
-    // declencherait sur chaque rendu, meme reussi.
-    expect(html).toContain("React.createElement(Sonde");
-  });
-
-  it("exige un nonce sur la demande de rendu entrante", () => {
-    expect(html).toContain('typeof data.nonce !== "number"');
   });
 });
