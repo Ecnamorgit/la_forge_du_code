@@ -17,6 +17,26 @@
 
 ---
 
+## État au 2026-08-05
+
+M1 et M2 sont livrés. Il reste **CF-15, CF-17, CF-18**, plus deux vérifications
+opérationnelles (CF-6, CF-19).
+
+Les cases cochées ci-dessous l'ont été sur preuve dans le code. Celles qui
+restent vides sous un ticket par ailleurs livré désignent un fait que le dépôt
+ne peut pas établir — un déploiement réellement effectué, une restauration
+réellement testée, un parcours jamais couvert par un test. Elles ne sont pas
+des oublis : les laisser vides est l'information.
+
+| Reste à faire | Pourquoi |
+|---|---|
+| **CF-18** | 4 cursus sur 14 ont un test de validateur. Le plus concret. |
+| **CF-15** | Bloqué : ses critères d'acceptation sont faux (voir le ticket). |
+| **CF-17** | Aucune trace d'audit Lighthouse ni de `next/image`. |
+| CF-6, CF-19 | Runbooks écrits ; l'exécution réelle reste à confirmer. |
+
+---
+
 ## 🔴 M1 — Blockers de mise en production
 
 ### CF-1 · Hasher les tokens à usage unique en base
@@ -27,9 +47,9 @@
 - Migration Prisma (purge ou rehash des tokens existants).
 
 **Acceptation**
-- [ ] Aucun token brut en base
-- [ ] Vérif email + reset password OK de bout en bout
-- [ ] Test unitaire `createToken`/`consumeToken` (hash + single-use + expiry)
+- [x] Aucun token brut en base — `lib/tokens.ts` passe par `hashToken()` à l'écriture comme à la lecture
+- [ ] Vérif email + reset password OK de bout en bout — code câblé, mais aucun e2e ne couvre ce parcours
+- [x] Test unitaire `createToken`/`consumeToken` — `lib/token-crypto.test.ts`
 
 ### CF-2 · Rate-limiter la route reset-password
 **P0 · S · Sécurité**
@@ -37,8 +57,8 @@
 - Ajouter `rateLimit('reset:${ip}', { limit: 10, windowMs: 15min })`.
 
 **Acceptation**
-- [ ] 11ᵉ tentative en 15 min → `429`
-- [ ] Cohérent avec les autres routes auth
+- [ ] 11ᵉ tentative en 15 min → `429` — implémenté, jamais exercé par un test
+- [x] Cohérent avec les autres routes auth — même `rateLimit()` que signup, forgot, resend, check-verification
 
 ### CF-3 · Valider les variables d'environnement au démarrage
 **P0 · M · Robustesse**
@@ -47,8 +67,8 @@
 - Refuser le secret par défaut du `.env.example`.
 
 **Acceptation**
-- [ ] Démarrage prod sans `AUTH_SECRET` → erreur claire immédiate
-- [ ] `APP_URL` validé https en prod
+- [x] Démarrage prod sans `AUTH_SECRET` → erreur claire immédiate — `lib/env.ts` via `instrumentation.ts`
+- [x] `APP_URL` validé https en prod — couvert par `lib/env.test.ts`
 
 ### CF-4 · Figer le lockfile en CI
 **P0 · S · CI/Build**
@@ -56,7 +76,7 @@
 - Régénérer `pnpm-lock.yaml`, repasser en `--frozen-lockfile`.
 
 **Acceptation**
-- [ ] CI verte avec `pnpm install --frozen-lockfile`
+- [x] CI verte avec `pnpm install --frozen-lockfile`
 
 ### CF-5 · Ajouter typecheck + build à la CI
 **P0 · S · CI/Build**
@@ -64,7 +84,7 @@ La CI ne vérifie ni `tsc --noEmit` ni `next build`.
 - Étapes `pnpm exec tsc --noEmit` et `pnpm build` (+ `prisma generate`).
 
 **Acceptation**
-- [ ] CI échoue sur erreur TS ou build cassé
+- [x] CI échoue sur erreur TS ou build cassé — étapes `Typecheck` et `Build` du job `quality`
 
 ### CF-6 · Pipeline de migration prod documenté & testé
 **P0 · M · Déploiement**
@@ -72,8 +92,8 @@ La CI ne vérifie ni `tsc --noEmit` ni `next build`.
 - Procédure `prisma migrate deploy` + `prisma generate` dans `docs/DEPLOYMENT.md`.
 
 **Acceptation**
-- [ ] Déploiement à blanc sur DB managée réussit
-- [ ] Runbook reproductible
+- [ ] Déploiement à blanc sur DB managée réussit — **à confirmer** : le dépôt ne peut pas l'établir
+- [x] Runbook reproductible — `docs/DEPLOYMENT.md`
 
 ---
 
@@ -86,7 +106,7 @@ La CI ne vérifie ni `tsc --noEmit` ni `next build`.
 - Serverless/multi → store partagé (L).
 
 **Acceptation**
-- [ ] Limite vérifiée cross-instance **ou** contrainte mono-instance assumée et documentée
+- [x] Limite vérifiée cross-instance — `lib/rate-limit.ts` s'appuie sur Upstash Redis
 
 ### CF-8 · Test e2e du parcours critique
 **P1 · L · Tests**
@@ -94,7 +114,7 @@ Aucun e2e aujourd'hui.
 - Playwright : signup → verif (mock) → login → chapitre → validation step → XP persistée.
 
 **Acceptation**
-- [ ] Parcours vert en CI sur DB de test éphémère
+- [x] Parcours vert en CI sur DB de test éphémère — 23 tests, et depuis le 2026-07-31 contre un build de production (cf. CF-15)
 
 ### CF-9 · Logging structuré + corrélation
 **P1 · M · Observabilité**
@@ -102,27 +122,27 @@ Pas de logging applicatif ; les `throw` remontent bruts.
 - Logger léger (niveau, route, userId), sans PII/secret.
 
 **Acceptation**
-- [ ] Erreurs serveur loggées avec contexte exploitable
+- [x] Erreurs serveur loggées avec contexte exploitable — `lib/logger.ts` + `onRequestError` dans `instrumentation.ts`
 
 ### CF-10 · Monitoring d'erreurs (Sentry ou équivalent)
 **P1 · M · Observabilité**
 
 **Acceptation**
-- [ ] Exception non gérée remonte au dashboard avec stacktrace
+- [x] Exception non gérée remonte au dashboard avec stacktrace — Sentry câblé dans `instrumentation.ts`. Inerte tant que `SENTRY_DSN` n'est pas défini en production : vérifier la variable sur l'hébergeur.
 
 ### CF-11 · Pages d'erreur globales + error boundary
 **P1 · S · UX/Robustesse**
 Vérifier `app/error.tsx`, `app/not-found.tsx`, `global-error.tsx`.
 
 **Acceptation**
-- [ ] Crash runtime → écran propre, pas de stacktrace exposée
+- [x] Crash runtime → écran propre — `app/error.tsx`, `app/global-error.tsx`, `app/not-found.tsx`
 
 ### CF-12 · Healthcheck + readiness
 **P1 · S · Déploiement**
 - `GET /api/health` (ping DB léger) pour load-balancer/uptime.
 
 **Acceptation**
-- [ ] `200` si DB joignable, `503` sinon
+- [x] `200` si DB joignable, `503` sinon — `app/api/health/route.ts`
 
 ### CF-13 · Durcir le sandbox (revue + limites)
 **P1 · M · Sécurité**
@@ -130,8 +150,8 @@ Vérifier `app/error.tsx`, `app/not-found.tsx`, `global-error.tsx`.
 - `postMessage` ciblé (origine au lieu de `"*"`), borne taille logs/sortie, garde mémoire.
 
 **Acceptation**
-- [ ] Sortie volumineuse bornée
-- [ ] Cible `postMessage` resserrée
+- [x] Sortie volumineuse bornée — `MAX_LOGS = 1000`, `MAX_LINE = 2000` dans `lib/sandbox/run-js.ts`
+- [x] Cible `postMessage` resserrée — plus aucun `postMessage("*")` dans `lib/sandbox/`
 
 ---
 
@@ -143,22 +163,45 @@ Vérifier `app/error.tsx`, `app/not-found.tsx`, `global-error.tsx`.
 - Suppression de compte (effacement), export des données, consentement.
 
 **Acceptation**
-- [ ] Suppression de compte (cascade vérifiée)
-- [ ] Export des données perso disponible
+- [x] Suppression de compte — `DELETE` sur `app/api/me/route.ts`
+- [x] Export des données perso disponible — `app/api/me/export`
 
 ### CF-15 · Durcir la CSP (retirer `unsafe-inline`/`unsafe-eval`)
-**P2 · L · Sécurité**
-`next.config.ts` prévoit déjà le durcissement par nonces.
+**P2 · L · Sécurité** — ⛔ **critères d'acceptation à réécrire avant de commencer**
 
-**Acceptation**
-- [ ] CSP sans `unsafe-inline` côté script (nonces) sans casser Monaco/hydration
+> **Lis `docs/BRIEF_CSP_GARDE_FOU.md` avant de toucher à `script-src`.**
+>
+> Le critère ci-dessous a été écrit **avant** que l'aperçu React existe. Il ne
+> nomme que Monaco et l'hydratation. Le suivre à la lettre donne une suite verte
+> et un aperçu cassé pour tous les apprenants.
+>
+> `script-src` porte trois dépendances, toutes vivantes :
+> - `'self'` — l'iframe charge `/react-runtime/runtime.js` par URL absolue ;
+> - `'unsafe-inline'` — le `<script>` inline du `srcdoc`, tout le programme de l'iframe ;
+> - `'unsafe-eval'` — `new Function` dans le `srcdoc` **et** dans `lib/sandbox/run-js.ts`.
+>
+> **Un nonce ne suffit pas à contourner le problème** : en CSP niveau 3, sa
+> présence fait *ignorer* `'unsafe-inline'`. Le durcissement casserait l'aperçu
+> même en laissant le mot écrit dans la politique.
+>
+> Deux garde-fous posés le 2026-07-31 t'arrêteront si tu essaies quand même :
+> `lib/security/csp.test.ts` (fil-piège unitaire) et la suite e2e, qui tourne
+> désormais contre un build de production (`E2E_PROD=1` en CI).
+>
+> Questions non tranchées : `'unsafe-eval'` est-il négociable, puisque deux
+> cursus en dépendent pour exister ? Un aperçu servi depuis une autre origine
+> rebattrait-il les cartes (cf. `docs/SANDBOX_REPORT.md`) ?
+
+**Acceptation — à redéfinir**
+- [ ] Réécrire les critères en tenant compte de l'aperçu React et du sandbox JS
+- [ ] ~~CSP sans `unsafe-inline` côté script (nonces) sans casser Monaco/hydration~~ — critère obsolète, ignore l'aperçu et le sandbox
 
 ### CF-16 · Auto-héberger Monaco (retirer la dépendance CDN)
 **P2 · M · Robustesse/Perf**
 Monaco chargé depuis jsdelivr → dépendance externe + entrées CSP.
 
 **Acceptation**
-- [ ] Éditeur fonctionne sans le CDN ; entrées jsdelivr CSP supprimables
+- [x] Éditeur fonctionne sans le CDN — Monaco servi depuis `/public/monaco`, plus aucune entrée jsdelivr dans la CSP
 
 ### CF-17 · Budget perf & Core Web Vitals
 **P2 · M · Perf**
@@ -168,14 +211,22 @@ Monaco chargé depuis jsdelivr → dépendance externe + entrées CSP.
 - [ ] LCP/CLS/INP au vert sur dashboard et page de leçon
 
 ### CF-18 · Élargir la couverture de tests des validateurs
-**P2 · L · Tests**
-~70 validateurs, 3 fichiers de test.
+**P2 · L · Tests** — 👉 **le prochain ticket le plus concret**
+
+14 cursus dans `lib/validators/`. **4 seulement ont un test dédié** : `html`,
+`javascript`, `react`, `sql`. Les 10 autres n'en ont aucun :
+
+`algo` · `css` · `devops` · `git` · `mongodb` · `nodejs` · `python` ·
+`security` · `tests` · `typescript`
+
+Un validateur faux ne casse rien de visible : il refuse une bonne réponse, ou
+en accepte une mauvaise. L'apprenant en subit les conséquences, pas la CI.
 
 **Acceptation**
-- [ ] Chaque cursus a ≥ 1 test de validateur (cas passant + échec)
+- [ ] Chaque cursus a ≥ 1 test de validateur (cas passant + cas d'échec)
 
 ### CF-19 · Backups DB + plan de restauration
 **P1 · S · Exploitation**
 
 **Acceptation**
-- [ ] Backups automatiques activés + restauration testée une fois
+- [ ] Backups automatiques activés + restauration testée une fois — procédure écrite (`docs/DEPLOYMENT.md §7`), **exécution à confirmer**
