@@ -33,6 +33,32 @@ Vérifié en le sabotant volontairement : un validateur rendu permissif fait
 
 ---
 
+## Bugs techniques corrigés
+
+Listés ici pour mémoire ; chacun est couvert par un test qui échouait avant.
+
+### `hasProperty` acceptait `background-color` pour `color`
+
+`lib/validators/css/_utils.ts` — trouvé le 2026-08-06 en écrivant les tests du
+chapitre 2.
+
+La vérification de propriété utilisait `\bcolor\s*:`. Dans `background-color`,
+le tiret qui précède `color` est un caractère non-mot : `\b` y matche. Une étape
+demandant `h1 { color: … }` acceptait donc `h1 { background-color: … }`.
+
+**Effet sur l'apprenant :** il colorait le fond au lieu du texte, obtenait
+« validé », et passait à la suite en croyant avoir compris la propriété.
+
+Corrigé par un lookbehind `(?<![-\w])`, appliqué aussi à `hasPropertyWithValue`
+qui portait le même défaut. Les deux touchaient toutes les étapes CSS reposant
+sur `color`, `width`, `gap`, `border` — soit l'essentiel du cursus.
+
+Aucun autre helper du dépôt ne présente ce motif (`javascript/_utils.ts` et
+`_static-utils.ts` vérifiés).
+
+---
+
 ## Questions ouvertes
 
-*Aucune à ce stade — les lots de tests par chapitre n'ont pas encore été écrits.*
+*Aucune à ce stade.* Les chapitres CSS 1 à 5 n'ont soulevé que le bug technique
+ci-dessus — aucun arbitrage pédagogique.
