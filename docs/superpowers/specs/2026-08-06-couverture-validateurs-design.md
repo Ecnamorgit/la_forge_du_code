@@ -27,9 +27,10 @@ en subit les conséquences, et il conclut que c'est lui qui se trompe.
 
 Constatées, pas supposées. Ne pas re-vérifier.
 
-- **47 chapitres, ~188 étapes**, réparties ainsi : `css` 10, `javascript` 12,
-  `html` 8, `react` 8, et 1 chacun pour `algo`, `devops`, `git`, `mongodb`,
-  `nodejs`, `python`, `security`, `sql`, `tests`, `typescript`.
+- **14 cursus, 48 chapitres, 191 étapes** : `javascript` 12, `css` 10, `html` 8,
+  `react` 8, et 1 chacun pour `algo`, `devops`, `git`, `mongodb`, `nodejs`,
+  `python`, `security`, `sql`, `tests`, `typescript`. Décompte relu sur
+  `lib/courses-registry.ts:55-81`.
 - **Chaque chapitre expose 4 validateurs** (un par étape), sauf
   `html/chapitre-1` qui en a 3.
 - **Couverture dédiée existante** : `html/html-parcours`, `javascript/chapitre-1`,
@@ -51,7 +52,7 @@ Constatées, pas supposées. Ne pas re-vérifier.
 | Décision | Retenu | Pourquoi |
 |---|---|---|
 | Périmètre manuel | `css` + étapes 2-4 des mono-chapitres | Les deux trous les plus nets, ~67 validateurs |
-| Balayage structurel | **Inclus** | Un fichier, et il couvre les 188 étapes là où l'écriture manuelle en couvrira 67 |
+| Balayage structurel | **Inclus** | Un fichier, et il couvre les 191 étapes là où l'écriture manuelle en couvrira 67 |
 | Bugs trouvés | Corriger si évident, signaler sinon | Un choix pédagogique n'est pas à trancher par l'implémenteur |
 | Découpage | `css` livrable seul, mono-chapitres ensuite | ~134 cas manuels : c'est plusieurs sessions, pas une |
 
@@ -67,7 +68,7 @@ les slugs de cursus, et pour chacun ses slugs de chapitre. Quelques lignes,
 sans toucher à `getChapterData`.
 
 **Pourquoi c'est nécessaire :** sans énumérateur, le test devrait redéclarer la
-liste des 47 chapitres. Cette liste se périmerait au premier chapitre ajouté —
+liste des 48 chapitres. Cette liste se périmerait au premier chapitre ajouté —
 et un chapitre neuf non testé est exactement le cas qu'on veut attraper.
 
 ### Invariant a — autant de validateurs que d'étapes
@@ -156,7 +157,7 @@ l'en-tête est également fausse et devient 2026-08-06.
 ## Critères d'acceptation
 
 - [ ] `lib/courses-registry.ts` expose un énumérateur ; `getChapterData` inchangé.
-- [ ] Le balayage structurel couvre les 14 cursus et les 47 chapitres, sans
+- [ ] Le balayage structurel couvre les 14 cursus et les 48 chapitres, sans
       liste codée en dur.
 - [ ] Invariant a vert sur tous les chapitres.
 - [ ] Invariant b vert sur tous les chapitres hors exclusions, la liste
