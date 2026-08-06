@@ -83,3 +83,18 @@ const REGISTRY: Record<string, Record<string, ChapterData>> = {
 export function getChapterData(course: string, chapter: string): ChapterData | null {
   return REGISTRY[course]?.[chapter] ?? null;
 }
+
+/**
+ * Slugs de tous les cursus, dans l'ordre de déclaration du registre.
+ *
+ * Permet aux tests de parcourir le contenu sans redéclarer une liste qui se
+ * périmerait au premier chapitre ajouté.
+ */
+export function listCourseSlugs(): string[] {
+  return Object.keys(REGISTRY);
+}
+
+/** Slugs des chapitres d'un cursus, dans l'ordre. Vide si le cursus est inconnu. */
+export function listChapterSlugs(course: string): string[] {
+  return Object.keys(REGISTRY[course] ?? {});
+}

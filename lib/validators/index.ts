@@ -34,3 +34,13 @@ const REGISTRY: Record<string, Record<string, Validator[]>> = {
 export function getValidators(course: string, chapterSlug: string): Validator[] {
   return REGISTRY[course]?.[chapterSlug] ?? [];
 }
+
+/**
+ * Slugs des cursus ayant des validateurs.
+ *
+ * `getValidators` renvoie `[]` aussi bien pour un cursus absent que pour un
+ * chapitre inconnu : sans cette fonction, les deux cas sont indistinguables.
+ */
+export function listValidatorCourses(): string[] {
+  return Object.keys(REGISTRY);
+}
