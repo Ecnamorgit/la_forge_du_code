@@ -44,7 +44,9 @@ export const validators: Validator[] = [
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     const body = ruleHasDeclaration(css, /\.quote::before\b/);
     if (!body) return { ok: false, msg: "Ajoute une regle .quote::before { ... }." };
-    if (!/\bcontent\s*:/i.test(body)) {
+    // `(?<![-\w])` et non `\b` : sinon `justify-content` ou `align-content`
+    // satisferaient l'exigence d'une propriete `content`.
+    if (!/(?<![-\w])content\s*:/i.test(body)) {
       return { ok: false, msg: "Un pseudo-element a besoin d'une propriete content: \"...\" pour s'afficher." };
     }
     return { ok: true, msg: "Element fantome cree.", objList: ["o3a", "o3b"] };

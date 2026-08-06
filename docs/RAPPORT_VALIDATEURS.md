@@ -56,9 +56,52 @@ sur `color`, `width`, `gap`, `border` — soit l'essentiel du cursus.
 Aucun autre helper du dépôt ne présente ce motif (`javascript/_utils.ts` et
 `_static-utils.ts` vérifiés).
 
+### La dernière étape du cursus CSS était infranchissable
+
+`lib/validators/css/chapitre-9.ts:58` — trouvé le 2026-08-06.
+
+Le test du mot-clé `infinite` s'écrivait `/\bnfinite\b/i` : le `i` initial
+manquait. Comme `\b` exige une frontière de mot et que `nfinite` est précédé
+d'un `i` dans `infinite`, le motif ne matchait **jamais**.
+
+**Effet sur l'apprenant :** `animation: rotation 2s linear infinite;` — la forme
+qu'enseigne le cours — était refusée. Seul `animation-iteration-count: infinite`
+passait. L'étape finale du cursus CSS, et donc son badge de complétion, était
+hors d'atteinte par la voie normale.
+
+### La solution du cours refusée par sa propre étape
+
+`lib/validators/css/chapitre-8.ts:13` — trouvé le 2026-08-06.
+
+L'étape 1 demande de remplacer une largeur figée par `max-width`. Une garde
+`/\bwidth\s*:\s*800px\b/` devait détecter un `width: 800px` résiduel — mais elle
+matchait à l'intérieur de `max-width: 800px`.
+
+**Effet sur l'apprenant :** l'indice du cours dit littéralement
+`max-width: 800px; width: 100%;`. Le suivre menait au refus.
+
+### Trois acceptations à tort, même cause
+
+Toutes trouvées le 2026-08-06, toutes corrigées par le même lookbehind.
+
+| Fichier | Motif fautif | Ce qui passait à tort |
+|---|---|---|
+| `css/chapitre-6.ts:5` | `\b(top\|right\|bottom\|left)` | `padding-left` comptait comme un décalage de positionnement |
+| `css/chapitre-6.ts:58` | `\btop` | `margin-top` satisfaisait le `top` qu'exige `sticky` |
+| `css/chapitre-7.ts:47` | `\bcontent` | `justify-content` satisfaisait l'exigence de `content`, et le pseudo-élément restait invisible |
+
+**La cause est unique et systémique :** en CSS, la plupart des propriétés sont
+composées d'un préfixe et d'un tiret. `\b` matche après un tiret, donc tout
+motif `\bsuffixe` se déclenche à l'intérieur d'une propriété plus longue.
+Cinq occurrences dans le dépôt, toutes dans le cursus CSS.
+
+Balayage effectué sur `lib/validators/` : la seule occurrence restante est
+`react/chapitre-8.ts:139` (`/\bdefault\s*:/`), sans danger — les identifiants
+JavaScript ne contiennent pas de tiret.
+
 ---
 
 ## Questions ouvertes
 
-*Aucune à ce stade.* Les chapitres CSS 1 à 5 n'ont soulevé que le bug technique
-ci-dessus — aucun arbitrage pédagogique.
+*Aucune.* Les dix chapitres CSS n'ont soulevé que des bugs techniques nets —
+aucun arbitrage pédagogique n'a été rencontré.

@@ -55,7 +55,7 @@ export const validators: Validator[] = [
     if (!iconBody || !/\banimation\s*:/i.test(iconBody)) {
       return { ok: false, msg: "Applique l'animation a .icon." };
     }
-    if (!/\bnfinite\b/i.test(iconBody) && !/animation-iteration-count\s*:\s*infinite/i.test(iconBody)) {
+    if (!/\binfinite\b/i.test(iconBody) && !/animation-iteration-count\s*:\s*infinite/i.test(iconBody)) {
       return { ok: false, msg: "L'animation doit etre infinie (mot-cle infinite)." };
     }
     return { ok: true, msg: "Mouvement permanent.", objList: ["o4a", "o4b"], final: true };

@@ -1,8 +1,13 @@
 import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasPropertyWithValue, ruleBody } from "./_utils";
 
+/**
+ * Un decalage est-il pose ? `(?<![-\w])` et non `\b` : dans `padding-top` ou
+ * `margin-left`, le tiret est un non-mot, donc `\btop` matcherait a l'interieur
+ * et un simple padding compterait comme un decalage de positionnement.
+ */
 function hasOffset(body: string): boolean {
-  return /\b(top|right|bottom|left)\s*:\s*[^;\s][^;]*/i.test(body);
+  return /(?<![-\w])(top|right|bottom|left)\s*:\s*[^;\s][^;]*/i.test(body);
 }
 
 export const validators: Validator[] = [
@@ -55,7 +60,7 @@ export const validators: Validator[] = [
       return { ok: false, msg: "Definis position: sticky sur .section-title." };
     }
     const body = ruleBody(css, ".section-title");
-    if (!body || !/\btop\s*:\s*[^;]/i.test(body)) {
+    if (!body || !/(?<![-\w])top\s*:\s*[^;]/i.test(body)) {
       return { ok: false, msg: "Sticky exige un top (ou bottom) defini. Ajoute top: 0 par exemple." };
     }
     return { ok: true, msg: "Positionnement maitrise.", objList: ["o4a", "o4b"], final: true };

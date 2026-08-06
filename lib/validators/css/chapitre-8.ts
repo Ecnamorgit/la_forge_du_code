@@ -10,7 +10,10 @@ export const validators: Validator[] = [
       return { ok: false, msg: "Utilise max-width sur .container." };
     }
     const body = ruleBody(css, ".container");
-    if (body && /\bwidth\s*:\s*800px\b/i.test(body)) {
+    // `(?<![-\w])` et non `\b` : dans `max-width`, le tiret est un non-mot, donc
+    // `\bwidth` matcherait a l'interieur — et la solution du cours
+    // (`max-width: 800px; width: 100%`) serait refusee par sa propre etape.
+    if (body && /(?<![-\w])width\s*:\s*800px\b/i.test(body)) {
       return { ok: false, msg: "Retire width: 800px en dur (max-width suffit, ou utilise width: 100%)." };
     }
     return { ok: true, msg: "Fluidite active.", objList: ["o1a", "o1b"] };
