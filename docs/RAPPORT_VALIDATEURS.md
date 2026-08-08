@@ -99,9 +99,53 @@ Balayage effectué sur `lib/validators/` : la seule occurrence restante est
 `react/chapitre-8.ts:139` (`/\bdefault\s*:/`), sans danger — les identifiants
 JavaScript ne contiennent pas de tiret.
 
+### Python : « appelle la fonction » n'était pas vérifié
+
+`lib/validators/python/chapitre-1.ts:28` — trouvé le 2026-08-06.
+
+L'étape 2 annonce « Appelle `calculer_xp(5, 20)` et affiche le résultat ». Le
+contrôle cherchait `/calculer_xp\s*\(/` dans le code entier — or la ligne
+`def calculer_xp(niveau, bonus):` contient déjà ce motif. La condition était
+donc satisfaite par la seule déclaration.
+
+**Effet sur l'apprenant :** un code qui définit la fonction sans jamais
+l'appeler était accepté, du moment qu'un `print` traînait quelque part.
+
+Corrigé en retirant la ligne de déclaration avant de chercher l'appel.
+
+### Git : un argument pouvait être fourni par la ligne suivante
+
+`lib/validators/git/chapitre-1.ts:32,43` — trouvé le 2026-08-06.
+
+`/git\s+remote\s+add\s+origin\s+\S+/` : `\s` traverse le saut de ligne, donc
+`git remote add origin` **sans URL** était validé par le premier mot de la
+commande suivante. Même défaut sur `git checkout -b` / `git switch -c`, où le
+nom de branche pouvait manquer.
+
+**Effet sur l'apprenant :** l'oubli le plus courant de l'étape — taper la
+commande sans son argument — passait pour correct.
+
+Corrigé en exigeant l'argument sur la même ligne (`[ \t]+`).
+
+---
+
+## Fragilité corrigée en passant
+
+`lib/courses-catalog.test.ts:49` — le test d'intégrité du cursus React importe
+dynamiquement `courses-registry`, ce qui charge le contenu des 48 chapitres et
+frôlait les 5 s de délai par défaut de vitest. Les 245 tests ajoutés par ce
+chantier ont suffi à le faire basculer par intermittence sous la charge
+parallèle.
+
+Ce n'était pas une régression fonctionnelle — le test passait isolément — mais
+un test instable finit par être ignoré. Délai porté à 20 s, avec la raison
+écrite sur place. Suite relancée trois fois de suite : 882 verts à chaque fois.
+
 ---
 
 ## Questions ouvertes
 
-*Aucune.* Les dix chapitres CSS n'ont soulevé que des bugs techniques nets —
-aucun arbitrage pédagogique n'a été rencontré.
+*Aucune.* Les dix chapitres CSS et les neuf cursus mono-chapitre n'ont soulevé
+que des bugs techniques nets. Aucun arbitrage pédagogique n'a été rencontré :
+chaque désaccord constaté entre un validateur et une réponse raisonnable venait
+d'un motif de recherche trop large, jamais d'un choix de contenu.

@@ -29,7 +29,10 @@ export const validators: Validator[] = [
   // Step 3: create+switch branch + merge into main
   (code) => {
     const c = strip(code);
-    if (!/git\s+(checkout\s+-b|switch\s+-c)\s+\S+/.test(c)) {
+    // `[ \t]+` et non `\s+` devant l'argument : `\s` traverse le saut de ligne,
+    // donc `git checkout -b` sans nom de branche serait valide par le premier
+    // mot de la commande suivante.
+    if (!/git\s+(checkout\s+-b|switch\s+-c)[ \t]+\S+/.test(c)) {
       return fail("Cree et bascule sur une branche : git checkout -b feature/radar.");
     }
     if (!/git\s+merge\s+\S+/.test(c)) {
@@ -40,7 +43,9 @@ export const validators: Validator[] = [
   // Step 4: remote add origin + push -u origin main
   (code) => {
     const c = strip(code);
-    if (!/git\s+remote\s+add\s+origin\s+\S+/.test(c)) {
+    // Meme raison qu'a l'etape 3 : sans `[ \t]+`, un `git remote add origin`
+    // sans URL serait valide par la ligne suivante.
+    if (!/git\s+remote\s+add\s+origin[ \t]+\S+/.test(c)) {
       return fail("Ajoute le remote : git remote add origin <url>.");
     }
     if (!/git\s+push\s+-u\s+origin\s+main/.test(c)) {

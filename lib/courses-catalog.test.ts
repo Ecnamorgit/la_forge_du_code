@@ -80,5 +80,9 @@ describe("integrite du cursus React", () => {
     // reglage independant du nombre exact de chapitres, contrairement a
     // l'ancien `toHaveLength(8)` qui aurait fige cette valeur.
     expect(reactChapterCount).toBeGreaterThanOrEqual(COURSE_COMPLETE_MIN_CHAPTERS);
-  });
+    // Delai explicite : l'import dynamique de `courses-registry` charge le
+    // contenu des 48 chapitres, ce qui frole les 5 s par defaut de vitest. Sous
+    // la charge parallele de la suite complete, le test basculait par
+    // intermittence en echec — un test instable finit par etre ignore.
+  }, 20_000);
 });

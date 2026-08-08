@@ -25,7 +25,11 @@ export const validators: Validator[] = [
     if (!/def\s+calculer_xp\s*\(\s*niveau\s*,\s*bonus\s*\)\s*:/.test(c)) {
       return fail("Declare la fonction : def calculer_xp(niveau, bonus):");
     }
-    if (!/calculer_xp\s*\(/.test(c) || !/print\s*\(/.test(c)) {
+    // On retire la ligne de declaration avant de chercher un appel : elle
+    // contient elle-meme « calculer_xp( », donc la chercher telle quelle
+    // validerait un code qui definit la fonction sans jamais l'appeler.
+    const sansDeclaration = c.replace(/def\s+calculer_xp\s*\([^)]*\)\s*:/, "");
+    if (!/calculer_xp\s*\(/.test(sansDeclaration) || !/print\s*\(/.test(c)) {
       return fail("Appelle calculer_xp(5, 20) et affiche le resultat avec print.");
     }
     return pass("Fonction creee.", ["o2a", "o2b"]);
