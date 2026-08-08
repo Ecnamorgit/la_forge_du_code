@@ -9,8 +9,33 @@ une discutable. Ils ne sont **pas tranchés ici** : décider de ce qu'un apprena
 a le droit d'écrire n'est pas une décision d'implémentation.
 
 Les bugs techniques nets (regex fausse, condition inversée, message décrivant
-une autre exigence que celle testée) ne figurent pas ici : ils sont corrigés
-directement, avec le test qui les prouve.
+une autre exigence que celle testée) sont corrigés directement, avec le test
+qui les prouve ; ils sont récapitulés ci-dessous pour mémoire.
+
+---
+
+## Bilan
+
+**245 tests ajoutés. Huit bugs trouvés, tous en production jusque-là.**
+
+| Gravité | Défaut | Effet |
+|---|---|---|
+| 🔴 | `css/chapitre-9` : `/\bnfinite\b/` ne matchait jamais `infinite` | Étape finale du cursus CSS infranchissable |
+| 🔴 | `css/chapitre-8` : `\bwidth` matchait dans `max-width` | La solution imprimée dans l'indice était refusée |
+| 🟠 | `css/_utils` : `\bcolor` matchait dans `background-color` | Colorer le fond validait « colore le texte » |
+| 🟠 | `python` : le motif d'appel était satisfait par la déclaration | Définir sans appeler validait l'étape |
+| 🟠 | `git` : `\s+` traversait le saut de ligne (2 endroits) | Commande sans argument validée par la ligne suivante |
+| 🟡 | `css/chapitre-6` : `\b(top\|right\|bottom\|left)` (2 endroits) | `padding-left` comptait comme un décalage |
+| 🟡 | `css/chapitre-7` : `\bcontent` | `justify-content` satisfaisait l'exigence de `content` |
+
+**Six des huit ont la même cause** : `\b` matche après un tiret, donc un motif
+`\bsuffixe` se déclenche à l'intérieur d'une propriété ou d'un mot plus long.
+C'est le piège structurel de la validation par expression régulière sur du CSS,
+où presque toutes les propriétés sont composées.
+
+**Cinq sur huit acceptaient une mauvaise réponse**, trois en refusaient une
+bonne. Les premières sont les plus coûteuses pédagogiquement : l'apprenant
+franchit l'étape en ayant appris l'inverse de ce qu'elle enseigne.
 
 ---
 
