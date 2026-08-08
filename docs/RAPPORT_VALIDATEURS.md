@@ -16,7 +16,11 @@ qui les prouve ; ils sont récapitulés ci-dessous pour mémoire.
 
 ## Bilan
 
-**245 tests ajoutés. Huit bugs trouvés, tous en production jusque-là.**
+**397 tests ajoutés** — la suite passe de 485 à 882. **Huit bugs trouvés**, tous
+en production jusque-là.
+
+Répartition : 189 pour le balayage structurel, 59 pour les chapitres CSS 1 à 5,
+65 pour les chapitres CSS 6 à 10, 84 pour les neuf cursus mono-chapitre.
 
 | Gravité | Défaut | Effet |
 |---|---|---|
@@ -158,7 +162,7 @@ Corrigé en exigeant l'argument sur la même ligne (`[ \t]+`).
 
 `lib/courses-catalog.test.ts:49` — le test d'intégrité du cursus React importe
 dynamiquement `courses-registry`, ce qui charge le contenu des 48 chapitres et
-frôlait les 5 s de délai par défaut de vitest. Les 245 tests ajoutés par ce
+frôlait les 5 s de délai par défaut de vitest. Les 397 tests ajoutés par ce
 chantier ont suffi à le faire basculer par intermittence sous la charge
 parallèle.
 
