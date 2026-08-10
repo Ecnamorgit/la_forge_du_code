@@ -129,4 +129,19 @@ pg_dump "$DIRECT_URL" -Fc -f backup-$(date +%F).dump
 pg_restore --clean --if-exists -d "$DIRECT_URL" backup-AAAA-MM-JJ.dump
 ```
 
+**Vérifier une restauration** :
+
+```bash
+npx tsx scripts/verify-restore.ts "postgresql://user:pass@hote:5432/base_restauree"
+```
+
+Le script liste le volume de chaque table et échoue si l'une manque, ou si la
+table `User` est vide — auquel cas ce n'est pas une restauration mais une
+migration à blanc. L'URL est un argument obligatoire : le script ne lit jamais
+`.env`, pour qu'un oubli ne le pointe pas sur la production.
+
+Il prouve la structure et le volume, pas le vécu : démarrer l'application
+contre la base restaurée et se connecter avec un compte réel reste la dernière
+étape.
+
 > ✅ **Critère de validation** : sauvegardes automatiques activées **et** une restauration testée au moins une fois sur une base jetable (vérifier que l'app démarre et que les comptes/progression sont présents). Une sauvegarde jamais restaurée n'est pas une sauvegarde.

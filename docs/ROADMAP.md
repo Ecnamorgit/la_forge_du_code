@@ -30,9 +30,9 @@ des oublis : les laisser vides est l'information.
 
 | Reste à faire | Pourquoi |
 |---|---|
-| **CF-15** | Bloqué : ses critères d'acceptation sont faux (voir le ticket). |
-| **CF-17** | Aucune trace d'audit Lighthouse ni de `next/image`. |
-| CF-6, CF-19 | Runbooks écrits ; l'exécution réelle reste à confirmer. |
+| **CF-15** | Bloqué par un prérequis : sortir l'aperçu du `srcdoc`. Mesuré, pas supposé — voir le ticket. |
+| **CF-17** | `next/image` et Three.js déjà en place ; LCP et INP demandent un vrai navigateur. |
+| CF-6, CF-19 | Outillés et documentés ; il reste des actions sur la console de l'hébergeur. |
 
 ---
 
@@ -218,11 +218,35 @@ Monaco chargé depuis jsdelivr → dépendance externe + entrées CSP.
 - [x] Éditeur fonctionne sans le CDN — Monaco servi depuis `/public/monaco`, plus aucune entrée jsdelivr dans la CSP
 
 ### CF-17 · Budget perf & Core Web Vitals
-**P2 · M · Perf**
-- Audit Lighthouse (Three.js, images), lazy-load, `next/image`.
+**P2 · M · Perf** — les deux pistes du libellé sont déjà faites
+
+**Vérifié le 2026-08-06 :**
+
+- **`next/image` partout, zéro `<img>` brute.** 10 fichiers l'utilisent ; la
+  recherche de `<img ` dans les `.tsx` ne renvoie rien.
+- **Three.js est déjà chargé à la demande** — `await import("three")` dans
+  `components/intro/IntroSceneCanvas.tsx:118`, jamais en import statique. Il ne
+  pèse donc pas sur le bundle initial.
+- **CLS = 0** sur `/learn/html/chapitre-1`, mesuré contre un build de production.
+- TTFB 88 ms, `load` 412 ms en local sur ce même build (indicatif : machine de
+  développement, pas un réseau réel).
+
+**LCP, FCP et INP n'ont pas pu être mesurés ici**, et ce n'est pas un défaut de
+l'application : le navigateur intégré garde la page en `visibilityState:
+"hidden"`, or ces métriques ne sont enregistrées que pour une page visible. Le
+tampon `paint` reste vide quoi qu'on fasse — inutile de réessayer par ce chemin.
+
+**Comment obtenir les chiffres manquants :** un Lighthouse dans un vrai
+navigateur (`pnpm build && pnpm start`, puis l'onglet Lighthouse des DevTools),
+ou un relevé de terrain via `web-vitals` remonté à Sentry, déjà câblé (CF-10).
+La seconde voie a l'avantage de mesurer de vrais apprenants sur de vrais
+réseaux, ce qu'un audit local ne fait jamais.
 
 **Acceptation**
-- [ ] LCP/CLS/INP au vert sur dashboard et page de leçon
+- [x] Images servies par `next/image`
+- [x] Three.js hors du bundle initial
+- [x] CLS au vert sur la page de leçon
+- [ ] LCP et INP mesurés sur le tableau de bord et une page de leçon — **demande un vrai navigateur**
 
 ### CF-18 · Élargir la couverture de tests des validateurs
 **P2 · L · Tests** — ✅ **livré le 2026-08-06**
@@ -261,7 +285,26 @@ s'ajoutera. Ce n'est plus urgent maintenant que la couverture existe, mais ça
 reste vrai pour les chapitres à venir.
 
 ### CF-19 · Backups DB + plan de restauration
-**P1 · S · Exploitation**
+**P1 · S · Exploitation** — outillé, reste deux actions humaines
+
+La procédure est écrite (`docs/DEPLOYMENT.md §7`) et la vérification est
+désormais une commande plutôt qu'une intention :
+
+```bash
+npx tsx scripts/verify-restore.ts "postgresql://…/base_restauree"
+```
+
+Il liste le volume de chaque table et échoue si l'une manque, ou si `User` est
+vide — c'est alors une migration à blanc, pas une restauration. L'URL est un
+argument obligatoire ; le script ne lit pas `.env`, pour qu'un oubli ne le
+pointe pas sur la production.
+
+**Ce qui reste ne peut pas être fait depuis le dépôt** : activer les sauvegardes
+dans la console de l'hébergeur, et exécuter une restauration sur une base
+jetable. Deux actions sur le compte, à faire par une personne qui y a accès.
 
 **Acceptation**
-- [ ] Backups automatiques activés + restauration testée une fois — procédure écrite (`docs/DEPLOYMENT.md §7`), **exécution à confirmer**
+- [x] Procédure de sauvegarde et de restauration documentée
+- [x] Vérification d'une base restaurée outillée et reproductible
+- [ ] Sauvegardes automatiques activées chez l'hébergeur — **action console**
+- [ ] Une restauration réellement effectuée et vérifiée — **action humaine**
