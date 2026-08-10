@@ -34,7 +34,14 @@ export const validators: Validator[] = [
     if (!/useParams\s*\(\s*\)/.test(c)) {
       return fail("Recupere les params de l'URL avec const { id } = useParams().");
     }
-    if (!/\{\s*id\s*\}/.test(c)) {
+    // On retire la destructuration avant de chercher l'affichage : elle s'ecrit
+    // elle-meme `{ id }`, donc la chercher telle quelle validerait un code qui
+    // lit le parametre sans jamais le rendre.
+    const sansDestructuration = c.replace(
+      /(?:const|let|var)\s*\{\s*id\s*\}\s*=\s*useParams\s*\(\s*\)\s*;?/,
+      ""
+    );
+    if (!/\{\s*id\s*\}/.test(sansDestructuration)) {
       return fail("Affiche l'id lu depuis l'URL : <div>Vaisseau : {id}</div>.");
     }
     return pass("URL decodee.", ["o3a", "o3b"]);
