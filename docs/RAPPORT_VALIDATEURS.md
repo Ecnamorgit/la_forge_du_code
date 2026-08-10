@@ -16,14 +16,14 @@ qui les prouve ; ils sont récapitulés ci-dessous pour mémoire.
 
 ## Bilan
 
-**545 tests ajoutés** — la suite passe de 485 à 1030. **Neuf bugs trouvés**, tous
+**694 tests ajoutés** — la suite passe de 485 à 1179. **Dix bugs trouvés**, tous
 en production jusque-là.
 
-Répartition : 189 pour le balayage structurel, 59 pour CSS 1 à 5, 65 pour CSS 6
+Répartition : 197 pour le balayage structurel, 59 pour CSS 1 à 5, 65 pour CSS 6
 à 10, 84 pour les neuf cursus mono-chapitre, 52 pour React 1 à 4, 96 pour les
-huit chapitres HTML.
+huit chapitres HTML, 141 pour JavaScript 2 à 12.
 
-`javascript` (chapitres 2 à 12, 44 validateurs) reste seul non couvert.
+**Les 191 étapes du parcours sont désormais couvertes.**
 
 | Gravité | Défaut | Effet |
 |---|---|---|
@@ -33,22 +33,28 @@ huit chapitres HTML.
 | 🟠 | `python` : le motif d'appel était satisfait par la déclaration | Définir sans appeler validait l'étape |
 | 🟠 | `git` : `\s+` traversait le saut de ligne (2 endroits) | Commande sans argument validée par la ligne suivante |
 | 🟠 | `react/chapitre-4` : le motif d'affichage était satisfait par la déclaration | Lire l'id de l'URL sans jamais le rendre validait l'étape |
+| 🟠 | `javascript/chapitre-3` : la tolérance prévue pour l'arrow concise s'appliquait aussi aux corps entre accolades | Une fonction qui `console.log` au lieu de `return` validait l'étape |
 | 🟡 | `css/chapitre-6` : `\b(top\|right\|bottom\|left)` (2 endroits) | `padding-left` comptait comme un décalage |
 | 🟡 | `css/chapitre-7` : `\bcontent` | `justify-content` satisfaisait l'exigence de `content` |
 
-**Deux familles, et rien d'autre.**
+**Trois familles, et rien d'autre.**
 
-*Six sur neuf* — `\b` matche après un tiret, donc un motif `\bsuffixe` se
+*Six sur dix* — `\b` matche après un tiret, donc un motif `\bsuffixe` se
 déclenche à l'intérieur d'un mot plus long. C'est le piège structurel de la
 validation par expression régulière sur du CSS, où presque toutes les propriétés
 sont composées.
 
-*Deux sur neuf* — le motif censé détecter l'**usage** d'un symbole est satisfait
+*Deux sur dix* — le motif censé détecter l'**usage** d'un symbole est satisfait
 par sa **déclaration** : `calculer_xp(` figure dans `def calculer_xp(...)`, et
 `{ id }` figure dans `const { id } = useParams()`. Deux cursus sans rapport, la
 même erreur de raisonnement.
 
-**Six sur neuf acceptaient une mauvaise réponse**, trois en refusaient une
+*Deux sur dix* — une garde correcte, neutralisée par une tolérance trop large
+posée à côté d'elle : `\s+` qui traverse le saut de ligne dans Git, et
+l'alternative « arrow concise » qui absorbait aussi les corps entre accolades
+dans JavaScript.
+
+**Sept sur dix acceptaient une mauvaise réponse**, trois en refusaient une
 bonne. Les premières sont les plus coûteuses pédagogiquement : l'apprenant
 franchit l'étape en ayant appris l'inverse de ce qu'elle enseigne, et rien ne
 le lui signale.
@@ -157,6 +163,25 @@ donc satisfaite par la seule déclaration.
 l'appeler était accepté, du moment qu'un `print` traînait quelque part.
 
 Corrigé en retirant la ligne de déclaration avant de chercher l'appel.
+
+### JavaScript : la garde du `return` ne se déclenchait jamais
+
+`lib/validators/javascript/chapitre-3.ts:62` — trouvé le 2026-08-06.
+
+L'étape 2 exige que `addXp` **retourne** la somme, et son message le dit
+explicitement : « ne pas seulement faire console.log a l'interieur ». La garde
+comportait deux alternatives — l'une pour un corps entre accolades (`return`
+obligatoire), l'autre pour une arrow concise `=> a + b` (dont le `return` est
+implicite, on vérifie juste la présence du `+`).
+
+Les deux étaient combinées par un `&&`, si bien que la seconde s'appliquait
+aussi aux corps entre accolades. Or dans cet exercice un tel corps contient
+toujours un `+` : la garde était donc systématiquement neutralisée.
+
+**Effet sur l'apprenant :** `function addXp(a, b) { console.log(a + b); }`
+validait l'étape — exactement ce que le message annonçait refuser.
+
+Corrigé en distinguant les deux formes de corps au lieu de les confondre.
 
 ### React : le paramètre d'URL lu mais jamais affiché
 

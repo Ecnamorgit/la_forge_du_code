@@ -15,15 +15,25 @@ import { getValidators, listValidatorCourses } from "./index";
  */
 
 /**
- * Cursus dont les validateurs jugent une EXÉCUTION, pas un texte : ils lisent
- * `ctx.logs` (javascript) ou `ctx.sql` (sql). Appelés sans contexte, ils
- * échouent pour absence de contexte — pas parce que le startCode est
- * incomplet. L'invariant b serait vert sans rien prouver, on les en exclut.
+ * Chapitres dont les validateurs jugent une EXÉCUTION, pas un texte : ils
+ * lisent `ctx.logs` ou `ctx.sql`. Appelés sans contexte ils échouent pour
+ * absence de contexte — pas parce que le startCode est incomplet. L'invariant b
+ * serait vert sans rien prouver, on les en exclut.
  *
- * Leur couverture passe par des tests dédiés qui exécutent réellement le code :
- * `javascript/chapitre-1.test.ts`, `sql/chapitre-1.test.ts`.
+ * L'exclusion est nommée **chapitre par chapitre**, et non par cursus : les
+ * chapitres 11 et 12 de `javascript` sont statiques (l'hôte d'API est fictif et
+ * ne résout jamais dans le sandbox), donc l'invariant s'y applique. Un chapitre
+ * ajouté demain est couvert par défaut ; s'il est runtime, l'invariant échouera
+ * bruyamment et il faudra l'inscrire ici — c'est le bon sens de la faute.
+ *
+ * Leur couverture passe par des tests dédiés qui fournissent un contexte réel.
  */
-const CURSUS_RUNTIME = new Set(["javascript", "sql"]);
+const ETAPES_RUNTIME = new Set<string>([
+  // javascript 1 à 10 : validés sur `ctx.logs`.
+  ...Array.from({ length: 10 }, (_, i) => `javascript/chapitre-${i + 1}`),
+  // sql : validé sur le résultat d'une vraie requête (`ctx.sql`).
+  "sql/chapitre-1",
+]);
 
 /** Un couple (cursus, chapitre) par chapitre déclaré au registre de contenu. */
 const CHAPITRES = listCourseSlugs().flatMap((course) =>
@@ -60,7 +70,9 @@ describe("chaque chapitre est validable", () => {
 });
 
 describe("le code de départ ne valide jamais son étape", () => {
-  const testables = CHAPITRES.filter(({ course }) => !CURSUS_RUNTIME.has(course));
+  const testables = CHAPITRES.filter(
+    ({ course, chapter }) => !ETAPES_RUNTIME.has(`${course}/${chapter}`)
+  );
 
   describe.each(testables)("$course / $chapter", ({ course, chapter }) => {
     const data = getChapterData(course, chapter)!;

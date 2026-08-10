@@ -59,14 +59,27 @@ export const validators: Validator[] = [
     ) {
       return { ok: false, msg: "La logique de addXp doit additionner les 2 valeurs." };
     }
-    // Require the function to `return` (the call site should consume the value),
-    // not just `console.log` inside the function body.
-    const addXpBodyMatch =
+    // La fonction doit RETOURNER la somme : c'est l'appelant qui l'affiche.
+    //
+    // Deux formes de corps, deux exigences distinctes — les confondre laissait
+    // passer `function addXp(a, b) { console.log(a + b); }`, exactement ce que
+    // cette garde doit refuser : un corps entre accolades contient toujours un
+    // `+` dans cet exercice, donc la tolerance prevue pour l'arrow concise
+    // s'appliquait aussi a lui et neutralisait la verification du return.
+    const corpsAccolades =
       stripped.match(/\bfunction\s+addXp\s*\([^)]*\)\s*\{([\s\S]*?)\}/) ||
-      stripped.match(/\baddXp\s*=\s*(?:function\s*\([^)]*\)|\([^)]*\)\s*=>)\s*\{([\s\S]*?)\}/) ||
-      stripped.match(/\baddXp\s*=\s*\([^)]*\)\s*=>\s*([^;\n]+)/);
-    const body = addXpBodyMatch?.[1] ?? "";
-    if (!/\breturn\b/.test(body) && !/^\s*[^{].*\+/.test(body)) {
+      stripped.match(/\baddXp\s*=\s*(?:function\s*\([^)]*\)|\([^)]*\)\s*=>)\s*\{([\s\S]*?)\}/);
+
+    const manqueLeRetour = corpsAccolades
+      ? // Corps entre accolades : le `return` doit etre ecrit.
+        !/\breturn\b/.test(corpsAccolades[1])
+      : // Arrow concise (`=> base + bonus`) : le return est implicite, on
+        // verifie seulement que l'addition est bien la valeur de l'expression.
+        !/\+/.test(
+          stripped.match(/\baddXp\s*=\s*\([^)]*\)\s*=>\s*([^;\n]+)/)?.[1] ?? ""
+        );
+
+    if (manqueLeRetour) {
       return {
         ok: false,
         msg: "addXp doit retourner la somme avec return (ne pas seulement faire console.log a l'interieur).",

@@ -19,8 +19,8 @@
 
 ## État au 2026-08-06
 
-M1 et M2 sont livrés. Il reste **CF-15 et CF-17**, la seconde moitié de
-**CF-18**, plus deux vérifications opérationnelles (CF-6, CF-19).
+M1, M2 et CF-18 sont livrés. Il reste **CF-15 et CF-17**, plus deux
+vérifications opérationnelles (CF-6, CF-19).
 
 Les cases cochées ci-dessous l'ont été sur preuve dans le code. Celles qui
 restent vides sous un ticket par ailleurs livré désignent un fait que le dépôt
@@ -30,7 +30,6 @@ des oublis : les laisser vides est l'information.
 
 | Reste à faire | Pourquoi |
 |---|---|
-| **CF-18** (reste) | `javascript` seul : chapitres 2 à 12, 44 validateurs. |
 | **CF-15** | Bloqué : ses critères d'acceptation sont faux (voir le ticket). |
 | **CF-17** | Aucune trace d'audit Lighthouse ni de `next/image`. |
 | CF-6, CF-19 | Runbooks écrits ; l'exécution réelle reste à confirmer. |
@@ -211,7 +210,7 @@ Monaco chargé depuis jsdelivr → dépendance externe + entrées CSP.
 - [ ] LCP/CLS/INP au vert sur dashboard et page de leçon
 
 ### CF-18 · Élargir la couverture de tests des validateurs
-**P2 · L · Tests** — largement livré le 2026-08-06
+**P2 · L · Tests** — ✅ **livré le 2026-08-06**
 
 Le critère d'origine (« ≥ 1 test par cursus ») était **déjà rempli** avant même
 qu'on y touche, par `all-chapter-1.test.ts`. Mais il ne testait que
@@ -224,25 +223,27 @@ en accepte une mauvaise. Ni la CI ni le monitoring ne le voient. Seul
 l'apprenant en subit les conséquences, et il conclut que c'est lui qui se
 trompe.
 
-**Neuf bugs trouvés**, tous en production jusque-là. Les deux plus graves :
+**Dix bugs trouvés**, tous en production jusque-là. Les deux plus graves :
 l'étape finale du cursus CSS était infranchissable (`/\bnfinite\b/` ne matchait
 jamais `infinite`), et l'étape 1 du chapitre CSS 8 refusait la solution
 imprimée dans son propre indice. Détail dans `docs/RAPPORT_VALIDATEURS.md`.
 
 **Acceptation**
 - [x] Chaque cursus a ≥ 1 test de validateur (cas passant + échec) — `all-chapter-1.test.ts`
-- [x] Chaque étape a un validateur, et son code de départ ne la valide pas — `parcours-integrite.test.ts`, 189 tests sur les 48 chapitres
+- [x] Chaque étape a un validateur, et son code de départ ne la valide pas — `parcours-integrite.test.ts`, 197 tests sur les 48 chapitres
 - [x] `css` : les 10 chapitres, 4 étapes chacun
 - [x] Les 9 cursus mono-chapitre : étapes 2 à 4
 - [x] `react` : chapitres 1 à 4 (5 à 8 étaient déjà couverts)
 - [x] `html` : les 8 chapitres — `html-parcours.test.ts` ne vérifiait qu'une structure, aucun comportement
-- [ ] `javascript` : chapitres 2 à 12, 44 validateurs — **seul reste**
+- [x] `javascript` : chapitres 2 à 12
 
-**Avant d'attaquer la passe suivante :** `Step` n'a pas de champ `solution`, si
-bien que chaque cas passant s'écrit à la main depuis le `hint`. En ajouter un
-rendrait ces cas dérivables automatiquement. C'est une modification du modèle
-de données de tout le contenu — mais l'arbitrer *après* avoir écrit à la main
-les 48 étapes de `javascript` serait dommage.
+**Les 191 étapes du parcours sont couvertes.** 694 tests ajoutés au total.
+
+**Pour une éventuelle suite :** `Step` n'a pas de champ `solution`, si bien que
+chaque cas passant a été écrit à la main depuis le `hint`. En ajouter un rendrait
+ces cas dérivables et allégerait fortement la maintenance quand du contenu
+s'ajoutera. Ce n'est plus urgent maintenant que la couverture existe, mais ça
+reste vrai pour les chapitres à venir.
 
 ### CF-19 · Backups DB + plan de restauration
 **P1 · S · Exploitation**
