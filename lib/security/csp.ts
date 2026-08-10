@@ -11,7 +11,10 @@
  * - Next injecte des scripts inline de bootstrap/hydratation et Tailwind des
  *   styles inline, d'où 'unsafe-inline'.
  *
- * Cf. docs/BRIEF_CSP_GARDE_FOU.md avant toute modification de script-src.
+ * Cf. docs/BRIEF_CSP_GARDE_FOU.md avant toute modification de script-src, et
+ * le ticket CF-15 de docs/ROADMAP.md pour ce qui a été mesuré le 2026-08-06 :
+ * Monaco n'a PAS besoin d''unsafe-eval' (une version antérieure de ce
+ * commentaire l'affirmait à tort) — seuls les `srcdoc` en dépendent.
  */
 
 /**
@@ -22,10 +25,12 @@
  *                      l'origine du parent, par URL absolue (dans un document
  *                      srcdoc la base est `about:srcdoc`, une URL relative ne
  *                      résout rien).
- * - `'unsafe-inline'`: le <script> inline du srcdoc, c'est-à-dire tout le
- *                      programme de l'iframe.
+ * - `'unsafe-inline'`: les scripts inline de Next (bootstrap, hydratation), et
+ *                      le <script> inline du srcdoc — tout le programme de
+ *                      l'iframe. Sans lui, Monaco ne charge meme plus.
  * - `'unsafe-eval'`  : `new Function` dans le srcdoc ET dans
- *                      lib/sandbox/run-js.ts. Monaco en dépend aussi.
+ *                      lib/sandbox/run-js.ts. **Monaco n'en a pas besoin** —
+ *                      mesure du 2026-08-06, cf. CF-15 dans docs/ROADMAP.md.
  */
 export const SCRIPT_SRC_REQUIS = [
   "'self'",

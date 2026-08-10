@@ -166,34 +166,49 @@ Vérifier `app/error.tsx`, `app/not-found.tsx`, `global-error.tsx`.
 - [x] Export des données perso disponible — `app/api/me/export`
 
 ### CF-15 · Durcir la CSP (retirer `unsafe-inline`/`unsafe-eval`)
-**P2 · L · Sécurité** — ⛔ **critères d'acceptation à réécrire avant de commencer**
+**P2 · L · Sécurité** — ⛔ **bloqué par un prérequis, pas par la difficulté**
 
 > **Lis `docs/BRIEF_CSP_GARDE_FOU.md` avant de toucher à `script-src`.**
->
-> Le critère ci-dessous a été écrit **avant** que l'aperçu React existe. Il ne
-> nomme que Monaco et l'hydratation. Le suivre à la lettre donne une suite verte
-> et un aperçu cassé pour tous les apprenants.
->
-> `script-src` porte trois dépendances, toutes vivantes :
-> - `'self'` — l'iframe charge `/react-runtime/runtime.js` par URL absolue ;
-> - `'unsafe-inline'` — le `<script>` inline du `srcdoc`, tout le programme de l'iframe ;
-> - `'unsafe-eval'` — `new Function` dans le `srcdoc` **et** dans `lib/sandbox/run-js.ts`.
->
-> **Un nonce ne suffit pas à contourner le problème** : en CSP niveau 3, sa
-> présence fait *ignorer* `'unsafe-inline'`. Le durcissement casserait l'aperçu
-> même en laissant le mot écrit dans la politique.
->
-> Deux garde-fous posés le 2026-07-31 t'arrêteront si tu essaies quand même :
-> `lib/security/csp.test.ts` (fil-piège unitaire) et la suite e2e, qui tourne
-> désormais contre un build de production (`E2E_PROD=1` en CI).
->
-> Questions non tranchées : `'unsafe-eval'` est-il négociable, puisque deux
-> cursus en dépendent pour exister ? Un aperçu servi depuis une autre origine
-> rebattrait-il les cartes (cf. `docs/SANDBOX_REPORT.md`) ?
 
-**Acceptation — à redéfinir**
-- [ ] Réécrire les critères en tenant compte de l'aperçu React et du sandbox JS
-- [ ] ~~CSP sans `unsafe-inline` côté script (nonces) sans casser Monaco/hydration~~ — critère obsolète, ignore l'aperçu et le sandbox
+**Mesuré le 2026-08-06**, contre un vrai build de production, en retirant les
+tokens un à un et en observant la console. Ces trois faits remplacent ce que
+`next.config.ts` documentait — dont une affirmation fausse.
+
+| Token | Qui en a réellement besoin | Vérification |
+|---|---|---|
+| `'self'` | l'iframe charge `/react-runtime/runtime.js` par URL absolue | acquis |
+| `'unsafe-inline'` | **les scripts inline de Next** (bootstrap, hydratation) | sans lui : 7 scripts bloqués, Monaco ne charge plus, page morte |
+| `'unsafe-eval'` | **les `srcdoc` seuls** — sandbox JS et aperçu React | sans lui : `new Function` lève `EvalError` dans l'iframe |
+
+**Monaco n'a PAS besoin d'`unsafe-eval`.** Le commentaire de `next.config.ts`
+l'affirmait ; c'est faux depuis l'auto-hébergement (CF-16). Vérifié : sous
+`script-src 'self' 'unsafe-inline'`, Monaco charge, tokenise et rend sans une
+seule violation.
+
+**Le `srcdoc` hérite de la CSP du parent** — vérifié par une sonde : durcir la
+politique de l'application durcit celle de l'iframe, qu'on le veuille ou non.
+
+**Pourquoi les nonces ne débloquent pas la situation.** Ils règlent bien
+`'unsafe-inline'` côté Next — le navigateur propose lui-même hash ou nonce. Mais
+en CSP niveau 3, poser un nonce fait **ignorer** `'unsafe-inline'`, ce qui tue le
+`<script>` inline du `srcdoc`. Et le nonce ne touche pas à `'unsafe-eval'`, dont
+le sandbox a besoin. Le durcissement casse donc l'aperçu deux fois.
+
+**Prérequis réel : servir l'aperçu depuis une autre origine.** Une fois le
+sandbox sorti du `srcdoc` et posé sur une origine dédiée avec sa propre
+politique permissive, l'application peut passer aux nonces et abandonner
+`'unsafe-inline'` **et** `'unsafe-eval'`. C'est aussi le seul vrai correctif au
+gel d'onglet par boucle infinie (`docs/SANDBOX_REPORT.md`) : un même chantier
+règle les deux.
+
+Deux garde-fous arrêteront quiconque tente le durcissement avant ce
+prérequis : `lib/security/csp.test.ts` et la suite e2e en production.
+
+**Acceptation**
+- [ ] L'aperçu et le sandbox JS sont servis depuis une origine dédiée — **prérequis, ticket à créer**
+- [ ] La CSP de l'application passe aux nonces et perd `'unsafe-inline'`
+- [ ] La CSP de l'application perd `'unsafe-eval'`
+- [ ] L'aperçu React et le cursus JavaScript fonctionnent toujours, prouvé en e2e contre un build de production
 
 ### CF-16 · Auto-héberger Monaco (retirer la dépendance CDN)
 **P2 · M · Robustesse/Perf**
