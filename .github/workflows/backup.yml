@@ -1,0 +1,106 @@
+name: Sauvegarde de la base
+
+# Le plan gratuit Supabase n'inclut aucune sauvegarde (constaté le 2026-08-06,
+# « Free Plan does not include project backups »). Ce workflow prend le relais :
+# un pg_dump quotidien, chiffré, déposé en artefact.
+#
+# Le dump contient les emails et les hashs de mots de passe des utilisateurs.
+# Il est donc chiffré AVANT de quitter le runner : l'artefact est inexploitable
+# sans la passphrase, qui ne transite jamais par le dépôt.
+#
+# Deux secrets à créer dans Settings → Secrets and variables → Actions :
+#   BACKUP_DATABASE_URL  la connexion DIRECTE (DIRECT_URL, pas le pooler :
+#                        pgbouncer ne supporte pas pg_dump correctement)
+#   BACKUP_PASSPHRASE    la phrase de chiffrement — à conserver AILLEURS que
+#                        dans GitHub, sinon perdre le compte, c'est perdre les
+#                        sauvegardes avec.
+#
+# Restauration : cf. docs/DEPLOYMENT.md §7.
+
+on:
+  schedule:
+    # 03:00 UTC chaque jour. GitHub peut décaler l'exécution en cas de charge :
+    # c'est sans importance pour une sauvegarde quotidienne.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+# Deux sauvegardes simultanées n'apportent rien et se marchent dessus.
+concurrency:
+  group: sauvegarde-base
+  cancel-in-progress: false
+
+jobs:
+  dump:
+    name: pg_dump chiffré
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vérifier que les secrets sont configurés
+        env:
+          URL: ${{ secrets.BACKUP_DATABASE_URL }}
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          manquants=""
+          [ -z "$URL" ] && manquants="$manquants BACKUP_DATABASE_URL"
+          [ -z "$PASSPHRASE" ] && manquants="$manquants BACKUP_PASSPHRASE"
+          if [ -n "$manquants" ]; then
+            echo "::error::Secret(s) manquant(s) :$manquants — cf. l'en-tête de ce fichier."
+            exit 1
+          fi
+          echo "Secrets présents."
+
+      # `pg_dump` refuse de sauvegarder un serveur plus récent que lui. On
+      # installe donc le client 17 depuis le dépôt PGDG plutôt que de dépendre
+      # de la version fournie par l'image du runner, qui changera sans prévenir.
+      - name: Installer postgresql-client 17
+        run: |
+          set -euo pipefail
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+          echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+          pg_dump --version
+
+      - name: Dump, contrôle de taille, chiffrement
+        id: dump
+        env:
+          URL: ${{ secrets.BACKUP_DATABASE_URL }}
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          nom="codeforge-$(date -u +%Y-%m-%d-%H%M).dump"
+
+          pg_dump "$URL" --format=custom --no-owner --no-privileges --file "$nom"
+
+          taille=$(stat -c%s "$nom")
+          echo "Dump : $taille octets"
+
+          # Une sauvegarde vide est le mode de panne classique : le workflow
+          # passe au vert, le fichier existe, et il ne contient rien. On refuse
+          # plutôt que d'archiver une coquille.
+          if [ "$taille" -lt 10240 ]; then
+            echo "::error::Dump de $taille octets (< 10 Ko) — la base semble vide ou inaccessible."
+            exit 1
+          fi
+
+          # La passphrase passe par un fichier plutôt que par --passphrase :
+          # un argument de ligne de commande est visible dans la liste des
+          # processus du runner.
+          umask 077
+          printf '%s' "$PASSPHRASE" > .passphrase
+          gpg --batch --yes --symmetric --cipher-algo AES256 \
+              --passphrase-file .passphrase -o "$nom.gpg" "$nom"
+          shred -u .passphrase
+          rm -f "$nom"
+
+          echo "fichier=$nom.gpg" >> "$GITHUB_OUTPUT"
+          echo "nom_artefact=${nom%.dump}" >> "$GITHUB_OUTPUT"
+
+      - name: Déposer l'artefact chiffré
+        uses: actions/upload-artifact@v4
+        with:
+          name: sauvegarde-${{ steps.dump.outputs.nom_artefact }}
+          path: ${{ steps.dump.outputs.fichier }}
+          retention-days: 90
+          if-no-files-found: error

@@ -299,12 +299,19 @@ vide — c'est alors une migration à blanc, pas une restauration. L'URL est un
 argument obligatoire ; le script ne lit pas `.env`, pour qu'un oubli ne le
 pointe pas sur la production.
 
-**Ce qui reste ne peut pas être fait depuis le dépôt** : activer les sauvegardes
-dans la console de l'hébergeur, et exécuter une restauration sur une base
-jetable. Deux actions sur le compte, à faire par une personne qui y a accès.
+**Le plan gratuit Supabase n'inclut aucune sauvegarde** (constaté le 2026-08-06 :
+« Free Plan does not include project backups »). L'hébergeur ne couvre donc
+rien, et la couverture repose sur `.github/workflows/backup.yml` : `pg_dump`
+quotidien, chiffré AES256 avant de quitter le runner, artefact retenu 90 jours.
+Le workflow échoue si le dump fait moins de 10 Ko — une sauvegarde vide est le
+mode de panne classique et passerait sinon inaperçue.
+
+**Ce qui reste ne peut pas être fait depuis le dépôt** : créer les deux secrets
+GitHub, et exécuter une restauration sur une base jetable.
 
 **Acceptation**
 - [x] Procédure de sauvegarde et de restauration documentée
-- [x] Vérification d'une base restaurée outillée et reproductible
-- [ ] Sauvegardes automatiques activées chez l'hébergeur — **action console**
+- [x] Vérification d'une base restaurée outillée et reproductible — `scripts/verify-restore.ts`
+- [x] Sauvegarde automatique en place — workflow planifié, l'hébergeur n'en fournit pas
+- [ ] Les deux secrets `BACKUP_DATABASE_URL` et `BACKUP_PASSPHRASE` sont créés — **action console GitHub**
 - [ ] Une restauration réellement effectuée et vérifiée — **action humaine**

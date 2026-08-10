@@ -113,7 +113,41 @@ La base est la seule donnée non reconstructible : elle **doit** être sauvegard
 **Activer les sauvegardes automatiques** (hébergeur managé) :
 
 - **Neon** : sauvegardes continues + *Point-in-Time Restore* (PITR). Vérifier la fenêtre de rétention dans _Project → Backups_.
-- **Supabase** : _Database → Backups_. Daily backups sur les plans payants ; activer PITR si disponible. Sur le plan gratuit, planifier un `pg_dump` externe (cron) — les sauvegardes ne sont pas garanties.
+- **Supabase** : _Database → Backups_. Daily backups sur les plans payants ; activer PITR si disponible.
+
+> ⚠️ **État constaté le 2026-08-06** : le projet est sur le **plan gratuit**, qui
+> n'inclut **aucune** sauvegarde (« Free Plan does not include project
+> backups »). La couverture repose donc entièrement sur le workflow ci-dessous.
+
+**Sauvegarde automatique (plan gratuit) — `.github/workflows/backup.yml`**
+
+Un `pg_dump` quotidien à 03:00 UTC, chiffré en AES256 avant de quitter le
+runner, déposé en artefact GitHub avec 90 jours de rétention. Le workflow échoue
+si le dump fait moins de 10 Ko : une sauvegarde vide est le mode de panne
+classique, et elle passerait sinon inaperçue.
+
+Deux secrets à créer dans _Settings → Secrets and variables → Actions_ :
+
+| Secret | Valeur |
+|---|---|
+| `BACKUP_DATABASE_URL` | la connexion **directe** (`DIRECT_URL`), pas le pooler — `pg_dump` ne fonctionne pas correctement à travers pgbouncer |
+| `BACKUP_PASSPHRASE` | la phrase de chiffrement |
+
+> 🔑 **Conserver la passphrase ailleurs que dans GitHub.** Si elle n'existe que
+> là, perdre l'accès au compte revient à perdre les sauvegardes avec.
+
+Déclenchement manuel possible : onglet _Actions → Sauvegarde de la base → Run
+workflow_.
+
+**Restaurer depuis un artefact chiffré** :
+
+```bash
+# 1. Télécharger l'artefact depuis l'onglet Actions, puis le déchiffrer :
+gpg --batch --decrypt --output backup.dump codeforge-AAAA-MM-JJ-HHMM.dump.gpg
+
+# 2. Restaurer dans une base JETABLE (⚠️ destructif sur la cible) :
+pg_restore --clean --if-exists -d "postgresql://…/base_jetable" backup.dump
+```
 
 **Sauvegarde manuelle / hors-site (recommandé en complément)** :
 
