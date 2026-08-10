@@ -30,7 +30,7 @@ des oublis : les laisser vides est l'information.
 
 | Reste à faire | Pourquoi |
 |---|---|
-| **CF-18** (reste) | `html`, `javascript` et `react` : étapes 2 à 4 non couvertes au-delà de leurs tests actuels. |
+| **CF-18** (reste) | `javascript` seul : chapitres 2 à 12, 44 validateurs. |
 | **CF-15** | Bloqué : ses critères d'acceptation sont faux (voir le ticket). |
 | **CF-17** | Aucune trace d'audit Lighthouse ni de `next/image`. |
 | CF-6, CF-19 | Runbooks écrits ; l'exécution réelle reste à confirmer. |
@@ -224,7 +224,7 @@ en accepte une mauvaise. Ni la CI ni le monitoring ne le voient. Seul
 l'apprenant en subit les conséquences, et il conclut que c'est lui qui se
 trompe.
 
-**Huit bugs trouvés**, tous en production jusque-là. Les deux plus graves :
+**Neuf bugs trouvés**, tous en production jusque-là. Les deux plus graves :
 l'étape finale du cursus CSS était infranchissable (`/\bnfinite\b/` ne matchait
 jamais `infinite`), et l'étape 1 du chapitre CSS 8 refusait la solution
 imprimée dans son propre indice. Détail dans `docs/RAPPORT_VALIDATEURS.md`.
@@ -234,7 +234,9 @@ imprimée dans son propre indice. Détail dans `docs/RAPPORT_VALIDATEURS.md`.
 - [x] Chaque étape a un validateur, et son code de départ ne la valide pas — `parcours-integrite.test.ts`, 189 tests sur les 48 chapitres
 - [x] `css` : les 10 chapitres, 4 étapes chacun
 - [x] Les 9 cursus mono-chapitre : étapes 2 à 4
-- [ ] `html`, `javascript`, `react` : étapes 2 à 4 au-delà des tests existants — **passe suivante**
+- [x] `react` : chapitres 1 à 4 (5 à 8 étaient déjà couverts)
+- [x] `html` : les 8 chapitres — `html-parcours.test.ts` ne vérifiait qu'une structure, aucun comportement
+- [ ] `javascript` : chapitres 2 à 12, 44 validateurs — **seul reste**
 
 **Avant d'attaquer la passe suivante :** `Step` n'a pas de champ `solution`, si
 bien que chaque cas passant s'écrit à la main depuis le `hint`. En ajouter un

@@ -16,11 +16,14 @@ qui les prouve ; ils sont récapitulés ci-dessous pour mémoire.
 
 ## Bilan
 
-**397 tests ajoutés** — la suite passe de 485 à 882. **Huit bugs trouvés**, tous
+**545 tests ajoutés** — la suite passe de 485 à 1030. **Neuf bugs trouvés**, tous
 en production jusque-là.
 
-Répartition : 189 pour le balayage structurel, 59 pour les chapitres CSS 1 à 5,
-65 pour les chapitres CSS 6 à 10, 84 pour les neuf cursus mono-chapitre.
+Répartition : 189 pour le balayage structurel, 59 pour CSS 1 à 5, 65 pour CSS 6
+à 10, 84 pour les neuf cursus mono-chapitre, 52 pour React 1 à 4, 96 pour les
+huit chapitres HTML.
+
+`javascript` (chapitres 2 à 12, 44 validateurs) reste seul non couvert.
 
 | Gravité | Défaut | Effet |
 |---|---|---|
@@ -29,17 +32,30 @@ Répartition : 189 pour le balayage structurel, 59 pour les chapitres CSS 1 à 5
 | 🟠 | `css/_utils` : `\bcolor` matchait dans `background-color` | Colorer le fond validait « colore le texte » |
 | 🟠 | `python` : le motif d'appel était satisfait par la déclaration | Définir sans appeler validait l'étape |
 | 🟠 | `git` : `\s+` traversait le saut de ligne (2 endroits) | Commande sans argument validée par la ligne suivante |
+| 🟠 | `react/chapitre-4` : le motif d'affichage était satisfait par la déclaration | Lire l'id de l'URL sans jamais le rendre validait l'étape |
 | 🟡 | `css/chapitre-6` : `\b(top\|right\|bottom\|left)` (2 endroits) | `padding-left` comptait comme un décalage |
 | 🟡 | `css/chapitre-7` : `\bcontent` | `justify-content` satisfaisait l'exigence de `content` |
 
-**Six des huit ont la même cause** : `\b` matche après un tiret, donc un motif
-`\bsuffixe` se déclenche à l'intérieur d'une propriété ou d'un mot plus long.
-C'est le piège structurel de la validation par expression régulière sur du CSS,
-où presque toutes les propriétés sont composées.
+**Deux familles, et rien d'autre.**
 
-**Cinq sur huit acceptaient une mauvaise réponse**, trois en refusaient une
+*Six sur neuf* — `\b` matche après un tiret, donc un motif `\bsuffixe` se
+déclenche à l'intérieur d'un mot plus long. C'est le piège structurel de la
+validation par expression régulière sur du CSS, où presque toutes les propriétés
+sont composées.
+
+*Deux sur neuf* — le motif censé détecter l'**usage** d'un symbole est satisfait
+par sa **déclaration** : `calculer_xp(` figure dans `def calculer_xp(...)`, et
+`{ id }` figure dans `const { id } = useParams()`. Deux cursus sans rapport, la
+même erreur de raisonnement.
+
+**Six sur neuf acceptaient une mauvaise réponse**, trois en refusaient une
 bonne. Les premières sont les plus coûteuses pédagogiquement : l'apprenant
-franchit l'étape en ayant appris l'inverse de ce qu'elle enseigne.
+franchit l'étape en ayant appris l'inverse de ce qu'elle enseigne, et rien ne
+le lui signale.
+
+**HTML n'a révélé aucun bug** — 96 tests, verts au premier lancement. Ses
+validateurs n'emploient presque pas de `\b` : ils travaillent par extraction de
+balises et comptage, une approche qui résiste mieux.
 
 ---
 
@@ -141,6 +157,20 @@ donc satisfaite par la seule déclaration.
 l'appeler était accepté, du moment qu'un `print` traînait quelque part.
 
 Corrigé en retirant la ligne de déclaration avant de chercher l'appel.
+
+### React : le paramètre d'URL lu mais jamais affiché
+
+`lib/validators/react/chapitre-4.ts:38` — trouvé le 2026-08-06.
+
+L'étape 3 demande de lire `useParams()` **et** d'afficher l'id. Le contrôle
+d'affichage cherchait `/\{\s*id\s*\}/` — motif que la destructuration
+`const { id } = useParams()` contient déjà.
+
+**Effet sur l'apprenant :** lire le paramètre sans jamais le rendre suffisait
+à valider l'étape. C'est exactement le même raisonnement fautif que dans le
+cursus Python, dans un cursus sans rapport.
+
+Corrigé en retirant la destructuration avant de chercher l'affichage.
 
 ### Git : un argument pouvait être fourni par la ligne suivante
 
