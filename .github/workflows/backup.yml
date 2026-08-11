@@ -40,7 +40,11 @@ jobs:
     name: pg_dump chiffré
     runs-on: ubuntu-latest
     steps:
-      - name: Vérifier que les secrets sont configurés
+      # Ces contrôles existent parce que `pg_dump` échoue de façon illisible sur
+      # une URL mal formée : « invalid connection option "DIRECT_URL" » quand on
+      # a colle la ligne entière du .env au lieu de la seule valeur. Mieux vaut
+      # nommer l'erreur ici que la laisser deviner.
+      - name: Vérifier les secrets
         env:
           URL: ${{ secrets.BACKUP_DATABASE_URL }}
           PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
@@ -52,7 +56,31 @@ jobs:
             echo "::error::Secret(s) manquant(s) :$manquants — cf. l'en-tête de ce fichier."
             exit 1
           fi
-          echo "Secrets présents."
+
+          case "$URL" in
+            DIRECT_URL=*|DATABASE_URL=*)
+              echo "::error::BACKUP_DATABASE_URL contient le nom de la variable en préfixe."
+              echo "::error::Attendu : la valeur seule, commençant par postgresql:// — sans « DIRECT_URL= » devant."
+              exit 1 ;;
+            \"*|\'*)
+              echo "::error::BACKUP_DATABASE_URL est entourée de guillemets. Les retirer : un secret GitHub n'en a pas besoin."
+              exit 1 ;;
+            postgres://*|postgresql://*)
+              ;;
+            *)
+              echo "::error::BACKUP_DATABASE_URL ne commence pas par postgresql:// ni postgres://."
+              echo "::error::Copier la VALEUR de DIRECT_URL depuis .env, pas la ligne entière."
+              exit 1 ;;
+          esac
+
+          case "$URL" in
+            *:6543/*|*:6543\?*|*:6543)
+              echo "::error::Port 6543 détecté — c'est le pooler en mode transaction, où pg_dump échoue."
+              echo "::error::Utiliser le port 5432 (mode session), c'est-à-dire la valeur de DIRECT_URL."
+              exit 1 ;;
+          esac
+
+          echo "Secrets présents, URL de forme correcte."
 
       # `pg_dump` refuse de sauvegarder un serveur plus récent que lui. On
       # installe donc le client 17 depuis le dépôt PGDG plutôt que de dépendre
