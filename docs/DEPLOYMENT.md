@@ -150,15 +150,40 @@ sens strict.
 Déclenchement manuel possible : onglet _Actions → Sauvegarde de la base → Run
 workflow_.
 
-**Restaurer depuis un artefact chiffré** :
+**Restaurer depuis un artefact chiffré** (procédure exercée le 2026-08-11, sans
+rien installer d'autre que Docker) :
 
 ```bash
-# 1. Télécharger l'artefact depuis l'onglet Actions, puis le déchiffrer :
-gpg --batch --decrypt --output backup.dump codeforge-AAAA-MM-JJ-HHMM.dump.gpg
+# 1. Télécharger l'artefact depuis l'onglet Actions, le dézipper, puis :
+gpg --decrypt --output backup.dump codeforge-AAAA-MM-JJ-HHMM.dump.gpg
 
-# 2. Restaurer dans une base JETABLE (⚠️ destructif sur la cible) :
-pg_restore --clean --if-exists -d "postgresql://…/base_jetable" backup.dump
+# 2. Monter une base jetable :
+docker run --rm -d --name pgtest -e POSTGRES_PASSWORD=test -p 5433:5432 postgres:17
+
+# 3. Restaurer avec le pg_restore du conteneur (⚠️ destructif sur la cible).
+#    Sous Git Bash, MSYS_NO_PATHCONV=1 est indispensable : sans lui, /dump est
+#    réécrit en chemin Windows et Docker ne trouve pas le fichier.
+MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/dump" postgres:17 \
+  pg_restore --clean --if-exists \
+  -d "postgresql://postgres:test@host.docker.internal:5433/postgres" \
+  /dump/backup.dump
+
+# 4. Vérifier :
+npx tsx scripts/verify-restore.ts "postgresql://postgres:test@localhost:5433/postgres"
+
+# 5. Nettoyer — le conteneur ET la copie en clair :
+docker rm -f pgtest
+rm -f backup.dump
 ```
+
+`pg_restore` affiche une centaine d'erreurs `role "supabase_*_admin" does not
+exist` sur les schémas `auth`, `storage`, `realtime` et `vault` : **c'est
+attendu**, un Postgres nu n'a pas la plomberie Supabase. Aucune ne touche au
+schéma `public`. Le verdict est celui de l'étape 4, pas celui de l'étape 3.
+
+> ⚠️ **Supprimer le `.dump` déchiffré après le test.** C'est une copie en clair
+> des emails et des hashs de mots de passe. Chiffrer l'artefact ne sert à rien
+> si la version lisible reste dans un dossier de téléchargements.
 
 **Sauvegarde manuelle / hors-site (recommandé en complément)** :
 

@@ -32,7 +32,7 @@ des oublis : les laisser vides est l'information.
 |---|---|
 | **CF-15** | Bloqué par un prérequis : sortir l'aperçu du `srcdoc`. Mesuré, pas supposé — voir le ticket. |
 | **CF-17** | `next/image` et Three.js déjà en place ; LCP et INP demandent un vrai navigateur. |
-| CF-6, CF-19 | Outillés et documentés ; il reste des actions sur la console de l'hébergeur. |
+| CF-6 | Runbook écrit ; le déploiement à blanc reste à confirmer. |
 
 ---
 
@@ -285,7 +285,7 @@ s'ajoutera. Ce n'est plus urgent maintenant que la couverture existe, mais ça
 reste vrai pour les chapitres à venir.
 
 ### CF-19 · Backups DB + plan de restauration
-**P1 · S · Exploitation** — outillé, reste deux actions humaines
+**P1 · S · Exploitation** — ✅ **livré et prouvé le 2026-08-11**
 
 La procédure est écrite (`docs/DEPLOYMENT.md §7`) et la vérification est
 désormais une commande plutôt qu'une intention :
@@ -310,13 +310,23 @@ mode de panne classique et passerait sinon inaperçue.
 - [x] Procédure de sauvegarde et de restauration documentée
 - [x] Vérification d'une base restaurée outillée et reproductible — `scripts/verify-restore.ts`
 - [x] Sauvegarde automatique en place — workflow planifié, l'hébergeur n'en fournit pas
-- [x] Secrets créés et **premier run vert le 2026-08-06** — dump chiffré déposé en artefact
-- [ ] Une restauration réellement effectuée et vérifiée — **dernière étape, action humaine**
+- [x] Secrets créés et **premier run vert le 2026-08-11** — dump chiffré déposé en artefact
+- [x] **Restauration effectuée et vérifiée le 2026-08-11** — artefact déchiffré, restauré sur un `postgres:17` jetable, volumes conformes à la production
 
-> Il reste la moitié qui compte. Un dump qu'on n'a jamais su déchiffrer ni
-> restaurer n'est pas une sauvegarde : c'est un fichier. Tant que cette case
-> n'est pas cochée, on ne sait pas si la passphrase est la bonne, ni si le dump
-> est exploitable.
+**La chaîne complète a été exercée de bout en bout** : artefact téléchargé,
+déchiffré avec la passphrase du secret, restauré, puis contrôlé par
+`scripts/verify-restore.ts`. 8 tables, 24 comptes, volumes identiques à la
+production à un événement près — enregistré entre le relevé et le dump.
+
+`pg_restore` signale une centaine d'erreurs, **toutes attendues** : des
+`ALTER TABLE … OWNER TO supabase_*_admin` sur les schémas `auth`, `storage`,
+`realtime` et `vault`. Ces rôles n'existent pas sur un Postgres nu. Aucune ne
+touche au schéma `public`, où vivent les données de l'application.
+
+> ⚠️ **Après un test de restauration, supprimer le `.dump` déchiffré.** C'est
+> une copie en clair des emails et des hashs de mots de passe, posée sur une
+> machine de développement. Le chiffrement de l'artefact ne sert à rien si la
+> version déchiffrée traîne dans un dossier de téléchargements.
 
 **Ce qui a coûté trois runs**, noté pour la prochaine fois :
 
