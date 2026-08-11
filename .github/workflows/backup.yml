@@ -82,9 +82,16 @@ jobs:
 
           echo "Secrets présents, URL de forme correcte."
 
-      # `pg_dump` refuse de sauvegarder un serveur plus récent que lui. On
-      # installe donc le client 17 depuis le dépôt PGDG plutôt que de dépendre
-      # de la version fournie par l'image du runner, qui changera sans prévenir.
+      # `pg_dump` refuse de sauvegarder un serveur plus récent que lui, et le
+      # serveur Supabase est en 17.6 (constaté le 2026-08-06). L'image du runner
+      # fournit un client 16 : on installe donc le 17 depuis PGDG.
+      #
+      # Installer ne suffit pas. `/usr/bin/pg_dump` n'est pas un binaire mais le
+      # wrapper de postgresql-common, qui a continué de choisir le 16 déjà
+      # présent — d'où un premier échec sur « server version mismatch » alors
+      # que le paquet 17 était bien installé. On appelle donc le binaire
+      # versionné par son chemin absolu, et on refuse de continuer s'il ne
+      # rapporte pas la version attendue.
       - name: Installer postgresql-client 17
         run: |
           set -euo pipefail
@@ -93,8 +100,24 @@ jobs:
           echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
             | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
           sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-client-17
-          pg_dump --version
+          sudo apt-get install -y postgresql-client-17
+
+          binaire=/usr/lib/postgresql/17/bin/pg_dump
+          if [ ! -x "$binaire" ]; then
+            echo "::error::$binaire absent — le paquet postgresql-client-17 ne s'est pas installé."
+            exit 1
+          fi
+
+          version=$("$binaire" --version)
+          echo "Client retenu : $version"
+          case "$version" in
+            *"pg_dump (PostgreSQL) 17."*) ;;
+            *)
+              echo "::error::Version inattendue : $version — on attendait un client 17."
+              exit 1 ;;
+          esac
+
+          echo "PG_DUMP=$binaire" >> "$GITHUB_ENV"
 
       - name: Dump, contrôle de taille, chiffrement
         id: dump
@@ -105,7 +128,9 @@ jobs:
           set -euo pipefail
           nom="codeforge-$(date -u +%Y-%m-%d-%H%M).dump"
 
-          pg_dump "$URL" --format=custom --no-owner --no-privileges --file "$nom"
+          # Chemin absolu du client 17, fixé par l'étape précédente : le
+          # `pg_dump` du PATH est le wrapper, qui choisirait le client 16.
+          "$PG_DUMP" "$URL" --format=custom --no-owner --no-privileges --file "$nom"
 
           taille=$(stat -c%s "$nom")
           echo "Dump : $taille octets"
