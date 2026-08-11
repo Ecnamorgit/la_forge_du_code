@@ -130,8 +130,19 @@ Deux secrets à créer dans _Settings → Secrets and variables → Actions_ :
 
 | Secret | Valeur |
 |---|---|
-| `BACKUP_DATABASE_URL` | la connexion **directe** (`DIRECT_URL`), pas le pooler — `pg_dump` ne fonctionne pas correctement à travers pgbouncer |
+| `BACKUP_DATABASE_URL` | la valeur de `DIRECT_URL` — le pooler en **port 5432** |
 | `BACKUP_PASSPHRASE` | la phrase de chiffrement |
+
+**Sur le choix de l'URL, ce qui compte est le port, pas le pooler :**
+
+| Hôte / port | Mode | `pg_dump` |
+|---|---|---|
+| `…pooler.supabase.com:6543` | transaction | ❌ l'état de session n'est pas préservé |
+| `…pooler.supabase.com:5432` | session | ✅ se comporte comme une connexion directe |
+| `db.<ref>.supabase.co:5432` | vraiment directe | ✅ mais **IPv6 seul** sur les projets gratuits — inatteignable depuis un runner GitHub |
+
+C'est donc le port 5432 du pooler qu'il faut, et non la connexion « directe » au
+sens strict.
 
 > 🔑 **Conserver la passphrase ailleurs que dans GitHub.** Si elle n'existe que
 > là, perdre l'accès au compte revient à perdre les sauvegardes avec.

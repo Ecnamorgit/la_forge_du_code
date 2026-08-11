@@ -9,8 +9,14 @@ name: Sauvegarde de la base
 # sans la passphrase, qui ne transite jamais par le dépôt.
 #
 # Deux secrets à créer dans Settings → Secrets and variables → Actions :
-#   BACKUP_DATABASE_URL  la connexion DIRECTE (DIRECT_URL, pas le pooler :
-#                        pgbouncer ne supporte pas pg_dump correctement)
+#   BACKUP_DATABASE_URL  la valeur de DIRECT_URL, c'est-à-dire le pooler sur le
+#                        port 5432 (mode SESSION). Ce qui compte est le port,
+#                        pas le pooler : en 6543 pgbouncer est en mode
+#                        transaction et casse pg_dump ; en 5432 il est en mode
+#                        session et se comporte comme une connexion directe.
+#                        Ne PAS utiliser db.<ref>.supabase.co : cette connexion
+#                        vraiment directe est en IPv6 seul sur les projets
+#                        gratuits, et un runner GitHub ne l'atteint pas.
 #   BACKUP_PASSPHRASE    la phrase de chiffrement — à conserver AILLEURS que
 #                        dans GitHub, sinon perdre le compte, c'est perdre les
 #                        sauvegardes avec.
