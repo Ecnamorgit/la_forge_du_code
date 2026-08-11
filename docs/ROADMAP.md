@@ -306,12 +306,25 @@ quotidien, chiffré AES256 avant de quitter le runner, artefact retenu 90 jours.
 Le workflow échoue si le dump fait moins de 10 Ko — une sauvegarde vide est le
 mode de panne classique et passerait sinon inaperçue.
 
-**Ce qui reste ne peut pas être fait depuis le dépôt** : créer les deux secrets
-GitHub, et exécuter une restauration sur une base jetable.
-
 **Acceptation**
 - [x] Procédure de sauvegarde et de restauration documentée
 - [x] Vérification d'une base restaurée outillée et reproductible — `scripts/verify-restore.ts`
 - [x] Sauvegarde automatique en place — workflow planifié, l'hébergeur n'en fournit pas
-- [ ] Les deux secrets `BACKUP_DATABASE_URL` et `BACKUP_PASSPHRASE` sont créés — **action console GitHub**
-- [ ] Une restauration réellement effectuée et vérifiée — **action humaine**
+- [x] Secrets créés et **premier run vert le 2026-08-06** — dump chiffré déposé en artefact
+- [ ] Une restauration réellement effectuée et vérifiée — **dernière étape, action humaine**
+
+> Il reste la moitié qui compte. Un dump qu'on n'a jamais su déchiffrer ni
+> restaurer n'est pas une sauvegarde : c'est un fichier. Tant que cette case
+> n'est pas cochée, on ne sait pas si la passphrase est la bonne, ni si le dump
+> est exploitable.
+
+**Ce qui a coûté trois runs**, noté pour la prochaine fois :
+
+1. Le secret contenait la ligne entière du `.env`, préfixe `DIRECT_URL=` compris.
+2. `/usr/bin/pg_dump` est le wrapper de `postgresql-common` : installer le
+   client 17 ne suffit pas, il faut appeler `/usr/lib/postgresql/17/bin/pg_dump`.
+3. *Re-run jobs* rejoue le commit d'origine, jamais le code corrigé. Après un
+   correctif, il faut relancer via *Run workflow*.
+
+Les deux premiers sont désormais détectés par le workflow lui-même, avec un
+message qui nomme le problème.
