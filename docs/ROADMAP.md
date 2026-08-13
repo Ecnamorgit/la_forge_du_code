@@ -196,14 +196,43 @@ le sandbox a besoin. Le durcissement casse donc l'aperçu deux fois.
 **Prérequis réel : servir l'aperçu depuis une autre origine.** Une fois le
 sandbox sorti du `srcdoc` et posé sur une origine dédiée avec sa propre
 politique permissive, l'application peut passer aux nonces et abandonner
-`'unsafe-inline'` **et** `'unsafe-eval'`. C'est aussi le seul vrai correctif au
-gel d'onglet par boucle infinie (`docs/SANDBOX_REPORT.md`) : un même chantier
-règle les deux.
+`'unsafe-inline'` **et** `'unsafe-eval'`.
+
+#### Ce qu'une sonde du 2026-08-11 a établi — et ce qu'elle n'a pas établi
+
+**Le gel d'onglet est réel et actuel.** Reproduit deux fois avec le vrai
+`buildPreviewSrcdoc`, le vrai runtime React, et une boucle que `loop-guard.ts`
+ne détecte pas (`let x = true; while (x) {}`) : le parent devient **totalement
+injoignable**. L'observation du 2026-07-30 tient, et `loop-guard.ts` protège
+bien quelque chose de réel.
+
+**Que l'origine dédiée le corrige n'est PAS démontré.** La mesure a échoué avant
+de pouvoir conclure : servi comme page autonome, le document d'aperçu n'envoie
+jamais sa poignée de main `preview:ready`.
+
+**C'est le premier vrai pas du chantier :** le document d'aperçu est écrit *pour*
+`srcdoc`. Le déplacer ne suffira pas, il faudra l'adapter — comprendre pourquoi
+la poignée de main échoue hors `srcdoc` est le point de départ, pas un détail
+d'intendance.
+
+> ⚠️ **Piège pour qui reprendra la sonde.** Une boucle synthétique bornée
+> (`while (Date.now() - t < 3000) {}`) dans une iframe nue **ne reproduit pas**
+> le gel — ni en headless, ni en navigateur visible. Il faut le runtime React et
+> une boucle véritablement infinie. Trois autres méthodes de mesure ont donné
+> des faux négatifs avant qu'une tienne : `waitForFunction` s'exécute dans la
+> page et expire sans distinguer « gelé » de « message perdu » ; la latence d'un
+> `page.evaluate` passe par Playwright et signale un gel sur des pages fluides ;
+> et compter des battements sur une fenêtre débordant la fin de la boucle ne
+> distingue rien, le parent rattrapant son retard. **Ce qui marche** : faire
+> échantillonner le parent par lui-même, pendant la boucle, en notant le retard
+> de son propre minuteur.
 
 Deux garde-fous arrêteront quiconque tente le durcissement avant ce
 prérequis : `lib/security/csp.test.ts` et la suite e2e en production.
 
 **Acceptation**
+- [ ] Comprendre pourquoi le document d'aperçu n'envoie pas `preview:ready` hors `srcdoc` — **premier pas, non résolu**
+- [ ] Mesurer si une origine dédiée supprime le gel d'onglet — non démontré à ce jour
 - [ ] L'aperçu et le sandbox JS sont servis depuis une origine dédiée — **prérequis, ticket à créer**
 - [ ] La CSP de l'application passe aux nonces et perd `'unsafe-inline'`
 - [ ] La CSP de l'application perd `'unsafe-eval'`
