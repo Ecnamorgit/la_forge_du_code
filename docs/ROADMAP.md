@@ -19,8 +19,8 @@
 
 ## État au 2026-08-06
 
-M1, M2 et CF-18 sont livrés. Il reste **CF-15 et CF-17**, plus deux
-vérifications opérationnelles (CF-6, CF-19).
+M1, M2, CF-17, CF-18 et CF-19 sont livrés. Il reste **CF-15**, bloqué par un
+prérequis, et la confirmation opérationnelle de CF-6.
 
 Les cases cochées ci-dessous l'ont été sur preuve dans le code. Celles qui
 restent vides sous un ticket par ailleurs livré désignent un fait que le dépôt
@@ -31,7 +31,6 @@ des oublis : les laisser vides est l'information.
 | Reste à faire | Pourquoi |
 |---|---|
 | **CF-15** | Bloqué par un prérequis : sortir l'aperçu du `srcdoc`. Mesuré, pas supposé — voir le ticket. |
-| **CF-17** | `next/image` et Three.js déjà en place ; LCP et INP demandent un vrai navigateur. |
 | CF-6 | Runbook écrit ; le déploiement à blanc reste à confirmer. |
 
 ---
@@ -218,7 +217,7 @@ Monaco chargé depuis jsdelivr → dépendance externe + entrées CSP.
 - [x] Éditeur fonctionne sans le CDN — Monaco servi depuis `/public/monaco`, plus aucune entrée jsdelivr dans la CSP
 
 ### CF-17 · Budget perf & Core Web Vitals
-**P2 · M · Perf** — les deux pistes du libellé sont déjà faites
+**P2 · M · Perf** — ✅ **mesuré et au vert le 2026-08-11**
 
 **Vérifié le 2026-08-06 :**
 
@@ -231,22 +230,48 @@ Monaco chargé depuis jsdelivr → dépendance externe + entrées CSP.
 - TTFB 88 ms, `load` 412 ms en local sur ce même build (indicatif : machine de
   développement, pas un réseau réel).
 
-**LCP, FCP et INP n'ont pas pu être mesurés ici**, et ce n'est pas un défaut de
-l'application : le navigateur intégré garde la page en `visibilityState:
-"hidden"`, or ces métriques ne sont enregistrées que pour une page visible. Le
-tampon `paint` reste vide quoi qu'on fasse — inutile de réessayer par ce chemin.
+**Mesure des Core Web Vitals — `e2e/web-vitals.spec.ts`**
 
-**Comment obtenir les chiffres manquants :** un Lighthouse dans un vrai
-navigateur (`pnpm build && pnpm start`, puis l'onglet Lighthouse des DevTools),
-ou un relevé de terrain via `web-vitals` remonté à Sentry, déjà câblé (CF-10).
-La seconde voie a l'avantage de mesurer de vrais apprenants sur de vrais
-réseaux, ce qu'un audit local ne fait jamais.
+Relevé du 2026-08-11, contre un build de production et une base jetable :
+
+| Page | FCP | LCP | CLS | Interaction la plus lente |
+|---|---|---|---|---|
+| `/` | 164 ms | 352 ms | 0 | 56 ms |
+| `/learn/html/chapitre-1` | 408 ms | 408 ms | 0,0235 | 80 ms |
+| `/dashboard` | 116 ms | 216 ms | 0,0139 | 40 ms |
+| **Seuils** | — | 2500 ms | 0,1 | 200 ms |
+
+Rejouer :
+
+```bash
+MESURE_VITALS=1 E2E_PROD=1 pnpm test:e2e --grep "Core Web Vitals"
+```
+
+**La mesure ne tourne pas en CI**, et c'est délibéré : ces chiffres dépendent de
+la machine, et sur un runner partagé ils varieraient assez pour faire échouer le
+job au hasard. Un test qui échoue au hasard finit ignoré.
+
+**Deux pièges rencontrés en écrivant cette mesure**, tous deux producteurs de
+faux verts — les commentaires du fichier les détaillent :
+
+- Le navigateur **cesse d'enregistrer le LCP à la première interaction**.
+  Cliquer juste après `load` le laissait à zéro sur la page de leçon, la plus
+  lente à peindre. On laisse la page se poser avant de toucher à quoi que ce soit.
+- Une interaction à **0 ms ne veut pas dire « instantané » mais « non mesuré »**.
+  Asserter `0 <= 200` passerait pour la mauvaise raison ; le rapport dit
+  désormais « NON MESUREE » et l'assertion est omise.
+
+**Ce que ces chiffres ne disent pas :** ils viennent d'une machine de
+développement, sans latence réseau. Un LCP de 352 ms en local n'est pas ce que
+vit un apprenant en 4G. Pour ça il faut un relevé de terrain — `web-vitals`
+remonté à Sentry, déjà câblé (CF-10).
 
 **Acceptation**
 - [x] Images servies par `next/image`
 - [x] Three.js hors du bundle initial
-- [x] CLS au vert sur la page de leçon
-- [ ] LCP et INP mesurés sur le tableau de bord et une page de leçon — **demande un vrai navigateur**
+- [x] LCP, CLS et INP au vert sur l'accueil, une page de leçon et le tableau de bord
+- [x] Mesure reproductible plutôt qu'un relevé ponctuel
+- [ ] Relevé de terrain sur de vrais réseaux — *optionnel, hors du critère d'origine*
 
 ### CF-18 · Élargir la couverture de tests des validateurs
 **P2 · L · Tests** — ✅ **livré le 2026-08-06**
