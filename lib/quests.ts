@@ -293,3 +293,101 @@ export function buildBriefing(ctx: QuestContext): Briefing {
     complete: quests.length > 0 && quests.every((q) => q.done),
   };
 }
+
+// --- Versement du briefing ------------------------------------------------
+
+/**
+ * Bit du masque `User.dailyClaimed` réservé à chaque emplacement.
+ *
+ * Le bit tient à l'EMPLACEMENT, pas à la position de l'ordre dans le tableau :
+ * `buildBriefing` peut rendre moins de trois ordres, et un jour dégradé où la
+ * curiosité arrive en première position ne doit pas réutiliser le bit de la
+ * reprise. Sans cela, le masque d'un jour à deux ordres et celui d'un jour à
+ * trois ordres se marcheraient dessus.
+ */
+const SLOT_BIT: Record<QuestSlot, number> = {
+  reprise: 0,
+  effort: 1,
+  curiosite: 2,
+};
+
+/** Bit du bonus de clôture. Réservé : jamais celui d'un ordre. */
+export const CLOSING_BIT = 3;
+
+export interface BriefingPayoutState {
+  /** Masque des ordres déjà payés, tel qu'il est en base. */
+  claimedMask: number;
+  /** Jour auquel ce masque se rapporte (`User.lastDailyMission`), "" si jamais. */
+  claimedDay: string;
+  /** Briefings complets d'affilée. */
+  perfectRun: number;
+  /** Jour du dernier briefing complet, "" si jamais. */
+  lastPerfectDay: string;
+}
+
+export interface BriefingPayout {
+  /** XP à ajouter au total. Zéro si tout était déjà payé. */
+  bonusXp: number;
+  /** Masque à écrire en base, à associer à `todayIso`. */
+  nextMask: number;
+  /** Ordres payés à cet instant — la clôture n'en est pas un. */
+  questsPaid: number;
+  /** Libellés des seuls ordres réellement payés maintenant, à annoncer. */
+  paidLabels: string[];
+  perfectRun: number;
+  lastPerfectDay: string;
+}
+
+/**
+ * Décide ce que vaut le briefing à cet instant : XP due, masque à écrire,
+ * ordres à annoncer, série de briefings parfaits.
+ *
+ * Idempotente par construction : chaque bit du masque paie une fois et une
+ * seule. Rappelée dix fois dans la journée, elle ne verse rien de plus. Un
+ * masque qui se rapporte à un autre jour est ignoré, jamais hérité — sans quoi
+ * un cadet revenu après trois jours traînerait le masque plein de sa dernière
+ * session et ne serait pas payé.
+ *
+ * Le plafond de 60 XP par jour ne s'écrit nulle part ici : il tombe du barème
+ * (10 + 20 + 15 + 15) et de l'unicité des bits. Le plafond de compte (`MAX_XP`)
+ * reste l'affaire de l'appelant.
+ *
+ * Fonction pure : le jour courant est un paramètre, jamais l'horloge.
+ */
+export function applyBriefingPayout(
+  briefing: Briefing,
+  state: BriefingPayoutState,
+  todayIso: string
+): BriefingPayout {
+  // Un masque qui ne se rapporte pas à aujourd'hui ne vaut rien.
+  let nextMask = state.claimedDay === todayIso ? state.claimedMask : 0;
+
+  let bonusXp = 0;
+  let questsPaid = 0;
+  const paidLabels: string[] = [];
+
+  for (const q of briefing.quests) {
+    const bit = 1 << SLOT_BIT[q.slot];
+    if (!q.done || (nextMask & bit) !== 0) continue;
+    bonusXp += q.xp;
+    nextMask |= bit;
+    questsPaid += 1;
+    paidLabels.push(q.label);
+  }
+
+  let perfectRun = state.perfectRun;
+  let lastPerfectDay = state.lastPerfectDay;
+  const closingBit = 1 << CLOSING_BIT;
+
+  if (briefing.complete && (nextMask & closingBit) === 0) {
+    bonusXp += CLOSING_XP;
+    nextMask |= closingBit;
+    // La série continue si le dernier briefing complet était hier, sinon elle
+    // repart à 1 — y compris quand il n'y en a jamais eu.
+    perfectRun =
+      lastPerfectDay && daysSince(lastPerfectDay, todayIso) === 1 ? perfectRun + 1 : 1;
+    lastPerfectDay = todayIso;
+  }
+
+  return { bonusXp, nextMask, questsPaid, paidLabels, perfectRun, lastPerfectDay };
+}

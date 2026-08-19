@@ -33,3 +33,15 @@ ALTER TABLE "UserUnlock" ADD CONSTRAINT "UserUnlock_userId_fkey" FOREIGN KEY ("u
 -- Les comptes existants ne doivent pas perdre leur historique de streak :
 -- leur record de départ est leur streak courant.
 UPDATE "User" SET "bestStreak" = "streak" WHERE "streak" > 1;
+
+-- `lastVisit` CHANGE DE SENS avec cette migration : il portait la date de la
+-- derniere VISITE, il porte desormais la date du dernier jour ACTIF (une etape
+-- validee). Les valeurs deja en base ne signifient donc plus ce que la nouvelle
+-- logique en attend : la premiere etape validee apres deploiement calculerait
+-- un ecart depuis une date de simple visite, et prolongerait ou romprait la
+-- liaison au hasard selon les comptes.
+--
+-- On repart donc proprement : liaison courante remise a 1 et jamais active.
+-- Le record est preserve par l'UPDATE ci-dessus et restera affiche, donc
+-- personne ne perd sa trace d'historique.
+UPDATE "User" SET "lastVisit" = '', "streak" = 1;

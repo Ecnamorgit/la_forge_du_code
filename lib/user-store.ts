@@ -7,6 +7,22 @@ export interface LiaisonPublic {
   shields: number;
   /** Les 7 derniers jours, du plus ancien au plus récent. */
   week: boolean[];
+  /**
+   * La journée d'aujourd'hui est-elle DÉJÀ comptée dans `streak` ?
+   *
+   * Faux tant que le cadet n'a validé aucune étape aujourd'hui. `streak` est
+   * alors le compte d'hier : il reste juste, mais il n'est pas encore acquis
+   * pour la journée en cours.
+   */
+  activeToday: boolean;
+  /**
+   * Valider une étape maintenant romprait-il la série ?
+   *
+   * Vrai quand l'absence dépasse ce que les relais peuvent couvrir. Permet
+   * d'annoncer « ta liaison est perdue » plutôt que d'afficher un compteur
+   * périmé jusqu'à la prochaine étape. Toujours faux si `activeToday`.
+   */
+  wouldBreakToday: boolean;
 }
 
 export interface UserState {
@@ -65,6 +81,8 @@ export const DEFAULT_USER: UserState = {
     bestStreak: 1,
     shields: 0,
     week: [false, false, false, false, false, false, false],
+    activeToday: false,
+    wouldBreakToday: false,
   },
   unlocks: [],
   questsCompleted: 0,

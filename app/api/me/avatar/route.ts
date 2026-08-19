@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { auth } from "@/auth";
 import { UserNotFoundError, setAvatar } from "@/lib/me-server";
-import { isRoleId, isSpeciesId, isUniformColorId } from "@/lib/avatar";
+import { isBaseUniformColorId, isRoleId, isSpeciesId } from "@/lib/avatar";
 
 const bodySchema = z
   .object({
@@ -15,7 +15,7 @@ const bodySchema = z
     message: "Espece invalide",
     path: ["species"],
   })
-  .refine((data) => isUniformColorId(data.uniformColor), {
+  .refine((data) => isBaseUniformColorId(data.uniformColor), {
     message: "Couleur d'uniforme invalide",
     path: ["uniformColor"],
   })

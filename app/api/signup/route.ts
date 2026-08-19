@@ -79,7 +79,11 @@ export async function POST(request: Request) {
       username,
       password: hashed,
       name: username,
-      lastVisit: new Date().toISOString().slice(0, 10),
+      // Pas de `lastVisit` ici : le champ signifie « dernier jour ACTIF », et
+      // s'inscrire n'est pas travailler. Le semer au jour de l'inscription
+      // ferait afficher 2 jours de liaison à qui valide sa première étape le
+      // lendemain, et « liaison rompue » à qui la valide deux jours plus tard.
+      // Le défaut `""` du schéma est le bon : jamais actif.
     },
     select: { id: true, email: true },
   });

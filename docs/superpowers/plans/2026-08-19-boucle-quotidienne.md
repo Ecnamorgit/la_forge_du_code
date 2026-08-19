@@ -1767,7 +1767,9 @@ export const UNLOCKS: UnlockDef[] = [
   { id: "titre-amiral", axis: "title", label: "Amiral de la Coalition", condition: { kind: "grade", gradeId: "amiral" } },
 
   // --- Couleurs d'uniforme (CSS pur, au-delà des 5 de lib/avatar.ts) ---
-  { id: "uniforme-cyan", axis: "uniform", label: "Cyan", condition: { kind: "default" } },
+  // Identifiants alignes sur UNIFORM_COLORS (lib/avatar.ts) : la colonne ecrite
+  // est uniformColor. Arbitrage du controleur en T7, ronde 1.
+  { id: "cyan", axis: "uniform", label: "Cyan", condition: { kind: "default" } },
   { id: "rouge-spectre", axis: "uniform", label: "Rouge Spectre", condition: { kind: "badge", badgeId: "security-shield" } },
   { id: "blanc-glacier", axis: "uniform", label: "Blanc glacier", condition: { kind: "streak", days: 14 } },
   { id: "rose-neon", axis: "uniform", label: "Rose néon", condition: { kind: "quests", count: 25 } },

@@ -52,8 +52,12 @@ export const UNLOCKS: UnlockDef[] = [
   { id: "titre-revenant", axis: "title", label: "Revenant", condition: { kind: "badge", badgeId: "retour" } },
   { id: "titre-amiral", axis: "title", label: "Amiral de la Coalition", condition: { kind: "grade", gradeId: "amiral" } },
 
-  // --- Couleurs d'uniforme (CSS pur, au-delà des 5 de lib/avatar.ts) ---
-  { id: "uniforme-cyan", axis: "uniform", label: "Cyan", condition: { kind: "default" } },
+  // --- Couleurs d'uniforme -------------------------------------------
+  // Les identifiants sont ceux de UNIFORM_COLORS dans lib/avatar.ts, et la
+  // colonne écrite est `uniformColor` : un seul espace d'identifiants pour les
+  // couleurs, sinon ces objets seraient invendables (aucune colonne ne les
+  // accepterait). `cyan` est la couleur offerte, les quatre autres se méritent.
+  { id: "cyan", axis: "uniform", label: "Cyan", condition: { kind: "default" } },
   { id: "rouge-spectre", axis: "uniform", label: "Rouge Spectre", condition: { kind: "badge", badgeId: "security-shield" } },
   { id: "blanc-glacier", axis: "uniform", label: "Blanc glacier", condition: { kind: "streak", days: 14 } },
   { id: "rose-neon", axis: "uniform", label: "Rose néon", condition: { kind: "quests", count: 25 } },

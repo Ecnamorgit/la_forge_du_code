@@ -9,7 +9,7 @@ import AvatarBadge from "@/components/avatar/AvatarBadge";
 import {
   ROLES,
   SPECIES,
-  UNIFORM_COLORS,
+  BASE_UNIFORM_COLORS,
   type RoleId,
   type SpeciesId,
   type UniformColorId,
@@ -163,7 +163,7 @@ function AvatarPageInner() {
             description="Affichee comme accent autour de ton avatar."
           >
             <div className="flex flex-wrap gap-3">
-              {UNIFORM_COLORS.map((c) => (
+              {BASE_UNIFORM_COLORS.map((c) => (
                 <button
                   type="button"
                   key={c.id}

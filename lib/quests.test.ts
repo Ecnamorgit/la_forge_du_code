@@ -4,8 +4,13 @@ import {
   splitCompletions,
   CLOSING_XP,
   QUEST_XP,
+  applyBriefingPayout,
+  type Briefing,
+  type BriefingPayoutState,
   type CompletionRecord,
+  type Quest,
   type QuestContext,
+  type QuestSlot,
 } from "./quests";
 
 const CHAPITRES = {
@@ -245,5 +250,216 @@ describe("barème", () => {
   it("plafonne la journée à 60 XP", () => {
     const total = QUEST_XP.reprise + QUEST_XP.effort + QUEST_XP.curiosite + CLOSING_XP;
     expect(total).toBe(60);
+  });
+});
+
+// --- Versement du briefing ------------------------------------------------
+
+function quest(slot: QuestSlot, done: boolean, label = `ordre ${slot}`): Quest {
+  return {
+    id: `id-${slot}`,
+    slot,
+    label,
+    progress: done ? 1 : 0,
+    target: 1,
+    done,
+    course: null,
+    chapter: null,
+    xp: QUEST_XP[slot],
+  };
+}
+
+function briefing(quests: Quest[], dateIso = "2026-08-19"): Briefing {
+  return {
+    dateIso,
+    quests,
+    complete: quests.length > 0 && quests.every((q) => q.done),
+  };
+}
+
+function etat(p: Partial<BriefingPayoutState> = {}): BriefingPayoutState {
+  return {
+    claimedMask: 0,
+    claimedDay: "",
+    perfectRun: 0,
+    lastPerfectDay: "",
+    ...p,
+  };
+}
+
+describe("applyBriefingPayout", () => {
+  it("ne paie rien quand aucun ordre n'est accompli", () => {
+    const b = briefing([quest("reprise", false), quest("effort", false)]);
+    const out = applyBriefingPayout(b, etat(), "2026-08-19");
+
+    expect(out.bonusXp).toBe(0);
+    expect(out.questsPaid).toBe(0);
+    expect(out.paidLabels).toEqual([]);
+    expect(out.nextMask).toBe(0);
+  });
+
+  it("paie les ordres accomplis sur un masque vierge", () => {
+    const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", false)]);
+    const out = applyBriefingPayout(b, etat(), "2026-08-19");
+
+    expect(out.bonusXp).toBe(QUEST_XP.reprise + QUEST_XP.effort);
+    expect(out.questsPaid).toBe(2);
+    expect(out.paidLabels).toEqual(["ordre reprise", "ordre effort"]);
+    // bit 0 (reprise) + bit 1 (effort), la curiosité reste à payer.
+    expect(out.nextMask).toBe(0b011);
+  });
+
+  it("ne repaie pas un ordre déjà payé aujourd'hui", () => {
+    const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", false)]);
+    const dejaPaye = etat({ claimedMask: 0b001, claimedDay: "2026-08-19" });
+    const out = applyBriefingPayout(b, dejaPaye, "2026-08-19");
+
+    expect(out.bonusXp).toBe(QUEST_XP.effort);
+    expect(out.questsPaid).toBe(1);
+    expect(out.paidLabels).toEqual(["ordre effort"]);
+    expect(out.nextMask).toBe(0b011);
+  });
+
+  it("n'annonce que les ordres réellement neufs, pas tous les accomplis", () => {
+    // Deuxième étape de la journée : les trois ordres sont accomplis, mais deux
+    // ont déjà été payés. L'écran de fin d'étape ne doit pas les réannoncer.
+    const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", true)]);
+    const out = applyBriefingPayout(
+      b,
+      etat({ claimedMask: 0b011, claimedDay: "2026-08-19" }),
+      "2026-08-19"
+    );
+
+    expect(out.paidLabels).toEqual(["ordre curiosite"]);
+    expect(out.questsPaid).toBe(1);
+  });
+
+  it("ignore un masque hérité d'un autre jour", () => {
+    // Le cadet a tout bouclé il y a trois jours ; son masque est plein. Il ne
+    // doit pas empêcher le versement d'aujourd'hui.
+    const b = briefing([quest("reprise", true), quest("effort", false)]);
+    const out = applyBriefingPayout(
+      b,
+      etat({ claimedMask: 0b1111, claimedDay: "2026-08-16" }),
+      "2026-08-19"
+    );
+
+    expect(out.bonusXp).toBe(QUEST_XP.reprise);
+    expect(out.questsPaid).toBe(1);
+    expect(out.nextMask).toBe(0b0001);
+  });
+
+  it("verse le bonus de clôture quand tous les ordres sont accomplis", () => {
+    const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", true)]);
+    const out = applyBriefingPayout(b, etat(), "2026-08-19");
+
+    expect(out.bonusXp).toBe(
+      QUEST_XP.reprise + QUEST_XP.effort + QUEST_XP.curiosite + CLOSING_XP
+    );
+    // Les trois ordres + le bit 3 réservé à la clôture.
+    expect(out.nextMask).toBe(0b1111);
+    // La clôture n'est pas un ordre : elle ne compte pas dans questsPaid.
+    expect(out.questsPaid).toBe(3);
+  });
+
+  it("atteint exactement le plafond de 60 XP sur un briefing complet", () => {
+    const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", true)]);
+    expect(applyBriefingPayout(b, etat(), "2026-08-19").bonusXp).toBe(60);
+  });
+
+  it("ne verse pas deux fois le bonus de clôture", () => {
+    const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", true)]);
+    const out = applyBriefingPayout(
+      b,
+      etat({ claimedMask: 0b1111, claimedDay: "2026-08-19", perfectRun: 1, lastPerfectDay: "2026-08-19" }),
+      "2026-08-19"
+    );
+
+    expect(out.bonusXp).toBe(0);
+    expect(out.questsPaid).toBe(0);
+    expect(out.perfectRun).toBe(1);
+  });
+
+  it("continue la série parfaite quand la veille l'était", () => {
+    const b = briefing([quest("reprise", true), quest("effort", true)]);
+    const out = applyBriefingPayout(
+      b,
+      etat({ perfectRun: 4, lastPerfectDay: "2026-08-18" }),
+      "2026-08-19"
+    );
+
+    expect(out.perfectRun).toBe(5);
+    expect(out.lastPerfectDay).toBe("2026-08-19");
+  });
+
+  it("repart à 1 quand un trou coupe la série parfaite", () => {
+    const b = briefing([quest("reprise", true), quest("effort", true)]);
+    const out = applyBriefingPayout(
+      b,
+      etat({ perfectRun: 9, lastPerfectDay: "2026-08-16" }),
+      "2026-08-19"
+    );
+
+    expect(out.perfectRun).toBe(1);
+    expect(out.lastPerfectDay).toBe("2026-08-19");
+  });
+
+  it("démarre la série parfaite à 1 quand il n'y en avait jamais eu", () => {
+    const b = briefing([quest("reprise", true)]);
+    const out = applyBriefingPayout(b, etat(), "2026-08-19");
+
+    expect(out.perfectRun).toBe(1);
+    expect(out.lastPerfectDay).toBe("2026-08-19");
+  });
+
+  it("laisse la série parfaite intacte quand le briefing n'est pas bouclé", () => {
+    const b = briefing([quest("reprise", true), quest("effort", false)]);
+    const out = applyBriefingPayout(
+      b,
+      etat({ perfectRun: 3, lastPerfectDay: "2026-08-18" }),
+      "2026-08-19"
+    );
+
+    expect(out.perfectRun).toBe(3);
+    expect(out.lastPerfectDay).toBe("2026-08-18");
+  });
+
+  it("assied le bit sur l'emplacement, pas sur la position dans le tableau", () => {
+    // Briefing dégradé : la curiosité est le SEUL ordre émis, donc à l'index 0.
+    // Son bit doit rester celui de la curiosité (2), sans quoi un jour à deux
+    // ordres et un jour à trois ordres se marcheraient dessus dans le masque.
+    const b = briefing([quest("curiosite", true)]);
+    const out = applyBriefingPayout(b, etat(), "2026-08-19");
+
+    expect(out.nextMask & 0b100).toBe(0b100);
+    expect(out.nextMask & 0b001).toBe(0);
+  });
+
+  it("ne repaie pas la curiosité d'un briefing dégradé déjà payée", () => {
+    // Le seul ordre émis est déjà payé (bit 2). Un briefing dégradé dont
+    // l'unique ordre est accompli est `complete` : la clôture, elle, n'a jamais
+    // été versée, elle est donc due — mais l'ordre, non.
+    const b = briefing([quest("curiosite", true)]);
+    const out = applyBriefingPayout(
+      b,
+      etat({ claimedMask: 0b100, claimedDay: "2026-08-19" }),
+      "2026-08-19"
+    );
+
+    expect(out.questsPaid).toBe(0);
+    expect(out.paidLabels).toEqual([]);
+    expect(out.bonusXp).toBe(CLOSING_XP);
+  });
+
+  it("ne repaie plus rien quand ordre et clôture sont tous deux payés", () => {
+    const b = briefing([quest("curiosite", true)]);
+    const out = applyBriefingPayout(
+      b,
+      etat({ claimedMask: 0b1100, claimedDay: "2026-08-19" }),
+      "2026-08-19"
+    );
+
+    expect(out.bonusXp).toBe(0);
+    expect(out.questsPaid).toBe(0);
   });
 });

@@ -7,13 +7,13 @@ import { MAX_XP, xpForStep } from "@/lib/xp";
 import { COURSES_CATALOG } from "@/lib/courses-catalog";
 import { evaluateConductBadges } from "@/lib/conduct-badges";
 import {
+  applyBriefingPayout,
   buildBriefing,
   splitCompletions,
-  CLOSING_XP,
   type CompletionRecord,
 } from "@/lib/quests";
-import { advanceLiaison, daysBetweenIso } from "@/lib/streak";
-import { evaluateUnlocks, UNLOCKS } from "@/lib/unlocks";
+import { advanceLiaison } from "@/lib/streak";
+import { evaluateUnlocks, UNLOCKS, type UnlockAxis } from "@/lib/unlocks";
 import type { LiaisonPublic, UserState } from "@/lib/user-store";
 
 function todayIso(): string {
@@ -93,11 +93,30 @@ function shape(bundle: RawUserBundle): UserState {
   const today = todayIso();
   const { past, today: todayRecords } = splitCompletions(records, today);
 
+  // Projection SANS PERSISTANCE de la machine à états : elle dit ce qui
+  // arriverait si le cadet validait une étape maintenant. Sans cela, `shape()`
+  // rendrait le streak brut et un cadet absent cinq jours lirait encore
+  // « 10 jours de liaison » sur son tableau de bord. Rejouer `advanceLiaison`
+  // évite de dupliquer la règle des relais ici — il n'y a qu'une machine à
+  // états, et c'est celle de lib/streak.ts.
+  const projection = advanceLiaison(
+    {
+      streak: bundle.streak,
+      bestStreak: bundle.bestStreak,
+      shields: bundle.streakShields,
+      shieldEverGranted: bundle.shieldEverGranted,
+      lastActiveDay: bundle.lastVisit,
+    },
+    today
+  );
+
   const liaison: LiaisonPublic = {
     streak: bundle.streak,
     bestStreak: bundle.bestStreak,
     shields: bundle.streakShields,
     week: weekDots(records, today),
+    activeToday: bundle.lastVisit === today,
+    wouldBreakToday: projection.broken,
   };
 
   return {
@@ -238,6 +257,19 @@ export interface CompleteStepResult {
   notice: string | null;
 }
 
+/**
+ * Délai de la transaction de `completeStep`. Le défaut Prisma est de 5 s, et
+ * cette transaction fait désormais une vingtaine d'allers-retours vers une base
+ * distante (relecture du compte, toutes les complétions, badges, déblocables).
+ * Un `P2028` ne coûterait pas seulement le briefing : il annulerait aussi la
+ * `StepCompletion`, et le cadet perdrait l'étape qu'il vient de terminer. On
+ * préfère largement une transaction lente à une étape perdue.
+ *
+ * `maxWait` couvre l'attente d'une connexion libre dans le pool, `timeout`
+ * l'exécution elle-même.
+ */
+const COMPLETE_STEP_TX_OPTIONS = { maxWait: 10_000, timeout: 30_000 } as const;
+
 export async function completeStep(
   userId: string,
   course: string,
@@ -350,9 +382,6 @@ export async function completeStep(
     });
     if (!brut) throw new UserNotFoundError();
 
-    // Remise à zéro du masque au changement de journée.
-    const masque = brut.lastDailyMission === jour ? brut.dailyClaimed : 0;
-
     const toutes = await tx.stepCompletion.findMany({
       where: { userId },
       select: { course: true, chapter: true, stepIndex: true, completedAt: true },
@@ -373,28 +402,20 @@ export async function completeStep(
       chaptersByCourse: CHAPTERS_BY_COURSE,
     });
 
-    // XP des ordres accomplis non encore payés + bonus de clôture.
-    let bonusXp = 0;
-    let nouveauMasque = masque;
-    let ordresPayes = 0;
-    briefing.quests.forEach((q, i) => {
-      const bit = 1 << i;
-      if (q.done && (nouveauMasque & bit) === 0) {
-        bonusXp += q.xp;
-        nouveauMasque |= bit;
-        ordresPayes += 1;
-      }
-    });
-
-    let serieParfaite = brut.perfectBriefingRun;
-    let dernierParfait = brut.lastPerfectDay;
-    if (briefing.complete && (nouveauMasque & 0b1000) === 0) {
-      bonusXp += CLOSING_XP;
-      nouveauMasque |= 0b1000;
-      serieParfaite =
-        dernierParfait && daysBetweenIso(dernierParfait, jour) === 1 ? serieParfaite + 1 : 1;
-      dernierParfait = jour;
-    }
+    // Toute l'arithmétique du versement — bits, bonus de clôture, série de
+    // briefings parfaits, remise à zéro du masque au changement de journée —
+    // vit dans `applyBriefingPayout`, pure et testée sous vitest. Ce module
+    // importe `server-only` : rien de ce qui y reste enfermé n'est couvert.
+    const versement = applyBriefingPayout(
+      briefing,
+      {
+        claimedMask: brut.dailyClaimed,
+        claimedDay: brut.lastDailyMission,
+        perfectRun: brut.perfectBriefingRun,
+        lastPerfectDay: brut.lastPerfectDay,
+      },
+      jour
+    );
 
     // La liaison avance ici, sans condition : on n'atteint ce point que pour
     // une étape RÉELLEMENT NEUVE — la transaction est sortie plus haut quand
@@ -423,18 +444,18 @@ export async function completeStep(
 
     const liaisonApres = transition.next;
 
-    const questsCompletedApres = brut.questsCompleted + ordresPayes;
-    const xpApres = Math.min(brut.totalXp + bonusXp, MAX_XP);
+    const questsCompletedApres = brut.questsCompleted + versement.questsPaid;
+    const xpApres = Math.min(brut.totalXp + versement.bonusXp, MAX_XP);
 
     await tx.user.update({
       where: { id: userId },
       data: {
         totalXp: xpApres,
-        dailyClaimed: nouveauMasque,
+        dailyClaimed: versement.nextMask,
         lastDailyMission: jour,
         questsCompleted: questsCompletedApres,
-        perfectBriefingRun: serieParfaite,
-        lastPerfectDay: dernierParfait,
+        perfectBriefingRun: versement.perfectRun,
+        lastPerfectDay: versement.lastPerfectDay,
         streak: liaisonApres.streak,
         bestStreak: liaisonApres.bestStreak,
         streakShields: liaisonApres.shields,
@@ -445,7 +466,10 @@ export async function completeStep(
 
     awardedXp += xpApres - brut.totalXp;
     questXp = xpApres - brut.totalXp;
-    completedQuests = briefing.quests.filter((q) => q.done).map((q) => q.label);
+    // Seuls les ordres RÉELLEMENT payés à cet instant : `briefing.quests`
+    // filtré sur `done` réannoncerait à la deuxième étape du jour les ordres
+    // déjà payés à la première, alors que `questXp` vaut alors 0.
+    completedQuests = versement.paidLabels;
 
     if (transition.shieldsConsumed) {
       notice = `Un relais de secours a couvert ton absence. Il t'en reste ${liaisonApres.shields}.`;
@@ -457,7 +481,7 @@ export async function completeStep(
     const merites = evaluateConductBadges({
       streak: liaisonApres.streak,
       questsCompleted: questsCompletedApres,
-      perfectBriefingRun: serieParfaite,
+      perfectBriefingRun: versement.perfectRun,
       completions: records,
       justReturned: transition.earnedReturn,
     });
@@ -505,11 +529,18 @@ export async function completeStep(
       )
     );
     for (const s of statuts) {
-      if (!s.unlocked || dejaDebloques.has(s.def.id)) continue;
+      // Les objets par défaut d'un axe sont acquis d'office : `evaluateUnlocks`
+      // les rend `unlocked: true` pour tout le monde, dès la première étape.
+      // Leur créer une ligne `UserUnlock` les ferait annoncer comme « nouveaux
+      // déblocables » alors qu'ils n'ont jamais été verrouillés. `setCosmetics`
+      // les accepte d'ailleurs SANS ligne en base : ne pas les écrire ici lève
+      // la contradiction au lieu de l'entretenir.
+      if (!s.unlocked || s.def.condition.kind === "default") continue;
+      if (dejaDebloques.has(s.def.id)) continue;
       await tx.userUnlock.create({ data: { userId, itemId: s.def.id } });
       newUnlocks.push(s.def.id);
     }
-  });
+  }, COMPLETE_STEP_TX_OPTIONS);
 
   const state = await getUserState(userId);
   if (!state) throw new UserNotFoundError();
@@ -585,12 +616,39 @@ export async function setAvatar(
 export class InvalidCosmeticError extends Error {}
 
 /**
+ * Les emplacements cosmétiques acceptés, et la colonne écrite pour chacun.
+ * Cette table EST la liste blanche : rien d'autre ne peut être écrit.
+ *
+ * `uniform` écrit `uniformColor`, la colonne qui servait déjà à l'avatar. Un
+ * seul espace d'identifiants pour les couleurs (cf. lib/avatar.ts), sans quoi
+ * les cinq uniformes du catalogue seraient invendables.
+ */
+const COSMETIC_SLOTS: {
+  key: "frame" | "title" | "cardBg" | "uniform";
+  axis: UnlockAxis;
+  column: "frame" | "title" | "cardBg" | "uniformColor";
+}[] = [
+  { key: "frame", axis: "frame", column: "frame" },
+  { key: "title", axis: "title", column: "title" },
+  { key: "cardBg", axis: "cardBg", column: "cardBg" },
+  { key: "uniform", axis: "uniform", column: "uniformColor" },
+];
+
+export interface CosmeticChoices {
+  frame?: string;
+  title?: string;
+  emblem?: string;
+  cardBg?: string;
+  uniform?: string;
+}
+
+/**
  * Enregistre les cosmétiques portés. Refuse tout objet que le cadet n'a pas
  * débloqué — la validation est serveur, le client n'est pas cru sur parole.
  */
 export async function setCosmetics(
   userId: string,
-  choices: { frame?: string; title?: string; emblem?: string; cardBg?: string }
+  choices: CosmeticChoices
 ): Promise<UserState> {
   await assertUserExists(userId);
 
@@ -601,22 +659,46 @@ export async function setCosmetics(
   const possede = new Set(unlocks.map((u) => u.itemId));
   const badgesPossedes = new Set(badges.map((b) => b.badgeId));
 
-  for (const [axe, id] of Object.entries(choices)) {
+  // L'objet de mise à jour est construit clé par clé, jamais relayé depuis
+  // l'appelant. Passer `choices` tel quel à Prisma serait une faille : le
+  // typage TypeScript n'existe plus à l'exécution, et une route qui
+  // transmettrait le corps JSON brut laisserait écrire n'importe quelle
+  // colonne de `User` — `totalXp: 999999` compris.
+  const data: {
+    frame?: string;
+    title?: string;
+    cardBg?: string;
+    uniformColor?: string;
+    emblem?: string;
+  } = {};
+
+  for (const slot of COSMETIC_SLOTS) {
+    const id = choices[slot.key];
     if (id === undefined) continue;
-    if (axe === "emblem") {
-      if (!badgesPossedes.has(id)) {
-        throw new InvalidCosmeticError("Ce badge n'est pas obtenu");
-      }
-      continue;
-    }
+
     const def = UNLOCKS.find((u) => u.id === id);
     if (!def) throw new InvalidCosmeticError("Objet inconnu");
+    // L'objet doit appartenir à l'axe de l'emplacement visé : sans ce test, un
+    // fond de carte débloqué pourrait être porté comme cadre d'avatar.
+    if (def.axis !== slot.axis) {
+      throw new InvalidCosmeticError("Cet objet n'appartient pas à cet emplacement");
+    }
     if (def.condition.kind !== "default" && !possede.has(id)) {
       throw new InvalidCosmeticError("Cet objet n'est pas débloqué");
     }
+    data[slot.column] = id;
   }
 
-  await prisma.user.update({ where: { id: userId }, data: choices });
+  if (choices.emblem !== undefined) {
+    if (!badgesPossedes.has(choices.emblem)) {
+      throw new InvalidCosmeticError("Ce badge n'est pas obtenu");
+    }
+    data.emblem = choices.emblem;
+  }
+
+  if (Object.keys(data).length > 0) {
+    await prisma.user.update({ where: { id: userId }, data });
+  }
 
   const state = await getUserState(userId);
   if (!state) throw new UserNotFoundError();
