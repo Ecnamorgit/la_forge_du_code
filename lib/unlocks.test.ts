@@ -78,6 +78,26 @@ describe("nextUnlock", () => {
     const suivant = nextUnlock(ctx({ streak: 4 }));
     expect(suivant).not.toBeNull();
     expect(suivant?.unlocked).toBe(false);
+    // Avec streak: 4, le plus proche est double (streak 5, distance = 1)
+    expect(suivant?.def.id).toBe("double");
+  });
+
+  it("classe les badges après les conditions mesurables", () => {
+    // Contexte où toutes les conditions mesurables sont satisfaites, mais aucun badge
+    const toutSaufBadges = ctx({
+      streak: 100,
+      questsCompleted: 500,
+      totalXp: 20000,
+      badges: [],
+      coursesComplete: 14,
+      chaptersComplete: 51,
+    });
+    const suivant = nextUnlock(toutSaufBadges);
+    expect(suivant).not.toBeNull();
+    // Le seul objet verrouillé restant est conditionné par un badge
+    expect(suivant?.def.condition.kind).toBe("badge");
+    // Et c'est le premier du catalogue dans cet ordre
+    expect(suivant?.def.id).toBe("corrompu");
   });
 
   it("retourne null quand tout est obtenu", () => {
