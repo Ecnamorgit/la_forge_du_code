@@ -1,3 +1,14 @@
+import type { Briefing } from "./quests";
+
+/** Vue client de la liaison. Le serveur en est seul maître. */
+export interface LiaisonPublic {
+  streak: number;
+  bestStreak: number;
+  shields: number;
+  /** Les 7 derniers jours, du plus ancien au plus récent. */
+  week: boolean[];
+}
+
 export interface UserState {
   username: string;
   totalXp: number;
@@ -19,6 +30,19 @@ export interface UserState {
   species: string | null;
   uniformColor: string | null;
   role: string | null;
+
+  // --- Boucle quotidienne ---------------------------------------------
+  /** Briefing du jour, calculé serveur. Null en mode essai (visiteur local). */
+  briefing: Briefing | null;
+  liaison: LiaisonPublic;
+  /** Ids des cosmétiques débloqués. */
+  unlocks: string[];
+  /** Total d'ordres validés (progression des badges de conduite). */
+  questsCompleted: number;
+  frame: string | null;
+  title: string | null;
+  emblem: string | null;
+  cardBg: string | null;
 }
 
 export const DEFAULT_USER: UserState = {
@@ -35,6 +59,19 @@ export const DEFAULT_USER: UserState = {
   species: null,
   uniformColor: null,
   role: null,
+  briefing: null,
+  liaison: {
+    streak: 1,
+    bestStreak: 1,
+    shields: 0,
+    week: [false, false, false, false, false, false, false],
+  },
+  unlocks: [],
+  questsCompleted: 0,
+  frame: null,
+  title: null,
+  emblem: null,
+  cardBg: null,
 };
 
 /** Has the user picked an avatar (all 3 fields populated) ? */

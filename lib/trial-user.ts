@@ -131,8 +131,15 @@ export function trialStateToUserState(state: TrialState): UserState {
     // lib/use-user.ts), pas une constante jetable : le spread ci-dessus ne
     // clone pas ses champs de type référence. `badges` doit donc être cloné
     // explicitement, sans quoi un `push` sur l'état d'essai corromprait
-    // l'état par défaut de tous les utilisateurs du processus.
+    // l'état par défaut de tous les utilisateurs du processus. Même raison
+    // pour `unlocks` et pour la semaine de liaison, ajoutés par la boucle
+    // quotidienne.
     badges: [...DEFAULT_USER.badges],
+    unlocks: [...DEFAULT_USER.unlocks],
+    liaison: { ...DEFAULT_USER.liaison, week: [...DEFAULT_USER.liaison.week] },
+    // Le briefing est calculé serveur ; un visiteur sans compte n'atteint pas
+    // le tableau de bord (middleware), il n'en a donc aucun.
+    briefing: null,
     username: "Cadet",
     totalXp: state.xp,
     lastVisitedCourse: TRIAL_COURSE,

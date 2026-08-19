@@ -1,26 +1,45 @@
 import "server-only";
 
 import { prisma } from "@/lib/db";
-import { getBadgeForChapter } from "@/lib/courses-meta";
+import { getBadgeForChapter, getChaptersMeta } from "@/lib/courses-meta";
 import { getChapterData } from "@/lib/courses-registry";
 import { MAX_XP, xpForStep } from "@/lib/xp";
-import { DAILY_MISSION_XP, canClaimDailyMission } from "@/lib/daily-mission";
-import type { UserState } from "@/lib/user-store";
+import { COURSES_CATALOG } from "@/lib/courses-catalog";
+import { evaluateConductBadges } from "@/lib/conduct-badges";
+import {
+  buildBriefing,
+  splitCompletions,
+  CLOSING_XP,
+  type CompletionRecord,
+} from "@/lib/quests";
+import { advanceLiaison, daysBetweenIso } from "@/lib/streak";
+import { evaluateUnlocks, UNLOCKS } from "@/lib/unlocks";
+import type { LiaisonPublic, UserState } from "@/lib/user-store";
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function daysBetween(fromIso: string, toIso: string): number {
-  const from = new Date(fromIso).getTime();
-  const to = new Date(toIso).getTime();
-  return Math.round((to - from) / (1000 * 60 * 60 * 24));
-}
+/** Métadonnées de chapitres par cursus — constante, calculée une fois. */
+const CHAPTERS_BY_COURSE: Record<string, { slug: string; totalSteps: number }[]> =
+  Object.fromEntries(
+    COURSES_CATALOG.map((c) => [
+      c.slug,
+      getChaptersMeta(c.slug).map((ch) => ({ slug: ch.slug, totalSteps: ch.totalSteps })),
+    ])
+  );
 
 interface RawUserBundle {
   username: string;
   totalXp: number;
   streak: number;
+  bestStreak: number;
+  streakShields: number;
+  shieldEverGranted: boolean;
+  questsCompleted: number;
+  perfectBriefingRun: number;
+  lastPerfectDay: string;
+  dailyClaimed: number;
   lastVisit: string;
   lastDailyMission: string;
   lastVisitedCourse: string | null;
@@ -29,23 +48,57 @@ interface RawUserBundle {
   species: string | null;
   uniformColor: string | null;
   role: string | null;
+  frame: string | null;
+  title: string | null;
+  emblem: string | null;
+  cardBg: string | null;
   badges: { badgeId: string }[];
+  unlocks: { itemId: string }[];
   stepCompletions: {
     course: string;
     chapter: string;
     stepIndex: number;
+    completedAt: Date;
   }[];
+}
+
+/** Les 7 derniers jours : un booléen par jour, du plus ancien au plus récent. */
+function weekDots(records: CompletionRecord[], todayIso: string): boolean[] {
+  const jours = new Set(records.map((r) => r.completedAt.slice(0, 10)));
+  const dots: boolean[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const t = Date.parse(`${todayIso}T00:00:00Z`) - i * 86_400_000;
+    dots.push(jours.has(new Date(t).toISOString().slice(0, 10)));
+  }
+  return dots;
 }
 
 function shape(bundle: RawUserBundle): UserState {
   const completedSteps: Record<string, number[]> = {};
-  for (const sc of bundle.stepCompletions) {
+  const records: CompletionRecord[] = bundle.stepCompletions.map((sc) => ({
+    course: sc.course,
+    chapter: sc.chapter,
+    stepIndex: sc.stepIndex,
+    completedAt: sc.completedAt.toISOString(),
+  }));
+
+  for (const sc of records) {
     const key = `${sc.course}/${sc.chapter}`;
     (completedSteps[key] ??= []).push(sc.stepIndex);
   }
   for (const k of Object.keys(completedSteps)) {
     completedSteps[k].sort((a, b) => a - b);
   }
+
+  const today = todayIso();
+  const { past, today: todayRecords } = splitCompletions(records, today);
+
+  const liaison: LiaisonPublic = {
+    streak: bundle.streak,
+    bestStreak: bundle.bestStreak,
+    shields: bundle.streakShields,
+    week: weekDots(records, today),
+  };
 
   return {
     username: bundle.username,
@@ -61,6 +114,20 @@ function shape(bundle: RawUserBundle): UserState {
     species: bundle.species,
     uniformColor: bundle.uniformColor,
     role: bundle.role,
+    briefing: buildBriefing({
+      userId: bundle.username,
+      todayIso: today,
+      past,
+      today: todayRecords,
+      chaptersByCourse: CHAPTERS_BY_COURSE,
+    }),
+    liaison,
+    unlocks: bundle.unlocks.map((u) => u.itemId),
+    questsCompleted: bundle.questsCompleted,
+    frame: bundle.frame,
+    title: bundle.title,
+    emblem: bundle.emblem,
+    cardBg: bundle.cardBg,
   };
 }
 
@@ -68,6 +135,13 @@ const USER_BUNDLE_SELECT = {
   username: true,
   totalXp: true,
   streak: true,
+  bestStreak: true,
+  streakShields: true,
+  shieldEverGranted: true,
+  questsCompleted: true,
+  perfectBriefingRun: true,
+  lastPerfectDay: true,
+  dailyClaimed: true,
   lastVisit: true,
   lastDailyMission: true,
   lastVisitedCourse: true,
@@ -76,9 +150,14 @@ const USER_BUNDLE_SELECT = {
   species: true,
   uniformColor: true,
   role: true,
+  frame: true,
+  title: true,
+  emblem: true,
+  cardBg: true,
   badges: { select: { badgeId: true } },
+  unlocks: { select: { itemId: true } },
   stepCompletions: {
-    select: { course: true, chapter: true, stepIndex: true },
+    select: { course: true, chapter: true, stepIndex: true, completedAt: true },
   },
 } as const;
 
@@ -91,32 +170,15 @@ async function fetchBundle(userId: string): Promise<RawUserBundle | null> {
 }
 
 /**
- * Fetch the user state, applying streak update if the day has changed.
+ * Fetch the user state. Lecture pure : la liaison n'avance JAMAIS ici — elle
+ * n'avance que sur travail réel, dans `completeStep`. Ouvrir un onglet ne
+ * compte pas comme une journée active.
  * Returns null if the user doesn't exist.
  */
 export async function getUserState(userId: string): Promise<UserState | null> {
   const bundle = await fetchBundle(userId);
   if (!bundle) return null;
-
-  const today = todayIso();
-  if (bundle.lastVisit === today) {
-    return shape(bundle);
-  }
-
-  // First visit ever (lastVisit was empty) — start streak at 1
-  let nextStreak = 1;
-  if (bundle.lastVisit) {
-    const diff = daysBetween(bundle.lastVisit, today);
-    nextStreak = diff === 1 ? bundle.streak + 1 : 1;
-  }
-
-  const updated = await prisma.user.update({
-    where: { id: userId },
-    data: { streak: nextStreak, lastVisit: today },
-    select: USER_BUNDLE_SELECT,
-  });
-
-  return shape(updated);
+  return shape(bundle);
 }
 
 export class UserNotFoundError extends Error {}
@@ -167,6 +229,13 @@ export interface CompleteStepResult {
   awardedXp: number;
   newBadge: string | null;
   alreadyDone: boolean;
+  /** XP versée par les ordres du jour, incluse dans awardedXp. */
+  questXp: number;
+  completedQuests: string[];
+  newConductBadges: string[];
+  newUnlocks: string[];
+  /** Message de liaison à afficher une fois (relais consommé, rupture). */
+  notice: string | null;
 }
 
 export async function completeStep(
@@ -192,6 +261,11 @@ export async function completeStep(
   let awardedXp = 0;
   let newBadge: string | null = null;
   let alreadyDone = false;
+  let questXp = 0;
+  let completedQuests: string[] = [];
+  const newConductBadges: string[] = [];
+  const newUnlocks: string[] = [];
+  let notice: string | null = null;
 
   await prisma.$transaction(async (tx) => {
     const existing = await tx.stepCompletion.findUnique({
@@ -253,12 +327,200 @@ export async function completeStep(
         }
       }
     }
+
+    // --- Boucle quotidienne : liaison, ordres, badges de conduite ---------
+    const jour = todayIso();
+
+    const brut = await tx.user.findUnique({
+      where: { id: userId },
+      select: {
+        totalXp: true,
+        streak: true,
+        bestStreak: true,
+        streakShields: true,
+        shieldEverGranted: true,
+        questsCompleted: true,
+        perfectBriefingRun: true,
+        lastPerfectDay: true,
+        lastVisit: true,
+        lastDailyMission: true,
+        dailyClaimed: true,
+        username: true,
+      },
+    });
+    if (!brut) throw new UserNotFoundError();
+
+    // Remise à zéro du masque au changement de journée.
+    const masque = brut.lastDailyMission === jour ? brut.dailyClaimed : 0;
+
+    const toutes = await tx.stepCompletion.findMany({
+      where: { userId },
+      select: { course: true, chapter: true, stepIndex: true, completedAt: true },
+    });
+    const records: CompletionRecord[] = toutes.map((r) => ({
+      course: r.course,
+      chapter: r.chapter,
+      stepIndex: r.stepIndex,
+      completedAt: r.completedAt.toISOString(),
+    }));
+    const { past, today: todayRecords } = splitCompletions(records, jour);
+
+    const briefing = buildBriefing({
+      userId: brut.username,
+      todayIso: jour,
+      past,
+      today: todayRecords,
+      chaptersByCourse: CHAPTERS_BY_COURSE,
+    });
+
+    // XP des ordres accomplis non encore payés + bonus de clôture.
+    let bonusXp = 0;
+    let nouveauMasque = masque;
+    let ordresPayes = 0;
+    briefing.quests.forEach((q, i) => {
+      const bit = 1 << i;
+      if (q.done && (nouveauMasque & bit) === 0) {
+        bonusXp += q.xp;
+        nouveauMasque |= bit;
+        ordresPayes += 1;
+      }
+    });
+
+    let serieParfaite = brut.perfectBriefingRun;
+    let dernierParfait = brut.lastPerfectDay;
+    if (briefing.complete && (nouveauMasque & 0b1000) === 0) {
+      bonusXp += CLOSING_XP;
+      nouveauMasque |= 0b1000;
+      serieParfaite =
+        dernierParfait && daysBetweenIso(dernierParfait, jour) === 1 ? serieParfaite + 1 : 1;
+      dernierParfait = jour;
+    }
+
+    // La liaison n'avance que si au moins un ordre a été accompli aujourd'hui.
+    const transition =
+      ordresPayes > 0
+        ? advanceLiaison(
+            {
+              streak: brut.streak,
+              bestStreak: brut.bestStreak,
+              shields: brut.streakShields,
+              shieldEverGranted: brut.shieldEverGranted,
+              lastActiveDay: brut.lastVisit,
+            },
+            jour
+          )
+        : null;
+
+    const liaisonApres = transition?.next ?? {
+      streak: brut.streak,
+      bestStreak: brut.bestStreak,
+      shields: brut.streakShields,
+      shieldEverGranted: brut.shieldEverGranted,
+      lastActiveDay: brut.lastVisit,
+    };
+
+    const questsCompletedApres = brut.questsCompleted + ordresPayes;
+    const xpApres = Math.min(brut.totalXp + bonusXp, MAX_XP);
+
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        totalXp: xpApres,
+        dailyClaimed: nouveauMasque,
+        lastDailyMission: jour,
+        questsCompleted: questsCompletedApres,
+        perfectBriefingRun: serieParfaite,
+        lastPerfectDay: dernierParfait,
+        streak: liaisonApres.streak,
+        bestStreak: liaisonApres.bestStreak,
+        streakShields: liaisonApres.shields,
+        shieldEverGranted: liaisonApres.shieldEverGranted,
+        lastVisit: liaisonApres.lastActiveDay,
+      },
+    });
+
+    awardedXp += xpApres - brut.totalXp;
+    questXp = xpApres - brut.totalXp;
+    completedQuests = briefing.quests.filter((q) => q.done).map((q) => q.label);
+
+    if (transition?.shieldsConsumed) {
+      notice = `Un relais de secours a couvert ton absence. Il t'en reste ${liaisonApres.shields}.`;
+    } else if (transition?.broken) {
+      notice = `Liaison rompue. Ton record de ${liaisonApres.bestStreak} jours reste acquis.`;
+    }
+
+    // Badges de conduite mérités mais non encore attribués.
+    const merites = evaluateConductBadges({
+      streak: liaisonApres.streak,
+      questsCompleted: questsCompletedApres,
+      perfectBriefingRun: serieParfaite,
+      completions: records,
+      justReturned: transition?.earnedReturn ?? false,
+    });
+    const dejaLa = new Set(
+      (await tx.userBadge.findMany({ where: { userId }, select: { badgeId: true } })).map(
+        (b) => b.badgeId
+      )
+    );
+    for (const id of merites) {
+      if (dejaLa.has(id)) continue;
+      await tx.userBadge.create({ data: { userId, badgeId: id } });
+      newConductBadges.push(id);
+    }
+
+    // Déblocables cosmétiques nouvellement atteints.
+    const chapitresFinis = Object.entries(CHAPTERS_BY_COURSE).reduce(
+      (n, [course, chapitres]) =>
+        n +
+        chapitres.filter(
+          (ch) =>
+            records.filter((r) => r.course === course && r.chapter === ch.slug).length >=
+            ch.totalSteps
+        ).length,
+      0
+    );
+    const cursusFinis = Object.entries(CHAPTERS_BY_COURSE).filter(([course, chapitres]) =>
+      chapitres.every(
+        (ch) =>
+          records.filter((r) => r.course === course && r.chapter === ch.slug).length >=
+          ch.totalSteps
+      )
+    ).length;
+
+    const statuts = evaluateUnlocks({
+      streak: liaisonApres.streak,
+      questsCompleted: questsCompletedApres,
+      totalXp: xpApres,
+      badges: [...dejaLa, ...merites],
+      coursesComplete: cursusFinis,
+      chaptersComplete: chapitresFinis,
+    });
+    const dejaDebloques = new Set(
+      (await tx.userUnlock.findMany({ where: { userId }, select: { itemId: true } })).map(
+        (u) => u.itemId
+      )
+    );
+    for (const s of statuts) {
+      if (!s.unlocked || dejaDebloques.has(s.def.id)) continue;
+      await tx.userUnlock.create({ data: { userId, itemId: s.def.id } });
+      newUnlocks.push(s.def.id);
+    }
   });
 
   const state = await getUserState(userId);
   if (!state) throw new UserNotFoundError();
 
-  return { state, awardedXp, newBadge, alreadyDone };
+  return {
+    state,
+    awardedXp,
+    newBadge,
+    alreadyDone,
+    questXp,
+    completedQuests,
+    newConductBadges,
+    newUnlocks,
+    notice,
+  };
 }
 
 /**
@@ -316,6 +578,47 @@ export async function setAvatar(
   return state;
 }
 
+export class InvalidCosmeticError extends Error {}
+
+/**
+ * Enregistre les cosmétiques portés. Refuse tout objet que le cadet n'a pas
+ * débloqué — la validation est serveur, le client n'est pas cru sur parole.
+ */
+export async function setCosmetics(
+  userId: string,
+  choices: { frame?: string; title?: string; emblem?: string; cardBg?: string }
+): Promise<UserState> {
+  await assertUserExists(userId);
+
+  const [unlocks, badges] = await Promise.all([
+    prisma.userUnlock.findMany({ where: { userId }, select: { itemId: true } }),
+    prisma.userBadge.findMany({ where: { userId }, select: { badgeId: true } }),
+  ]);
+  const possede = new Set(unlocks.map((u) => u.itemId));
+  const badgesPossedes = new Set(badges.map((b) => b.badgeId));
+
+  for (const [axe, id] of Object.entries(choices)) {
+    if (id === undefined) continue;
+    if (axe === "emblem") {
+      if (!badgesPossedes.has(id)) {
+        throw new InvalidCosmeticError("Ce badge n'est pas obtenu");
+      }
+      continue;
+    }
+    const def = UNLOCKS.find((u) => u.id === id);
+    if (!def) throw new InvalidCosmeticError("Objet inconnu");
+    if (def.condition.kind !== "default" && !possede.has(id)) {
+      throw new InvalidCosmeticError("Cet objet n'est pas débloqué");
+    }
+  }
+
+  await prisma.user.update({ where: { id: userId }, data: choices });
+
+  const state = await getUserState(userId);
+  if (!state) throw new UserNotFoundError();
+  return state;
+}
+
 /**
  * Mark a course as the user's current focus. Called on chapter page mount
  * so the dashboard's "Reprendre la mission" follows the user around even
@@ -340,49 +643,6 @@ export async function markCourseVisited(
   return state;
 }
 
-export interface ClaimDailyResult {
-  state: UserState;
-  awardedXp: number;
-  alreadyClaimed: boolean;
-}
-
-/**
- * Claim the once-per-day mission bonus. Atomic + idempotent: the transaction
- * re-reads `lastDailyMission` so a double click (or concurrent tab) can't grant
- * the bonus twice in the same calendar day.
- */
-export async function claimDailyMission(userId: string): Promise<ClaimDailyResult> {
-  await assertUserExists(userId);
-  const today = todayIso();
-
-  let awardedXp = 0;
-  let alreadyClaimed = false;
-
-  await prisma.$transaction(async (tx) => {
-    const user = await tx.user.findUnique({
-      where: { id: userId },
-      select: { totalXp: true, lastDailyMission: true },
-    });
-    if (!user) throw new UserNotFoundError();
-
-    if (!canClaimDailyMission(user.lastDailyMission, today)) {
-      alreadyClaimed = true;
-      return;
-    }
-
-    const nextXp = Math.min(user.totalXp + DAILY_MISSION_XP, MAX_XP);
-    awardedXp = nextXp - user.totalXp;
-    await tx.user.update({
-      where: { id: userId },
-      data: { totalXp: nextXp, lastDailyMission: today },
-    });
-  });
-
-  const state = await getUserState(userId);
-  if (!state) throw new UserNotFoundError();
-  return { state, awardedXp, alreadyClaimed };
-}
-
 /**
  * RGPD — export des données personnelles de l'utilisateur (droit d'accès /
  * portabilité). Retourne le profil + badges + progression sous forme sérialisable.
@@ -398,6 +658,13 @@ export async function exportUserData(userId: string) {
       joinedAt: true,
       totalXp: true,
       streak: true,
+      bestStreak: true,
+      streakShields: true,
+      shieldEverGranted: true,
+      questsCompleted: true,
+      perfectBriefingRun: true,
+      lastPerfectDay: true,
+      dailyClaimed: true,
       lastVisit: true,
       lastDailyMission: true,
       lastVisitedCourse: true,
@@ -405,7 +672,12 @@ export async function exportUserData(userId: string) {
       species: true,
       uniformColor: true,
       role: true,
+      frame: true,
+      title: true,
+      emblem: true,
+      cardBg: true,
       badges: { select: { badgeId: true, unlockedAt: true } },
+      unlocks: { select: { itemId: true, unlockedAt: true } },
       stepCompletions: {
         select: { course: true, chapter: true, stepIndex: true, completedAt: true },
       },
@@ -430,14 +702,26 @@ export async function resetProgress(userId: string): Promise<UserState> {
   await prisma.$transaction([
     prisma.stepCompletion.deleteMany({ where: { userId } }),
     prisma.userBadge.deleteMany({ where: { userId } }),
+    prisma.userUnlock.deleteMany({ where: { userId } }),
     prisma.user.update({
       where: { id: userId },
       data: {
         totalXp: 0,
         streak: 1,
-        lastVisit: todayIso(),
+        bestStreak: 1,
+        streakShields: 0,
+        shieldEverGranted: false,
+        questsCompleted: 0,
+        perfectBriefingRun: 0,
+        lastPerfectDay: "",
+        dailyClaimed: 0,
+        lastVisit: "",
         lastDailyMission: "",
         lastVisitedCourse: null,
+        frame: null,
+        title: null,
+        emblem: null,
+        cardBg: null,
       },
     }),
   ]);
