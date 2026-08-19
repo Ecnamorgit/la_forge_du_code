@@ -10,12 +10,8 @@ import { useUser } from "@/lib/use-user";
 import { useSoundPreference } from "@/lib/use-sound";
 import AvatarBadge from "@/components/avatar/AvatarBadge";
 import { getRole, getSpecies, getUniformColor } from "@/lib/avatar";
-import {
-  getCompletedSteps,
-  isChapterComplete,
-  levelFromXp,
-  rankFromXp,
-} from "@/lib/user-store";
+import { getCompletedSteps, isChapterComplete } from "@/lib/user-store";
+import { gradeFromXp, levelFromXp } from "@/lib/grades";
 import { getChaptersMeta, type ChapterMetaFull } from "@/lib/courses-meta";
 import { COURSES_CATALOG } from "@/lib/courses-catalog";
 import { BADGES, badgeFrameById } from "@/lib/badges-catalog";
@@ -26,6 +22,13 @@ import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 // Single source of truth lives in lib/badges-catalog.ts (synced with
 // BADGE_BY_CHAPTER). Frame index in badges.png = position in this array.
 const ALL_BADGES = BADGES;
+
+// `state.badges` porte les DEUX familles depuis la boucle quotidienne : les 48
+// badges de cursus ci-dessus et les badges de conduite (lib/conduct-badges.ts),
+// logés dans la même table `UserBadge`. Le compteur de cette page rapporte les
+// badges de cursus à leur propre total : sans ce filtre, un cadet à 2 badges de
+// cursus et 3 de conduite lisait « 5/48 », et « 58/48 » en fin de parcours.
+const CURSUS_BADGE_IDS = new Set(ALL_BADGES.map((b) => b.id));
 
 // All courses come from the catalog — single source of truth, so any new
 // course automatically shows up here with its chapters.
@@ -75,9 +78,11 @@ export default function ProfilPage() {
   const username = state.username || "Cadet";
   const totalXp = state.totalXp;
   const level = levelFromXp(totalXp);
-  const rank = rankFromXp(totalXp);
-  const streak = state.streak || 1;
+  const rank = gradeFromXp(totalXp).label;
+  // Source unique du compteur de liaison côté client : `state.liaison`.
+  const streak = state.liaison.streak || 1;
   const joined = state.joinedAt || "—";
+  const cursusBadgeCount = state.badges.filter((id) => CURSUS_BADGE_IDS.has(id)).length;
 
   const computeProgress = (course: string, chapters: ChapterMetaFull[]) => {
     const totalSteps = chapters.reduce((s, c) => s + c.totalSteps, 0);
@@ -276,7 +281,7 @@ export default function ProfilPage() {
             <BigStat label="Rang" value={rank} accent="orange" />
             <BigStat
               label="Badges"
-              value={`${state.badges.length}/${ALL_BADGES.length}`}
+              value={`${cursusBadgeCount}/${ALL_BADGES.length}`}
               accent="blue"
             />
             <BigStat label="Streak" value={`${streak}j`} accent="green" />

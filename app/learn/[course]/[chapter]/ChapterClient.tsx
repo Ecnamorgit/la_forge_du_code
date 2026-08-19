@@ -17,7 +17,8 @@ import VFXBurst from "@/components/ui/VFXBurst";
 import LevelUpOverlay from "@/components/ui/LevelUpOverlay";
 import { unlockAudio, playFanfare } from "@/lib/audio";
 import { useUserContext } from "@/lib/user-context";
-import { getCompletedSteps, isChapterComplete, levelFromXp } from "@/lib/user-store";
+import { getCompletedSteps, isChapterComplete } from "@/lib/user-store";
+import { levelFromXp } from "@/lib/grades";
 import TrialBanner from "@/components/lesson/TrialBanner";
 import TrialConversion from "@/components/lesson/TrialConversion";
 import { xpForStep } from "@/lib/xp";
@@ -29,6 +30,8 @@ import { combatThemeForCourse } from "@/lib/combat-theme";
 import { badgeFrameById } from "@/lib/badges-catalog";
 import { renderLessonMarkdown } from "@/lib/markdown";
 import { getDocEntry } from "@/data/docs";
+import { UNLOCKS } from "@/lib/unlocks";
+import { getConductBadge } from "@/lib/conduct-badges";
 import DocPanel from "@/components/docs/DocPanel";
 
 interface ChapterClientProps {
@@ -104,12 +107,34 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
   const [showCompletion, setShowCompletion] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [xpPopup, setXpPopup] = useState({ show: false, label: "" });
+  // Signal immédiat de fin d'étape pour la boucle quotidienne (ordre
+  // accompli, badge de conduite, notice de liaison) : réutilise le même
+  // composant XPPopup que le flash d'XP, décalé pour coexister avec lui,
+  // jamais un overlay (les overlays sont réservés à la montée de niveau et
+  // au déblocable). Ne se déclenche jamais sur la dernière étape d'un
+  // chapitre : CompletionScreen va s'afficher et porte déjà cette annonce
+  // via dailyLoopAnnounce — une seule annonce par récompense, jamais deux.
+  const [rewardPopup, setRewardPopup] = useState({ show: false, label: "" });
   const [flashTrigger, setFlashTrigger] = useState(0);
   const [teleportFlash, setTeleportFlash] = useState(0);
   const [bannerVfxTrigger, setBannerVfxTrigger] = useState(0);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [levelUp, setLevelUp] = useState({ trigger: 0, level: 1 });
+  const [levelUp, setLevelUp] = useState<{
+    trigger: number;
+    level: number;
+    unlockLabel?: string;
+  }>({ trigger: 0, level: 1 });
   const [openDocId, setOpenDocId] = useState<string | null>(null);
+  // Annonces de la boucle quotidienne portées par la dernière étape validée
+  // (ordres accomplis, badges de conduite, message de liaison) : révélées sur
+  // l'écran de fin de chapitre (`CompletionScreen`), là où le cadet se trouve
+  // déjà — jamais sur le dashboard. Valeurs neutres tant qu'aucune étape n'a
+  // encore renvoyé de résultat serveur.
+  const [dailyLoopAnnounce, setDailyLoopAnnounce] = useState<{
+    completedQuests: string[];
+    notice: string | null;
+    conductBadges: string[];
+  }>({ completedQuests: [], notice: null, conductBadges: [] });
   const previousLevelRef = useRef<number>(levelFromXp(state.totalXp));
   // Ancre de la carte de conversion d'essai (cf. goNextStep) : permet de la
   // faire défiler jusqu'à l'écran quand le visiteur clique sur le contrôle de
@@ -118,6 +143,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
 
   const hintTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const xpPopupTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const rewardPopupTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     const handler = () => unlockAudio();
@@ -157,13 +183,57 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
 
       void completeStep(course, chapter.slug, currentStep)
         .then((result) => {
+          setDailyLoopAnnounce({
+            completedQuests: result.completedQuests,
+            notice: result.notice,
+            conductBadges: result.newConductBadges,
+          });
+
+          // Annonce immédiate, à l'étape où la récompense tombe — sauf sur la
+          // dernière étape du chapitre : CompletionScreen va s'afficher juste
+          // après et porte déjà dailyLoopAnnounce (ci-dessus). Doubler le
+          // signal ici afficherait la même récompense deux fois ; le sauter
+          // ici la laisserait s'afficher une seule fois, sur CompletionScreen,
+          // ce qui est le comportement voulu.
+          const isFinalStepOfChapter = currentStep === chapter.steps.length - 1;
+          if (!isFinalStepOfChapter) {
+            const rewardLines = [
+              ...result.completedQuests.map((label) => `✓ ${label}`),
+              ...result.newConductBadges
+                .map((id) => getConductBadge(id))
+                .filter((badge): badge is NonNullable<typeof badge> => Boolean(badge))
+                .map((badge) => `${badge.icon} ${badge.label}`),
+              ...(result.notice ? [result.notice] : []),
+            ];
+            if (rewardLines.length > 0) {
+              setRewardPopup({ show: true, label: rewardLines.join(" · ") });
+              clearTimeout(rewardPopupTimerRef.current);
+              rewardPopupTimerRef.current = setTimeout(
+                () => setRewardPopup((p) => ({ ...p, show: false })),
+                3600
+              );
+            }
+          }
+
           const newLevel = levelFromXp(result.state.totalXp);
-          if (newLevel > previousLevelRef.current) {
-            previousLevelRef.current = newLevel;
+          const leveledUp = newLevel > previousLevelRef.current;
+          previousLevelRef.current = newLevel;
+
+          // Une seule cérémonie par étape : la montée de niveau prime sur la
+          // révélation d'un déblocable si les deux tombent sur la même étape
+          // — c'est le jalon le plus rare des deux, et `LevelUpOverlay` ne
+          // peut de toute façon en montrer qu'une à la fois. Le déblocable
+          // n'est pas perdu pour autant : il reste acquis côté serveur et
+          // visible dans l'armurerie.
+          if (leveledUp) {
             spawnLevelUpBurst();
-            setLevelUp((p) => ({ trigger: p.trigger + 1, level: newLevel }));
-          } else {
-            previousLevelRef.current = newLevel;
+            setLevelUp((p) => ({ trigger: p.trigger + 1, level: newLevel, unlockLabel: undefined }));
+          } else if (result.newUnlocks.length > 0) {
+            const label = UNLOCKS.find((u) => u.id === result.newUnlocks[0])?.label;
+            if (label) {
+              spawnLevelUpBurst();
+              setLevelUp((p) => ({ trigger: p.trigger + 1, level: newLevel, unlockLabel: label }));
+            }
           }
         })
         .catch((err) => {
@@ -233,8 +303,13 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
       />
       <ParticleLayer />
       <XPPopup show={xpPopup.show} label={xpPopup.label} />
+      <XPPopup show={rewardPopup.show} label={rewardPopup.label} secondary />
       <VFXBurst trigger={bannerVfxTrigger} />
-      <LevelUpOverlay trigger={levelUp.trigger} level={levelUp.level} />
+      <LevelUpOverlay
+        trigger={levelUp.trigger}
+        level={levelUp.level}
+        unlockLabel={levelUp.unlockLabel}
+      />
       <QuestBanner
         show={showBanner}
         title={step.bannerTtl}
@@ -262,6 +337,9 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             : undefined
         }
         badgeId={getBadgeForChapter(course, chapter.slug) ?? undefined}
+        completedQuests={dailyLoopAnnounce.completedQuests}
+        notice={dailyLoopAnnounce.notice}
+        newConductBadges={dailyLoopAnnounce.conductBadges}
         href={`/learn/${course}`}
       />
       <HintBox show={showHint} html={step.hint} />
@@ -292,7 +370,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             <span className="ml-1.5 text-nebula-text-secondary">/ {course.toUpperCase()} / {chapter.slug.toUpperCase()}</span>
           </div>
         </div>
-        <XPBar xp={xp} maxXp={chapterMaxXp} />
+        <XPBar xp={xp} maxXp={chapterMaxXp} accountLevel={levelFromXp(state.totalXp)} />
       </header>
 
       {/* Mobile tabs — visible only below lg */}

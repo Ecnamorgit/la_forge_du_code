@@ -1,9 +1,16 @@
 interface XPBarProps {
+  /** XP accumulée dans le chapitre en cours (pas le total du compte). */
   xp: number;
+  /** XP totale du chapitre en cours. */
   maxXp: number;
+  /**
+   * Niveau du COMPTE (levelFromXp(totalXp)), pas du chapitre : échelle
+   * distincte de `xp`/`maxXp` ci-dessus, à fournir par l'appelant.
+   */
+  accountLevel: number;
 }
 
-export default function XPBar({ xp, maxXp }: XPBarProps) {
+export default function XPBar({ xp, maxXp, accountLevel }: XPBarProps) {
   return (
     <div className="flex items-center gap-2.5">
       <span className="font-tech text-[11px] text-nebula-cyan tracking-wider">XP</span>
@@ -20,7 +27,7 @@ export default function XPBar({ xp, maxXp }: XPBarProps) {
         {xp} / {maxXp}
       </span>
       <div className="font-tech text-[10px] px-2 py-0.5 border border-nebula-cyan-dim text-nebula-cyan bg-nebula-cyan-faint rounded-sm">
-        LVL 1
+        LVL {accountLevel}
       </div>
     </div>
   );

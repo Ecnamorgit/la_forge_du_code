@@ -1,21 +1,25 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
 import AvatarBadge from "@/components/avatar/AvatarBadge";
+import UnlockShelf, { EmblemShelf } from "@/components/avatar/UnlockShelf";
 import {
   ROLES,
   SPECIES,
-  UNIFORM_COLORS,
+  BASE_UNIFORM_COLORS,
   type RoleId,
   type SpeciesId,
   type UniformColorId,
 } from "@/lib/avatar";
 import { clearTrialState, readTrialState, trialCompletedSteps } from "@/lib/trial-user";
 import { useUser } from "@/lib/use-user";
+import { getCompletionStats } from "@/lib/courses-meta";
+import { COURSES_CATALOG } from "@/lib/courses-catalog";
+import type { UnlockContext } from "@/lib/unlocks";
 
 type Mode = "create" | "edit";
 
@@ -30,7 +34,7 @@ export default function AvatarPage() {
 function AvatarPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { state, hydrated, setAvatar } = useUser();
+  const { state, hydrated, setAvatar, setCosmetics } = useUser();
 
   const mode: Mode = state.species ? "edit" : "create";
   const returnTo = searchParams.get("from") || "/dashboard";
@@ -45,6 +49,7 @@ function AvatarPageInner() {
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cosmeticError, setCosmeticError] = useState<string | null>(null);
 
   // Seed the local form state from the server snapshot once it hydrates (and
   // again if the server values change). Done during render — React's supported
@@ -89,17 +94,54 @@ function AvatarPageInner() {
     })();
   }, []);
 
+  // Statistiques de complétion, pour nourrir `evaluateUnlocks` — même motif
+  // que app/profil/page.tsx et app/dashboard/page.tsx (getCompletionStats),
+  // calculé une seule fois plutôt que dupliqué ici.
+  const completionStats = useMemo(
+    () => getCompletionStats(state, COURSES_CATALOG.map((c) => c.slug)),
+    [state]
+  );
+  const unlockCtx: UnlockContext = {
+    streak: state.liaison.streak,
+    questsCompleted: state.questsCompleted,
+    totalXp: state.totalXp,
+    badges: state.badges,
+    coursesComplete: completionStats.coursesComplete,
+    chaptersComplete: completionStats.chaptersComplete,
+    // La possession, sans laquelle l'armurerie reverrouillerait un objet
+    // obtenu dès que la condition qui l'a produit redevient fausse (les
+    // paliers de liaison retombent à la rupture).
+    owned: state.unlocks,
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSaving(true);
     try {
+      // `uniformColor` peut porter une couleur méritée (choisie depuis
+      // l'Armurerie ci-dessous, jamais depuis ce sélecteur qui n'offre que les
+      // couleurs de base) : `setAvatar` sait la reconnaître et vérifie que le
+      // cadet la possède réellement — un seul appel, aucune valeur de
+      // remplissage, aucune fenêtre où la couleur gagnée pourrait se perdre.
       await setAvatar({ species, uniformColor, role });
       router.push(returnTo);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sauvegarde impossible");
       setSaving(false);
+    }
+  };
+
+  const handleCosmeticSelect = async (
+    key: "frame" | "title" | "cardBg" | "uniform" | "emblem",
+    id: string
+  ) => {
+    setCosmeticError(null);
+    try {
+      await setCosmetics({ [key]: id });
+    } catch (err) {
+      setCosmeticError(err instanceof Error ? err.message : "Sauvegarde impossible");
     }
   };
 
@@ -163,7 +205,7 @@ function AvatarPageInner() {
             description="Affichee comme accent autour de ton avatar."
           >
             <div className="flex flex-wrap gap-3">
-              {UNIFORM_COLORS.map((c) => (
+              {BASE_UNIFORM_COLORS.map((c) => (
                 <button
                   type="button"
                   key={c.id}
@@ -208,6 +250,47 @@ function AvatarPageInner() {
                 />
               ))}
             </div>
+          </Section>
+
+          {/* Armurerie */}
+          <Section
+            label="Armurerie"
+            description="Les objets gagnés en jouant. Les verrouillés restent visibles, avec leur condition — chaque sélection s'enregistre aussitôt."
+          >
+            <UnlockShelf
+              axis="frame"
+              ctx={unlockCtx}
+              selected={state.frame}
+              onSelect={(id) => handleCosmeticSelect("frame", id)}
+            />
+            <UnlockShelf
+              axis="title"
+              ctx={unlockCtx}
+              selected={state.title}
+              onSelect={(id) => handleCosmeticSelect("title", id)}
+            />
+            <UnlockShelf
+              axis="uniform"
+              ctx={unlockCtx}
+              selected={state.uniformColor}
+              onSelect={(id) => handleCosmeticSelect("uniform", id)}
+            />
+            <UnlockShelf
+              axis="cardBg"
+              ctx={unlockCtx}
+              selected={state.cardBg}
+              onSelect={(id) => handleCosmeticSelect("cardBg", id)}
+            />
+            <EmblemShelf
+              badges={state.badges}
+              selected={state.emblem}
+              onSelect={(id) => handleCosmeticSelect("emblem", id)}
+            />
+            {cosmeticError && (
+              <div className="rounded-sm border border-nebula-red/70 bg-nebula-red/15 px-4 py-3 font-tech text-xs uppercase tracking-wider text-nebula-red">
+                {cosmeticError}
+              </div>
+            )}
           </Section>
 
           {error && (

@@ -17,7 +17,12 @@ export type UniformColorId =
   | "orange"
   | "green"
   | "purple"
-  | "gold";
+  | "gold"
+  // Couleurs qui se méritent (catalogue lib/unlocks.ts, axe "uniform").
+  | "rouge-spectre"
+  | "blanc-glacier"
+  | "rose-neon"
+  | "nebuleuse";
 
 export type RoleId =
   | "pilote"
@@ -40,6 +45,12 @@ export interface UniformColorDef {
   hex: string;
   /** Lower-opacity version for backgrounds. */
   glow: string;
+  /**
+   * Vrai quand la couleur se mérite au lieu d'être offerte à la création de
+   * l'avatar. Elle vit dans le catalogue lib/unlocks.ts (axe "uniform") et ne
+   * s'obtient que par `setCosmetics`, jamais par l'écran /avatar.
+   */
+  unlockable?: boolean;
 }
 
 export interface RoleDef {
@@ -89,12 +100,53 @@ export const SPECIES: SpeciesDef[] = [
 ];
 
 export const UNIFORM_COLORS: UniformColorDef[] = [
+  // Offertes : proposées à tous sur l'écran /avatar.
   { id: "cyan", label: "Cyan", hex: "#00f0ff", glow: "rgba(0,240,255,0.35)" },
   { id: "orange", label: "Orange", hex: "#ff6b2c", glow: "rgba(255,107,44,0.35)" },
   { id: "green", label: "Vert", hex: "#00ff88", glow: "rgba(0,255,136,0.35)" },
   { id: "purple", label: "Violet", hex: "#b067ff", glow: "rgba(176,103,255,0.35)" },
   { id: "gold", label: "Or", hex: "#ffc844", glow: "rgba(255,200,68,0.35)" },
+
+  // Méritées : teintes choisies pour rester lisibles sur le fond sombre de
+  // l'application (luminosité proche des cinq offertes, jamais un ton mat).
+  {
+    id: "rouge-spectre",
+    label: "Rouge Spectre",
+    hex: "#ff3b5c",
+    glow: "rgba(255,59,92,0.35)",
+    unlockable: true,
+  },
+  {
+    id: "blanc-glacier",
+    label: "Blanc glacier",
+    hex: "#dff4ff",
+    glow: "rgba(223,244,255,0.35)",
+    unlockable: true,
+  },
+  {
+    id: "rose-neon",
+    label: "Rose néon",
+    hex: "#ff5ce1",
+    glow: "rgba(255,92,225,0.35)",
+    unlockable: true,
+  },
+  {
+    id: "nebuleuse",
+    label: "Dégradé nébuleuse",
+    hex: "#9d6bff",
+    glow: "rgba(157,107,255,0.35)",
+    unlockable: true,
+  },
 ];
+
+/**
+ * Les seules couleurs proposées à la création de l'avatar. Les couleurs
+ * méritées en sont exclues : sans cette liste, l'écran /avatar les offrirait
+ * gratuitement et le déblocage ne vaudrait plus rien.
+ */
+export const BASE_UNIFORM_COLORS: UniformColorDef[] = UNIFORM_COLORS.filter(
+  (c) => !c.unlockable
+);
 
 export const ROLES: RoleDef[] = [
   {
@@ -158,6 +210,15 @@ export function isSpeciesId(v: unknown): v is SpeciesId {
 }
 export function isUniformColorId(v: unknown): v is UniformColorId {
   return typeof v === "string" && UNIFORM_COLORS.some((c) => c.id === v);
+}
+/**
+ * Variante stricte pour la route /api/me/avatar : elle refuse les couleurs qui
+ * se méritent. `isUniformColorId` reconnaît TOUTES les couleurs (il sert à
+ * l'affichage, qui doit savoir rendre une couleur débloquée) ; l'accepter à
+ * l'entrée de l'avatar donnerait les quatre déblocables à qui les demande.
+ */
+export function isBaseUniformColorId(v: unknown): v is UniformColorId {
+  return typeof v === "string" && BASE_UNIFORM_COLORS.some((c) => c.id === v);
 }
 export function isRoleId(v: unknown): v is RoleId {
   return typeof v === "string" && ROLES.some((r) => r.id === v);

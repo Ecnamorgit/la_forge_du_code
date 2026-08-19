@@ -2,27 +2,19 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/auth";
-import { InvalidAvatarError, UserNotFoundError, setAvatar } from "@/lib/me-server";
-import { isRoleId, isSpeciesId } from "@/lib/avatar";
+import {
+  InvalidCosmeticError,
+  UserNotFoundError,
+  setCosmetics,
+} from "@/lib/me-server";
 
-// `uniformColor` n'est validé qu'en forme ici (chaîne non vide) : la
-// décision de fond — couleur de base toujours libre, couleur méritée
-// réservée à qui l'a débloquée — dépend de l'utilisateur et vit dans
-// `setAvatar` (lib/me-server.ts), pas dans une liste de constantes.
-const bodySchema = z
-  .object({
-    species: z.string().min(1).max(32),
-    uniformColor: z.string().min(1).max(32),
-    role: z.string().min(1).max(32),
-  })
-  .refine((data) => isSpeciesId(data.species), {
-    message: "Espece invalide",
-    path: ["species"],
-  })
-  .refine((data) => isRoleId(data.role), {
-    message: "Role invalide",
-    path: ["role"],
-  });
+const bodySchema = z.object({
+  frame: z.string().min(1).max(48).optional(),
+  title: z.string().min(1).max(48).optional(),
+  emblem: z.string().min(1).max(48).optional(),
+  cardBg: z.string().min(1).max(48).optional(),
+  uniform: z.string().min(1).max(48).optional(),
+});
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -46,13 +38,13 @@ export async function POST(req: Request) {
   }
 
   try {
-    const state = await setAvatar(session.user.id, parsed.data);
+    const state = await setCosmetics(session.user.id, parsed.data);
     return NextResponse.json(state);
   } catch (err) {
     if (err instanceof UserNotFoundError) {
       return NextResponse.json({ error: err.message }, { status: 401 });
     }
-    if (err instanceof InvalidAvatarError) {
+    if (err instanceof InvalidCosmeticError) {
       return NextResponse.json({ error: err.message }, { status: 400 });
     }
     throw err;

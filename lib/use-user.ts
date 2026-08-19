@@ -10,12 +10,13 @@ export interface CompleteStepResponse {
   awardedXp: number;
   newBadge: string | null;
   alreadyDone: boolean;
-}
-
-export interface ClaimDailyResponse {
-  state: UserState;
-  awardedXp: number;
-  alreadyClaimed: boolean;
+  /** XP versée par les ordres du jour, incluse dans awardedXp. */
+  questXp: number;
+  completedQuests: string[];
+  newConductBadges: string[];
+  newUnlocks: string[];
+  /** Message de liaison à afficher une fois (relais consommé, rupture). */
+  notice: string | null;
 }
 
 export interface UseUserReturn {
@@ -23,8 +24,6 @@ export interface UseUserReturn {
   hydrated: boolean;
   /** Refetch the state from the server (e.g. after an external change). */
   refresh: () => Promise<void>;
-  /** Claim the once-per-day mission bonus. */
-  claimDailyMission: () => Promise<ClaimDailyResponse>;
   /** Server-validated step completion. Returns awarded XP + new badge. */
   completeStep: (
     course: string,
@@ -42,6 +41,14 @@ export interface UseUserReturn {
     species: string;
     uniformColor: string;
     role: string;
+  }) => Promise<UserState>;
+  /** Enregistre les cosmétiques portés. Le serveur refuse ce qui n'est pas débloqué. */
+  setCosmetics: (choices: {
+    frame?: string;
+    title?: string;
+    emblem?: string;
+    cardBg?: string;
+    uniform?: string;
   }) => Promise<UserState>;
   /**
    * Mark a course as the user's current focus. Called by chapter pages on
@@ -222,6 +229,39 @@ export function useUser(): UseUserReturn {
     []
   );
 
+  const setCosmetics = useCallback(
+    async (choices: {
+      frame?: string;
+      title?: string;
+      emblem?: string;
+      cardBg?: string;
+      uniform?: string;
+    }) => {
+      let res: Response;
+      try {
+        res = await fetch("/api/me/cosmetics", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(choices),
+        });
+      } catch {
+        throw new Error(toNetworkMessage());
+      }
+      if (res.status === 401) {
+        void signOut({ callbackUrl: "/login" });
+        throw new Error("Session expiree. Reconnecte-toi.");
+      }
+      if (!res.ok) {
+        const err = await readJson<{ error?: string }>(res);
+        throw new Error(err.error ?? "Sauvegarde impossible");
+      }
+      const next = await readJson<UserState>(res);
+      setState(next);
+      return next;
+    },
+    []
+  );
+
   const markCourseVisited = useCallback(async (course: string) => {
     try {
       const res = await fetch("/api/me/visit", {
@@ -235,26 +275,6 @@ export function useUser(): UseUserReturn {
     } catch {
       // Best-effort: silently ignore network / server hiccups.
     }
-  }, []);
-
-  const claimDailyMission = useCallback(async (): Promise<ClaimDailyResponse> => {
-    let res: Response;
-    try {
-      res = await fetch("/api/me/daily", { method: "POST" });
-    } catch {
-      throw new Error(toNetworkMessage());
-    }
-    if (res.status === 401) {
-      void signOut({ callbackUrl: "/login" });
-      throw new Error("Session expiree. Reconnecte-toi.");
-    }
-    if (!res.ok) {
-      const err = await readJson<{ error?: string }>(res);
-      throw new Error(err.error ?? "Mission du jour indisponible");
-    }
-    const data = await readJson<ClaimDailyResponse>(res);
-    setState(data.state);
-    return data;
   }, []);
 
   const reset = useCallback(async () => {
@@ -284,12 +304,12 @@ export function useUser(): UseUserReturn {
     state: publicState,
     hydrated,
     refresh,
-    claimDailyMission,
     completeStep,
     renameUser,
     reset,
     markOnboarded,
     setAvatar,
+    setCosmetics,
     markCourseVisited,
   };
 }

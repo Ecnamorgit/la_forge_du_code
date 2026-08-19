@@ -25,10 +25,25 @@ model User {
   joinedAt     DateTime  @default(now())
   totalXp      Int       @default(0)
   streak       Int       @default(1)
-  lastVisit         String    @default("") // ISO date (yyyy-mm-dd)
+  lastVisit         String    @default("") // ISO date (yyyy-mm-dd) du dernier jour ACTIF (travail réel, pas visite)
   lastDailyMission  String    @default("") // ISO date (yyyy-mm-dd) of last daily-mission claim
   lastVisitedCourse String? // slug of the last course the user actively interacted with
   onboardedAt       DateTime? // null until the user finishes the first-login briefing
+
+  // --- Boucle quotidienne -------------------------------------------------
+  bestStreak        Int     @default(1) // record permanent de liaison
+  streakShields     Int     @default(0) // relais de secours détenus (max 2)
+  shieldEverGranted Boolean @default(false) // le relais offert du 3e jour n'est donné qu'une fois
+  questsCompleted   Int     @default(0) // total d'ordres validés (badges de conduite)
+  perfectBriefingRun Int    @default(0) // briefings complets d'affilée
+  lastPerfectDay    String  @default("") // ISO date du dernier briefing complet
+  dailyClaimed      Int     @default(0) // masque de bits : 0-2 = les 3 ordres, 3 = clôture
+
+  // Cosmétiques déblocables (null = valeur par défaut du catalogue)
+  frame  String?
+  title  String?
+  emblem String?
+  cardBg String?
 
   // Avatar (purely cosmetic). All null until first configuration on /avatar.
   species      String? // "humain" | "cyborg" | "synthetique" | "hybride" | "inconnue"
@@ -38,6 +53,7 @@ model User {
   accounts        Account[]
   sessions        Session[]
   badges          UserBadge[]
+  unlocks         UserUnlock[]
   stepCompletions StepCompletion[]
   oneTimeTokens   OneTimeToken[]
 }
@@ -107,6 +123,17 @@ model UserBadge {
   @@unique([userId, badgeId])
 }
 
+model UserUnlock {
+  id         String   @id @default(cuid())
+  userId     String
+  itemId     String
+  unlockedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId])
+}
+
 model StepCompletion {
   id          String   @id @default(cuid())
   userId      String
@@ -118,6 +145,7 @@ model StepCompletion {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, course, chapter, stepIndex])
+  @@index([userId, completedAt])
 }
 
 /// Comptage agrégé du tunnel d'acquisition. Aucune donnée personnelle :

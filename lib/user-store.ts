@@ -1,7 +1,33 @@
+import type { Briefing } from "./quests";
+
+/** Vue client de la liaison. Le serveur en est seul maître. */
+export interface LiaisonPublic {
+  streak: number;
+  bestStreak: number;
+  shields: number;
+  /** Les 7 derniers jours, du plus ancien au plus récent. */
+  week: boolean[];
+  /**
+   * La journée d'aujourd'hui est-elle DÉJÀ comptée dans `streak` ?
+   *
+   * Faux tant que le cadet n'a validé aucune étape aujourd'hui. `streak` est
+   * alors le compte d'hier : il reste juste, mais il n'est pas encore acquis
+   * pour la journée en cours.
+   */
+  activeToday: boolean;
+  /**
+   * Valider une étape maintenant romprait-il la série ?
+   *
+   * Vrai quand l'absence dépasse ce que les relais peuvent couvrir. Permet
+   * d'annoncer « ta liaison est perdue » plutôt que d'afficher un compteur
+   * périmé jusqu'à la prochaine étape. Toujours faux si `activeToday`.
+   */
+  wouldBreakToday: boolean;
+}
+
 export interface UserState {
   username: string;
   totalXp: number;
-  streak: number;
   lastVisit: string;
   // ISO date (yyyy-mm-dd) the daily mission was last claimed; "" if never.
   lastDailyMission: string;
@@ -19,12 +45,30 @@ export interface UserState {
   species: string | null;
   uniformColor: string | null;
   role: string | null;
+
+  // --- Boucle quotidienne ---------------------------------------------
+  /** Briefing du jour, calculé serveur. Null en mode essai (visiteur local). */
+  briefing: Briefing | null;
+  /**
+   * Le compteur de liaison vit ici, et nulle part ailleurs. Un champ `streak`
+   * de premier niveau a longtemps coexisté avec `liaison.streak`, identique à
+   * la source : cette dualité a suffi à faire calculer les déblocables côté
+   * client depuis la mauvaise moitié de l'état.
+   */
+  liaison: LiaisonPublic;
+  /** Ids des cosmétiques débloqués, tels qu'ils sont possédés en base. */
+  unlocks: string[];
+  /** Total d'ordres validés (progression des badges de conduite). */
+  questsCompleted: number;
+  frame: string | null;
+  title: string | null;
+  emblem: string | null;
+  cardBg: string | null;
 }
 
 export const DEFAULT_USER: UserState = {
   username: "",
   totalXp: 0,
-  streak: 1,
   lastVisit: "",
   lastDailyMission: "",
   lastVisitedCourse: null,
@@ -35,23 +79,26 @@ export const DEFAULT_USER: UserState = {
   species: null,
   uniformColor: null,
   role: null,
+  briefing: null,
+  liaison: {
+    streak: 1,
+    bestStreak: 1,
+    shields: 0,
+    week: [false, false, false, false, false, false, false],
+    activeToday: false,
+    wouldBreakToday: false,
+  },
+  unlocks: [],
+  questsCompleted: 0,
+  frame: null,
+  title: null,
+  emblem: null,
+  cardBg: null,
 };
 
 /** Has the user picked an avatar (all 3 fields populated) ? */
 export function hasAvatar(state: UserState): boolean {
   return state.species !== null && state.uniformColor !== null && state.role !== null;
-}
-
-/** Compute level from XP (every 100 XP = 1 level) */
-export function levelFromXp(xp: number): number {
-  return Math.floor(xp / 100) + 1;
-}
-
-/** Compute rank label from XP */
-export function rankFromXp(xp: number): string {
-  if (xp >= 1000) return "Or";
-  if (xp >= 500) return "Argent";
-  return "Bronze";
 }
 
 /** Get array of completed step indexes for a chapter */

@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import DashboardNav from "../DashboardNav";
 import { useUser } from "@/lib/use-user";
-import { levelFromXp, rankFromXp } from "@/lib/user-store";
+import { gradeFromXp, levelFromXp } from "@/lib/grades";
 
 import type { LeaderboardEntry, LeaderboardResponse } from "../api/leaderboard/route";
 
@@ -107,7 +107,7 @@ export default function LeaderboardPage() {
 
 function Row({ entry }: { entry: LeaderboardEntry }) {
   const level = levelFromXp(entry.totalXp);
-  const rank = rankFromXp(entry.totalXp);
+  const rank = gradeFromXp(entry.totalXp).label;
   const medal = entry.rank === 1 ? "🥇" : entry.rank === 2 ? "🥈" : entry.rank === 3 ? "🥉" : null;
 
   return (
