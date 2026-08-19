@@ -11,7 +11,6 @@ import {
   ROLES,
   SPECIES,
   BASE_UNIFORM_COLORS,
-  isBaseUniformColorId,
   type RoleId,
   type SpeciesId,
   type UniformColorId,
@@ -116,21 +115,12 @@ function AvatarPageInner() {
     setError(null);
     setSaving(true);
     try {
-      if (isBaseUniformColorId(uniformColor)) {
-        await setAvatar({ species, uniformColor, role });
-      } else {
-        // `uniformColor` porte une couleur méritée (choisie depuis
-        // l'Armurerie, jamais depuis ce sélecteur qui n'offre que les
-        // couleurs de base) : la route /avatar la refuserait. On envoie une
-        // couleur de base de remplissage à `setAvatar`, puis on restaure
-        // aussitôt la couleur méritée via `setCosmetics`, seul chemin qui
-        // l'accepte car il vérifie qu'elle est bien possédée. Le cadet peut
-        // ainsi changer d'espèce ou de rôle sans perdre ce qu'il a gagné, et
-        // sans l'obtenir gratuitement puisque `setCosmetics` revalide la
-        // possession à chaque appel.
-        await setAvatar({ species, uniformColor: "cyan", role });
-        await setCosmetics({ uniform: uniformColor });
-      }
+      // `uniformColor` peut porter une couleur méritée (choisie depuis
+      // l'Armurerie ci-dessous, jamais depuis ce sélecteur qui n'offre que les
+      // couleurs de base) : `setAvatar` sait la reconnaître et vérifie que le
+      // cadet la possède réellement — un seul appel, aucune valeur de
+      // remplissage, aucune fenêtre où la couleur gagnée pourrait se perdre.
+      await setAvatar({ species, uniformColor, role });
       router.push(returnTo);
       router.refresh();
     } catch (err) {

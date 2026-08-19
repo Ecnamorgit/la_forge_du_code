@@ -14,6 +14,7 @@ import {
 } from "@/lib/quests";
 import { advanceLiaison } from "@/lib/streak";
 import { evaluateUnlocks, UNLOCKS, type UnlockAxis } from "@/lib/unlocks";
+import { isBaseUniformColorId } from "@/lib/avatar";
 import type { LiaisonPublic, UserState } from "@/lib/user-store";
 
 function todayIso(): string {
@@ -587,17 +588,42 @@ export async function markOnboarded(userId: string): Promise<UserState> {
 export class InvalidAvatarError extends Error {}
 
 /**
- * Save the user's avatar choices. Validates the 3 ids against the constant
- * lists, then writes them in a single update. Idempotent — calling it twice
- * with the same values is a no-op write.
+ * Save the user's avatar choices. Species et role sont validés en amont, dans
+ * la route, contre des listes constantes — un id syntaxiquement valide l'est
+ * pour tout le monde, aucune donnée utilisateur n'entre en jeu.
+ *
+ * La couleur d'uniforme est différente : les couleurs de base restent libres,
+ * mais les couleurs méritées (catalogue `UNLOCKS`, axe `uniform`) exigent une
+ * garde de possession, comme `setCosmetics`. Une garde purement syntaxique
+ * (liste de constantes) ne peut pas trancher ça — elle ne sait pas qui écrit.
+ * C'est pourquoi cette vérification vit ici plutôt que dans la route : le
+ * fond de la décision dépend de l'utilisateur, la route ne peut valider que la
+ * forme.
  */
 export async function setAvatar(
   userId: string,
   args: { species: string; uniformColor: string; role: string }
 ): Promise<UserState> {
-  // Validation happens upstream in the route handler against the constants,
-  // but we keep the assertUserExists guard for stale-JWT protection.
   await assertUserExists(userId);
+
+  if (!isBaseUniformColorId(args.uniformColor)) {
+    // Pas une couleur offerte : n'est acceptée que si le cadet possède
+    // réellement le déblocage correspondant — même mécanisme de garde que
+    // `setCosmetics` (axe "uniform"), repris plutôt que réinventé.
+    const def = UNLOCKS.find((u) => u.id === args.uniformColor && u.axis === "uniform");
+    if (!def) {
+      throw new InvalidAvatarError("Couleur d'uniforme invalide");
+    }
+    if (def.condition.kind !== "default") {
+      const owned = await prisma.userUnlock.findFirst({
+        where: { userId, itemId: args.uniformColor },
+        select: { id: true },
+      });
+      if (!owned) {
+        throw new InvalidAvatarError("Cette couleur n'est pas débloquée");
+      }
+    }
+  }
 
   await prisma.user.update({
     where: { id: userId },

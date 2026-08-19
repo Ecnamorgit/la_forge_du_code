@@ -2,9 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { auth } from "@/auth";
-import { UserNotFoundError, setAvatar } from "@/lib/me-server";
-import { isBaseUniformColorId, isRoleId, isSpeciesId } from "@/lib/avatar";
+import { InvalidAvatarError, UserNotFoundError, setAvatar } from "@/lib/me-server";
+import { isRoleId, isSpeciesId } from "@/lib/avatar";
 
+// `uniformColor` n'est validé qu'en forme ici (chaîne non vide) : la
+// décision de fond — couleur de base toujours libre, couleur méritée
+// réservée à qui l'a débloquée — dépend de l'utilisateur et vit dans
+// `setAvatar` (lib/me-server.ts), pas dans une liste de constantes.
 const bodySchema = z
   .object({
     species: z.string().min(1).max(32),
@@ -14,10 +18,6 @@ const bodySchema = z
   .refine((data) => isSpeciesId(data.species), {
     message: "Espece invalide",
     path: ["species"],
-  })
-  .refine((data) => isBaseUniformColorId(data.uniformColor), {
-    message: "Couleur d'uniforme invalide",
-    path: ["uniformColor"],
   })
   .refine((data) => isRoleId(data.role), {
     message: "Role invalide",
@@ -51,6 +51,9 @@ export async function POST(req: Request) {
   } catch (err) {
     if (err instanceof UserNotFoundError) {
       return NextResponse.json({ error: err.message }, { status: 401 });
+    }
+    if (err instanceof InvalidAvatarError) {
+      return NextResponse.json({ error: err.message }, { status: 400 });
     }
     throw err;
   }
