@@ -96,8 +96,10 @@ describe("nextUnlock", () => {
     expect(suivant).not.toBeNull();
     // Le seul objet verrouillé restant est conditionné par un badge
     expect(suivant?.def.condition.kind).toBe("badge");
-    // Et c'est le premier du catalogue dans cet ordre
-    expect(suivant?.def.id).toBe("corrompu");
+    // Les badges sont à égalité par construction (distance = Infinity pour tous).
+    // L'ordre du catalogue tranche : c'est le premier objet à condition badge.
+    const firstBadgeUnlock = UNLOCKS.find((u) => u.condition.kind === "badge");
+    expect(suivant?.def.id).toBe(firstBadgeUnlock?.id);
   });
 
   it("retourne null quand tout est obtenu", () => {

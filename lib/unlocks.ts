@@ -9,13 +9,6 @@
 
 import { GRADES, gradeFromXp } from "./grades";
 
-/** Distance utilisée pour les conditions basées sur des badges.
- * Une condition de badge n'a pas de distance numérique mesurable.
- * On les classe donc après tout ce qui est quantifiable (liaison, ordres, XP, grades, etc.),
- * sans les rendre incomparables. Le reduce choisira le premier du catalogue en cas d'égalité.
- */
-const BADGE_DISTANCE = 10_000;
-
 export type UnlockAxis = "frame" | "title" | "uniform" | "cardBg";
 
 export type UnlockCondition =
@@ -168,6 +161,14 @@ export function evaluateUnlocks(ctx: UnlockContext): UnlockStatus[] {
  * Ordonné par proximité : liaison d'abord, puis ordres, puis XP/grades/chapitres/cursus,
  * puis conditions de badge (sans distance mesurable). À distance égale, l'ordre du catalogue tranche.
  */
+/**
+ * Le prochain objet à portée, pour la ligne permanente de la carte de cadet.
+ *
+ * Rend l'objet verrouillé dont la distance mesurable (jours, ordres, XP, grade, chapitres, cursus)
+ * est la plus petite. Les conditions de type badge n'ont pas de distance numérique : elles se classent
+ * après tout objet mesurable, à égalité entre elles. Quand seuls des objets à badge restent verrouillés,
+ * c'est l'ordre de déclaration du catalogue qui tranche — comportement stable et voulu.
+ */
 export function nextUnlock(ctx: UnlockContext): UnlockStatus | null {
   const distance = (c: UnlockCondition): number => {
     switch (c.kind) {
@@ -185,8 +186,6 @@ export function nextUnlock(ctx: UnlockContext): UnlockStatus | null {
         return (c.count - ctx.chaptersComplete) * 3;
       case "coursesComplete":
         return (c.count - ctx.coursesComplete) * 20;
-      case "badge":
-        return BADGE_DISTANCE;
       default:
         return Number.POSITIVE_INFINITY;
     }
