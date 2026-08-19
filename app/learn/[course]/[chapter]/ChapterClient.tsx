@@ -31,6 +31,7 @@ import { badgeFrameById } from "@/lib/badges-catalog";
 import { renderLessonMarkdown } from "@/lib/markdown";
 import { getDocEntry } from "@/data/docs";
 import { UNLOCKS } from "@/lib/unlocks";
+import { getConductBadge } from "@/lib/conduct-badges";
 import DocPanel from "@/components/docs/DocPanel";
 
 interface ChapterClientProps {
@@ -106,6 +107,14 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
   const [showCompletion, setShowCompletion] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [xpPopup, setXpPopup] = useState({ show: false, label: "" });
+  // Signal immédiat de fin d'étape pour la boucle quotidienne (ordre
+  // accompli, badge de conduite, notice de liaison) : réutilise le même
+  // composant XPPopup que le flash d'XP, décalé pour coexister avec lui,
+  // jamais un overlay (les overlays sont réservés à la montée de niveau et
+  // au déblocable). Ne se déclenche jamais sur la dernière étape d'un
+  // chapitre : CompletionScreen va s'afficher et porte déjà cette annonce
+  // via dailyLoopAnnounce — une seule annonce par récompense, jamais deux.
+  const [rewardPopup, setRewardPopup] = useState({ show: false, label: "" });
   const [flashTrigger, setFlashTrigger] = useState(0);
   const [teleportFlash, setTeleportFlash] = useState(0);
   const [bannerVfxTrigger, setBannerVfxTrigger] = useState(0);
@@ -134,6 +143,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
 
   const hintTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const xpPopupTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const rewardPopupTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     const handler = () => unlockAudio();
@@ -178,6 +188,32 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             notice: result.notice,
             conductBadges: result.newConductBadges,
           });
+
+          // Annonce immédiate, à l'étape où la récompense tombe — sauf sur la
+          // dernière étape du chapitre : CompletionScreen va s'afficher juste
+          // après et porte déjà dailyLoopAnnounce (ci-dessus). Doubler le
+          // signal ici afficherait la même récompense deux fois ; le sauter
+          // ici la laisserait s'afficher une seule fois, sur CompletionScreen,
+          // ce qui est le comportement voulu.
+          const isFinalStepOfChapter = currentStep === chapter.steps.length - 1;
+          if (!isFinalStepOfChapter) {
+            const rewardLines = [
+              ...result.completedQuests.map((label) => `✓ ${label}`),
+              ...result.newConductBadges
+                .map((id) => getConductBadge(id))
+                .filter((badge): badge is NonNullable<typeof badge> => Boolean(badge))
+                .map((badge) => `${badge.icon} ${badge.label}`),
+              ...(result.notice ? [result.notice] : []),
+            ];
+            if (rewardLines.length > 0) {
+              setRewardPopup({ show: true, label: rewardLines.join(" · ") });
+              clearTimeout(rewardPopupTimerRef.current);
+              rewardPopupTimerRef.current = setTimeout(
+                () => setRewardPopup((p) => ({ ...p, show: false })),
+                3600
+              );
+            }
+          }
 
           const newLevel = levelFromXp(result.state.totalXp);
           const leveledUp = newLevel > previousLevelRef.current;
@@ -267,6 +303,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
       />
       <ParticleLayer />
       <XPPopup show={xpPopup.show} label={xpPopup.label} />
+      <XPPopup show={rewardPopup.show} label={rewardPopup.label} secondary />
       <VFXBurst trigger={bannerVfxTrigger} />
       <LevelUpOverlay
         trigger={levelUp.trigger}

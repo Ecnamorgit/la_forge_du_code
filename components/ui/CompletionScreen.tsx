@@ -18,8 +18,6 @@ interface CompletionScreenProps {
   badgeId?: string;
   /** Libellés des ordres du jour accomplis par cette étape. */
   completedQuests?: string[];
-  /** Ids de cosmétiques débloqués à l'instant. */
-  newUnlocks?: string[];
   /** Ids des badges de conduite obtenus par cette étape (catalogue lib/conduct-badges.ts). */
   newConductBadges?: string[];
   /** Message de liaison ponctuel (relais consommé, rupture). */
@@ -45,7 +43,7 @@ export default function CompletionScreen({
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-[rgba(3,6,13,0.97)] animate-overlay-in">
-      <div className="max-w-[520px] rounded-sm border border-nebula-cyan bg-nebula-bg-panel px-16 py-12 text-center shadow-[0_0_80px_rgba(0,240,255,0.15),0_0_160px_rgba(0,240,255,0.05)] animate-modal-pop-in">
+      <div className="max-w-[520px] max-h-[90vh] overflow-y-auto rounded-sm border border-nebula-cyan bg-nebula-bg-panel px-16 py-12 text-center shadow-[0_0_80px_rgba(0,240,255,0.15),0_0_160px_rgba(0,240,255,0.05)] animate-modal-pop-in">
         <span className="mb-5 block text-7xl animate-orbit-spin">🛸</span>
         <div className="mb-3.5 font-tech text-xl leading-relaxed tracking-widest text-nebula-cyan [text-shadow:0_0_30px_rgba(0,240,255,0.4)]">
           MISSION
@@ -63,8 +61,8 @@ export default function CompletionScreen({
             <div className="mb-1 font-tech text-[10px] uppercase tracking-widest text-nebula-green">
               Ordre du jour accompli
             </div>
-            {completedQuests.map((label) => (
-              <div key={label} className="font-body text-sm text-nebula-text-secondary">
+            {completedQuests.map((label, idx) => (
+              <div key={`${idx}-${label}`} className="font-body text-sm text-nebula-text-secondary">
                 ✓ {label}
               </div>
             ))}
