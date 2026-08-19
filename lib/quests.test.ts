@@ -37,6 +37,21 @@ function ctx(p: Partial<QuestContext> = {}): QuestContext {
   };
 }
 
+/**
+ * N jours ISO consécutifs à partir de `depart`. Donnée de test pour balayer
+ * le tirage sur plusieurs jours — ce n'est pas une lecture d'horloge
+ * applicative, `buildBriefing` reste nourri par un `todayIso` explicite.
+ */
+function joursConsecutifs(depart: string, n: number): string[] {
+  const jours: string[] = [];
+  const d = new Date(`${depart}T00:00:00.000Z`);
+  for (let i = 0; i < n; i++) {
+    jours.push(d.toISOString().slice(0, 10));
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return jours;
+}
+
 describe("splitCompletions", () => {
   it("sépare le passé strict du jour courant", () => {
     const all = [
@@ -69,6 +84,8 @@ const PASSE_RICHE: CompletionRecord[] = [
   step("css", "chapitre-1", 0, "2026-08-01"),
 ];
 
+const EMPLACEMENTS = ["reprise", "effort", "curiosite"] as const;
+
 describe("buildBriefing — déterminisme", () => {
   it("rend le même briefing pour le même cadet le même jour", () => {
     const a = buildBriefing(ctx({ past: PASSE_RICHE }));
@@ -76,30 +93,38 @@ describe("buildBriefing — déterminisme", () => {
     expect(a.quests.map((q) => q.id)).toEqual(b.quests.map((q) => q.id));
   });
 
-  it("rend un briefing différent d'un jour à l'autre", () => {
-    const jours = [
-      "2026-08-19",
-      "2026-08-20",
-      "2026-08-21",
-      "2026-08-22",
-      "2026-08-23",
-      "2026-08-24",
-    ];
-    const ids = jours.map((j) =>
-      buildBriefing(ctx({ past: PASSE_RICHE, todayIso: j }))
-        .quests.map((q) => q.id)
-        .join("|")
-    );
-    expect(new Set(ids).size).toBeGreaterThan(1);
+  it("chaque emplacement varie d'un jour à l'autre", () => {
+    const jours = joursConsecutifs("2026-08-19", 20);
+    for (const slot of EMPLACEMENTS) {
+      const idsParJour = jours.map(
+        (j) =>
+          buildBriefing(ctx({ past: PASSE_RICHE, todayIso: j })).quests.find(
+            (q) => q.slot === slot
+          )?.id
+      );
+      const distincts = new Set(idsParJour);
+      expect(
+        distincts.size,
+        `emplacement ${slot} sur ${jours.length} jours : ${idsParJour.join(", ")}`
+      ).toBeGreaterThanOrEqual(2);
+    }
   });
 
-  it("rend un briefing différent d'un cadet à l'autre", () => {
-    const ids = ["cadet-1", "cadet-2", "cadet-3", "cadet-4"].map((u) =>
-      buildBriefing(ctx({ past: PASSE_RICHE, userId: u }))
-        .quests.map((q) => q.id)
-        .join("|")
-    );
-    expect(new Set(ids).size).toBeGreaterThan(1);
+  it("chaque emplacement varie d'un cadet à l'autre", () => {
+    const cadets = Array.from({ length: 10 }, (_, i) => `cadet-${i + 1}`);
+    for (const slot of EMPLACEMENTS) {
+      const idsParCadet = cadets.map(
+        (u) =>
+          buildBriefing(ctx({ past: PASSE_RICHE, userId: u })).quests.find(
+            (q) => q.slot === slot
+          )?.id
+      );
+      const distincts = new Set(idsParCadet);
+      expect(
+        distincts.size,
+        `emplacement ${slot} sur ${cadets.length} cadets : ${idsParCadet.join(", ")}`
+      ).toBeGreaterThanOrEqual(2);
+    }
   });
 });
 
@@ -166,14 +191,29 @@ describe("buildBriefing — faisabilité", () => {
   });
 
   it("ne propose jamais de boucler un chapitre déjà bouclé", () => {
-    const past = [0, 1, 2, 3].map((i) => step("html", "chapitre-1", i, "2026-08-01"));
-    for (const jour of ["2026-08-19", "2026-08-20", "2026-08-21", "2026-08-22", "2026-08-23"]) {
+    // html/chapitre-1 est terminé (4/4) : chaptersInProgress l'exclut, donc
+    // boucler-chapitre ne peut viser que html/chapitre-2, entamé à 50 %.
+    // Sans un chapitre réellement en cours au-delà de la moitié, l'archétype
+    // ne serait jamais faisable et ce test passerait sans jamais s'exécuter.
+    const past = [
+      step("html", "chapitre-1", 0, "2026-08-01"),
+      step("html", "chapitre-1", 1, "2026-08-01"),
+      step("html", "chapitre-1", 2, "2026-08-01"),
+      step("html", "chapitre-1", 3, "2026-08-01"),
+      step("html", "chapitre-2", 0, "2026-08-01"),
+      step("html", "chapitre-2", 1, "2026-08-01"),
+    ];
+    const jours = joursConsecutifs("2026-08-19", 20);
+    let tire = false;
+    for (const jour of jours) {
       const b = buildBriefing(ctx({ past, todayIso: jour }));
       const boucle = b.quests.find((q) => q.id === "boucler-chapitre");
       if (boucle) {
-        expect(`${boucle.course}/${boucle.chapter}`).not.toBe("html/chapitre-1");
+        tire = true;
+        expect(`${boucle.course}/${boucle.chapter}`).toBe("html/chapitre-2");
       }
     }
+    expect(tire, `boucler-chapitre jamais tiré sur ${jours.length} jours`).toBe(true);
   });
 
   it("ne propose pas d'ouvrir un cursus quand tous sont entamés", () => {
