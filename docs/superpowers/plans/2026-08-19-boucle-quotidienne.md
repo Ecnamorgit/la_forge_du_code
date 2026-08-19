@@ -19,6 +19,12 @@
 - **L'XP n'est jamais calculée côté client.** Le serveur recompte depuis `StepCompletion`.
 - **XP du briefing :** reprise 10, effort 20, curiosité 15, clôture 15 — **60 XP par jour maximum**. Ne pas augmenter : au-delà, on paie deux fois les mêmes étapes.
 - **Le streak ne donne jamais d'XP.** Il paie en déblocables et en relais de secours.
+- **La liaison avance sur la première ÉTAPE validée du jour**, jamais à la simple
+  visite — et non sur le premier ordre accompli. Un ordre peut demander
+  plusieurs étapes ; un cadet qui n'en boucle qu'une un jour chargé a travaillé
+  quand même, et lui rompre sa série serait punir son effort. *(Arbitrage du
+  contrôleur en T7 : le concept « le streak compte les journées de travail »
+  prime sur le mécanisme « au moins une quête validée » que la spec énonçait.)*
 - **Plafond de relais : 2.** Relais offert au 3ᵉ jour, puis un tous les 7 jours.
 - **Grades :** Cadet 0 · Aspirant 400 · Enseigne 1 200 · Lieutenant 2 500 · Commandant 4 500 · Capitaine 7 000 · Amiral 10 000.
 - **Niveau :** `floor(sqrt(xp / 16)) + 1`.
@@ -587,7 +593,7 @@ Créer `lib/streak.ts` :
  * La liaison — le streak, devenu objet de jeu.
  *
  * Deux différences avec l'ancien compteur de lib/me-server.ts :
- *  - elle n'avance QUE sur travail réel (première quête validée du jour),
+ *  - elle n'avance QUE sur travail réel (première ÉTAPE validée du jour),
  *    plus à la simple ouverture d'un onglet ;
  *  - un jour manqué ne la rompt pas si le cadet détient un relais de secours.
  *
@@ -632,7 +638,12 @@ export function daysBetweenIso(fromIso: string, toIso: string): number {
 
 /**
  * Fait avancer la liaison. À appeler au moment où le cadet valide sa première
- * quête de la journée — jamais à la simple visite.
+ * ÉTAPE de la journée — jamais à la simple visite.
+ *
+ * Le déclencheur est l'étape et non l'ordre accompli : un ordre peut demander
+ * plusieurs étapes, et un cadet qui n'en boucle qu'une un jour chargé a
+ * travaillé quand même. Cette fonction n'en sait rien — sa machine à états est
+ * inchangée, seul son appelant choisit le déclencheur.
  */
 export function advanceLiaison(
   current: LiaisonState,
@@ -2223,28 +2234,32 @@ Dans la transaction de `completeStep`, après le bloc « Chapter completion → 
       dernierParfait = jour;
     }
 
-    // La liaison n'avance que si au moins un ordre a été accompli aujourd'hui.
-    const transition =
-      ordresPayes > 0
-        ? advanceLiaison(
-            {
-              streak: brut.streak,
-              bestStreak: brut.bestStreak,
-              shields: brut.streakShields,
-              shieldEverGranted: brut.shieldEverGranted,
-              lastActiveDay: brut.lastVisit,
-            },
-            jour
-          )
-        : null;
+    // La liaison avance ici, sans condition : on n'atteint ce point que pour
+    // une étape RÉELLEMENT NEUVE — la transaction est sortie plus haut quand
+    // l'étape était déjà validée (`alreadyDone`). Une étape validée est du
+    // travail réel, et c'est la seule chose que la liaison compte ; une simple
+    // visite n'en est pas, et ne passe plus par ici depuis que `getUserState`
+    // ne touche plus au streak.
+    //
+    // Le déclencheur est délibérément l'étape et non l'ordre accompli : un
+    // ordre peut demander plusieurs étapes, et un cadet qui n'en boucle qu'une
+    // un jour chargé a travaillé quand même — lui rompre sa série serait le
+    // punir de son effort.
+    //
+    // `advanceLiaison` est idempotente sur la journée : si `lastActiveDay`
+    // vaut déjà `jour`, elle rend l'état inchangé.
+    const transition = advanceLiaison(
+      {
+        streak: brut.streak,
+        bestStreak: brut.bestStreak,
+        shields: brut.streakShields,
+        shieldEverGranted: brut.shieldEverGranted,
+        lastActiveDay: brut.lastVisit,
+      },
+      jour
+    );
 
-    const liaisonApres = transition?.next ?? {
-      streak: brut.streak,
-      bestStreak: brut.bestStreak,
-      shields: brut.streakShields,
-      shieldEverGranted: brut.shieldEverGranted,
-      lastActiveDay: brut.lastVisit,
-    };
+    const liaisonApres = transition.next;
 
     const questsCompletedApres = brut.questsCompleted + ordresPayes;
     const xpApres = Math.min(brut.totalXp + bonusXp, MAX_XP);
@@ -2270,9 +2285,9 @@ Dans la transaction de `completeStep`, après le bloc « Chapter completion → 
     questXp = xpApres - brut.totalXp;
     completedQuests = briefing.quests.filter((q) => q.done).map((q) => q.label);
 
-    if (transition?.shieldsConsumed) {
+    if (transition.shieldsConsumed) {
       notice = `Un relais de secours a couvert ton absence. Il t'en reste ${liaisonApres.shields}.`;
-    } else if (transition?.broken) {
+    } else if (transition.broken) {
       notice = `Liaison rompue. Ton record de ${liaisonApres.bestStreak} jours reste acquis.`;
     }
 
@@ -2282,7 +2297,7 @@ Dans la transaction de `completeStep`, après le bloc « Chapter completion → 
       questsCompleted: questsCompletedApres,
       perfectBriefingRun: serieParfaite,
       completions: records,
-      justReturned: transition?.earnedReturn ?? false,
+      justReturned: transition.earnedReturn,
     });
     const dejaLa = new Set(
       (await tx.userBadge.findMany({ where: { userId }, select: { badgeId: true } })).map(
@@ -2474,7 +2489,7 @@ Expected: PASS
 git add -A
 git commit -m "feat(server): l'XP du briefing tombe la ou le travail a lieu
 
-La liaison n'avance plus a la visite : elle attend un ordre accompli.
+La liaison n'avance plus a la visite : elle attend une etape validee.
 claimDailyMission et sa route disparaissent avec le bouton.
 
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>"

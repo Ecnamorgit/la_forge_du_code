@@ -225,7 +225,14 @@ revenir.
 ### Machine à états
 
 Entrées : `lastActiveDay`, `streak`, `streakShields`, `bestStreak`, `todayIso`.
-Déclenchée à la **première quête validée du jour** (jamais à la simple visite).
+Déclenchée à la **première étape validée du jour** (jamais à la simple visite).
+
+Le déclencheur est l'étape, et non l'ordre accompli : un ordre peut demander
+plusieurs étapes (« Valide 2 étapes », « 3 étapes dans le chapitre 4 »), et un
+cadet qui n'en boucle qu'une un jour chargé a travaillé quand même. Lui rompre
+sa liaison pour un effort réel mais partiel serait exactement le geste qui fait
+décrocher, sur une fonctionnalité dont l'objectif premier est la rétention. Une
+étape validée est du travail réel ; une visite n'en est pas.
 
 ```
 gap = jours entre lastActiveDay et todayIso

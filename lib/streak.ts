@@ -2,7 +2,7 @@
  * La liaison — le streak, devenu objet de jeu.
  *
  * Deux différences avec l'ancien compteur de lib/me-server.ts :
- *  - elle n'avance QUE sur travail réel (première quête validée du jour),
+ *  - elle n'avance QUE sur travail réel (première ÉTAPE validée du jour),
  *    plus à la simple ouverture d'un onglet ;
  *  - un jour manqué ne la rompt pas si le cadet détient un relais de secours.
  *
@@ -47,7 +47,12 @@ export function daysBetweenIso(fromIso: string, toIso: string): number {
 
 /**
  * Fait avancer la liaison. À appeler au moment où le cadet valide sa première
- * quête de la journée — jamais à la simple visite.
+ * ÉTAPE de la journée — jamais à la simple visite.
+ *
+ * Le déclencheur est l'étape et non l'ordre accompli : un ordre peut demander
+ * plusieurs étapes, et un cadet qui n'en boucle qu'une un jour chargé a
+ * travaillé quand même. Cette fonction n'en sait rien — sa machine à états est
+ * inchangée, seul son appelant choisit le déclencheur.
  */
 export function advanceLiaison(
   current: LiaisonState,

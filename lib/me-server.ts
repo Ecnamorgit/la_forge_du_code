@@ -396,28 +396,32 @@ export async function completeStep(
       dernierParfait = jour;
     }
 
-    // La liaison n'avance que si au moins un ordre a été accompli aujourd'hui.
-    const transition =
-      ordresPayes > 0
-        ? advanceLiaison(
-            {
-              streak: brut.streak,
-              bestStreak: brut.bestStreak,
-              shields: brut.streakShields,
-              shieldEverGranted: brut.shieldEverGranted,
-              lastActiveDay: brut.lastVisit,
-            },
-            jour
-          )
-        : null;
+    // La liaison avance ici, sans condition : on n'atteint ce point que pour
+    // une étape RÉELLEMENT NEUVE — la transaction est sortie plus haut quand
+    // l'étape était déjà validée (`alreadyDone`). Une étape validée est du
+    // travail réel, et c'est la seule chose que la liaison compte ; une simple
+    // visite n'en est pas, et ne passe plus par ici depuis que `getUserState`
+    // ne touche plus au streak.
+    //
+    // Le déclencheur est délibérément l'étape et non l'ordre accompli : un
+    // ordre peut demander plusieurs étapes, et un cadet qui n'en boucle qu'une
+    // un jour chargé a travaillé quand même — lui rompre sa série serait le
+    // punir de son effort.
+    //
+    // `advanceLiaison` est idempotente sur la journée : si `lastActiveDay`
+    // vaut déjà `jour`, elle rend l'état inchangé.
+    const transition = advanceLiaison(
+      {
+        streak: brut.streak,
+        bestStreak: brut.bestStreak,
+        shields: brut.streakShields,
+        shieldEverGranted: brut.shieldEverGranted,
+        lastActiveDay: brut.lastVisit,
+      },
+      jour
+    );
 
-    const liaisonApres = transition?.next ?? {
-      streak: brut.streak,
-      bestStreak: brut.bestStreak,
-      shields: brut.streakShields,
-      shieldEverGranted: brut.shieldEverGranted,
-      lastActiveDay: brut.lastVisit,
-    };
+    const liaisonApres = transition.next;
 
     const questsCompletedApres = brut.questsCompleted + ordresPayes;
     const xpApres = Math.min(brut.totalXp + bonusXp, MAX_XP);
@@ -443,9 +447,9 @@ export async function completeStep(
     questXp = xpApres - brut.totalXp;
     completedQuests = briefing.quests.filter((q) => q.done).map((q) => q.label);
 
-    if (transition?.shieldsConsumed) {
+    if (transition.shieldsConsumed) {
       notice = `Un relais de secours a couvert ton absence. Il t'en reste ${liaisonApres.shields}.`;
-    } else if (transition?.broken) {
+    } else if (transition.broken) {
       notice = `Liaison rompue. Ton record de ${liaisonApres.bestStreak} jours reste acquis.`;
     }
 
@@ -455,7 +459,7 @@ export async function completeStep(
       questsCompleted: questsCompletedApres,
       perfectBriefingRun: serieParfaite,
       completions: records,
-      justReturned: transition?.earnedReturn ?? false,
+      justReturned: transition.earnedReturn,
     });
     const dejaLa = new Set(
       (await tx.userBadge.findMany({ where: { userId }, select: { badgeId: true } })).map(
