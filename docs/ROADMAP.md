@@ -17,7 +17,7 @@
 
 ---
 
-## État au 2026-08-06
+## État au 2026-08-11
 
 M1, M2, CF-17, CF-18 et CF-19 sont livrés. Il reste **CF-15**, bloqué par un
 prérequis, et la confirmation opérationnelle de CF-6.
@@ -230,7 +230,63 @@ d'intendance.
 Deux garde-fous arrêteront quiconque tente le durcissement avant ce
 prérequis : `lib/security/csp.test.ts` et la suite e2e en production.
 
+#### Le cursus JavaScript est concerné, et peut-être plus exposé
+
+`lib/sandbox/run-js.ts` exécute le code des leçons JavaScript dans un `srcdoc`
+à origine opaque — **le même mécanisme que l'aperçu React**. Le chantier porte
+donc sur deux sandboxes, pas un.
+
+Mais il y a plus préoccupant. `run-js.ts:74` monte un **chien de garde côté
+parent** :
+
+```ts
+const timeout = setTimeout(() => {
+  finish({ ok: false, error: "Execution interrompue apres 3s. Verifie une boucle infinie…" });
+}, 3000);
+```
+
+C'est exactement le mécanisme dont `ReactPreview.tsx` et `loop-guard.ts`
+documentent qu'il **ne peut pas fonctionner** : le `srcdoc` partageant le thread
+du parent, le `setTimeout` ne s'exécute jamais. Et `run-js.ts` n'utilise aucun
+détecteur de boucle — sa seule protection est ce minuteur.
+
+Si le raisonnement tient, une boucle infinie dans une leçon JavaScript gèle
+l'onglet, et le message promettant une interruption après 3 secondes ne
+s'affiche jamais.
+
+> **Ce n'est pas mesuré.** C'est une déduction par analogie de structure, pas une
+> observation — et la distinction a coûté assez cher aujourd'hui pour ne pas
+> l'effacer ici. La vérification est bon marché : même méthode que la sonde
+> ci-dessus, avec un code de leçon qui boucle. **À faire avant toute conception**,
+> car un `run-js` réellement non protégé serait plus urgent que CF-15 lui-même.
+
+#### Ce que le chantier apporterait en plus
+
+- **Un `postMessage` ciblé.** Aujourd'hui le parent poste vers `"*"` faute
+  d'origine réelle (`ReactPreview.tsx:97`, et le commentaire de `run-js.ts:45`
+  le regrette explicitement). Une origine dédiée permet de viser précisément, et
+  à l'iframe de valider `event.origin` au lieu du seul `event.source`.
+- **Un `loop-guard.ts` relâchable.** Il refuse aujourd'hui `while (true) { … break }`,
+  une forme parfaitement légitime, faute de savoir lire un `break` — et son
+  message est au conditionnel pour cette raison. Si l'isolation rend le gel
+  impossible, ce filet peut être assoupli, voire retiré.
+
+#### Ce que le chantier casserait, et qu'il faut prévoir
+
+- **`e2e/csp-srcdoc-script.spec.ts` deviendrait sans objet.** Il vérifie qu'une
+  iframe `srcdoc` peut charger un script de l'origine du parent — propriété dont
+  on cesserait de dépendre. À réécrire, pas à supprimer : le garde-fou doit
+  suivre le nouveau mécanisme, sinon on retombe dans un test qui ne garde rien.
+- **Le runtime doit être servi par la nouvelle origine.**
+  `scripts/build-react-runtime.mjs` produit `public/react-runtime/runtime.js`
+  pendant le `prebuild`. Il faudra décider s'il est dupliqué sur l'origine
+  sandbox ou servi depuis là uniquement.
+- **La nouvelle origine a besoin de sa propre CSP**, permissive côté `script-src`
+  puisque c'est elle qui exécutera `new Function` — et c'est tout l'intérêt :
+  ce relâchement ne concerne plus l'application.
+
 **Acceptation**
+- [ ] **Vérifier si `run-js.ts` est réellement protégé** — son chien de garde est du type prouvé non fonctionnel ; à faire AVANT toute conception
 - [ ] Comprendre pourquoi le document d'aperçu n'envoie pas `preview:ready` hors `srcdoc` — **premier pas, non résolu**
 - [ ] Mesurer si une origine dédiée supprime le gel d'onglet — non démontré à ce jour
 - [ ] L'aperçu et le sandbox JS sont servis depuis une origine dédiée — **prérequis, ticket à créer**
