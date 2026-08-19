@@ -117,14 +117,15 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
   }>({ trigger: 0, level: 1 });
   const [openDocId, setOpenDocId] = useState<string | null>(null);
   // Annonces de la boucle quotidienne portées par la dernière étape validée
-  // (ordres accomplis, message de liaison) : révélées sur l'écran de fin de
-  // chapitre (`CompletionScreen`), là où le cadet se trouve déjà — jamais sur
-  // le dashboard. Valeurs neutres tant qu'aucune étape n'a encore renvoyé de
-  // résultat serveur.
+  // (ordres accomplis, badges de conduite, message de liaison) : révélées sur
+  // l'écran de fin de chapitre (`CompletionScreen`), là où le cadet se trouve
+  // déjà — jamais sur le dashboard. Valeurs neutres tant qu'aucune étape n'a
+  // encore renvoyé de résultat serveur.
   const [dailyLoopAnnounce, setDailyLoopAnnounce] = useState<{
     completedQuests: string[];
     notice: string | null;
-  }>({ completedQuests: [], notice: null });
+    conductBadges: string[];
+  }>({ completedQuests: [], notice: null, conductBadges: [] });
   const previousLevelRef = useRef<number>(levelFromXp(state.totalXp));
   // Ancre de la carte de conversion d'essai (cf. goNextStep) : permet de la
   // faire défiler jusqu'à l'écran quand le visiteur clique sur le contrôle de
@@ -175,6 +176,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
           setDailyLoopAnnounce({
             completedQuests: result.completedQuests,
             notice: result.notice,
+            conductBadges: result.newConductBadges,
           });
 
           const newLevel = levelFromXp(result.state.totalXp);
@@ -300,6 +302,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
         badgeId={getBadgeForChapter(course, chapter.slug) ?? undefined}
         completedQuests={dailyLoopAnnounce.completedQuests}
         notice={dailyLoopAnnounce.notice}
+        newConductBadges={dailyLoopAnnounce.conductBadges}
         href={`/learn/${course}`}
       />
       <HintBox show={showHint} html={step.hint} />

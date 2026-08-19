@@ -5,6 +5,7 @@ import Link from "next/link";
 import Sprite from "@/components/ui/Sprite";
 import ShareButton from "@/components/ui/ShareButton";
 import { BADGE_ICONS } from "@/lib/sprite-config";
+import { getConductBadge } from "@/lib/conduct-badges";
 
 interface CompletionScreenProps {
   show: boolean;
@@ -19,6 +20,8 @@ interface CompletionScreenProps {
   completedQuests?: string[];
   /** Ids de cosmétiques débloqués à l'instant. */
   newUnlocks?: string[];
+  /** Ids des badges de conduite obtenus par cette étape (catalogue lib/conduct-badges.ts). */
+  newConductBadges?: string[];
   /** Message de liaison ponctuel (relais consommé, rupture). */
   notice?: string | null;
   onClose?: () => void;
@@ -33,6 +36,7 @@ export default function CompletionScreen({
   badgeFrame,
   badgeId,
   completedQuests,
+  newConductBadges,
   notice,
   onClose,
   href,
@@ -64,6 +68,22 @@ export default function CompletionScreen({
                 ✓ {label}
               </div>
             ))}
+          </div>
+        )}
+        {newConductBadges && newConductBadges.length > 0 && (
+          <div className="mb-4 rounded-sm border border-nebula-blue-dim bg-nebula-bg-darkest/60 px-4 py-3 text-left">
+            <div className="mb-1 font-tech text-[10px] uppercase tracking-widest text-nebula-blue">
+              {newConductBadges.length > 1 ? "Badges de conduite obtenus" : "Badge de conduite obtenu"}
+            </div>
+            {newConductBadges.map((id) => {
+              const badge = getConductBadge(id);
+              if (!badge) return null;
+              return (
+                <div key={id} className="font-body text-sm text-nebula-text-secondary">
+                  {badge.icon} {badge.label}
+                </div>
+              );
+            })}
           </div>
         )}
         {notice && (
