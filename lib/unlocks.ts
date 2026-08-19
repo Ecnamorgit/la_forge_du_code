@@ -154,15 +154,6 @@ export function evaluateUnlocks(ctx: UnlockContext): UnlockStatus[] {
 
 /**
  * Le prochain objet à portée, pour la ligne permanente de la carte de cadet.
- * Ordonné par proximité : liaison d'abord, puis ordres, puis XP.
- */
-/**
- * Le prochain objet à portée, pour la ligne permanente de la carte de cadet.
- * Ordonné par proximité : liaison d'abord, puis ordres, puis XP/grades/chapitres/cursus,
- * puis conditions de badge (sans distance mesurable). À distance égale, l'ordre du catalogue tranche.
- */
-/**
- * Le prochain objet à portée, pour la ligne permanente de la carte de cadet.
  *
  * Rend l'objet verrouillé dont la distance mesurable (jours, ordres, XP, grade, chapitres, cursus)
  * est la plus petite. Les conditions de type badge n'ont pas de distance numérique : elles se classent
