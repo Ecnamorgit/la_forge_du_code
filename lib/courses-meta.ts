@@ -1,4 +1,4 @@
-import type { ChapterMeta } from "./user-store";
+import { isChapterComplete, type ChapterMeta, type UserState } from "./user-store";
 import { CHAPTER_SUMMARIES } from "./chapter-summaries";
 
 export interface ChapterMetaFull extends ChapterMeta {
@@ -97,4 +97,43 @@ const BADGE_BY_CHAPTER: Record<string, Record<string, string>> = {
 
 export function getBadgeForChapter(course: string, chapter: string): string | null {
   return BADGE_BY_CHAPTER[course]?.[chapter] ?? null;
+}
+
+export interface CompletionStats {
+  /** Nombre de cursus dont tous les chapitres sont bouclés. */
+  coursesComplete: number;
+  /** Nombre total de chapitres bouclés, tous cursus confondus. */
+  chaptersComplete: number;
+}
+
+/**
+ * Compte les cursus et chapitres bouclés pour un état utilisateur.
+ *
+ * Même motif que `app/profil/page.tsx` (`isChapterComplete` appliqué chapitre
+ * par chapitre) : extrait ici pour ne pas le dupliquer entre `/profil` et le
+ * dashboard, qui en a besoin pour nourrir `nextUnlock`.
+ */
+export function getCompletionStats(
+  state: UserState,
+  courseSlugs: string[]
+): CompletionStats {
+  let coursesComplete = 0;
+  let chaptersComplete = 0;
+
+  for (const slug of courseSlugs) {
+    const chapters = getChaptersMeta(slug);
+    if (chapters.length === 0) continue;
+
+    let courseDone = true;
+    for (const ch of chapters) {
+      if (isChapterComplete(state, slug, ch.slug, ch.totalSteps)) {
+        chaptersComplete += 1;
+      } else {
+        courseDone = false;
+      }
+    }
+    if (courseDone) coursesComplete += 1;
+  }
+
+  return { coursesComplete, chaptersComplete };
 }

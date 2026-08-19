@@ -2,7 +2,6 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -10,8 +9,10 @@ import { useSession } from "next-auth/react";
 import BrandLogo from "@/components/ui/BrandLogo";
 import OnboardingOverlay from "@/components/onboarding/OnboardingOverlay";
 import DashboardNav from "../DashboardNav";
-import StatsCard from "../StatsCard";
 import ExploreSection from "../ExploreSection";
+import LiaisonBanner from "@/components/dashboard/LiaisonBanner";
+import BriefingCard from "@/components/dashboard/BriefingCard";
+import CadetCard from "@/components/dashboard/CadetCard";
 import { useUser } from "@/lib/use-user";
 import {
   getActiveCourseSlug,
@@ -19,8 +20,7 @@ import {
   getNextStep,
   hasAvatar,
 } from "@/lib/user-store";
-import { gradeFromXp, levelFromXp } from "@/lib/grades";
-import { getChaptersMeta } from "@/lib/courses-meta";
+import { getChaptersMeta, getCompletionStats } from "@/lib/courses-meta";
 import { COURSES_CATALOG, getCourseInfo } from "@/lib/courses-catalog";
 import { CHAPTER_SUMMARIES } from "@/lib/chapter-summaries";
 
@@ -49,6 +49,11 @@ export default function DashboardPage() {
     [activeCourseSlug]
   );
 
+  const completionStats = useMemo(
+    () => getCompletionStats(state, COURSES_CATALOG.map((c) => c.slug)),
+    [state]
+  );
+
   // First-time gate: display intro cinematic until completed/closed, then transition to /avatar
 
   if (!hydrated || !hasAvatar(state)) {
@@ -71,19 +76,33 @@ export default function DashboardPage() {
 
   const username = session?.user?.username || state.username || "Cadet";
   const totalXp = state.totalXp;
-  const level = levelFromXp(totalXp);
-  const rank = gradeFromXp(totalXp).label;
   const streak = state.streak || 1;
-  const badges = state.badges.length;
 
   const courseProgress = getCourseProgress(state, activeCourseSlug, chaptersMeta);
   const nextStep = getNextStep(state, activeCourseSlug, chaptersMeta);
 
-  const nextChapterMeta = nextStep
-    ? chaptersMeta.find((c) => c.slug === nextStep.chapterSlug)
-    : null;
-
   const courseTitle = activeCourse?.title ?? activeCourseSlug.toUpperCase();
+
+  // La grande carte fusionne la reprise de cursus et l'ordre d'effort du
+  // jour : un seul bouton, qui mène à la prochaine étape du cursus actif
+  // (ou à sa carte si le cursus est déjà bouclé).
+  const resumeHref = nextStep
+    ? `/learn/${activeCourseSlug}/${nextStep.chapterSlug}`
+    : `/learn/${activeCourseSlug}`;
+  const resumeLabel = nextStep
+    ? nextStep.isFirst && courseProgress === 0
+      ? "Démarrer la mission"
+      : "Continuer la mission"
+    : "Voir la carte du cursus";
+
+  // Construit le lien d'un ordre à partir du cursus qu'il vise. Un ordre
+  // global (sans cursus ciblé) retombe sur la même étape que le bouton
+  // principal.
+  const hrefForQuest = (course: string | null, chapter: string | null): string => {
+    if (course && chapter) return `/learn/${course}/${chapter}`;
+    if (course) return `/learn/${course}`;
+    return nextStep ? `/learn/${activeCourseSlug}/${nextStep.chapterSlug}` : "/learn";
+  };
 
   return (
     <div className="relative h-full overflow-y-auto">
@@ -96,6 +115,8 @@ export default function DashboardPage() {
       <DashboardNav userName={username} />
 
       <main className="relative z-10 mx-auto max-w-6xl px-4 py-6 lg:px-6 lg:py-10">
+        <LiaisonBanner liaison={state.liaison} />
+
         {/* Welcome */}
         <section className="mb-8 flex flex-col items-start gap-4 animate-fade-down sm:flex-row sm:items-start sm:gap-6 lg:mb-10">
           <BrandLogo
@@ -122,84 +143,14 @@ export default function DashboardPage() {
           {/* LEFT */}
           <div>
             <section className="animate-fade-up">
-              <h2 className="mb-5 font-tech text-2xl uppercase tracking-widest text-nebula-cyan">
-                {"> "}Reprendre la mission
-              </h2>
-
-              <article className="relative overflow-hidden rounded-sm border border-nebula-cyan/40 bg-nebula-bg-panel/85 p-5 backdrop-blur-md shadow-[0_0_40px_rgba(0,240,255,0.08)] lg:p-7">
-                <div className="pointer-events-none absolute -right-12 -top-12 opacity-25">
-                  <Image
-                    src="/planet-green-v2.png"
-                    alt=""
-                    width={200}
-                    height={200}
-                    className="animate-planet-rotate"
-                    style={{ imageRendering: "pixelated" }}
-                  />
-                </div>
-
-                <div className="relative">
-                  <div className="mb-5">
-                    <div className="mb-1.5 flex items-center justify-between font-tech text-xs uppercase tracking-widest text-nebula-text-secondary">
-                      <span>Progression du cursus</span>
-                      <span className="text-nebula-cyan">{courseProgress}%</span>
-                    </div>
-                    <div className="h-2.5 overflow-hidden rounded-full border border-nebula-border bg-nebula-bg-editor/80">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-nebula-cyan to-nebula-green shadow-[0_0_10px_rgba(0,240,255,0.4)] transition-all duration-700"
-                        style={{ width: `${courseProgress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mb-2 font-tech text-xs uppercase tracking-[0.22em] text-nebula-text-dim">
-                    CURSUS ACTIF
-                  </div>
-                  <h3 className="mb-3 font-tech text-4xl uppercase tracking-wider text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)]">
-                    {courseTitle}
-                  </h3>
-
-                  {nextStep && nextChapterMeta ? (
-                    <>
-                      <p className="mb-7 font-body text-base leading-relaxed text-nebula-text-secondary">
-                        Prochaine étape :{" "}
-                        <span className="text-nebula-text">
-                          {nextChapterMeta.label}
-                        </span>{" "}
-                        — {nextChapterMeta.title}
-                        <br />
-                        <span className="text-nebula-text-dim text-sm">
-                          Étape {nextStep.stepIndex + 1} sur{" "}
-                          {nextChapterMeta.totalSteps}
-                        </span>
-                      </p>
-
-                      <Link
-                        href={`/learn/${activeCourseSlug}/${nextStep.chapterSlug}`}
-                        className="inline-block rounded-sm bg-nebula-cyan px-7 py-3 font-tech text-base font-bold uppercase tracking-[0.18em] text-nebula-bg-darkest shadow-[0_4px_0_var(--cyan-dim)] transition-all hover:translate-y-px hover:shadow-[0_3px_0_var(--cyan-dim)] active:translate-y-[3px] active:shadow-none"
-                      >
-                        {"> "}
-                        {nextStep.isFirst && courseProgress === 0
-                          ? "Démarrer la mission"
-                          : "Continuer la mission"}
-                        <span className="terminal-cursor">_</span>
-                      </Link>
-                    </>
-                  ) : (
-                    <>
-                      <p className="mb-7 font-body text-base leading-relaxed text-nebula-green">
-                        Tous les chapitres {courseTitle} sont validés. Bravo, Cadet.
-                      </p>
-                      <Link
-                        href={`/learn/${activeCourseSlug}`}
-                        className="inline-block rounded-sm border border-nebula-cyan-dim bg-transparent px-7 py-3 font-tech text-base font-bold uppercase tracking-[0.18em] text-nebula-cyan transition-all hover:border-nebula-cyan hover:bg-nebula-cyan-faint"
-                      >
-                        Voir la carte du cursus →
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </article>
+              <BriefingCard
+                briefing={state.briefing}
+                courseTitle={courseTitle}
+                courseProgress={courseProgress}
+                resumeHref={resumeHref}
+                resumeLabel={resumeLabel}
+                hrefForQuest={hrefForQuest}
+              />
             </section>
 
             <ExploreSection activeCourseSlug={activeCourseSlug} />
@@ -216,13 +167,19 @@ export default function DashboardPage() {
 
           {/* RIGHT */}
           <div className="animate-fade-up">
-            <StatsCard
+            <CadetCard
               username={username}
-              level={level}
               totalXp={totalXp}
-              rank={rank}
-              badges={badges}
+              badges={state.badges}
               streak={streak}
+              questsCompleted={state.questsCompleted}
+              coursesComplete={completionStats.coursesComplete}
+              chaptersComplete={completionStats.chaptersComplete}
+              species={state.species}
+              uniformColor={state.uniformColor}
+              frame={state.frame}
+              title={state.title}
+              emblem={state.emblem}
             />
           </div>
         </div>

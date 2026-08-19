@@ -1,9 +1,13 @@
+import { levelFromXp } from "@/lib/grades";
+
 interface XPBarProps {
   xp: number;
   maxXp: number;
 }
 
 export default function XPBar({ xp, maxXp }: XPBarProps) {
+  const level = levelFromXp(xp);
+
   return (
     <div className="flex items-center gap-2.5">
       <span className="font-tech text-[11px] text-nebula-cyan tracking-wider">XP</span>
@@ -20,7 +24,7 @@ export default function XPBar({ xp, maxXp }: XPBarProps) {
         {xp} / {maxXp}
       </span>
       <div className="font-tech text-[10px] px-2 py-0.5 border border-nebula-cyan-dim text-nebula-cyan bg-nebula-cyan-faint rounded-sm">
-        LVL 1
+        LVL {level}
       </div>
     </div>
   );
