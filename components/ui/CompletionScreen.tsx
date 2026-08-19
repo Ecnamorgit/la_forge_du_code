@@ -15,6 +15,12 @@ interface CompletionScreenProps {
   badgeFrame?: number;
   /** Badge id — when set, a share button generates a public success card. */
   badgeId?: string;
+  /** Libellés des ordres du jour accomplis par cette étape. */
+  completedQuests?: string[];
+  /** Ids de cosmétiques débloqués à l'instant. */
+  newUnlocks?: string[];
+  /** Message de liaison ponctuel (relais consommé, rupture). */
+  notice?: string | null;
   onClose?: () => void;
   href?: string;
 }
@@ -26,6 +32,8 @@ export default function CompletionScreen({
   badgeLabel,
   badgeFrame,
   badgeId,
+  completedQuests,
+  notice,
   onClose,
   href,
 }: CompletionScreenProps) {
@@ -46,6 +54,21 @@ export default function CompletionScreen({
         <div className="mb-4 font-tech text-base tracking-wider text-nebula-green">
           ⚡ XP TOTAL : {totalXp} XP
         </div>
+        {completedQuests && completedQuests.length > 0 && (
+          <div className="mb-4 rounded-sm border border-nebula-green-dim bg-nebula-bg-darkest/60 px-4 py-3 text-left">
+            <div className="mb-1 font-tech text-[10px] uppercase tracking-widest text-nebula-green">
+              Ordre du jour accompli
+            </div>
+            {completedQuests.map((label) => (
+              <div key={label} className="font-body text-sm text-nebula-text-secondary">
+                ✓ {label}
+              </div>
+            ))}
+          </div>
+        )}
+        {notice && (
+          <p className="mb-4 font-body text-sm text-nebula-orange">{notice}</p>
+        )}
         <div className="mb-7 inline-flex items-center gap-2 rounded-sm border border-nebula-blue bg-nebula-bg-dark px-4 py-2 font-tech text-xs tracking-wider text-nebula-blue">
           {badgeFrame !== undefined ? (
             <Sprite sheet={BADGE_ICONS} frame={badgeFrame} displaySize={20} title={badgeLabel} />

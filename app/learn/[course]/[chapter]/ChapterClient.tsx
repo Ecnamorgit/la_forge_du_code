@@ -30,6 +30,7 @@ import { combatThemeForCourse } from "@/lib/combat-theme";
 import { badgeFrameById } from "@/lib/badges-catalog";
 import { renderLessonMarkdown } from "@/lib/markdown";
 import { getDocEntry } from "@/data/docs";
+import { UNLOCKS } from "@/lib/unlocks";
 import DocPanel from "@/components/docs/DocPanel";
 
 interface ChapterClientProps {
@@ -109,8 +110,21 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
   const [teleportFlash, setTeleportFlash] = useState(0);
   const [bannerVfxTrigger, setBannerVfxTrigger] = useState(0);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [levelUp, setLevelUp] = useState({ trigger: 0, level: 1 });
+  const [levelUp, setLevelUp] = useState<{
+    trigger: number;
+    level: number;
+    unlockLabel?: string;
+  }>({ trigger: 0, level: 1 });
   const [openDocId, setOpenDocId] = useState<string | null>(null);
+  // Annonces de la boucle quotidienne portées par la dernière étape validée
+  // (ordres accomplis, message de liaison) : révélées sur l'écran de fin de
+  // chapitre (`CompletionScreen`), là où le cadet se trouve déjà — jamais sur
+  // le dashboard. Valeurs neutres tant qu'aucune étape n'a encore renvoyé de
+  // résultat serveur.
+  const [dailyLoopAnnounce, setDailyLoopAnnounce] = useState<{
+    completedQuests: string[];
+    notice: string | null;
+  }>({ completedQuests: [], notice: null });
   const previousLevelRef = useRef<number>(levelFromXp(state.totalXp));
   // Ancre de la carte de conversion d'essai (cf. goNextStep) : permet de la
   // faire défiler jusqu'à l'écran quand le visiteur clique sur le contrôle de
@@ -158,13 +172,30 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
 
       void completeStep(course, chapter.slug, currentStep)
         .then((result) => {
+          setDailyLoopAnnounce({
+            completedQuests: result.completedQuests,
+            notice: result.notice,
+          });
+
           const newLevel = levelFromXp(result.state.totalXp);
-          if (newLevel > previousLevelRef.current) {
-            previousLevelRef.current = newLevel;
+          const leveledUp = newLevel > previousLevelRef.current;
+          previousLevelRef.current = newLevel;
+
+          // Une seule cérémonie par étape : la montée de niveau prime sur la
+          // révélation d'un déblocable si les deux tombent sur la même étape
+          // — c'est le jalon le plus rare des deux, et `LevelUpOverlay` ne
+          // peut de toute façon en montrer qu'une à la fois. Le déblocable
+          // n'est pas perdu pour autant : il reste acquis côté serveur et
+          // visible dans l'armurerie.
+          if (leveledUp) {
             spawnLevelUpBurst();
-            setLevelUp((p) => ({ trigger: p.trigger + 1, level: newLevel }));
-          } else {
-            previousLevelRef.current = newLevel;
+            setLevelUp((p) => ({ trigger: p.trigger + 1, level: newLevel, unlockLabel: undefined }));
+          } else if (result.newUnlocks.length > 0) {
+            const label = UNLOCKS.find((u) => u.id === result.newUnlocks[0])?.label;
+            if (label) {
+              spawnLevelUpBurst();
+              setLevelUp((p) => ({ trigger: p.trigger + 1, level: newLevel, unlockLabel: label }));
+            }
           }
         })
         .catch((err) => {
@@ -235,7 +266,11 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
       <ParticleLayer />
       <XPPopup show={xpPopup.show} label={xpPopup.label} />
       <VFXBurst trigger={bannerVfxTrigger} />
-      <LevelUpOverlay trigger={levelUp.trigger} level={levelUp.level} />
+      <LevelUpOverlay
+        trigger={levelUp.trigger}
+        level={levelUp.level}
+        unlockLabel={levelUp.unlockLabel}
+      />
       <QuestBanner
         show={showBanner}
         title={step.bannerTtl}
@@ -263,6 +298,8 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             : undefined
         }
         badgeId={getBadgeForChapter(course, chapter.slug) ?? undefined}
+        completedQuests={dailyLoopAnnounce.completedQuests}
+        notice={dailyLoopAnnounce.notice}
         href={`/learn/${course}`}
       />
       <HintBox show={showHint} html={step.hint} />
