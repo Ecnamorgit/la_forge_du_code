@@ -3,7 +3,7 @@ import { chromium, type FullConfig } from "@playwright/test";
 import { Client } from "pg";
 import bcrypt from "bcryptjs";
 
-import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
+import { assertLocalAppUnderTest, assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
  * Session authentifiée partagée par toutes les specs.
@@ -44,6 +44,13 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
   // test. Cf. lib/e2e-db-guard.ts, testé sous vitest.
   assertTestDatabaseUrl(url);
 
+  // La garde ci-dessus ne voit que la base que CE processus va ensemencer.
+  // L'application testée, elle, choisit sa propre base : si elle est distante
+  // — E2E_BASE_URL, ou un `pnpm dev` déjà lancé sur le .env de production et
+  // réutilisé par `reuseExistingServer` — la première garde inspire une
+  // confiance qu'elle ne couvre pas. Cf. lib/e2e-db-guard.ts.
+  assertLocalAppUnderTest(process.env.E2E_BASE_URL);
+
   const client = new Client({ connectionString: url });
   await client.connect();
   try {
@@ -83,7 +90,34 @@ async function enregistrerSessionPartagee(config: FullConfig): Promise<void> {
     await page.locator("#email").fill(E2E_USER.email);
     await page.locator("#password").fill(E2E_USER.password);
     await page.getByRole("button", { name: /se connecter/i }).click();
-    await page.waitForURL(/\/dashboard/, { timeout: 30_000 });
+
+    try {
+      await page.waitForURL(/\/dashboard/, { timeout: 30_000 });
+    } catch {
+      // Le compte de test vient d'être créé, à l'instant, dans la base que la
+      // garde a validée. S'il ne permet pas de se connecter, c'est presque
+      // toujours que l'application parle à une AUTRE base que celle-là — un
+      // serveur déjà lancé sur un autre `.env` et réutilisé
+      // (`reuseExistingServer`), ou une cible distante. C'est la dernière
+      // vérification possible : les gardes statiques inspectent des variables,
+      // celle-ci constate ce que l'application fait vraiment.
+      throw new Error(
+        [
+          `Connexion impossible avec le compte de test sur ${baseURL}.`,
+          "",
+          "Ce compte vient pourtant d'être créé dans la base validée par la",
+          "garde. Une seule explication tient : l'application testée n'utilise",
+          "pas cette base.",
+          "",
+          "Cause la plus fréquente : un serveur de développement déjà lancé sur",
+          "un autre .env, que Playwright réutilise (`reuseExistingServer`).",
+          "Arrête-le et relance la suite, pour qu'elle démarre le sien.",
+          "",
+          "N'insiste pas en contournant : la suite écrit par l'application.",
+          "Si celle-ci parle à la production, elle y écrirait.",
+        ].join("\n")
+      );
+    }
 
     await contexte.storageState({ path: STORAGE_STATE });
   } finally {

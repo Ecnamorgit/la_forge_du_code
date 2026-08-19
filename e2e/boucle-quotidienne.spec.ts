@@ -193,6 +193,12 @@ test.describe("boucle quotidienne", () => {
   test("deux étapes validées accomplissent un ordre du jour, et l'XP est persistée", async ({
     page,
   }) => {
+    // Le test le plus lourd de la suite : trois navigations, un montage Monaco
+    // et deux exécutions du bac à sable. Les 30 s du budget par défaut
+    // (playwright.config.ts) sont trop justes, et les plafonds internes posés
+    // plus bas ne pourraient même pas s'exercer avant lui.
+    test.slow();
+
     const avant = await lireEtat(page);
     const dejaFaites = new Set(avant.completedSteps["javascript/chapitre-1"] ?? []);
 
@@ -203,25 +209,36 @@ test.describe("boucle quotidienne", () => {
 
     await ouvrirChapitreAEtape1(page, "/learn/javascript/chapitre-1");
 
-    for (const code of SOLUTIONS_JS_CH1) {
+    for (const [etape, code] of SOLUTIONS_JS_CH1.entries()) {
       // La sauvegarde serveur part depuis `ChapterClient` sans être attendue
       // par l'interface (`void completeStep(...)`) : sans ce guet, la lecture
-      // d'état plus bas pourrait précéder l'écriture. Elle ne part pas du tout
-      // quand l'étape était déjà validée — d'où le `catch`, qui laisse ce cas
-      // passer sans faire échouer le test pour la mauvaise raison.
-      const sauvegarde = page
-        .waitForResponse(
-          (r) => r.url().includes("/api/me/step") && r.request().method() === "POST",
-          { timeout: 20_000 }
-        )
-        .catch(() => null);
+      // d'état plus bas pourrait précéder l'écriture.
+      //
+      // Mais elle ne part PAS du tout quand l'étape était déjà validée
+      // (`if (!alreadyDone)` dans ChapterClient). Poser le guet quand même
+      // n'échouerait pas — le `.catch` neutralise le rejet — mais il faudrait
+      // quand même en attendre le délai complet. Deux étapes déjà faites, et
+      // le test dépasse son propre budget : exactement la reprise CI, où
+      // `globalSetup` n'est pas rejoué et où les étapes sont déjà validées.
+      // On n'attend donc que ce qui va réellement partir.
+      //
+      // `ouvrirChapitreAEtape1` a ramené la pagination à la première étape :
+      // l'indice de la boucle est bien celui de l'étape validée.
+      const sauvegarde = dejaFaites.has(etape)
+        ? null
+        : page
+            .waitForResponse(
+              (r) => r.url().includes("/api/me/step") && r.request().method() === "POST",
+              { timeout: 20_000 }
+            )
+            .catch(() => null);
 
       await definirCodeEditeur(page, code);
       await page.getByRole("button", { name: /DEPLOYER/ }).click();
 
       // Validation réussie côté client (components/lesson/ChapterWorkspace.tsx)…
       await expect(page.getByText("SYSTEME EN LIGNE")).toBeVisible({ timeout: 15_000 });
-      await sauvegarde;
+      if (sauvegarde) await sauvegarde;
       // …puis la bannière de réussite, dont le bouton avance d'une étape.
       const suivant = page.getByRole("button", { name: /SYSTEME SUIVANT/ });
       await expect(suivant).toBeVisible({ timeout: 15_000 });

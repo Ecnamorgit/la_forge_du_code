@@ -111,6 +111,21 @@ export function assertTestDatabaseUrl(
     );
   }
 
+  // `pg` laisse un paramètre de requête « host » (ou « hostaddr ») ÉCRASER le
+  // nom d'hôte de l'URL — pg-connection-string : « Only set the host if there
+  // is no equivalent query param ». Une URL d'apparence locale peut donc se
+  // connecter ailleurs :
+  //   postgresql://u:p@localhost:5432/codeforge_test?host=db.xxx.supabase.co
+  // On ne tente pas de démêler quel hôte gagne : une cible indécidable est
+  // refusée, comme une URL illisible.
+  for (const cle of ["host", "hostaddr"]) {
+    if (url.searchParams.has(cle)) {
+      throw new UnsafeE2eDatabaseError(
+        `Paramètre « ${cle} » dans l'URL : il écrase l'hôte et rend la cible réelle indécidable.\n\n${aide(raw)}`
+      );
+    }
+  }
+
   const h = hote(url);
   const base = baseDeDonnees(url);
 
@@ -134,5 +149,74 @@ export function assertTestDatabaseUrl(
 
   throw new UnsafeE2eDatabaseError(
     `Hôte non local (« ${h} ») et base « ${base} ».\n\n${aide(raw)}`
+  );
+}
+
+// --- L'application testée --------------------------------------------------
+
+/**
+ * Variable d'échappement pour tester une application réellement distante.
+ * Distincte de celle de la base : ce sont deux risques différents.
+ */
+export const VARIABLE_ECHAPPEMENT_APP = "E2E_ALLOW_REMOTE_APP";
+
+export class UnsafeE2eTargetError extends Error {}
+
+function aideApp(url: string): string {
+  return [
+    `Application testée refusée par la garde e2e : ${url}`,
+    "",
+    "`assertTestDatabaseUrl` protège la base que la suite ensemence, mais la",
+    "suite écrit surtout par l'APPLICATION : valider une étape crée des lignes,",
+    "porter un cosmétique modifie le compte. Or c'est l'application qui choisit",
+    "sa base, pas nous.",
+    "",
+    "Une application distante parle donc à une base que nous n'avons pas",
+    "ensemencée — et qui peut être la production. Le compte de test n'y existe",
+    "pas : la suite échouerait de toute façon, mais après avoir écrit.",
+    "",
+    "Laisse E2E_BASE_URL vide pour que Playwright démarre lui-même",
+    "l'application (webServer), sur la base que la garde a validée.",
+    "",
+    `Cible distante volontaire ? Pose ${VARIABLE_ECHAPPEMENT_APP}=1.`,
+  ].join("\n");
+}
+
+/**
+ * Lève si l'application visée par la suite n'est pas celle que l'on contrôle.
+ *
+ * Complète `assertTestDatabaseUrl`, qui ne voit que la base ensemencée par
+ * `global-setup` — jamais celle à laquelle l'application parle réellement.
+ * Sans cette seconde garde, une `E2E_BASE_URL` distante (ou un serveur de
+ * développement déjà lancé sur le `.env` de production, réutilisé par
+ * `reuseExistingServer`) laisse la première garde inspirer une confiance
+ * qu'elle ne couvre pas.
+ *
+ * @param raw l'URL de base visée ; vide ou absente = l'application locale
+ *            démarrée par Playwright, donc sûre
+ * @param env l'environnement, pour l'échappatoire (injecté : fonction pure)
+ */
+export function assertLocalAppUnderTest(
+  raw: string | undefined,
+  env: Record<string, string | undefined> = process.env
+): void {
+  if (!raw || raw.trim() === "") return;
+  if (env[VARIABLE_ECHAPPEMENT_APP] === "1") return;
+
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw new UnsafeE2eTargetError(
+      `E2E_BASE_URL n'est pas une URL analysable.\n\n${aideApp(raw)}`
+    );
+  }
+
+  const h = hote(url);
+  // `*.localhost` résout en boucle locale et sert au multi-tenant en dev.
+  if (HOTES_LOCAUX.has(h) || h.endsWith(".localhost")) return;
+
+  throw new UnsafeE2eTargetError(
+    `Application distante (« ${h} ») : sa base n'est pas celle qui vient d'être ensemencée.\n\n${aideApp(raw)}`
   );
 }
