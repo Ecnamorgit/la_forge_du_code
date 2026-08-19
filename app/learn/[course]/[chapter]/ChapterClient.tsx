@@ -293,7 +293,7 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
             <span className="ml-1.5 text-nebula-text-secondary">/ {course.toUpperCase()} / {chapter.slug.toUpperCase()}</span>
           </div>
         </div>
-        <XPBar xp={xp} maxXp={chapterMaxXp} />
+        <XPBar xp={xp} maxXp={chapterMaxXp} accountLevel={levelFromXp(state.totalXp)} />
       </header>
 
       {/* Mobile tabs — visible only below lg */}
