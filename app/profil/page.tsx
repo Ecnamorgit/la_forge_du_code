@@ -10,12 +10,8 @@ import { useUser } from "@/lib/use-user";
 import { useSoundPreference } from "@/lib/use-sound";
 import AvatarBadge from "@/components/avatar/AvatarBadge";
 import { getRole, getSpecies, getUniformColor } from "@/lib/avatar";
-import {
-  getCompletedSteps,
-  isChapterComplete,
-  levelFromXp,
-  rankFromXp,
-} from "@/lib/user-store";
+import { getCompletedSteps, isChapterComplete } from "@/lib/user-store";
+import { gradeFromXp, levelFromXp } from "@/lib/grades";
 import { getChaptersMeta, type ChapterMetaFull } from "@/lib/courses-meta";
 import { COURSES_CATALOG } from "@/lib/courses-catalog";
 import { BADGES, badgeFrameById } from "@/lib/badges-catalog";
@@ -75,7 +71,7 @@ export default function ProfilPage() {
   const username = state.username || "Cadet";
   const totalXp = state.totalXp;
   const level = levelFromXp(totalXp);
-  const rank = rankFromXp(totalXp);
+  const rank = gradeFromXp(totalXp).label;
   const streak = state.streak || 1;
   const joined = state.joinedAt || "—";
 

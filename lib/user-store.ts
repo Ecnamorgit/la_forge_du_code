@@ -42,18 +42,6 @@ export function hasAvatar(state: UserState): boolean {
   return state.species !== null && state.uniformColor !== null && state.role !== null;
 }
 
-/** Compute level from XP (every 100 XP = 1 level) */
-export function levelFromXp(xp: number): number {
-  return Math.floor(xp / 100) + 1;
-}
-
-/** Compute rank label from XP */
-export function rankFromXp(xp: number): string {
-  if (xp >= 1000) return "Or";
-  if (xp >= 500) return "Argent";
-  return "Bronze";
-}
-
 /** Get array of completed step indexes for a chapter */
 export function getCompletedSteps(
   state: UserState,

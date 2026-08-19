@@ -19,9 +19,8 @@ import {
   getCourseProgress,
   getNextStep,
   hasAvatar,
-  levelFromXp,
-  rankFromXp,
 } from "@/lib/user-store";
+import { gradeFromXp, levelFromXp } from "@/lib/grades";
 import { getChaptersMeta } from "@/lib/courses-meta";
 import { COURSES_CATALOG, getCourseInfo } from "@/lib/courses-catalog";
 import { CHAPTER_SUMMARIES } from "@/lib/chapter-summaries";
@@ -74,7 +73,7 @@ export default function DashboardPage() {
   const username = session?.user?.username || state.username || "Cadet";
   const totalXp = state.totalXp;
   const level = levelFromXp(totalXp);
-  const rank = rankFromXp(totalXp);
+  const rank = gradeFromXp(totalXp).label;
   const streak = state.streak || 1;
   const badges = state.badges.length;
 
