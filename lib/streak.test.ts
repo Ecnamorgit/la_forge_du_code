@@ -26,6 +26,17 @@ describe("advanceLiaison", () => {
     expect(t.next.streak).toBe(5);
   });
 
+  it("refuse une journée antérieure à la dernière activité", () => {
+    const t = advanceLiaison(
+      etat({ streak: 5, shields: 1, bestStreak: 10, lastActiveDay: "2026-08-19" }),
+      "2026-08-18"
+    );
+    expect(t.changed).toBe(false);
+    expect(t.next.streak).toBe(5);
+    expect(t.next.shields).toBe(1);
+    expect(t.next.bestStreak).toBe(10);
+  });
+
   it("incrémente au lendemain", () => {
     const t = advanceLiaison(etat({ streak: 5 }), "2026-08-19");
     expect(t.next.streak).toBe(6);
