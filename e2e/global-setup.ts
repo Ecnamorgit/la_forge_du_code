@@ -3,6 +3,8 @@ import { chromium, type FullConfig } from "@playwright/test";
 import { Client } from "pg";
 import bcrypt from "bcryptjs";
 
+import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
+
 /**
  * Session authentifiée partagée par toutes les specs.
  *
@@ -34,9 +36,13 @@ export const E2E_USER = {
  */
 export default async function globalSetup(config: FullConfig): Promise<void> {
   const url = process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error("DATABASE_URL requise pour les tests e2e.");
-  }
+
+  // AVANT toute connexion : ce fichier efface puis recrée des lignes de la
+  // table User, et le `.env` du dépôt pointe sur la base de production
+  // (docs/DEPLOYMENT.md). La garde est fermée par défaut — elle refuse tout ce
+  // dont elle n'est pas sûre — et son message dit comment monter une base de
+  // test. Cf. lib/e2e-db-guard.ts, testé sous vitest.
+  assertTestDatabaseUrl(url);
 
   const client = new Client({ connectionString: url });
   await client.connect();
