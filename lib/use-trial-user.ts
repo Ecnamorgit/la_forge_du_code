@@ -64,6 +64,11 @@ export function useTrialUser(): UseUserReturn {
         awardedXp: result.awardedXp,
         newBadge: null,
         alreadyDone: result.alreadyDone,
+        questXp: 0,
+        completedQuests: [],
+        newConductBadges: [],
+        newUnlocks: [],
+        notice: null,
       };
     },
     [trial]
@@ -75,11 +80,11 @@ export function useTrialUser(): UseUserReturn {
     refresh: async () => {},
     // Fire-and-forget côté appelant : sans compte, il n'y a rien à mémoriser.
     markCourseVisited: async () => {},
-    claimDailyMission: rejectWithAccountRequired,
     renameUser: rejectWithAccountRequired,
     reset: rejectWithAccountRequired,
     markOnboarded: rejectWithAccountRequired,
     setAvatar: rejectWithAccountRequired,
+    setCosmetics: rejectWithAccountRequired,
     completeStep,
   };
 }
