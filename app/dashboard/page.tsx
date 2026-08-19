@@ -76,7 +76,8 @@ export default function DashboardPage() {
 
   const username = session?.user?.username || state.username || "Cadet";
   const totalXp = state.totalXp;
-  const streak = state.streak || 1;
+  // Source unique du compteur de liaison côté client : `state.liaison`.
+  const streak = state.liaison.streak || 1;
 
   const courseProgress = getCourseProgress(state, activeCourseSlug, chaptersMeta);
   const nextStep = getNextStep(state, activeCourseSlug, chaptersMeta);
@@ -175,11 +176,13 @@ export default function DashboardPage() {
               questsCompleted={state.questsCompleted}
               coursesComplete={completionStats.coursesComplete}
               chaptersComplete={completionStats.chaptersComplete}
+              unlocks={state.unlocks}
               species={state.species}
               uniformColor={state.uniformColor}
               frame={state.frame}
               title={state.title}
               emblem={state.emblem}
+              cardBg={state.cardBg}
             />
           </div>
         </div>

@@ -80,6 +80,18 @@ export interface UnlockContext {
   badges: string[];
   coursesComplete: number;
   chaptersComplete: number;
+  /**
+   * Ids des objets RÉELLEMENT possédés (`UserUnlock` en base, `UserState.unlocks`
+   * côté client).
+   *
+   * Trois conditions du catalogue sont réversibles — `double` (5 j), `orbital`
+   * (7 j) et `blanc-glacier` (14 j) dépendent du streak, qui retombe à 1 à la
+   * rupture. Sans cette liste, un cadet qui a porté « Blanc glacier » pendant
+   * un mois le verrait reverrouillé au premier jour manqué, sur une couleur
+   * qu'il porte encore à l'écran. La règle de la spec est non négociable : un
+   * objet OBTENU ne redevient jamais verrouillé.
+   */
+  owned: string[];
 }
 
 export interface UnlockStatus {
@@ -148,16 +160,25 @@ function check(
 /**
  * Statut de tous les déblocables. Les verrouillés portent leur distance :
  * un rayon qu'on voit est une feuille de route, un rayon caché n'existe pas.
+ *
+ * Un objet est obtenu s'il satisfait sa condition OU s'il figure déjà dans
+ * `ctx.owned` : la possession est acquise pour toujours, même quand la
+ * condition qui l'a produite redevient fausse (rupture de liaison).
  */
 export function evaluateUnlocks(ctx: UnlockContext): UnlockStatus[] {
+  const possede = new Set(ctx.owned);
   return UNLOCKS.map((def) => {
     const { ok, remaining } = check(def.condition, ctx);
-    return { def, unlocked: ok, remaining: ok ? null : remaining };
+    const unlocked = ok || possede.has(def.id);
+    return { def, unlocked, remaining: unlocked ? null : remaining };
   });
 }
 
 /**
  * Le prochain objet à portée, pour la ligne permanente de la carte de cadet.
+ *
+ * Les objets déjà possédés en sont exclus : `evaluateUnlocks` les rend
+ * `unlocked`, et proposer au cadet ce qu'il a déjà serait une fausse piste.
  *
  * Rend l'objet verrouillé dont la distance mesurable (jours, ordres, XP, grade, chapitres, cursus)
  * est la plus petite. Les conditions de type badge n'ont pas de distance numérique : elles se classent
@@ -192,6 +213,32 @@ export function nextUnlock(ctx: UnlockContext): UnlockStatus | null {
   return verrouilles.reduce((meilleur, courant) =>
     distance(courant.def.condition) < distance(meilleur.def.condition) ? courant : meilleur
   );
+}
+
+/**
+ * Décor de la carte de cadet pour chaque fond du catalogue.
+ *
+ * Les six fichiers existent déjà dans `public/` (contrainte fondatrice : aucune
+ * image neuve). Les cinq planètes sont les `planet-*-v2.png` livrées ; le
+ * dernier fond réutilise le fond d'écran orange de la landing.
+ */
+export const CARD_BG_IMAGE: Record<string, string> = {
+  "planet-green": "/planet-green-v2.png",
+  "planet-red": "/planet-red-v2.png",
+  "planet-gas": "/planet-gas-v2.png",
+  "planet-ring": "/planet-ring-v2.png",
+  "planet-dry": "/planet-dry-v2.png",
+  "space-orange": "/space-background-orange.webp",
+};
+
+/**
+ * Fichier de décor à afficher pour le fond porté. Retombe sur le fond par
+ * défaut du catalogue quand le cadet n'a rien choisi (`null`) — ou quand
+ * l'identifiant stocké n'est plus au catalogue.
+ */
+export function cardBgImage(id: string | null): string {
+  const choisi = id === null ? undefined : CARD_BG_IMAGE[id];
+  return choisi ?? CARD_BG_IMAGE[defaultFor("cardBg").id];
 }
 
 /** L'objet par défaut d'un axe, porté tant que rien n'a été choisi. */

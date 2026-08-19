@@ -19,7 +19,7 @@ export default function XPPopup({ show, label, secondary }: XPPopupProps) {
         secondary ? "top-[132px]" : "top-[70px]"
       }`}
     >
-      âš¡ {label}
+      ⚡ {label}
     </div>
   );
 }

@@ -31,6 +31,14 @@ const CHAPTERS_BY_COURSE: Record<string, { slug: string; totalSteps: number }[]>
   );
 
 interface RawUserBundle {
+  /**
+   * Identifiant de compte. Sert de graine au tirage du briefing : le pseudo
+   * est renommable depuis /profil, et l'utiliser ferait changer les trois
+   * ordres au milieu de la journée alors que le masque de paiement, lui,
+   * reste celui du jour — un ordre déjà payé le matin laisserait son bit armé
+   * et le nouvel ordre tiré l'après-midi ne pourrait plus jamais être payé.
+   */
+  id: string;
   username: string;
   totalXp: number;
   streak: number;
@@ -123,7 +131,6 @@ function shape(bundle: RawUserBundle): UserState {
   return {
     username: bundle.username,
     totalXp: bundle.totalXp,
-    streak: bundle.streak,
     lastVisit: bundle.lastVisit,
     lastDailyMission: bundle.lastDailyMission,
     lastVisitedCourse: bundle.lastVisitedCourse,
@@ -135,7 +142,7 @@ function shape(bundle: RawUserBundle): UserState {
     uniformColor: bundle.uniformColor,
     role: bundle.role,
     briefing: buildBriefing({
-      userId: bundle.username,
+      userId: bundle.id,
       todayIso: today,
       past,
       today: todayRecords,
@@ -152,6 +159,7 @@ function shape(bundle: RawUserBundle): UserState {
 }
 
 const USER_BUNDLE_SELECT = {
+  id: true,
   username: true,
   totalXp: true,
   streak: true,
@@ -378,7 +386,6 @@ export async function completeStep(
         lastVisit: true,
         lastDailyMission: true,
         dailyClaimed: true,
-        username: true,
       },
     });
     if (!brut) throw new UserNotFoundError();
@@ -396,7 +403,8 @@ export async function completeStep(
     const { past, today: todayRecords } = splitCompletions(records, jour);
 
     const briefing = buildBriefing({
-      userId: brut.username,
+      // Identifiant de compte, jamais le pseudo : cf. `RawUserBundle.id`.
+      userId,
       todayIso: jour,
       past,
       today: todayRecords,
@@ -516,6 +524,11 @@ export async function completeStep(
       )
     ).length;
 
+    const dejaDebloques = new Set(
+      (await tx.userUnlock.findMany({ where: { userId }, select: { itemId: true } })).map(
+        (u) => u.itemId
+      )
+    );
     const statuts = evaluateUnlocks({
       streak: liaisonApres.streak,
       questsCompleted: questsCompletedApres,
@@ -523,12 +536,8 @@ export async function completeStep(
       badges: [...dejaLa, ...merites],
       coursesComplete: cursusFinis,
       chaptersComplete: chapitresFinis,
+      owned: [...dejaDebloques],
     });
-    const dejaDebloques = new Set(
-      (await tx.userUnlock.findMany({ where: { userId }, select: { itemId: true } })).map(
-        (u) => u.itemId
-      )
-    );
     for (const s of statuts) {
       // Les objets par défaut d'un axe sont acquis d'office : `evaluateUnlocks`
       // les rend `unlocked: true` pour tout le monde, dès la première étape.

@@ -1,8 +1,7 @@
 "use client";
 
 import { evaluateUnlocks, type UnlockAxis, type UnlockContext } from "@/lib/unlocks";
-import { BADGES, badgeFrameById } from "@/lib/badges-catalog";
-import { CONDUCT_BADGES } from "@/lib/conduct-badges";
+import { EMBLEM_OPTIONS } from "@/lib/emblems";
 import Sprite from "@/components/ui/Sprite";
 import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 
@@ -22,10 +21,15 @@ interface UnlockShelfProps {
 }
 
 /**
- * Un rayon d'objets déblocables pour un axe donné. Règle centrale, non
- * négociable : les objets non obtenus restent visibles, grisés, avec leur
- * condition et la distance restante — un rayon qu'on voit est une feuille
- * de route, un rayon caché n'existe pas.
+ * Un rayon d'objets déblocables pour un axe donné. Deux règles, non
+ * négociables :
+ *
+ *  - les objets non obtenus restent visibles, grisés, avec leur condition et
+ *    la distance restante — un rayon qu'on voit est une feuille de route, un
+ *    rayon caché n'existe pas ;
+ *  - un objet OBTENU ne redevient jamais verrouillé. C'est `ctx.owned`
+ *    (`UserState.unlocks`) qui le garantit : trois conditions du catalogue
+ *    dépendent du streak, qui retombe à 1 à la rupture.
  */
 export default function UnlockShelf({ axis, ctx, selected, onSelect }: UnlockShelfProps) {
   const objets = evaluateUnlocks(ctx).filter((u) => u.def.axis === axis);
@@ -65,33 +69,6 @@ export default function UnlockShelf({ axis, ctx, selected, onSelect }: UnlockShe
     </section>
   );
 }
-
-interface EmblemOption {
-  id: string;
-  icon: string;
-  label: string;
-  /** Sert de « condition » affichée sous le badge, obtenu ou non. */
-  description: string;
-  /** Frame dans /sprites/badges.png, ou null pour les badges de conduite (emoji). */
-  frame: number | null;
-}
-
-const EMBLEM_OPTIONS: EmblemOption[] = [
-  ...BADGES.map((b) => ({
-    id: b.id,
-    icon: b.icon,
-    label: b.label,
-    description: b.description,
-    frame: badgeFrameById(b.id),
-  })),
-  ...CONDUCT_BADGES.map((b) => ({
-    id: b.id,
-    icon: b.icon,
-    label: b.label,
-    description: b.description,
-    frame: null,
-  })),
-];
 
 interface EmblemShelfProps {
   /** Ids des badges possédés (cursus + conduite confondus). */

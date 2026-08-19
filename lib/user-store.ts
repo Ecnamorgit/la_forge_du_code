@@ -28,7 +28,6 @@ export interface LiaisonPublic {
 export interface UserState {
   username: string;
   totalXp: number;
-  streak: number;
   lastVisit: string;
   // ISO date (yyyy-mm-dd) the daily mission was last claimed; "" if never.
   lastDailyMission: string;
@@ -50,8 +49,14 @@ export interface UserState {
   // --- Boucle quotidienne ---------------------------------------------
   /** Briefing du jour, calculé serveur. Null en mode essai (visiteur local). */
   briefing: Briefing | null;
+  /**
+   * Le compteur de liaison vit ici, et nulle part ailleurs. Un champ `streak`
+   * de premier niveau a longtemps coexisté avec `liaison.streak`, identique à
+   * la source : cette dualité a suffi à faire calculer les déblocables côté
+   * client depuis la mauvaise moitié de l'état.
+   */
   liaison: LiaisonPublic;
-  /** Ids des cosmétiques débloqués. */
+  /** Ids des cosmétiques débloqués, tels qu'ils sont possédés en base. */
   unlocks: string[];
   /** Total d'ordres validés (progression des badges de conduite). */
   questsCompleted: number;
@@ -64,7 +69,6 @@ export interface UserState {
 export const DEFAULT_USER: UserState = {
   username: "",
   totalXp: 0,
-  streak: 1,
   lastVisit: "",
   lastDailyMission: "",
   lastVisitedCourse: null,

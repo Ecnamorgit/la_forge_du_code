@@ -102,12 +102,16 @@ function AvatarPageInner() {
     [state]
   );
   const unlockCtx: UnlockContext = {
-    streak: state.streak,
+    streak: state.liaison.streak,
     questsCompleted: state.questsCompleted,
     totalXp: state.totalXp,
     badges: state.badges,
     coursesComplete: completionStats.coursesComplete,
     chaptersComplete: completionStats.chaptersComplete,
+    // La possession, sans laquelle l'armurerie reverrouillerait un objet
+    // obtenu dès que la condition qui l'a produit redevient fausse (les
+    // paliers de liaison retombent à la rupture).
+    owned: state.unlocks,
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

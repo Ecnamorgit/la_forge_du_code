@@ -23,6 +23,13 @@ import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 // BADGE_BY_CHAPTER). Frame index in badges.png = position in this array.
 const ALL_BADGES = BADGES;
 
+// `state.badges` porte les DEUX familles depuis la boucle quotidienne : les 48
+// badges de cursus ci-dessus et les badges de conduite (lib/conduct-badges.ts),
+// logés dans la même table `UserBadge`. Le compteur de cette page rapporte les
+// badges de cursus à leur propre total : sans ce filtre, un cadet à 2 badges de
+// cursus et 3 de conduite lisait « 5/48 », et « 58/48 » en fin de parcours.
+const CURSUS_BADGE_IDS = new Set(ALL_BADGES.map((b) => b.id));
+
 // All courses come from the catalog — single source of truth, so any new
 // course automatically shows up here with its chapters.
 const COURSES_LIST = COURSES_CATALOG.map((c) => ({
@@ -72,8 +79,10 @@ export default function ProfilPage() {
   const totalXp = state.totalXp;
   const level = levelFromXp(totalXp);
   const rank = gradeFromXp(totalXp).label;
-  const streak = state.streak || 1;
+  // Source unique du compteur de liaison côté client : `state.liaison`.
+  const streak = state.liaison.streak || 1;
   const joined = state.joinedAt || "—";
+  const cursusBadgeCount = state.badges.filter((id) => CURSUS_BADGE_IDS.has(id)).length;
 
   const computeProgress = (course: string, chapters: ChapterMetaFull[]) => {
     const totalSteps = chapters.reduce((s, c) => s + c.totalSteps, 0);
@@ -272,7 +281,7 @@ export default function ProfilPage() {
             <BigStat label="Rang" value={rank} accent="orange" />
             <BigStat
               label="Badges"
-              value={`${state.badges.length}/${ALL_BADGES.length}`}
+              value={`${cursusBadgeCount}/${ALL_BADGES.length}`}
               accent="blue"
             />
             <BigStat label="Streak" value={`${streak}j`} accent="green" />
