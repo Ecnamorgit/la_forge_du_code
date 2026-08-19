@@ -1,0 +1,209 @@
+import { describe, it, expect } from "vitest";
+import {
+  buildBriefing,
+  splitCompletions,
+  CLOSING_XP,
+  QUEST_XP,
+  type CompletionRecord,
+  type QuestContext,
+} from "./quests";
+
+const CHAPITRES = {
+  html: [
+    { slug: "chapitre-1", totalSteps: 4 },
+    { slug: "chapitre-2", totalSteps: 4 },
+  ],
+  css: [{ slug: "chapitre-1", totalSteps: 4 }],
+  javascript: [{ slug: "chapitre-1", totalSteps: 4 }],
+};
+
+function step(
+  course: string,
+  chapter: string,
+  stepIndex: number,
+  jour: string
+): CompletionRecord {
+  return { course, chapter, stepIndex, completedAt: `${jour}T10:00:00.000Z` };
+}
+
+function ctx(p: Partial<QuestContext> = {}): QuestContext {
+  return {
+    userId: "cadet-1",
+    todayIso: "2026-08-19",
+    past: [],
+    today: [],
+    chaptersByCourse: CHAPITRES,
+    ...p,
+  };
+}
+
+describe("splitCompletions", () => {
+  it("sépare le passé strict du jour courant", () => {
+    const all = [
+      step("html", "chapitre-1", 0, "2026-08-18"),
+      step("html", "chapitre-1", 1, "2026-08-19"),
+    ];
+    const { past, today } = splitCompletions(all, "2026-08-19");
+    expect(past).toHaveLength(1);
+    expect(today).toHaveLength(1);
+    expect(today[0].stepIndex).toBe(1);
+  });
+});
+
+/**
+ * Passé « riche » : chaque emplacement a plusieurs archétypes faisables, donc
+ * le tirage a réellement de quoi varier. Avec un passé vide, l'emplacement
+ * effort n'aurait qu'un seul candidat et les tests de variété seraient vrais
+ * par accident.
+ *   - html/chapitre-1 à 3/4  → boucler-chapitre faisable (≥ 50 %)
+ *   - html/chapitre-2 à 1/4  → serie-chapitre faisable (≥ 3 restantes)
+ *   - css touché le 2026-08-01 → cursus-dormant faisable (≥ 7 jours)
+ *   - javascript jamais touché → premiere-fois faisable
+ *   - 2 cursus touchés        → second-front faisable
+ */
+const PASSE_RICHE: CompletionRecord[] = [
+  step("html", "chapitre-1", 0, "2026-08-18"),
+  step("html", "chapitre-1", 1, "2026-08-18"),
+  step("html", "chapitre-1", 2, "2026-08-18"),
+  step("html", "chapitre-2", 0, "2026-08-18"),
+  step("css", "chapitre-1", 0, "2026-08-01"),
+];
+
+describe("buildBriefing — déterminisme", () => {
+  it("rend le même briefing pour le même cadet le même jour", () => {
+    const a = buildBriefing(ctx({ past: PASSE_RICHE }));
+    const b = buildBriefing(ctx({ past: PASSE_RICHE }));
+    expect(a.quests.map((q) => q.id)).toEqual(b.quests.map((q) => q.id));
+  });
+
+  it("rend un briefing différent d'un jour à l'autre", () => {
+    const jours = [
+      "2026-08-19",
+      "2026-08-20",
+      "2026-08-21",
+      "2026-08-22",
+      "2026-08-23",
+      "2026-08-24",
+    ];
+    const ids = jours.map((j) =>
+      buildBriefing(ctx({ past: PASSE_RICHE, todayIso: j }))
+        .quests.map((q) => q.id)
+        .join("|")
+    );
+    expect(new Set(ids).size).toBeGreaterThan(1);
+  });
+
+  it("rend un briefing différent d'un cadet à l'autre", () => {
+    const ids = ["cadet-1", "cadet-2", "cadet-3", "cadet-4"].map((u) =>
+      buildBriefing(ctx({ past: PASSE_RICHE, userId: u }))
+        .quests.map((q) => q.id)
+        .join("|")
+    );
+    expect(new Set(ids).size).toBeGreaterThan(1);
+  });
+});
+
+describe("buildBriefing — le piège de la faisabilité", () => {
+  it("ne change pas le tirage quand le cadet travaille dans la journée", () => {
+    const past = [
+      step("html", "chapitre-1", 0, "2026-08-01"),
+      step("html", "chapitre-1", 1, "2026-08-01"),
+      step("html", "chapitre-1", 2, "2026-08-01"),
+    ];
+    const avant = buildBriefing(ctx({ past }));
+    const apres = buildBriefing(
+      ctx({ past, today: [step("html", "chapitre-1", 3, "2026-08-19")] })
+    );
+    expect(apres.quests.map((q) => q.id)).toEqual(avant.quests.map((q) => q.id));
+  });
+});
+
+describe("buildBriefing — progression", () => {
+  it("compte les étapes du jour pour l'ordre de reprise", () => {
+    const b = buildBriefing(
+      ctx({ today: [step("html", "chapitre-1", 0, "2026-08-19")] })
+    );
+    const reprise = b.quests.find((q) => q.slot === "reprise");
+    expect(reprise?.progress).toBe(1);
+  });
+
+  it("ne compte jamais les étapes d'hier", () => {
+    const b = buildBriefing(
+      ctx({ past: [step("html", "chapitre-1", 0, "2026-08-18")] })
+    );
+    const reprise = b.quests.find((q) => q.slot === "reprise");
+    expect(reprise?.progress).toBe(0);
+  });
+
+  it("marque le briefing complet quand tous les ordres sont atteints", () => {
+    // Passé vide → reprise (1 ou 2 étapes), effort (5 étapes), curiosité
+    // (ouvrir le premier cursus vierge par ordre alphabétique : css).
+    const today = [
+      ...Array.from({ length: 6 }, (_, i) => step("html", "chapitre-1", i % 4, "2026-08-19")),
+      ...Array.from({ length: 6 }, (_, i) => step("css", "chapitre-1", i % 4, "2026-08-19")),
+    ];
+    const b = buildBriefing(ctx({ today }));
+    expect(b.quests.every((q) => q.done)).toBe(true);
+    expect(b.complete).toBe(true);
+  });
+
+  it("n'est pas complet tant qu'un ordre manque", () => {
+    const b = buildBriefing(ctx({ today: [step("html", "chapitre-1", 0, "2026-08-19")] }));
+    expect(b.complete).toBe(false);
+  });
+});
+
+describe("buildBriefing — faisabilité", () => {
+  it("émet au plus un ordre par emplacement", () => {
+    const b = buildBriefing(ctx());
+    const slots = b.quests.map((q) => q.slot);
+    expect(new Set(slots).size).toBe(slots.length);
+  });
+
+  it("donne un briefing complet dès le premier jour", () => {
+    const b = buildBriefing(ctx());
+    expect(b.quests.length).toBe(3);
+  });
+
+  it("ne propose jamais de boucler un chapitre déjà bouclé", () => {
+    const past = [0, 1, 2, 3].map((i) => step("html", "chapitre-1", i, "2026-08-01"));
+    for (const jour of ["2026-08-19", "2026-08-20", "2026-08-21", "2026-08-22", "2026-08-23"]) {
+      const b = buildBriefing(ctx({ past, todayIso: jour }));
+      const boucle = b.quests.find((q) => q.id === "boucler-chapitre");
+      if (boucle) {
+        expect(`${boucle.course}/${boucle.chapter}`).not.toBe("html/chapitre-1");
+      }
+    }
+  });
+
+  it("ne propose pas d'ouvrir un cursus quand tous sont entamés", () => {
+    const past = ["html", "css", "javascript"].map((c) =>
+      step(c, "chapitre-1", 0, "2026-08-01")
+    );
+    for (const jour of ["2026-08-19", "2026-08-20", "2026-08-21", "2026-08-22"]) {
+      const b = buildBriefing(ctx({ past, todayIso: jour }));
+      expect(b.quests.some((q) => q.id === "premiere-fois")).toBe(false);
+    }
+  });
+
+  it("émet moins de trois ordres quand un emplacement n'a rien de faisable", () => {
+    // Un seul cursus, déjà entamé hier : aucun archétype de curiosité ne tient.
+    // second-front veut 2 cursus, cursus-dormant veut 7 jours d'oubli,
+    // premiere-fois veut un cursus vierge.
+    const b = buildBriefing(
+      ctx({
+        chaptersByCourse: { html: CHAPITRES.html },
+        past: [step("html", "chapitre-1", 0, "2026-08-18")],
+      })
+    );
+    expect(b.quests.some((q) => q.slot === "curiosite")).toBe(false);
+    expect(b.quests).toHaveLength(2);
+  });
+});
+
+describe("barème", () => {
+  it("plafonne la journée à 60 XP", () => {
+    const total = QUEST_XP.reprise + QUEST_XP.effort + QUEST_XP.curiosite + CLOSING_XP;
+    expect(total).toBe(60);
+  });
+});
