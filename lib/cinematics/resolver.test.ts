@@ -40,6 +40,18 @@ describe("getCinematic — repli générique", () => {
     const intro = getCinematic("css", { kind: "intro" });
     expect(intro.scenes.map((s) => s.narration).join(" ")).toContain("CSS");
   });
+
+  it("respecte les tailles de la spec (intro 3-4, outro 2-3, finale 5-7)", () => {
+    const intro = getCinematic("css", { kind: "intro" });
+    expect(intro.scenes.length).toBeGreaterThanOrEqual(3);
+    expect(intro.scenes.length).toBeLessThanOrEqual(4);
+    const outro = getCinematic("css", { kind: "chapter", chapter: "chapitre-1" });
+    expect(outro.scenes.length).toBeGreaterThanOrEqual(2);
+    expect(outro.scenes.length).toBeLessThanOrEqual(3);
+    const finale = getCinematic("css", { kind: "finale" });
+    expect(finale.scenes.length).toBeGreaterThanOrEqual(5);
+    expect(finale.scenes.length).toBeLessThanOrEqual(7);
+  });
 });
 
 describe("isLastChapter", () => {

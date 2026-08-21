@@ -95,12 +95,18 @@ export function genericFinale(course: string): Cinematic {
     },
     {
       id: 2,
+      speaker: "system",
+      narration: "Rapport de mission transmis à la Flotte. Secteur déclaré sûr — les équipes de la Coalition reprennent leurs postes.",
+      visual: "station",
+    },
+    {
+      id: 3,
       speaker: "kira",
       narration: `« Mission accomplie, Cadet. Tu viens de rendre les protocoles ${title} à la Flotte. Repos mérité — puis nouveau déploiement. »`,
       visual: "briefing",
     },
     {
-      id: 3,
+      id: 4,
       speaker: "help",
       narration: "« Statistiques archivées. Un autre cursus t'attend au hangar. À nous de jouer, encore ! »",
       visual: "victory",
