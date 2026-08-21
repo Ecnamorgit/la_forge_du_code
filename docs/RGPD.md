@@ -22,10 +22,26 @@ la politique de confidentialité pour l'exercice des droits.
 | Pseudo (username) | Identification publique (classement, profil) | Exécution du service |
 | Progression (étapes, XP, badges) | Suivi pédagogique de l'apprenant | Exécution du service |
 | Avatar (espèce, couleur, rôle) | Personnalisation cosmétique | Intérêt légitime / consentement |
-| Dates (inscription, dernière visite) | Calcul de la série (streak), statistiques de compte | Exécution du service |
+| Dates (inscription, dernier jour actif) | Calcul de la liaison (série quotidienne), statistiques de compte | Exécution du service |
+| Compteurs de liaison (série courante, record, relais de secours) | Suivi de la régularité d'apprentissage | Exécution du service |
+| Ordres validés et briefings complets | Attribution des récompenses quotidiennes | Exécution du service |
+| Cosmétiques débloqués et portés (cadre, titre, emblème, fond, uniforme) | Personnalisation cosmétique | Intérêt légitime |
+| Mesure d'audience (pages vues, agrégées) | Statistiques de fréquentation | Intérêt légitime |
 
 **Aucune donnée sensible** (au sens de l'art. 9 RGPD) n'est collectée. Le mot de
 passe n'est **jamais stocké en clair** (bcrypt, coût 12).
+
+**Mesure d'audience.** Vercel Analytics (`@vercel/analytics`, monté dans
+`app/layout.tsx`) compte les pages vues **sans cookie ni identifiant
+persistant** : aucun profil n'est construit, aucun visiteur n'est suivi d'une
+visite à l'autre, et rien n'est rattaché à un compte. C'est ce qui la place hors
+du champ du consentement préalable de l'art. 82 de la loi Informatique et
+Libertés — d'où l'absence de bannière. Elle reste à mentionner dans la politique
+de confidentialité publiée.
+
+Les compteurs de la boucle quotidienne sont de la donnée de progression : ils
+suivent le même cycle de vie que le reste du compte, figurent dans l'export du
+§ 5 et disparaissent avec lui.
 
 ## 3. Minimisation
 
