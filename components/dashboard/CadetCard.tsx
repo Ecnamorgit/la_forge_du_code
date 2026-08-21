@@ -155,7 +155,11 @@ export default function CadetCard({
           <Stat label="Total XP" value={totalXp} accent="cyan" />
           <Stat label="Rang" value={rank} accent="orange" />
           <Stat label="Badges" value={badges.length} accent="blue" />
-          <Stat label="Streak" value={`${streak}j`} accent="green" />
+          {/* « Liaison » et non « Streak » : c'est le mot qu'emploient le
+              bandeau, l'armurerie et les libellés de déblocables. Deux mots
+              pour la même chose, à trente centimètres l'un de l'autre, font
+              une interface inachevée. */}
+          <Stat label="Liaison" value={`${streak}j`} accent="green" />
         </div>
 
         {/* Prochain déblocable */}
