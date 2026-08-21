@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Share_Tech_Mono, Exo_2, JetBrains_Mono, Silkscreen } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import AuthSessionProvider from "@/components/auth/SessionProvider";
 import "./globals.css";
 
@@ -66,6 +67,13 @@ export default function RootLayout({
     >
       <body className="min-h-full w-full bg-nebula-bg-darkest text-nebula-text font-body text-base m-0 p-0">
         <AuthSessionProvider>{children}</AuthSessionProvider>
+        {/*
+          Mesure d'audience Vercel : sans cookie et sans identifiant persistant,
+          donc hors du champ du consentement préalable — c'est ce qui permet de
+          la poser ici plutôt que derrière une bannière. Voir docs/RGPD.md §2.
+          Inerte hors déploiement Vercel : en local, le script ne se charge pas.
+        */}
+        <Analytics />
       </body>
     </html>
   );
