@@ -5,12 +5,22 @@
  * Le reste est protégé par `proxy.ts`.
  */
 
-/** Cursus et chapitre ouverts à l'essai. */
+/** Cursus ouvert à l'essai. */
 export const TRIAL_COURSE = "html";
-export const TRIAL_CHAPTER = "chapitre-1";
+
+/** Chapitres ouverts à l'essai, dans l'ordre du cursus. */
+export const TRIAL_CHAPTERS: readonly string[] = [
+  "chapitre-1",
+  "chapitre-2",
+  "chapitre-3",
+];
+
+/** Dernier chapitre d'essai : fin de l'essai, moment de la conversion. */
+export const TRIAL_LAST_CHAPTER = TRIAL_CHAPTERS[TRIAL_CHAPTERS.length - 1];
 
 export const PUBLIC_TRIAL_ROUTES: readonly string[] = [
-  `/learn/${TRIAL_COURSE}/${TRIAL_CHAPTER}`,
+  `/learn/${TRIAL_COURSE}`,
+  ...TRIAL_CHAPTERS.map((c) => `/learn/${TRIAL_COURSE}/${c}`),
 ];
 
 /**

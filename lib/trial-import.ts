@@ -6,7 +6,7 @@
  * « valide-moi tout le cursus » en un appel.
  */
 
-import { TRIAL_CHAPTER, TRIAL_COURSE } from "./public-routes";
+import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 import type { TrialStepRef } from "./trial-user";
 
 /** Borne défensive : le chapitre d'essai n'a qu'une poignée d'étapes. */
@@ -19,7 +19,7 @@ const MAX_STEPS = 50;
 //     exactement au cursus/chapitre d'essai attendu, quelle que soit sa forme
 //     (objet piégé, prototype pollué, tableau, etc.).
 //  2. La défense en profondeur : l'objet renvoyé par ce filtre construit
-//     `course`/`chapter` en dur à partir de TRIAL_COURSE/TRIAL_CHAPTER, il ne
+//     `course`/`chapter` en dur à partir de TRIAL_COURSE/TRIAL_CHAPTERS, il ne
 //     recopie jamais les valeurs fournies par l'appelant. Même si le garde 1
 //     avait une faille, aucune valeur arbitraire ne pourrait s'échapper par
 //     ce chemin.
@@ -35,13 +35,13 @@ export function filterTrialSteps(steps: unknown): TrialStepRef[] {
 
     const { course, chapter, stepIndex } = entry as Record<string, unknown>;
     if (course !== TRIAL_COURSE) continue;
-    if (chapter !== TRIAL_CHAPTER) continue;
+    if (chapter !== TRIAL_CHAPTERS[0]) continue;
     if (typeof stepIndex !== "number") continue;
     if (!Number.isInteger(stepIndex) || stepIndex < 0) continue;
     if (seen.has(stepIndex)) continue;
 
     seen.add(stepIndex);
-    kept.push({ course: TRIAL_COURSE, chapter: TRIAL_CHAPTER, stepIndex });
+    kept.push({ course: TRIAL_COURSE, chapter: TRIAL_CHAPTERS[0], stepIndex });
   }
 
   return kept;

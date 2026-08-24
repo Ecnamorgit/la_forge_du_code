@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { filterTrialSteps } from "./trial-import";
-import { TRIAL_CHAPTER, TRIAL_COURSE } from "./public-routes";
+import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 
-const valid = { course: TRIAL_COURSE, chapter: TRIAL_CHAPTER, stepIndex: 0 };
+const valid = { course: TRIAL_COURSE, chapter: TRIAL_CHAPTERS[0], stepIndex: 0 };
 
 describe("filterTrialSteps", () => {
   it("garde une étape du chapitre d'essai", () => {
@@ -18,7 +18,7 @@ describe("filterTrialSteps", () => {
 
   it("rejette un autre cursus", () => {
     expect(
-      filterTrialSteps([{ course: "javascript", chapter: TRIAL_CHAPTER, stepIndex: 0 }])
+      filterTrialSteps([{ course: "javascript", chapter: TRIAL_CHAPTERS[0], stepIndex: 0 }])
     ).toEqual([]);
   });
 
@@ -62,14 +62,14 @@ describe("filterTrialSteps", () => {
     // stepIndex : elle doit être rejetée, et le prototype global ne doit pas
     // être touché.
     const polluted = JSON.parse(
-      `{"__proto__": {"course": "${TRIAL_COURSE}", "chapter": "${TRIAL_CHAPTER}", "stepIndex": 0}}`
+      `{"__proto__": {"course": "${TRIAL_COURSE}", "chapter": "${TRIAL_CHAPTERS[0]}", "stepIndex": 0}}`
     );
     expect(filterTrialSteps([polluted])).toEqual([]);
     expect((Object.prototype as Record<string, unknown>).course).toBeUndefined();
   });
 
   it("rejette un tableau utilisé à la place d'une entrée objet", () => {
-    expect(filterTrialSteps([[TRIAL_COURSE, TRIAL_CHAPTER, 0]])).toEqual([]);
+    expect(filterTrialSteps([[TRIAL_COURSE, TRIAL_CHAPTERS[0], 0]])).toEqual([]);
   });
 
   it("rejette stepIndex fourni sous forme de chaîne", () => {

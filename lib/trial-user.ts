@@ -8,7 +8,7 @@
  * l'état n'a donc pas besoin d'être indexé par cursus.
  */
 
-import { TRIAL_CHAPTER, TRIAL_COURSE } from "./public-routes";
+import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 import { DEFAULT_USER, type UserState } from "./user-store";
 import { xpForStep } from "./xp";
 
@@ -144,7 +144,7 @@ export function trialStateToUserState(state: TrialState): UserState {
     totalXp: state.xp,
     lastVisitedCourse: TRIAL_COURSE,
     completedSteps: {
-      [`${TRIAL_COURSE}/${TRIAL_CHAPTER}`]: [...state.completedSteps],
+      [`${TRIAL_COURSE}/${TRIAL_CHAPTERS[0]}`]: [...state.completedSteps],
     },
   };
 }
@@ -153,7 +153,7 @@ export function trialStateToUserState(state: TrialState): UserState {
 export function trialCompletedSteps(state: TrialState): TrialStepRef[] {
   return state.completedSteps.map((stepIndex) => ({
     course: TRIAL_COURSE,
-    chapter: TRIAL_CHAPTER,
+    chapter: TRIAL_CHAPTERS[0],
     stepIndex,
   }));
 }

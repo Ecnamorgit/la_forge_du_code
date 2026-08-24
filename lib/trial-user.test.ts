@@ -8,7 +8,7 @@ import {
   trialStateToUserState,
 } from "./trial-user";
 import { xpForStep } from "./xp";
-import { TRIAL_CHAPTER, TRIAL_COURSE } from "./public-routes";
+import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 import { DEFAULT_USER } from "./user-store";
 
 describe("applyTrialStep", () => {
@@ -94,7 +94,7 @@ describe("trialStateToUserState", () => {
   it("projette dans la forme UserState attendue par les composants", () => {
     const user = trialStateToUserState({ completedSteps: [0, 1], xp: 80 });
     expect(user.totalXp).toBe(80);
-    expect(user.completedSteps[`${TRIAL_COURSE}/${TRIAL_CHAPTER}`]).toEqual([0, 1]);
+    expect(user.completedSteps[`${TRIAL_COURSE}/${TRIAL_CHAPTERS[0]}`]).toEqual([0, 1]);
     expect(user.username).toBe("Cadet");
   });
 
@@ -109,8 +109,8 @@ describe("trialStateToUserState", () => {
 describe("trialCompletedSteps", () => {
   it("liste les étapes au format attendu par l'import", () => {
     expect(trialCompletedSteps({ completedSteps: [0, 2], xp: 0 })).toEqual([
-      { course: TRIAL_COURSE, chapter: TRIAL_CHAPTER, stepIndex: 0 },
-      { course: TRIAL_COURSE, chapter: TRIAL_CHAPTER, stepIndex: 2 },
+      { course: TRIAL_COURSE, chapter: TRIAL_CHAPTERS[0], stepIndex: 0 },
+      { course: TRIAL_COURSE, chapter: TRIAL_CHAPTERS[0], stepIndex: 2 },
     ]);
   });
 });

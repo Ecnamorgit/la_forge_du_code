@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { chapitre1 as trialChapter } from "@/data/courses/html/chapitre-1";
-import { TRIAL_CHAPTER, TRIAL_COURSE } from "./public-routes";
+import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 import {
   applyTrialStep,
   readTrialState,
@@ -46,7 +46,7 @@ export function useTrialUser(): UseUserReturn {
       chapter: string,
       stepIndex: number
     ): Promise<CompleteStepResponse> => {
-      if (course !== TRIAL_COURSE || chapter !== TRIAL_CHAPTER) {
+      if (course !== TRIAL_COURSE || chapter !== TRIAL_CHAPTERS[0]) {
         throw new AccountRequiredError(
           "Ce chapitre nécessite un compte. Crée le tien pour continuer."
         );
