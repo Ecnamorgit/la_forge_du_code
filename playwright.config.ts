@@ -30,6 +30,8 @@ export default defineConfig({
   globalSetup: "./e2e/global-setup.ts",
   timeout: 30_000,
   fullyParallel: false,
+  // Un seul worker : toute la suite partage le même utilisateur E2E et la même base.
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",

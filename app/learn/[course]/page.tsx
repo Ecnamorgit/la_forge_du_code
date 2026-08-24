@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import CourseCinematicsMount from "@/components/cinematics/CourseCinematicsMount";
 import BrandLogo from "@/components/ui/BrandLogo";
 import LevelNodeComponent, { type LevelNode } from "./LevelNode";
 import { getChaptersMeta } from "@/lib/courses-meta";
@@ -613,6 +614,7 @@ export default async function CourseMapPage({
 
   return (
     <div className="relative h-full overflow-hidden">
+      <CourseCinematicsMount course={course} />
       <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
           src={COURSE_BACKGROUND}

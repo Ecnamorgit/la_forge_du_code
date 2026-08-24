@@ -67,6 +67,14 @@ test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async 
     await bannerBtn.click();
 
     if (isLast) {
+      // L'outro de chapitre s'intercale toujours avant l'écran de complétion :
+      // l'utilisateur E2E est recréé à chaque run (e2e/global-setup.ts), il
+      // n'a donc jamais vu cette cinématique. Assertion stricte pour attraper
+      // une régression de l'auto-play.
+      await expect(page.getByTestId("cinematic-player")).toBeVisible({
+        timeout: 15_000,
+      });
+      await page.getByTestId("cinematic-skip").click();
       await expect(page.getByText(/COMPLÉTÉE/)).toBeVisible({ timeout: 10_000 });
     } else {
       // L'étape suivante est montée (nouveau startCode dans l'éditeur).
