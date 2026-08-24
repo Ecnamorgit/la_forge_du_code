@@ -33,6 +33,10 @@ import { getDocEntry } from "@/data/docs";
 import { UNLOCKS } from "@/lib/unlocks";
 import { getConductBadge } from "@/lib/conduct-badges";
 import DocPanel from "@/components/docs/DocPanel";
+import CinematicPlayer from "@/components/cinematics/CinematicPlayer";
+import { getCinematic, isLastChapter } from "@/lib/cinematics/resolver";
+import { cinematicId, type CinematicMoment } from "@/lib/cinematics/types";
+import { useCinematicSeen } from "@/lib/cinematics/use-cinematic-seen";
 
 interface ChapterClientProps {
   course: string;
@@ -105,6 +109,23 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
 
   const [showBanner, setShowBanner] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+  // Cinématique de fin de chapitre (ou finale de cursus sur le dernier
+  // chapitre). Jouée entre la dernière bannière d'étape et CompletionScreen,
+  // une seule fois (règle : une cinématique enregistrée ne se rejoue jamais
+  // automatiquement). Jamais montée en essai — cf. CompletionScreen.
+  const [showOutroCinematic, setShowOutroCinematic] = useState(false);
+  const { loaded: cineLoaded, seen: cineSeen, mark: markCine } = useCinematicSeen(course);
+  const outroMoment: CinematicMoment = useMemo(
+    () =>
+      isLastChapter(course, chapter.slug)
+        ? { kind: "finale" }
+        : { kind: "chapter", chapter: chapter.slug },
+    [course, chapter.slug]
+  );
+  const outroId = useMemo(
+    () => cinematicId(course, outroMoment),
+    [course, outroMoment]
+  );
   const [showHint, setShowHint] = useState(false);
   const [xpPopup, setXpPopup] = useState({ show: false, label: "" });
   // Signal immédiat de fin d'étape pour la boucle quotidienne (ordre
@@ -268,11 +289,17 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
         conversionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
       }
+      // Cinématique d'abord si elle n'a jamais été vue ; si l'état n'est pas
+      // chargé (réseau), on ne bloque pas le joueur : complétion directe.
+      if (cineLoaded && !cineSeen.has(outroId)) {
+        setShowOutroCinematic(true);
+        return;
+      }
       setShowCompletion(true);
       return;
     }
     setCurrentStep(currentStep + 1);
-  }, [currentStep, chapter.steps.length, setCurrentStep, isTrial]);
+  }, [currentStep, chapter.steps.length, setCurrentStep, isTrial, cineLoaded, cineSeen, outroId]);
 
   const toggleHint = useCallback(() => {
     setShowHint(true);
@@ -322,6 +349,18 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
         onNext={goNextStep}
         onDimClick={() => setShowBanner(false)}
       />
+      {!isTrial && (
+        <CinematicPlayer
+          cinematic={getCinematic(course, outroMoment)}
+          open={showOutroCinematic}
+          onClose={() => {
+            markCine(outroId);
+            setShowOutroCinematic(false);
+            setShowCompletion(true);
+          }}
+          finalCtaLabel="Rapport de mission ->"
+        />
+      )}
       <CompletionScreen
         // En essai, ce plein écran n'a ni bouton de fermeture utilisable ni
         // rapport avec la carte de conversion (cf. goNextStep) : on ne le
