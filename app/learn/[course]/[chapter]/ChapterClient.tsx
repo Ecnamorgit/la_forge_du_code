@@ -34,16 +34,23 @@ import { UNLOCKS } from "@/lib/unlocks";
 import { getConductBadge } from "@/lib/conduct-badges";
 import DocPanel from "@/components/docs/DocPanel";
 import CinematicPlayer from "@/components/cinematics/CinematicPlayer";
-import { getCinematic, isLastChapter } from "@/lib/cinematics/resolver";
+import { getCinematic } from "@/lib/cinematics/resolver";
 import { cinematicId, type CinematicMoment } from "@/lib/cinematics/types";
 import { useCinematicSeen } from "@/lib/cinematics/use-cinematic-seen";
+import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 interface ChapterClientProps {
   course: string;
   chapter: ChapterData;
+  /**
+   * Dernier chapitre du cursus (→ finale au lieu d'outro). Calculé côté
+   * serveur : la réponse dépend du registre complet des cursus, qu'on ne veut
+   * pas embarquer dans le bundle client.
+   */
+  isLastChapter: boolean;
 }
 
-export default function ChapterClient({ course, chapter }: ChapterClientProps) {
+export default function ChapterClient({ course, chapter, isLastChapter }: ChapterClientProps) {
   const { state, completeStep, markCourseVisited, isTrial } = useUserContext();
   const validators = getValidators(course, chapter.slug);
   const chapterDone = isChapterComplete(state, course, chapter.slug, chapter.steps.length);
@@ -114,13 +121,18 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
   // une seule fois (règle : une cinématique enregistrée ne se rejoue jamais
   // automatiquement). Jamais montée en essai — cf. CompletionScreen.
   const [showOutroCinematic, setShowOutroCinematic] = useState(false);
-  const { loaded: cineLoaded, seen: cineSeen, mark: markCine } = useCinematicSeen(course);
+  // En essai il n'y a pas de session : l'API des cinématiques répondrait 401.
+  const { loaded: cineLoaded, seen: cineSeen, mark: markCine } = useCinematicSeen(
+    course,
+    !isTrial
+  );
+  const reducedMotion = usePrefersReducedMotion();
   const outroMoment: CinematicMoment = useMemo(
     () =>
-      isLastChapter(course, chapter.slug)
+      isLastChapter
         ? { kind: "finale" }
         : { kind: "chapter", chapter: chapter.slug },
-    [course, chapter.slug]
+    [isLastChapter, chapter.slug]
   );
   const outroId = useMemo(
     () => cinematicId(course, outroMoment),
@@ -301,6 +313,15 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
     setCurrentStep(currentStep + 1);
   }, [currentStep, chapter.steps.length, setCurrentStep, isTrial, cineLoaded, cineSeen, outroId]);
 
+  // Référence stable : `CinematicPlayer` réarme son minuteur de scène dès que
+  // `onClose` change d'identité — une flèche inline le ferait à chaque rendu
+  // du chapitre (XP, bannière, popups…), coupant l'enchaînement automatique.
+  const closeOutroCinematic = useCallback(() => {
+    markCine(outroId);
+    setShowOutroCinematic(false);
+    setShowCompletion(true);
+  }, [markCine, outroId]);
+
   const toggleHint = useCallback(() => {
     setShowHint(true);
     clearTimeout(hintTimerRef.current);
@@ -353,11 +374,8 @@ export default function ChapterClient({ course, chapter }: ChapterClientProps) {
         <CinematicPlayer
           cinematic={getCinematic(course, outroMoment)}
           open={showOutroCinematic}
-          onClose={() => {
-            markCine(outroId);
-            setShowOutroCinematic(false);
-            setShowCompletion(true);
-          }}
+          onClose={closeOutroCinematic}
+          reducedMotion={reducedMotion}
           finalCtaLabel="Rapport de mission ->"
         />
       )}

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import { getCourseStatus } from "@/lib/courses-catalog";
 import { cinematicId } from "./types";
-import { getCinematic, isLastChapter } from "./resolver";
+import { getCinematic } from "./resolver";
+import { isLastChapter } from "./last-chapter";
 
 describe("cinematicId", () => {
   it("construit des identifiants stables", () => {
@@ -52,6 +54,22 @@ describe("getCinematic — repli générique", () => {
     expect(finale.scenes.length).toBeGreaterThanOrEqual(5);
     expect(finale.scenes.length).toBeLessThanOrEqual(7);
   });
+
+  it("aucune narration générique ne double les guillemets", () => {
+    const echantillon = [
+      getCinematic("css", { kind: "intro" }),
+      getCinematic("css", { kind: "finale" }),
+      getCinematic("css", { kind: "chapter", chapter: "chapitre-1" }),
+      getCinematic("css", { kind: "chapter", chapter: "chapitre-2" }),
+      getCinematic("css", { kind: "chapter", chapter: "chapitre-3" }),
+    ];
+    for (const cine of echantillon) {
+      for (const scene of cine.scenes) {
+        expect(scene.narration).not.toContain("««");
+        expect(scene.narration).not.toContain("»»");
+      }
+    }
+  });
 });
 
 describe("isLastChapter", () => {
@@ -62,5 +80,10 @@ describe("isLastChapter", () => {
 
   it("faux pour un cursus inconnu", () => {
     expect(isLastChapter("inconnu", "chapitre-1")).toBe(false);
+  });
+
+  it("faux sur un cursus pilote (statut preview), même à son seul chapitre", () => {
+    expect(getCourseStatus("python")).toBe("preview");
+    expect(isLastChapter("python", "chapitre-1")).toBe(false);
   });
 });

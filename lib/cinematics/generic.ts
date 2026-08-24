@@ -71,7 +71,9 @@ export function genericChapterOutro(course: string, chapterSlug: string): Cinema
     GENERIC_OUTROS[chapterRank(chapterSlug) % GENERIC_OUTROS.length];
   const scenes: CinematicScene[] = [
     { id: 0, speaker: "system", narration: systemLine, visual: "station", fx: "victory" },
-    { id: 1, speaker: "help", narration: `« ${helpLine} »`, visual: "briefing" },
+    // `helpLine` porte déjà ses guillemets (cf. GENERIC_OUTROS) : ne pas
+    // l'encadrer une seconde fois, sous peine de rendre «« … »».
+    { id: 1, speaker: "help", narration: helpLine, visual: "briefing" },
   ];
   return { id: cinematicId(course, { kind: "chapter", chapter: chapterSlug }), scenes };
 }

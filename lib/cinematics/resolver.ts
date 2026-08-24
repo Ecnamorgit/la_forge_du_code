@@ -5,7 +5,6 @@
  */
 
 import { HTML_CINEMATICS } from "@/data/courses/html/cinematics";
-import { listChapterSlugs } from "@/lib/courses-registry";
 import { genericChapterOutro, genericFinale, genericIntro } from "./generic";
 import type { Cinematic, CinematicMoment, CourseCinematics } from "./types";
 
@@ -28,10 +27,4 @@ export function getCinematic(course: string, moment: CinematicMoment): Cinematic
   if (moment.kind === "intro") return genericIntro(course);
   if (moment.kind === "finale") return genericFinale(course);
   return genericChapterOutro(course, moment.chapter);
-}
-
-/** Le chapitre est-il le dernier du cursus (→ finale au lieu d'outro) ? */
-export function isLastChapter(course: string, chapterSlug: string): boolean {
-  const slugs = listChapterSlugs(course);
-  return slugs.length > 0 && slugs[slugs.length - 1] === chapterSlug;
 }

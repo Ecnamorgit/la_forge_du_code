@@ -4,8 +4,13 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { listCinematicViews, markCinematicView } from "@/lib/me-server";
 
+// Forme canonique d'un identifiant de cinématique (cf. lib/cinematics/types) :
+// "<cursus>:intro", "<cursus>:finale" ou "<cursus>:chapter:<slug>". Refuser
+// tout le reste évite d'archiver des identifiants arbitraires.
 const postSchema = z.object({
-  cinematicId: z.string().min(1).max(128),
+  cinematicId: z
+    .string()
+    .regex(/^[a-z0-9-]{1,32}:(intro|finale|chapter:[a-z0-9-]{1,64})$/),
 });
 
 export async function GET(req: Request) {

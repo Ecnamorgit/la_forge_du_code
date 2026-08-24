@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import CinematicPlayer from "@/components/cinematics/CinematicPlayer";
 import { getCinematic } from "@/lib/cinematics/resolver";
 import { cinematicId } from "@/lib/cinematics/types";
 import { useCinematicSeen } from "@/lib/cinematics/use-cinematic-seen";
+import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 interface CourseCinematicsMountProps {
   course: string;
@@ -21,12 +22,7 @@ export default function CourseCinematicsMount({ course }: CourseCinematicsMountP
   const { loaded, seen, mark } = useCinematicSeen(course);
   const [playing, setPlaying] = useState<"intro" | "finale" | null>(null);
   const [autoChecked, setAutoChecked] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture ponctuelle au montage
-    setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  }, []);
+  const reducedMotion = usePrefersReducedMotion();
 
   const introId = cinematicId(course, { kind: "intro" });
   const finaleId = cinematicId(course, { kind: "finale" });
@@ -39,10 +35,13 @@ export default function CourseCinematicsMount({ course }: CourseCinematicsMountP
     if (!seen.has(introId)) setPlaying("intro");
   }, [loaded, autoChecked, seen, introId]);
 
-  const close = () => {
+  // Référence stable : `CinematicPlayer` remet à zéro son minuteur de scène
+  // quand `onClose` change d'identité, ce qu'un rendu parent quelconque
+  // provoquerait avec une flèche inline.
+  const close = useCallback(() => {
     if (playing) mark(playing === "intro" ? introId : finaleId);
     setPlaying(null);
-  };
+  }, [playing, mark, introId, finaleId]);
 
   return (
     <>
