@@ -70,14 +70,15 @@ function AvatarPageInner() {
   // perte maximale est la progression d'un seul chapitre d'essai.
   useEffect(() => {
     const trialState = readTrialState();
-    if (trialState.completedSteps.length === 0) return;
+    const steps = trialCompletedSteps(trialState);
+    if (steps.length === 0) return;
 
     void (async () => {
       try {
         const res = await fetch("/api/me/trial-import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ steps: trialCompletedSteps(trialState) }),
+          body: JSON.stringify({ steps }),
         });
         if (res.ok) {
           clearTrialState();
