@@ -43,6 +43,8 @@ export function useCinematicSeen(
 
     if (mode === "local") {
       if (typeof window === "undefined") return;
+      // Une seule directive couvre les deux setState qui suivent : la règle
+      // ne signale que le premier appel de state-setting du bloc.
       // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture synchrone ponctuelle de localStorage au montage
       setSeen(new Set(readLocalSeen()));
       setLoaded(true);
@@ -68,11 +70,20 @@ export function useCinematicSeen(
   const mark = useCallback(
     (id: string) => {
       setSeen((prev) => {
+        if (prev.has(id)) return prev;
         const next = new Set(prev);
         next.add(id);
-        if (mode === "local") writeLocalSeen([...next]);
         return next;
       });
+      // Écriture hors de l'updater ci-dessus : un updater React doit rester
+      // pur (il peut être rejoué sans que le rendu correspondant ne soit
+      // committé), donc jamais d'effet de bord de storage dedans. On relit
+      // `readLocalSeen()` ici plutôt que de fermer sur `seen`/`next` : pas de
+      // closure périmée, et `writeLocalSeen` déduplique déjà.
+      if (mode === "local") {
+        writeLocalSeen([...new Set([...readLocalSeen(), id])]);
+        return;
+      }
       if (mode !== "server") return;
       void fetch("/api/me/cinematic", {
         method: "POST",
