@@ -2,22 +2,34 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { readLocalSeen, writeLocalSeen } from "./local-seen";
+
+/** Source de vérité de l'état « cinématiques vues » pour `useCinematicSeen`. */
+export type CinematicSeenMode = "server" | "local" | "off";
+
 /**
  * État « cinématiques vues » d'un cursus, côté client.
  *
  * Politique d'erreur (spec §6) : si la lecture échoue, `loaded` reste false et
  * l'appelant NE joue PAS de cinématique automatiquement — on n'impose jamais
  * une cinématique par excès, on préfère la sauter. `mark` est fire-and-forget :
- * un échec réseau est silencieux (au pire la cinématique se rejouera).
+ * un échec réseau (ou d'écriture localStorage) est silencieux (au pire la
+ * cinématique se rejouera).
  *
- * `enabled` : passer `false` quand l'appelant sait qu'il n'y a pas de session
- * (mode essai) — l'API est authentifiée et répondrait 401. Aucune requête
- * n'est alors émise et `loaded` reste false ; par la même politique que
- * ci-dessus, l'appelant ne doit donc rien auto-jouer.
+ * `mode` :
+ * - `"server"` (défaut) : lecture/écriture via l'API authentifiée
+ *   (`/api/me/cinematic`).
+ * - `"off"` : à utiliser quand l'appelant sait qu'il n'y a pas de session
+ *   (mode essai sans stockage local) — l'API authentifiée répondrait 401.
+ *   Aucune requête n'est émise, `loaded` reste false (donc pas d'auto-play,
+ *   même politique que ci-dessus) et `mark` reste purement local en mémoire.
+ * - `"local"` : lecture/écriture via `localStorage` (mode essai avec
+ *   persistance locale, sans compte). Si `window` est indisponible, `loaded`
+ *   reste false (même politique).
  */
 export function useCinematicSeen(
   course: string,
-  enabled: boolean = true
+  mode: CinematicSeenMode = "server"
 ): {
   loaded: boolean;
   seen: Set<string>;
@@ -27,7 +39,16 @@ export function useCinematicSeen(
   const [seen, setSeen] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!enabled) return;
+    if (mode === "off") return;
+
+    if (mode === "local") {
+      if (typeof window === "undefined") return;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture synchrone ponctuelle de localStorage au montage
+      setSeen(new Set(readLocalSeen()));
+      setLoaded(true);
+      return;
+    }
+
     let cancelled = false;
     fetch(`/api/me/cinematic?course=${encodeURIComponent(course)}`)
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error("fetch"))))
@@ -42,16 +63,17 @@ export function useCinematicSeen(
     return () => {
       cancelled = true;
     };
-  }, [course, enabled]);
+  }, [course, mode]);
 
   const mark = useCallback(
     (id: string) => {
       setSeen((prev) => {
         const next = new Set(prev);
         next.add(id);
+        if (mode === "local") writeLocalSeen([...next]);
         return next;
       });
-      if (!enabled) return;
+      if (mode !== "server") return;
       void fetch("/api/me/cinematic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,7 +82,7 @@ export function useCinematicSeen(
         /* silencieux, voir docstring */
       });
     },
-    [enabled]
+    [mode]
   );
 
   return { loaded, seen, mark };

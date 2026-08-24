@@ -124,7 +124,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
   // En essai il n'y a pas de session : l'API des cinématiques répondrait 401.
   const { loaded: cineLoaded, seen: cineSeen, mark: markCine } = useCinematicSeen(
     course,
-    !isTrial
+    isTrial ? "off" : "server"
   );
   const reducedMotion = usePrefersReducedMotion();
   const outroMoment: CinematicMoment = useMemo(
