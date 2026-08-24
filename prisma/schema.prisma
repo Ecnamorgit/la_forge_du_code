@@ -56,6 +56,7 @@ model User {
   unlocks         UserUnlock[]
   stepCompletions StepCompletion[]
   oneTimeTokens   OneTimeToken[]
+  cinematicViews  CinematicView[]
 }
 
 // Single-use tokens for email verification + password reset.
@@ -146,6 +147,18 @@ model StepCompletion {
 
   @@unique([userId, course, chapter, stepIndex])
   @@index([userId, completedAt])
+}
+
+model CinematicView {
+  id          String   @id @default(cuid())
+  userId      String
+  cinematicId String
+  viewedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cinematicId])
+  @@index([userId])
 }
 
 /// Comptage agrégé du tunnel d'acquisition. Aucune donnée personnelle :

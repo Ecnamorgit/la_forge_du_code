@@ -764,6 +764,30 @@ export async function markCourseVisited(
   return state;
 }
 
+/** Ids des cinématiques déjà vues pour un cursus (préfixe "<course>:"). */
+export async function listCinematicViews(
+  userId: string,
+  course: string
+): Promise<string[]> {
+  const rows = await prisma.cinematicView.findMany({
+    where: { userId, cinematicId: { startsWith: `${course}:` } },
+    select: { cinematicId: true },
+  });
+  return rows.map((r) => r.cinematicId);
+}
+
+/** Marque une cinématique vue ; idempotent (revoir ne crée pas de doublon). */
+export async function markCinematicView(
+  userId: string,
+  cinematicId: string
+): Promise<void> {
+  await prisma.cinematicView.upsert({
+    where: { userId_cinematicId: { userId, cinematicId } },
+    create: { userId, cinematicId },
+    update: {},
+  });
+}
+
 /**
  * RGPD — export des données personnelles de l'utilisateur (droit d'accès /
  * portabilité). Retourne le profil + badges + progression sous forme sérialisable.
