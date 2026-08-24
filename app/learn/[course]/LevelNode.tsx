@@ -6,6 +6,7 @@ import Link from "next/link";
 import { unlockAudio } from "@/lib/audio";
 import { useUser } from "@/lib/use-user";
 import { isChapterComplete } from "@/lib/user-store";
+import { TRIAL_CHAPTERS } from "@/lib/public-routes";
 import type { ChapterMetaFull } from "@/lib/courses-meta";
 
 export interface LevelNode {
@@ -39,6 +40,7 @@ interface LevelNodeProps {
   course: string;
   index: number;
   chaptersMeta: ChapterMetaFull[];
+  isTrial?: boolean;
 }
 
 type NodeStatus = "available" | "locked" | "completed";
@@ -48,6 +50,7 @@ export default function LevelNodeComponent({
   course,
   index,
   chaptersMeta,
+  isTrial = false,
 }: LevelNodeProps) {
   const [hovered, setHovered] = useState(false);
   const { state } = useUser();
@@ -81,8 +84,12 @@ export default function LevelNodeComponent({
     return isComplete ? "completed" : "available";
   }, [node.slug, course, state, chaptersMeta]);
 
-  const isLocked = status === "locked";
-  const isCompleted = status === "completed";
+  // En essai, tout chapitre hors du périmètre est verrouillé vers l'inscription,
+  // quel que soit l'état de progression locale.
+  const trialLocked = isTrial && !TRIAL_CHAPTERS.includes(node.slug);
+
+  const isLocked = trialLocked || status === "locked";
+  const isCompleted = !trialLocked && status === "completed";
   const customImage = CUSTOM_NODE_IMAGES[node.id];
   const scale = node.size / FRAME_W;
   const visualHeight = customImage ? node.size : node.size * (FRAME_H / FRAME_W);
@@ -184,7 +191,12 @@ export default function LevelNodeComponent({
             <p className="font-body text-[10px] text-nebula-text-secondary">
               {node.subtitle}
             </p>
-            {isLocked && (
+            {trialLocked && (
+              <p className="font-tech text-[9px] text-nebula-text-dim mt-1 tracking-wider">
+                🔒 Inscription requise
+              </p>
+            )}
+            {isLocked && !trialLocked && (
               <p className="font-tech text-[9px] text-nebula-text-dim mt-1 tracking-wider">
                 🔒 VERROUILLÉ
               </p>
@@ -200,11 +212,11 @@ export default function LevelNodeComponent({
     </div>
   );
 
-  if (isLocked) return content;
+  if (isLocked && !trialLocked) return content;
 
   return (
     <Link
-      href={`/learn/${course}/${node.slug}`}
+      href={trialLocked ? "/signup" : `/learn/${course}/${node.slug}`}
       onClick={() => unlockAudio()}
       onMouseEnter={() => {
         void import("@monaco-editor/react");

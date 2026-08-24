@@ -5,11 +5,15 @@ import { useCallback, useEffect, useState } from "react";
 import CinematicPlayer from "@/components/cinematics/CinematicPlayer";
 import { getCinematic } from "@/lib/cinematics/resolver";
 import { cinematicId } from "@/lib/cinematics/types";
-import { useCinematicSeen } from "@/lib/cinematics/use-cinematic-seen";
+import {
+  useCinematicSeen,
+  type CinematicSeenMode,
+} from "@/lib/cinematics/use-cinematic-seen";
 import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 interface CourseCinematicsMountProps {
   course: string;
+  seenMode?: CinematicSeenMode;
 }
 
 /**
@@ -18,8 +22,11 @@ interface CourseCinematicsMountProps {
  * « Revoir le briefing » en permanence + « Revoir la finale » une fois le
  * cursus terminé (la finale vue prouve la complétion).
  */
-export default function CourseCinematicsMount({ course }: CourseCinematicsMountProps) {
-  const { loaded, seen, mark } = useCinematicSeen(course);
+export default function CourseCinematicsMount({
+  course,
+  seenMode = "server",
+}: CourseCinematicsMountProps) {
+  const { loaded, seen, mark } = useCinematicSeen(course, seenMode);
   const [playing, setPlaying] = useState<"intro" | "finale" | null>(null);
   const [autoChecked, setAutoChecked] = useState(false);
   const reducedMotion = usePrefersReducedMotion();

@@ -1,11 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@/auth";
 import CourseCinematicsMount from "@/components/cinematics/CourseCinematicsMount";
 import BrandLogo from "@/components/ui/BrandLogo";
+import TrialBanner from "@/components/lesson/TrialBanner";
 import LevelNodeComponent, { type LevelNode } from "./LevelNode";
 import { getChaptersMeta } from "@/lib/courses-meta";
 import { getCourseStatus } from "@/lib/courses-catalog";
+import { TRIAL_COURSE } from "@/lib/public-routes";
 import NullProgressBar from "@/components/lesson/NullProgressBar";
 
 const HTML_LEVELS: LevelNode[] = [
@@ -603,6 +606,12 @@ export default async function CourseMapPage({
   params: Promise<{ course: string }>;
 }) {
   const { course } = await params;
+  const session = await auth();
+  const isTrialVisit = !session?.user?.id;
+  // Défense en profondeur : le middleware ne laisse passer sans session que
+  // la carte du cursus d'essai ; on ne rend jamais une autre carte sans compte.
+  if (isTrialVisit && course !== TRIAL_COURSE) redirect("/login");
+
   const levels = LEVELS_BY_COURSE[course];
   if (!levels) {
     notFound();
@@ -614,7 +623,10 @@ export default async function CourseMapPage({
 
   return (
     <div className="relative h-full overflow-hidden">
-      <CourseCinematicsMount course={course} />
+      <CourseCinematicsMount
+        course={course}
+        seenMode={isTrialVisit ? "local" : "server"}
+      />
       <div className="fixed inset-0 z-0 pointer-events-none">
         <Image
           src={COURSE_BACKGROUND}
@@ -628,9 +640,11 @@ export default async function CourseMapPage({
       <div className="fixed inset-0 bg-nebula-stars z-0 pointer-events-none opacity-30" />
       <div className="fixed inset-0 z-0 pointer-events-none bg-[rgba(3,6,13,0.22)]" />
 
+      {isTrialVisit && <TrialBanner />}
+
       <div className="relative z-20 flex items-center justify-between px-6 py-4">
         <Link
-          href="/dashboard"
+          href={isTrialVisit ? "/" : "/dashboard"}
           className="font-tech text-nebula-text-secondary text-sm tracking-wider hover:text-nebula-cyan transition-colors"
         >
           ← RETOUR
@@ -704,6 +718,7 @@ export default async function CourseMapPage({
             course={course}
             index={i}
             chaptersMeta={chaptersMeta}
+            isTrial={isTrialVisit}
           />
         ))}
       </div>
