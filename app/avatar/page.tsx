@@ -15,6 +15,7 @@ import {
   type SpeciesId,
   type UniformColorId,
 } from "@/lib/avatar";
+import { clearLocalSeen, readLocalSeen } from "@/lib/cinematics/local-seen";
 import { clearTrialState, readTrialState, trialCompletedSteps } from "@/lib/trial-user";
 import { useUser } from "@/lib/use-user";
 import { getCompletionStats } from "@/lib/courses-meta";
@@ -71,17 +72,19 @@ function AvatarPageInner() {
   useEffect(() => {
     const trialState = readTrialState();
     const steps = trialCompletedSteps(trialState);
-    if (steps.length === 0) return;
+    const seenCinematics = readLocalSeen();
+    if (steps.length === 0 && seenCinematics.length === 0) return;
 
     void (async () => {
       try {
         const res = await fetch("/api/me/trial-import", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ steps }),
+          body: JSON.stringify({ steps, seenCinematics }),
         });
         if (res.ok) {
           clearTrialState();
+          clearLocalSeen();
         } else {
           // Message stable et greppable : signal le seul endroit où l'échec
           // de l'import d'essai est visible (le serveur ne log que le succès).

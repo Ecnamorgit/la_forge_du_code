@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { filterTrialSteps } from "./trial-import";
+import { filterTrialCinematics, filterTrialSteps } from "./trial-import";
 import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 
 const valid = { course: TRIAL_COURSE, chapter: TRIAL_CHAPTERS[0], stepIndex: 0 };
@@ -10,9 +10,9 @@ describe("filterTrialSteps", () => {
     expect(filterTrialSteps([valid])).toEqual([valid]);
   });
 
-  it("rejette un autre chapitre du même cursus", () => {
+  it("rejette un chapitre hors périmètre du même cursus", () => {
     expect(
-      filterTrialSteps([{ course: TRIAL_COURSE, chapter: "chapitre-2", stepIndex: 0 }])
+      filterTrialSteps([{ course: TRIAL_COURSE, chapter: "chapitre-4", stepIndex: 0 }])
     ).toEqual([]);
   });
 
@@ -80,5 +80,53 @@ describe("filterTrialSteps", () => {
     expect(filterTrialSteps([{ ...valid, stepIndex: NaN }])).toEqual([]);
     expect(filterTrialSteps([{ ...valid, stepIndex: Infinity }])).toEqual([]);
     expect(filterTrialSteps([{ ...valid, stepIndex: -Infinity }])).toEqual([]);
+  });
+});
+
+describe("filterTrialSteps multi-chapitres", () => {
+  it("accepte les trois chapitres d'essai", () => {
+    const kept = filterTrialSteps([
+      { course: "html", chapter: "chapitre-1", stepIndex: 0 },
+      { course: "html", chapter: "chapitre-2", stepIndex: 1 },
+      { course: "html", chapter: "chapitre-3", stepIndex: 2 },
+    ]);
+    expect(kept).toHaveLength(3);
+    expect(kept[1]).toEqual({ course: "html", chapter: "chapitre-2", stepIndex: 1 });
+  });
+
+  it("rejette toujours les chapitres hors périmètre et les doublons par chapitre", () => {
+    const kept = filterTrialSteps([
+      { course: "html", chapter: "chapitre-4", stepIndex: 0 },
+      { course: "css", chapter: "chapitre-1", stepIndex: 0 },
+      { course: "html", chapter: "chapitre-1", stepIndex: 0 },
+      { course: "html", chapter: "chapitre-1", stepIndex: 0 },
+      { course: "html", chapter: "chapitre-2", stepIndex: 0 },
+    ]);
+    expect(kept).toEqual([
+      { course: "html", chapter: "chapitre-1", stepIndex: 0 },
+      { course: "html", chapter: "chapitre-2", stepIndex: 0 },
+    ]);
+  });
+});
+
+describe("filterTrialCinematics", () => {
+  it("ne retient que les ids d'essai légitimes, reconstruits en dur", () => {
+    expect(
+      filterTrialCinematics([
+        "html:intro",
+        "html:chapter:chapitre-2",
+        "html:finale",              // jamais accessible en essai
+        "html:chapter:chapitre-8",  // hors périmètre
+        "css:intro",                // autre cursus
+        42,
+        { toString: () => "html:intro" },
+      ])
+    ).toEqual(["html:intro", "html:chapter:chapitre-2"]);
+  });
+
+  it("entrée non-tableau → vide", () => {
+    for (const v of [null, undefined, "html:intro", {}]) {
+      expect(filterTrialCinematics(v)).toEqual([]);
+    }
   });
 });
