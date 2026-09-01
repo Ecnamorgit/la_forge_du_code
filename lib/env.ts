@@ -46,6 +46,14 @@ const baseSchema = z.object({
   // Bypass de test uniquement : autorise la connexion sans email vérifié.
   // Refusé en production (voir `buildSchema`).
   AUTH_ALLOW_UNVERIFIED_LOGIN: z.string().optional(),
+  // Nombre de proxys de confiance devant l'app, pour dériver l'IP client de
+  // X-Forwarded-For sans se faire spoofer (voir `getClientIp`). Défaut 1.
+  TRUSTED_PROXY_HOPS: z
+    .string()
+    .refine((v) => /^\d+$/.test(v) && Number.parseInt(v, 10) >= 1, {
+      message: "TRUSTED_PROXY_HOPS doit être un entier >= 1",
+    })
+    .optional(),
 });
 
 export type AppEnv = z.infer<typeof baseSchema>;

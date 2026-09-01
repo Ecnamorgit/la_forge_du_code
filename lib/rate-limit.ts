@@ -123,12 +123,35 @@ export async function rateLimit(
 }
 
 /**
- * Best-effort client IP from proxy headers. Behind Vercel / a reverse proxy,
- * `x-forwarded-for` holds the real client IP as its first entry.
+ * IP client dérivée des en-têtes de proxy, résistante au spoofing.
+ *
+ * `X-Forwarded-For` est une liste `client, proxy1, proxy2, …` où le client
+ * contrôle les entrées **de gauche** : il peut préfixer une IP arbitraire, que
+ * le proxy de confiance se contente d'ajouter à droite. Prendre la première
+ * entrée (la plus à gauche) laisse donc un attaquant changer de clé de
+ * rate-limit à chaque requête et contourner les throttles de brute-force.
+ *
+ * On prend au contraire l'entrée ajoutée par notre infra de confiance : la
+ * `TRUSTED_PROXY_HOPS`-ième depuis la droite (défaut 1, correct pour Vercel et
+ * un reverse-proxy unique). Les hops à gauche de celle-ci sont potentiellement
+ * falsifiés et ignorés.
  */
 export function getClientIp(req: Request): string {
   const xff = req.headers.get("x-forwarded-for");
-  if (xff) return xff.split(",")[0]!.trim();
+  if (xff) {
+    const parts = xff
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length > 0) {
+      const parsed = Number.parseInt(process.env.TRUSTED_PROXY_HOPS ?? "", 10);
+      const hops = Math.min(
+        Math.max(Number.isFinite(parsed) ? parsed : 1, 1),
+        parts.length
+      );
+      return parts[parts.length - hops]!;
+    }
+  }
   return req.headers.get("x-real-ip") ?? "unknown";
 }
 
