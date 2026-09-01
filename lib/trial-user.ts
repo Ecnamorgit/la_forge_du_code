@@ -4,19 +4,19 @@
  * Logique pure : aucune dépendance React, les accès storage sont gardés par
  * `typeof window` — même contrat que `lib/intro.ts`.
  *
- * Le mode essai ne couvre qu'un seul chapitre (cf. lib/public-routes.ts),
- * l'état n'a donc pas besoin d'être indexé par cursus.
+ * Le mode essai couvre les chapitres de TRIAL_CHAPTERS (cf.
+ * lib/public-routes.ts) : l'état est indexé par slug de chapitre.
  */
 
-import { TRIAL_CHAPTER, TRIAL_COURSE } from "./public-routes";
+import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 import { DEFAULT_USER, type UserState } from "./user-store";
 import { xpForStep } from "./xp";
 
 export const TRIAL_STORAGE_KEY = "nc_trial_state";
 
 export interface TrialState {
-  /** Index des étapes validées, triés. */
-  completedSteps: number[];
+  /** Index des étapes validées, triés, par slug de chapitre d'essai. */
+  chapters: Record<string, number[]>;
   xp: number;
 }
 
@@ -32,14 +32,23 @@ export interface TrialStepRef {
   stepIndex: number;
 }
 
-function isTrialState(value: unknown): value is TrialState {
-  if (typeof value !== "object" || value === null) return false;
-  const v = value as Record<string, unknown>;
-  return (
-    Array.isArray(v.completedSteps) &&
-    v.completedSteps.every((n) => typeof n === "number") &&
-    typeof v.xp === "number"
-  );
+/** État vide — littéral frais à chaque appel (cf. commentaires ci-dessous). */
+export function emptyTrialState(): TrialState {
+  return { chapters: {}, xp: 0 };
+}
+
+function sanitizeChapters(value: unknown): Record<string, number[]> | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
+  const out: Record<string, number[]> = {};
+  for (const [chapter, steps] of Object.entries(value)) {
+    // La forme est validée avant le filtre de périmètre : une entrée
+    // malformée sous une clé hors périmètre doit corrompre l'état (retour à
+    // vide), pas être silencieusement ignorée avec le reste.
+    if (!Array.isArray(steps) || !steps.every((n) => typeof n === "number")) return null;
+    if (!TRIAL_CHAPTERS.includes(chapter)) continue; // hors périmètre : ignoré
+    out[chapter] = [...steps];
+  }
+  return out;
 }
 
 /**
@@ -49,29 +58,46 @@ function isTrialState(value: unknown): value is TrialState {
  * environnement node : `readTrialState` n'est qu'une enveloppe autour de
  * `localStorage`. Retourne l'état vide si l'entrée est absente, corrompue ou
  * de forme invalide — jamais d'exception.
+ *
+ * Migre silencieusement l'ancienne forme `{ completedSteps, xp }` (un seul
+ * chapitre implicite) vers la forme neuve `{ chapters, xp }`.
  */
 export function parseTrialState(raw: string | null): TrialState {
   // Chaque chemin « état par défaut » renvoie un littéral frais (et non un
   // spread d'une constante partagée) : sinon tous ces appels renverraient la
-  // même référence de tableau pour `completedSteps`, et un `push` par un
-  // appelant corromprait l'état par défaut pour tout le processus.
-  if (!raw) return { completedSteps: [], xp: 0 };
+  // même référence d'objet pour `chapters`, et une mutation par un appelant
+  // corromprait l'état par défaut pour tout le processus.
+  if (!raw) return emptyTrialState();
   try {
     const parsed: unknown = JSON.parse(raw);
-    if (!isTrialState(parsed)) return { completedSteps: [], xp: 0 };
-    return { completedSteps: [...parsed.completedSteps], xp: parsed.xp };
+    if (typeof parsed !== "object" || parsed === null) return emptyTrialState();
+    const v = parsed as Record<string, unknown>;
+    if (typeof v.xp !== "number") return emptyTrialState();
+    // Forme neuve.
+    if ("chapters" in v) {
+      const chapters = sanitizeChapters(v.chapters);
+      return chapters ? { chapters, xp: v.xp } : emptyTrialState();
+    }
+    // Ancienne forme { completedSteps, xp } : migration silencieuse.
+    if (Array.isArray(v.completedSteps) && v.completedSteps.every((n) => typeof n === "number")) {
+      return {
+        chapters: { [TRIAL_CHAPTERS[0]]: [...v.completedSteps] },
+        xp: v.xp,
+      };
+    }
+    return emptyTrialState();
   } catch {
-    return { completedSteps: [], xp: 0 };
+    return emptyTrialState();
   }
 }
 
 /** Lit l'état d'essai ; état vide si le storage est indisponible. */
 export function readTrialState(): TrialState {
-  if (typeof window === "undefined") return { completedSteps: [], xp: 0 };
+  if (typeof window === "undefined") return emptyTrialState();
   try {
     return parseTrialState(window.localStorage.getItem(TRIAL_STORAGE_KEY));
   } catch {
-    return { completedSteps: [], xp: 0 };
+    return emptyTrialState();
   }
 }
 
@@ -95,27 +121,35 @@ export function clearTrialState(): void {
 }
 
 /**
- * Applique une validation d'étape. Même calcul d'XP que `me-server.ts`
- * (`xpForStep`), pour que les chiffres du mode essai soient exactement ceux
- * d'un compte réel.
+ * Applique une validation d'étape pour un chapitre d'essai donné. Même
+ * calcul d'XP que `me-server.ts` (`xpForStep`), pour que les chiffres du mode
+ * essai soient exactement ceux d'un compte réel.
  */
 export function applyTrialStep(
   state: TrialState,
+  chapter: string,
   stepIndex: number,
   objectivesCount: number
 ): TrialStepResult {
+  if (!TRIAL_CHAPTERS.includes(chapter)) {
+    throw new Error("Chapitre hors du périmètre d'essai");
+  }
   if (!Number.isInteger(stepIndex) || stepIndex < 0) {
     throw new Error("Index d'étape invalide");
   }
 
-  if (state.completedSteps.includes(stepIndex)) {
+  const done = state.chapters[chapter] ?? [];
+  if (done.includes(stepIndex)) {
     return { state, awardedXp: 0, alreadyDone: true };
   }
 
   const awardedXp = xpForStep(objectivesCount);
   return {
     state: {
-      completedSteps: [...state.completedSteps, stepIndex].sort((a, b) => a - b),
+      chapters: {
+        ...state.chapters,
+        [chapter]: [...done, stepIndex].sort((a, b) => a - b),
+      },
       xp: state.xp + awardedXp,
     },
     awardedXp,
@@ -143,17 +177,22 @@ export function trialStateToUserState(state: TrialState): UserState {
     username: "Cadet",
     totalXp: state.xp,
     lastVisitedCourse: TRIAL_COURSE,
-    completedSteps: {
-      [`${TRIAL_COURSE}/${TRIAL_CHAPTER}`]: [...state.completedSteps],
-    },
+    completedSteps: Object.fromEntries(
+      Object.entries(state.chapters).map(([chapter, steps]) => [
+        `${TRIAL_COURSE}/${chapter}`,
+        [...steps],
+      ])
+    ),
   };
 }
 
 /** Liste les étapes validées, au format attendu par /api/me/trial-import. */
 export function trialCompletedSteps(state: TrialState): TrialStepRef[] {
-  return state.completedSteps.map((stepIndex) => ({
-    course: TRIAL_COURSE,
-    chapter: TRIAL_CHAPTER,
-    stepIndex,
-  }));
+  return TRIAL_CHAPTERS.flatMap((chapter) =>
+    (state.chapters[chapter] ?? []).map((stepIndex) => ({
+      course: TRIAL_COURSE,
+      chapter,
+      stepIndex,
+    }))
+  );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ChapterData } from "@/data/courses/html/types";
 import { getValidators } from "@/lib/validators";
 import XPBar from "@/components/ui/XPBar";
@@ -38,6 +39,7 @@ import { getCinematic } from "@/lib/cinematics/resolver";
 import { cinematicId, type CinematicMoment } from "@/lib/cinematics/types";
 import { useCinematicSeen } from "@/lib/cinematics/use-cinematic-seen";
 import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
+import { TRIAL_COURSE, TRIAL_CHAPTERS, TRIAL_LAST_CHAPTER } from "@/lib/public-routes";
 
 interface ChapterClientProps {
   course: string;
@@ -52,9 +54,18 @@ interface ChapterClientProps {
 
 export default function ChapterClient({ course, chapter, isLastChapter }: ChapterClientProps) {
   const { state, completeStep, markCourseVisited, isTrial } = useUserContext();
+  const router = useRouter();
   const validators = getValidators(course, chapter.slug);
   const chapterDone = isChapterComplete(state, course, chapter.slug, chapter.steps.length);
-  const showConversion = isTrial && chapterDone;
+  // Chapitre jouable en essai : cinématiques en mode localStorage, conversion
+  // uniquement en fin de dernier chapitre d'essai.
+  const isTrialChapter =
+    isTrial && course === TRIAL_COURSE && TRIAL_CHAPTERS.includes(chapter.slug);
+  const isLastTrialChapter = isTrialChapter && chapter.slug === TRIAL_LAST_CHAPTER;
+  const nextTrialChapter = isTrialChapter
+    ? TRIAL_CHAPTERS[TRIAL_CHAPTERS.indexOf(chapter.slug) + 1] ?? null
+    : null;
+  const showConversion = isTrial && chapterDone && isLastTrialChapter;
 
   // Tag this course as the user's current focus so the dashboard's
   // "Reprendre la mission" picks it on next render. Fire-and-forget.
@@ -117,14 +128,18 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
   const [showBanner, setShowBanner] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
   // Cinématique de fin de chapitre (ou finale de cursus sur le dernier
-  // chapitre). Jouée entre la dernière bannière d'étape et CompletionScreen,
-  // une seule fois (règle : une cinématique enregistrée ne se rejoue jamais
-  // automatiquement). Jamais montée en essai — cf. CompletionScreen.
+  // chapitre). Jouée entre la dernière bannière d'étape et CompletionScreen
+  // (ou la navigation/conversion d'essai), une seule fois (règle : une
+  // cinématique enregistrée ne se rejoue jamais automatiquement). Montée en
+  // essai uniquement pour les chapitres pilotes (cf. isTrialChapter).
   const [showOutroCinematic, setShowOutroCinematic] = useState(false);
-  // En essai il n'y a pas de session : l'API des cinématiques répondrait 401.
+  // En essai hors périmètre trial (cours/chapitre non pilotes) il n'y a pas
+  // de session : l'API des cinématiques répondrait 401. Pour un chapitre
+  // d'essai pilote, on persiste en localStorage (pas de session non plus,
+  // mais une progression locale légitime).
   const { loaded: cineLoaded, seen: cineSeen, mark: markCine } = useCinematicSeen(
     course,
-    !isTrial
+    isTrial ? (isTrialChapter ? "local" : "off") : "server"
   );
   const reducedMotion = usePrefersReducedMotion();
   const outroMoment: CinematicMoment = useMemo(
@@ -285,33 +300,55 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
     }, 500);
   }, [course, chapter, currentStep, stepDone, completeStep]);
 
+  // Destination finale d'un chapitre une fois la cinématique (le cas
+  // échéant) écoulée : CompletionScreen pour un connecté, sinon navigation
+  // vers le chapitre d'essai suivant ou révélation de la carte de conversion
+  // en fin de dernier chapitre d'essai. Utilisé par `goNextStep` ET par
+  // `onClose` du lecteur de cinématique (cf. closeOutroCinematic).
+  const finishChapter = useCallback(() => {
+    if (!isTrial) {
+      setShowCompletion(true);
+      return;
+    }
+    if (isLastTrialChapter) {
+      // Fin de l'essai : la carte de conversion est déjà montée (showConversion).
+      conversionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (nextTrialChapter) {
+      router.push(`/learn/${TRIAL_COURSE}/${nextTrialChapter}`);
+    }
+  }, [isTrial, isLastTrialChapter, nextTrialChapter, router]);
+
   const goNextStep = useCallback(() => {
     setShowBanner(false);
     if (currentStep === chapter.steps.length - 1) {
       playFanfare();
-      if (isTrial) {
-        // En essai, CompletionScreen (plein écran, sans contrôle de fermeture
-        // quand `href` est fourni) masquerait la carte de conversion au lieu
-        // de la révéler. La vraie destination de ce clic est cette carte,
-        // déjà montée au moment de ce clic (showConversion suit la
-        // progression d'essai, mise à jour de façon synchrone) : on la fait
-        // défiler jusqu'à l'écran, sans passer par requestAnimationFrame —
-        // superflu ici puisque le nœud est déjà commité, et non fiable si la
-        // page n'est pas au premier plan (rAF gelé, cf. onglets d'arrière-plan).
+      if (isTrial && !isTrialChapter) {
+        // Hors périmètre d'essai (défense en profondeur) : comportement historique.
         conversionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
       }
-      // Cinématique d'abord si elle n'a jamais été vue ; si l'état n'est pas
-      // chargé (réseau), on ne bloque pas le joueur : complétion directe.
+      // Connecté OU chapitre d'essai : cinématique d'abord si jamais vue.
       if (cineLoaded && !cineSeen.has(outroId)) {
         setShowOutroCinematic(true);
         return;
       }
-      setShowCompletion(true);
+      finishChapter();
       return;
     }
     setCurrentStep(currentStep + 1);
-  }, [currentStep, chapter.steps.length, setCurrentStep, isTrial, cineLoaded, cineSeen, outroId]);
+  }, [
+    currentStep,
+    chapter.steps.length,
+    setCurrentStep,
+    isTrial,
+    isTrialChapter,
+    cineLoaded,
+    cineSeen,
+    outroId,
+    finishChapter,
+  ]);
 
   // Référence stable : `CinematicPlayer` réarme son minuteur de scène dès que
   // `onClose` change d'identité — une flèche inline le ferait à chaque rendu
@@ -319,8 +356,8 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
   const closeOutroCinematic = useCallback(() => {
     markCine(outroId);
     setShowOutroCinematic(false);
-    setShowCompletion(true);
-  }, [markCine, outroId]);
+    finishChapter();
+  }, [markCine, outroId, finishChapter]);
 
   const toggleHint = useCallback(() => {
     setShowHint(true);
@@ -370,13 +407,15 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
         onNext={goNextStep}
         onDimClick={() => setShowBanner(false)}
       />
-      {!isTrial && (
+      {(!isTrial || isTrialChapter) && (
         <CinematicPlayer
           cinematic={getCinematic(course, outroMoment)}
           open={showOutroCinematic}
           onClose={closeOutroCinematic}
           reducedMotion={reducedMotion}
-          finalCtaLabel="Rapport de mission ->"
+          finalCtaLabel={
+            isTrialChapter && !isLastTrialChapter ? "Chapitre suivant ->" : "Rapport de mission ->"
+          }
         />
       )}
       <CompletionScreen
@@ -411,14 +450,14 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
         <div className="flex items-center gap-2 lg:gap-4">
           <Link
             // En essai, `/learn/${course}` retombe derrière le mur d'auth
-            // (middleware -> /login) : la navigation la plus visible du
-            // chapitre enverrait un visiteur sans compte droit dans l'écran
-            // que ce mode existe justement pour éviter. On le renvoie vers
-            // l'accueil, seule destination réellement atteignable pour lui.
-            href={isTrial ? "/" : `/learn/${course}`}
+            // (middleware -> /login) sauf pour le cursus d'essai lui-même,
+            // désormais public : on y renvoie plutôt que vers l'accueil, seule
+            // destination réellement atteignable jusqu'ici pour un visiteur
+            // sans compte.
+            href={isTrial ? `/learn/${TRIAL_COURSE}` : `/learn/${course}`}
             className="font-tech text-sm uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan"
           >
-            {isTrial ? "← Accueil" : "← Retour"}
+            ← Retour
           </Link>
           <div className="hidden h-5 w-px bg-nebula-border lg:block" />
           <BrandLogo size={32} className="hidden lg:block" />

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { TRIAL_CHAPTER, TRIAL_COURSE } from "@/lib/public-routes";
+import { TRIAL_CHAPTERS, TRIAL_COURSE } from "@/lib/public-routes";
 
 export default function TrialCtaLink({
   className,
@@ -26,7 +26,7 @@ export default function TrialCtaLink({
 
   return (
     <Link
-      href={`/learn/${TRIAL_COURSE}/${TRIAL_CHAPTER}`}
+      href={`/learn/${TRIAL_COURSE}/${TRIAL_CHAPTERS[0]}`}
       onClick={ping}
       className={className}
     >

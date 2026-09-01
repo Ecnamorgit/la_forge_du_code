@@ -2,10 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { chapitre1 as trialChapter } from "@/data/courses/html/chapitre-1";
-import { TRIAL_CHAPTER, TRIAL_COURSE } from "./public-routes";
+import { chapitre1 as htmlCh1 } from "@/data/courses/html/chapitre-1";
+import { chapitre2 as htmlCh2 } from "@/data/courses/html/chapitre-2";
+import { chapitre3 as htmlCh3 } from "@/data/courses/html/chapitre-3";
+import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 import {
   applyTrialStep,
+  emptyTrialState,
   readTrialState,
   trialStateToUserState,
   writeTrialState,
@@ -13,6 +16,13 @@ import {
 } from "./trial-user";
 import type { CompleteStepResponse, UseUserReturn } from "./use-user";
 import { DEFAULT_USER } from "./user-store";
+
+/** Chapitres jouables en essai, indexés par slug (source : TRIAL_CHAPTERS). */
+const TRIAL_CHAPTER_DATA: Record<string, typeof htmlCh1> = {
+  [htmlCh1.slug]: htmlCh1,
+  [htmlCh2.slug]: htmlCh2,
+  [htmlCh3.slug]: htmlCh3,
+};
 
 /** Levée par les actions qui n'ont aucun sens sans compte. */
 export class AccountRequiredError extends Error {
@@ -28,10 +38,10 @@ const rejectWithAccountRequired = async (): Promise<never> => {
 
 /**
  * Implémentation `UseUserReturn` pour un visiteur sans compte.
- * La progression vit dans localStorage et ne couvre que le chapitre d'essai.
+ * La progression vit dans localStorage et couvre les chapitres d'essai.
  */
 export function useTrialUser(): UseUserReturn {
-  const [trial, setTrial] = useState<TrialState>({ completedSteps: [], xp: 0 });
+  const [trial, setTrial] = useState<TrialState>(emptyTrialState);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -46,16 +56,17 @@ export function useTrialUser(): UseUserReturn {
       chapter: string,
       stepIndex: number
     ): Promise<CompleteStepResponse> => {
-      if (course !== TRIAL_COURSE || chapter !== TRIAL_CHAPTER) {
+      if (course !== TRIAL_COURSE || !TRIAL_CHAPTERS.includes(chapter)) {
         throw new AccountRequiredError(
           "Ce chapitre nécessite un compte. Crée le tien pour continuer."
         );
       }
 
-      const step = trialChapter.steps[stepIndex];
+      const chapterData = TRIAL_CHAPTER_DATA[chapter];
+      const step = chapterData?.steps[stepIndex];
       if (!step) throw new Error("Index d'étape invalide");
 
-      const result = applyTrialStep(trial, stepIndex, step.objectives.length);
+      const result = applyTrialStep(trial, chapter, stepIndex, step.objectives.length);
       setTrial(result.state);
       writeTrialState(result.state);
 

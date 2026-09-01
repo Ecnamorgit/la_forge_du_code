@@ -61,11 +61,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) return null;
 
-        // TEMPORARILY DISABLED FOR TESTING (Option A):
-        // Allow testers to log in without needing to verify email addresses.
-        // if (!user.emailVerified) {
-        //   throw new CredentialsSignin("email_unverified");
-        // }
+        // On refuse la connexion tant que l'adresse n'est pas vérifiée : sans ce
+        // contrôle, n'importe qui peut s'inscrire avec l'email d'un tiers et s'en
+        // servir (squattage / pré-account-takeover). Un bypass de test existe mais
+        // `lib/env.ts` interdit ce flag en production.
+        if (!user.emailVerified && process.env.AUTH_ALLOW_UNVERIFIED_LOGIN !== "true") {
+          throw new CredentialsSignin("email_unverified");
+        }
 
         return {
           id: user.id,

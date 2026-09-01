@@ -43,6 +43,17 @@ const baseSchema = z.object({
   RESEND_FROM_EMAIL: z.string().optional(),
   DIRECT_URL: z.string().optional(),
   AUTH_TRUST_HOST: z.string().optional(),
+  // Bypass de test uniquement : autorise la connexion sans email vérifié.
+  // Refusé en production (voir `buildSchema`).
+  AUTH_ALLOW_UNVERIFIED_LOGIN: z.string().optional(),
+  // Nombre de proxys de confiance devant l'app, pour dériver l'IP client de
+  // X-Forwarded-For sans se faire spoofer (voir `getClientIp`). Défaut 1.
+  TRUSTED_PROXY_HOPS: z
+    .string()
+    .refine((v) => /^\d+$/.test(v) && Number.parseInt(v, 10) >= 1, {
+      message: "TRUSTED_PROXY_HOPS doit être un entier >= 1",
+    })
+    .optional(),
 });
 
 export type AppEnv = z.infer<typeof baseSchema>;
@@ -56,6 +67,15 @@ function buildSchema(nodeEnv: string) {
 
   return baseSchema.superRefine((env, ctx) => {
     if (isProd) {
+      if (env.AUTH_ALLOW_UNVERIFIED_LOGIN === "true") {
+        ctx.addIssue({
+          code: "custom",
+          path: ["AUTH_ALLOW_UNVERIFIED_LOGIN"],
+          message:
+            "AUTH_ALLOW_UNVERIFIED_LOGIN=true est interdit en production : la vérification d'email doit rester obligatoire",
+        });
+      }
+
       if (PLACEHOLDER_SECRET_FRAGMENTS.some((f) => env.AUTH_SECRET.includes(f))) {
         ctx.addIssue({
           code: "custom",

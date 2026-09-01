@@ -18,7 +18,12 @@ export default function LoginPage() {
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("from") || "/dashboard";
+  // On n'accepte que des chemins internes : un seul slash initial, jamais `//`
+  // ni une URL absolue — sinon un lien `?from=https://evil.example` renverrait
+  // l'utilisateur vers un site tiers après connexion (open redirect / phishing).
+  const rawFrom = searchParams.get("from");
+  const callbackUrl =
+    rawFrom && rawFrom.startsWith("/") && !rawFrom.startsWith("//") ? rawFrom : "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

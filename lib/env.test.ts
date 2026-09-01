@@ -91,4 +91,22 @@ describe("parseEnv", () => {
       expect(res.errors.join(" ")).toMatch(/APP_URL/);
     }
   });
+
+  it("rejette le bypass de vérification email en production", () => {
+    const res = parseEnv({ ...VALID_PROD, AUTH_ALLOW_UNVERIFIED_LOGIN: "true" });
+    expect(res.success).toBe(false);
+    if (!res.success) {
+      expect(res.errors.join(" ")).toMatch(/AUTH_ALLOW_UNVERIFIED_LOGIN/);
+    }
+  });
+
+  it("tolère le bypass de vérification email en développement", () => {
+    const res = parseEnv({
+      NODE_ENV: "development",
+      DATABASE_URL: "postgresql://u:p@localhost:5432/db",
+      AUTH_SECRET: "dev-secret-at-least-16-chars",
+      AUTH_ALLOW_UNVERIFIED_LOGIN: "true",
+    });
+    expect(res.success).toBe(true);
+  });
 });

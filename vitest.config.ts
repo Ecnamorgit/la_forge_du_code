@@ -12,6 +12,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL(".", import.meta.url)),
+      // `server-only` lève une erreur à l'import hors Server Component ; en test
+      // (Node) on le neutralise pour pouvoir tester les helpers serveur purs.
+      "server-only": fileURLToPath(
+        new URL("./test/server-only-stub.ts", import.meta.url)
+      ),
     },
   },
 });
