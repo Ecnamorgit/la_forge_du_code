@@ -19,7 +19,7 @@ test.describe("essai sans compte", () => {
   });
 
   test("le mur tient sur les autres chapitres", async ({ page }) => {
-    await page.goto("/learn/html/chapitre-2");
+    await page.goto("/learn/html/chapitre-4");
     await expect(page).toHaveURL(/\/login/);
 
     await page.goto("/learn/css/chapitre-1");
