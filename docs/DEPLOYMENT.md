@@ -53,8 +53,9 @@ pnpm prisma migrate deploy
 
 - `migrate deploy` applique **uniquement** les migrations existantes (aucune génération, aucun prompt) — c'est la commande adaptée à la CI/prod. Il s'arrête en erreur si une migration échoue (transactionnel par fichier).
 - Migrations actuellement versionnées : init, onboarded, one-time-token, **hash-one-time-tokens** (purge les tokens en clair, cf. CF-1), avatar, last-visited-course.
-- Sur Vercel, exécuter dans le `buildCommand` :
-  `prisma migrate deploy && next build`.
+- Sur Vercel, la commande de build est versionnée dans `vercel.json` :
+  `pnpm prisma generate && pnpm prisma migrate deploy && pnpm build`. Rien à
+  régler dans le dashboard, chaque déploiement applique les migrations.
 - **Rollback** : Prisma n'a pas de `down` automatique. En cas de problème, restaurer depuis un backup (cf. ticket CF-19) ou écrire une migration corrective.
 
 > ✅ Le client Prisma (`lib/generated/prisma`) est régénéré à chaque build. La **CI** (`.github/workflows/ci.yml`) lance `prisma generate` + `typecheck` + `build` à chaque push, ce qui valide que le client et le bundle de prod se construisent (cf. CF-5).
@@ -69,6 +70,12 @@ npm run start   # test local du bundle de prod avant de pousser
 ```
 
 Sur Vercel : connecter le repo GitHub → chaque push sur `main` déclenche un déploiement. Renseigner les variables d'env (étape 1) **avant** le premier build.
+
+> ℹ️ **Bascule de compte (2026-09-07)** : le projet est hébergé sur le compte
+> Vercel `pluriface` (plan Hobby), projet `la-forge-du-code`. En cas de nouveau
+> changement de compte : importer le repo, saisir les 7 variables (Vercel
+> détecte leurs noms depuis `.env.example`, pas leurs valeurs), puis pousser sur
+> `main`. `vercel.json` fait le reste.
 
 ---
 
