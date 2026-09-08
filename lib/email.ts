@@ -63,6 +63,11 @@ function frame(args: { title: string; body: string; cta: { href: string; label: 
   const { title, body, cta } = args;
   return `<!doctype html>
 <html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${title} — Nebula Command</title>
+  </head>
   <body style="margin:0;padding:0;background:#03060d;font-family:'Helvetica Neue',Arial,sans-serif;color:#c8d6e5;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background:#03060d;padding:32px 16px;">
       <tr><td align="center">
@@ -77,7 +82,7 @@ function frame(args: { title: string; body: string; cta: { href: string; label: 
             <p style="margin:24px 0 0 0;font-size:12px;color:#6b7d99;">Ou copie ce lien dans ton navigateur :<br /><span style="word-break:break-all;color:#00ff88;">${cta.href}</span></p>
           </td></tr>
         </table>
-        <p style="margin:16px 0 0 0;font-size:11px;color:#3a4a66;">Nebula Command — Plateforme d'apprentissage du code</p>
+        <p style="margin:16px 0 0 0;font-size:11px;line-height:1.5;color:#3a4a66;">Nebula Command — Plateforme d'apprentissage du code · laforgeducode.fr<br />Tu reçois ce message parce que cette adresse a été utilisée sur Nebula Command. Aucune action n'est requise si tu n'es pas concerné.</p>
       </td></tr>
     </table>
   </body>
@@ -90,14 +95,25 @@ export async function sendVerificationEmail(args: {
 }): Promise<SendResult> {
   const link = `${appUrl()}/verify-email/${args.token}`;
   const html = frame({
-    title: "VERIFIE TON EMAIL",
+    // Casse normale et accents : un titre tout en majuscules est un signal
+    // classique pour les filtres anti-spam (observé sur Hotmail, 2026-09-08).
+    title: "Vérifie ton email",
     body:
       "<p>Bienvenue à bord, Cadet.</p>" +
       "<p>Une dernière formalité avant de décoller : confirme ton adresse en cliquant sur le bouton ci-dessous. Le lien expire dans <strong>24h</strong>.</p>" +
       "<p>Si tu n'es pas à l'origine de cette inscription, ignore simplement ce message.</p>",
     cta: { href: link, label: "> Confirmer mon email" },
   });
-  const text = `Bienvenue sur Nebula Command. Confirme ton email en ouvrant ce lien (24h) : ${link}`;
+  const text = [
+    "Bienvenue à bord, Cadet.",
+    "",
+    "Une dernière formalité avant de décoller : confirme ton adresse en ouvrant ce lien (valable 24 h) :",
+    link,
+    "",
+    "Si tu n'es pas à l'origine de cette inscription, ignore simplement ce message.",
+    "",
+    "Nebula Command — Plateforme d'apprentissage du code · laforgeducode.fr",
+  ].join("\n");
   return send({ to: args.to, subject: "Nebula Command — Confirme ton email", html, text });
 }
 
@@ -107,14 +123,23 @@ export async function sendPasswordResetEmail(args: {
 }): Promise<SendResult> {
   const link = `${appUrl()}/reset-password/${args.token}`;
   const html = frame({
-    title: "REINITIALISATION DE MOT DE PASSE",
+    title: "Réinitialisation de ton mot de passe",
     body:
       "<p>Une demande de réinitialisation de mot de passe a été reçue pour ton compte.</p>" +
       "<p>Clique sur le bouton ci-dessous pour choisir un nouveau mot de passe. Le lien expire dans <strong>1h</strong>.</p>" +
       "<p>Si tu n'es pas à l'origine de cette demande, ignore ce message — ton mot de passe actuel reste inchangé.</p>",
     cta: { href: link, label: "> Nouveau mot de passe" },
   });
-  const text = `Réinitialisation de ton mot de passe Nebula Command (1h) : ${link}`;
+  const text = [
+    "Une demande de réinitialisation de mot de passe a été reçue pour ton compte Nebula Command.",
+    "",
+    "Choisis un nouveau mot de passe en ouvrant ce lien (valable 1 h) :",
+    link,
+    "",
+    "Si tu n'es pas à l'origine de cette demande, ignore ce message : ton mot de passe actuel reste inchangé.",
+    "",
+    "Nebula Command — Plateforme d'apprentissage du code · laforgeducode.fr",
+  ].join("\n");
   return send({
     to: args.to,
     subject: "Nebula Command — Réinitialisation de ton mot de passe",
