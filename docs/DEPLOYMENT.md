@@ -15,8 +15,8 @@ Configure ces variables dans le dashboard de l'hébergeur (Vercel → _Project S
 | `AUTH_SECRET` | ✅ | **Nouveau** secret unique, jamais celui de dev. Génère-le avec `openssl rand -base64 32`. |
 | `AUTH_TRUST_HOST` | ✅ | `true` (derrière le proxy Vercel). |
 | `RESEND_API_KEY` | ✅ | Clé Resend de prod (`re_...`). |
-| `RESEND_FROM_EMAIL` | ✅ | Expéditeur sur **domaine vérifié** (ex. `Nebula Command <noreply@mail.codeforge.com>`). `onboarding@resend.dev` n'envoie qu'au compte propriétaire. |
-| `APP_URL` | ✅ | URL HTTPS publique **sans slash final** (ex. `https://codeforge.space`). Sert à construire les liens d'email — un mauvais réglage casse la vérification et le reset. |
+| `RESEND_FROM_EMAIL` | ✅ | Expéditeur sur **domaine vérifié** (ex. `Nebula Command <noreply@laforgeducode.fr>`). `onboarding@resend.dev` n'envoie qu'au compte propriétaire. |
+| `APP_URL` | ✅ | URL HTTPS publique **sans slash final** (ex. `https://www.laforgeducode.fr`). Sert à construire les liens d'email — un mauvais réglage casse la vérification et le reset. |
 | `UPSTASH_REDIS_REST_URL` | ⚠️ multi-instance | Rate-limiter partagé (CF-7). Requis sur déploiement **serverless/multi-instance** (Vercel) pour que la limite soit respectée entre instances. Absent → fallback mémoire (OK en mono-instance). |
 | `UPSTASH_REDIS_REST_TOKEN` | ⚠️ multi-instance | Token REST Upstash, va de pair avec l'URL ci-dessus. |
 | `SENTRY_DSN` | ⬜ optionnel | Monitoring d'erreurs serveur (CF-10). Absent → inerte (erreurs loggées via `lib/logger.ts`). Présent → init Sentry + remontée via `onRequestError`. |
@@ -28,11 +28,18 @@ Configure ces variables dans le dashboard de l'hébergeur (Vercel → _Project S
 
 ## 2. Vérifier le domaine d'envoi (Resend)
 
-1. Resend → _Domains_ → ajouter `mail.codeforge.com` (ou ton domaine).
-2. Ajouter les enregistrements DNS (SPF, DKIM) fournis.
-3. Attendre la validation, puis pointer `RESEND_FROM_EMAIL` dessus.
+1. Resend → _Domains_ → ajouter `laforgeducode.fr` (ou ton domaine).
+2. Ajouter dans la zone DNS les enregistrements fournis par Resend :
+   - DKIM : `TXT resend._domainkey` ;
+   - SPF : `CNAME rsend` et `CNAME send` (sous-domaines dédiés, donc **aucun conflit** avec un SPF existant sur la racine) ;
+   - DMARC : `TXT _dmarc` → `v=DMARC1; p=quarantine; rua=mailto:<ton-adresse>; adkim=s; aspf=r`.
+3. Cliquer _Verify DNS Records_, attendre le statut « Verified », puis pointer `RESEND_FROM_EMAIL` dessus et redéployer.
 
 Sans ça, les emails de vérification ne partiront pas aux vrais utilisateurs.
+
+> Fait le 2026-09-08 pour `laforgeducode.fr` (zone OVH). Un domaine neuf atterrit d'abord en
+> courrier indésirable (observé sur Hotmail) : la réputation se construit sur quelques semaines ;
+> garder des titres en casse normale et une version texte complète dans les emails (`lib/email.ts`).
 
 ---
 
