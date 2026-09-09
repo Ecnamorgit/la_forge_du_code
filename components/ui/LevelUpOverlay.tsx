@@ -16,7 +16,7 @@ interface LevelUpOverlayProps {
 }
 
 /**
- * Big celebration overlay — "LEVEL UP" or a cosmetic unlock reveal.
+ * Big celebration overlay — "NIVEAU FRANCHI" or a cosmetic unlock reveal.
  * Auto-dismisses after ~2.4s. Mounted high in the tree so it covers the
  * whole screen, and `pointer-events-none` so it never blocks the page under
  * it (no dismiss control needed: it never intercepts a click).
@@ -50,7 +50,7 @@ export default function LevelUpOverlay({ trigger, level, unlockLabel }: LevelUpO
           className="font-tech text-7xl font-bold uppercase tracking-[0.15em] text-nebula-cyan [text-shadow:0_0_28px_rgba(0,240,255,0.7),0_0_56px_rgba(0,240,255,0.35)] sm:text-8xl"
           style={{ animation: "level-up-pulse 1.6s ease-out forwards" }}
         >
-          {unlockLabel ? "DÉBLOQUÉ" : "LEVEL UP"}
+          {unlockLabel ? "DÉBLOQUÉ" : "NIVEAU FRANCHI"}
         </div>
         <div className="mt-3 font-tech text-2xl tracking-[0.3em] text-nebula-green [text-shadow:0_0_18px_rgba(0,255,136,0.5)] sm:text-3xl">
           {unlockLabel ? `▲ ${unlockLabel}` : `▲ NIVEAU ${level}`}

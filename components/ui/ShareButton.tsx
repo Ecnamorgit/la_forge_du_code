@@ -30,10 +30,10 @@ export default function ShareButton({ badgeId, badgeLabel, xp = 0 }: ShareButton
 
   const onShare = useCallback(async () => {
     const url = buildUrl();
-    const text = `J'ai debloque le grade « ${badgeLabel} » sur Nebula Command ! 🚀`;
+    const text = `J'ai débloqué le grade « ${badgeLabel} » sur La Forge du Code ! 🚀`;
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title: "Nebula Command", text, url });
+        await navigator.share({ title: "La Forge du Code", text, url });
         return;
       } catch {
         // User cancelled or share failed → fall through to LinkedIn.

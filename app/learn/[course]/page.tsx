@@ -249,7 +249,7 @@ const JS_LEVELS: LevelNode[] = [
   {
     id: "ch2",
     slug: "chapitre-2",
-    title: "OPERATIONS & DECISIONS",
+    title: "OPÉRATIONS & DÉCISIONS",
     subtitle: "Protocole 02 — Calculs & conditions",
     icon: "🧮",
     spriteRow: 1,
@@ -285,7 +285,7 @@ const JS_LEVELS: LevelNode[] = [
   {
     id: "ch5",
     slug: "chapitre-5",
-    title: "OBJETS & METHODES",
+    title: "OBJETS & MÉTHODES",
     subtitle: "Protocole 05 — Objects & methods",
     icon: "🛠",
     spriteRow: 2,
@@ -396,7 +396,7 @@ const REACT_LEVELS: LevelNode[] = [
   {
     id: "ch2",
     slug: "chapitre-2",
-    title: "MEMOIRE REACTIVE",
+    title: "MÉMOIRE REACTIVE",
     subtitle: "Protocole 02 — useState",
     icon: "🧠",
     spriteRow: 1,
@@ -466,7 +466,7 @@ const SQL_LEVELS: LevelNode[] = [
     id: "ch1",
     slug: "chapitre-1",
     title: "ENTREPOT GALACTIQUE",
-    subtitle: "Protocole 01 — Bases de donnees relationnelles",
+    subtitle: "Protocole 01 — Bases de données relationnelles",
     icon: "🗃",
     spriteRow: 0,
     spriteFrame: 0,
@@ -495,7 +495,7 @@ const TESTS_LEVELS: LevelNode[] = [
   {
     id: "ch1",
     slug: "chapitre-1",
-    title: "ASSURANCE QUALITE",
+    title: "ASSURANCE QUALITÉ",
     subtitle: "Protocole 01 — Vitest & Playwright",
     icon: "✅",
     spriteRow: 0,
@@ -571,7 +571,7 @@ const ALGO_LEVELS: LevelNode[] = [
     id: "ch1",
     slug: "chapitre-1",
     title: "CALCUL OPTIMAL",
-    subtitle: "Protocole 01 — Big-O, recursion, tris",
+    subtitle: "Protocole 01 — Big-O, récursion, tris",
     icon: "🧮",
     spriteRow: 0,
     spriteFrame: 0,

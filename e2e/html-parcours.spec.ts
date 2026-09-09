@@ -55,13 +55,13 @@ test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async 
     await page.getByRole("button", { name: /DEPLOYER/ }).click();
 
     // Feedback de validation.
-    await expect(page.getByText("SYSTEME EN LIGNE")).toBeVisible({
+    await expect(page.getByText("SYSTÈME EN LIGNE")).toBeVisible({
       timeout: 10_000,
     });
 
     // Bannière de réussite → bouton d'avancement.
     const bannerBtn = page.getByRole("button", {
-      name: isLast ? /TERMINER LE PROTOCOLE/ : /SYSTEME SUIVANT/,
+      name: isLast ? /TERMINER LE PROTOCOLE/ : /SYSTÈME SUIVANT/,
     });
     await expect(bannerBtn).toBeVisible({ timeout: 10_000 });
     await bannerBtn.click();
@@ -79,7 +79,7 @@ test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async 
     } else {
       // L'étape suivante est montée (nouveau startCode dans l'éditeur).
       await expect(
-        page.getByText(`Etape ${i + 2} sur ${total}`).first()
+        page.getByText(`Étape ${i + 2} sur ${total}`).first()
       ).toBeVisible({ timeout: 10_000 });
     }
   }

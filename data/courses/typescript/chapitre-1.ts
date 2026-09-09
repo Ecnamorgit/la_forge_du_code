@@ -4,23 +4,23 @@ export const chapitre1: ChapterData = {
   slug: "chapitre-1",
   tag: "MISSION : BLINDAGE DU CODE",
   title: "TYPESCRIPT &\nTYPAGE STATIQUE",
-  subtitle: "Detecte les bugs avant meme d'executer ton code",
+  subtitle: "Detecte les bugs avant même d'exécuter ton code",
   totalXp: 280,
   completionBadge: "🛡",
-  completionBadgeLabel: "INGENIEUR TYPES",
+  completionBadgeLabel: "INGÉNIEUR TYPES",
   steps: [
     {
       startCode:
         "// Annote ces variables avec leur type TypeScript :\n//   - pilote (string) doit valoir 'Lia'\n//   - niveau (number) doit valoir 5\n//   - actif (boolean) doit valoir true\nlet pilote = 'Lia';\nlet niveau = 5;\nlet actif = true;\n",
       placeholder: "// let pilote: string = '...'",
       narrator:
-        "JavaScript est tolerant : il accepte qu'une variable change de type a tout moment. C'est une source enorme de bugs en production. TypeScript ajoute un blindage statique au code en imposant des types explicites.",
+        "JavaScript est tolerant : il accepte qu'une variable change de type à tout moment. C'est une source enorme de bugs en production. TypeScript ajoute un blindage statique au code en imposant des types explicites.",
       hint: "let pilote: string = 'Lia';\nlet niveau: number = 5;\nlet actif: boolean = true;",
       briefing: {
         title: "Les types primitifs",
         content: `
 ### Pourquoi TypeScript ?
-Imagine cette ligne JS : \`niveau + '1'\` — JS la transforme silencieusement en concatenation et tu obtiens \`'51'\` au lieu de \`6\`. En TS, le compilateur t'arrete avant meme l'execution.
+Imagine cette ligne JS : \`niveau + '1'\` — JS la transforme silencieusement en concatenation et tu obtiens \`'51'\` au lieu de \`6\`. En TS, le compilateur t'arrête avant même l'exécution.
 
 ### La syntaxe d'annotation
 \`let nom: TYPE = valeur;\`
@@ -32,20 +32,20 @@ Les trois types primitifs principaux :
 
 ### L'inference de type
 TypeScript devine souvent le type tout seul :
-\`let niveau = 5;\` -> TS sait deja que c'est un \`number\`.
+\`let niveau = 5;\` -> TS sait déjà que c'est un \`number\`.
 
 L'annotation explicite est utile quand :
-- La variable est declaree sans valeur initiale
+- La variable est déclarée sans valeur initiale
 - Tu veux forcer un type particulier
 - Tu veux documenter ton intention
 
 ### Les types speciaux
-- **any** : echappe au typage (a EVITER, c'est revenir au JS pur)
+- **any** : echappe au typage (a ÉVITER, c'est revenir au JS pur)
 - **unknown** : valeur typee mais inconnue, plus sur que any
-- **null** et **undefined** : types a part entiere
+- **null** et **undefined** : types à part entiere
 - **never** : valeur qui ne peut jamais exister (fonctions qui throw)
 
-**A retenir :** TS = JS + types statiques verifies a la compilation. Le compilateur attrape les bugs avant que ton utilisateur les voie.
+**À retenir :** TS = JS + types statiques verifies à la compilation. Le compilateur attrape les bugs avant que ton utilisateur les voie.
         `,
       },
       objectives: [
@@ -65,7 +65,7 @@ L'annotation explicite est utile quand :
         "// Type la fonction calculerXp :\n//   - parametres : niveau (number), bonus (number)\n//   - retour : number\n// Elle doit retourner niveau * 10 + bonus.\nfunction calculerXp(niveau, bonus) {\n  return niveau * 10 + bonus;\n}\n",
       placeholder: "// function nom(p: type): retour { ... }",
       narrator:
-        "Les fonctions sont la principale source de bugs : un parametre du mauvais type ou un retour mal compris. Annote-les pour que TypeScript verifie chaque appel.",
+        "Les fonctions sont la principale source de bugs : un parametre du mauvais type ou un retour mal compris. Annote-les pour que TypeScript vérifie chaque appel.",
       hint: "function calculerXp(niveau: number, bonus: number): number {\n  return niveau * 10 + bonus;\n}",
       briefing: {
         title: "Typer les fonctions",
@@ -80,29 +80,29 @@ L'annotation explicite est utile quand :
 ### Le type de retour
 Souvent omis (inference), mais l'annoter explicitement est une bonne habitude :
 - Documente l'intention
-- Empeche les bugs subtils si la logique change
-- Apparait dans l'IDE quand on survole la fonction
+- Empêche les bugs subtils si la logique change
+- Apparaît dans l'IDE quand on survole la fonction
 
-### Parametres optionnels et defauts
-- \`function f(x: number, y?: number)\` -> y peut etre omis (type \`number | undefined\`)
-- \`function f(x: number, y: number = 10)\` -> y vaut 10 par defaut
+### Paramètres optionnels et defauts
+- \`function f(x: number, y?: number)\` -> y peut être omis (type \`number | undefined\`)
+- \`function f(x: number, y: number = 10)\` -> y vaut 10 par défaut
 
 ### Les fonctions flechees
-Meme principe :
+Même principe :
 \`const calculer = (n: number, b: number): number => n * 10 + b;\`
 
 ### Type \`void\`
 Pour une fonction qui ne retourne rien :
 \`function log(msg: string): void { console.log(msg); }\`
 
-### Le piege classique
-\`function f(x): number\` -> sans typer x, TS lui assigne \`any\` (avec un warning si \`noImplicitAny\` est actif, ce qui DOIT etre le cas).
+### Le piège classique
+\`function f(x): number\` -> sans typer x, TS lui assigne \`any\` (avec un warning si \`noImplicitAny\` est actif, ce qui DOIT être le cas).
 
-**A retenir :** Types sur tous les parametres, type de retour explicite. La signature devient un contrat verifiable.
+**À retenir :** Types sur tous les paramètres, type de retour explicite. La signature devient un contrat verifiable.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Typer les deux parametres en number" },
+        { id: "o2a", label: "Typer les deux paramètres en number" },
         { id: "o2b", label: "Annoter le type de retour en number" },
       ],
       missionIcon: "⚙",
@@ -118,12 +118,12 @@ Pour une fonction qui ne retourne rien :
         "// Definis une interface Pilote avec les champs :\n//   id     : number\n//   nom    : string\n//   niveau : number\n//   actif  : boolean\n// Puis cree une constante 'lia' de type Pilote avec id=1, nom='Lia', niveau=5, actif=true.\n",
       placeholder: "// interface Pilote { ... }",
       narrator:
-        "Les objets meritent leur propre structure typee. Une interface decrit la forme attendue d'un objet : ses champs, leurs types, ce qui est obligatoire. C'est le coeur du typage TypeScript.",
+        "Les objets meritent leur propre structure typee. Une interface décrit la forme attendue d'un objet : ses champs, leurs types, ce qui est obligatoire. C'est le coeur du typage TypeScript.",
       hint: "interface Pilote {\n  id: number;\n  nom: string;\n  niveau: number;\n  actif: boolean;\n}\n\nconst lia: Pilote = {\n  id: 1,\n  nom: 'Lia',\n  niveau: 5,\n  actif: true,\n};",
       briefing: {
         title: "Interfaces et types d'objet",
         content: `
-### Declarer une interface
+### Déclarer une interface
 \`interface Pilote {\`
 \`  id: number;\`
 \`  nom: string;\`
@@ -133,7 +133,7 @@ Pour une fonction qui ne retourne rien :
 ### Utiliser l'interface
 \`const lia: Pilote = { id: 1, nom: 'Lia', niveau: 5 };\`
 
-Si tu oublies un champ ou ajoutes un champ non declare, TS te le signale immediatement.
+Si tu oublies un champ ou ajoutes un champ non déclare, TS te le signale immediatement.
 
 ### Champs optionnels
 Le \`?\` rend un champ facultatif :
@@ -144,7 +144,7 @@ Le \`?\` rend un champ facultatif :
 
 ### Readonly
 \`interface Vaisseau { readonly id: number; }\`
--> impossible de modifier \`vaisseau.id\` apres creation.
+-> impossible de modifier \`vaisseau.id\` après création.
 
 ### Interface vs type
 Deux syntaxes quasi equivalentes :
@@ -155,13 +155,13 @@ Deux syntaxes quasi equivalentes :
 
 ### Extension
 \`interface Cadet extends Pilote { promotion: string; }\`
--> Cadet a tous les champs de Pilote + promotion.
+-> Cadet à tous les champs de Pilote + promotion.
 
-**A retenir :** Une interface est un contrat sur la forme d'un objet. TS verifie a la creation ET a chaque acces.
+**À retenir :** Une interface est un contrat sur la forme d'un objet. TS vérifie à la création ET à chaque accès.
         `,
       },
       objectives: [
-        { id: "o3a", label: "Definir une interface Pilote avec tous les champs" },
+        { id: "o3a", label: "Définir une interface Pilote avec tous les champs" },
         { id: "o3b", label: "Typer la constante lia avec : Pilote" },
       ],
       missionIcon: "📐",
@@ -177,7 +177,7 @@ Deux syntaxes quasi equivalentes :
         "// Definis un type Statut limite a trois valeurs : 'en_vol', 'en_base', 'detruit'.\n// Cree une fonction afficher(statut: Statut) qui :\n//   - si en_vol : retourne 'En mission'\n//   - si en_base : retourne 'Au repos'\n//   - si detruit : retourne 'Perdu'\n",
       placeholder: "// type Statut = '...' | '...' | '...'",
       narrator:
-        "Les types unions et litteraux sont la veritable puissance de TypeScript. Ils te permettent de restreindre une variable a une liste exacte de valeurs autorisees. Adieu les chaines magiques fragiles.",
+        "Les types unions et litteraux sont la veritable puissance de TypeScript. Ils te permettent de restreindre une variable a une liste exacte de valeurs autorisees. Adieu les chaînes magiques fragiles.",
       hint: "type Statut = 'en_vol' | 'en_base' | 'detruit';\n\nfunction afficher(statut: Statut): string {\n  if (statut === 'en_vol') return 'En mission';\n  if (statut === 'en_base') return 'Au repos';\n  return 'Perdu';\n}",
       briefing: {
         title: "Union types et literal types",
@@ -185,7 +185,7 @@ Deux syntaxes quasi equivalentes :
 ### Le type union ( | )
 Permet une variable de plusieurs types possibles :
 \`let valeur: string | number;\`
--> valeur peut etre une chaine OU un nombre, mais rien d'autre.
+-> valeur peut être une chaîne OU un nombre, mais rien d'autre.
 
 ### Les literal types
 Tu peux exiger une **valeur exacte** comme type :
@@ -195,7 +195,7 @@ Maintenant, \`'en_combat'\` declenche une erreur de compilation. Seules les 3 va
 
 ### Pourquoi c'est genial
 1. **L'autocompletion** propose les 3 valeurs dans l'IDE
-2. **Le refacto** : renommer 'en_vol' en 'en_mission' force TS a trouver TOUS les endroits a changer
+2. **Le refacto** : renommer 'en_vol' en 'en_mission' force TS à trouver TOUS les endroits à changer
 3. **Le narrowing** : dans un \`if (statut === 'en_vol')\`, TS sait que statut est de ce type litteral
 
 ### Discrimination de type
@@ -215,11 +215,11 @@ Tu rencontreras vite :
 - **Enums** vs literal unions (literals sont preferes aujourd'hui)
 - **as const** -> fige un objet en literal types profonds
 
-**A retenir :** Union + literals = puissance et securite. Tu remplaces des conventions fragiles par des contrats verifies.
+**À retenir :** Union + literals = puissance et sécurité. Tu remplaces des conventions fragiles par des contrats verifies.
         `,
       },
       objectives: [
-        { id: "o4a", label: "Definir un type union de 3 literals" },
+        { id: "o4a", label: "Définir un type union de 3 literals" },
         { id: "o4b", label: "Typer le parametre de la fonction avec ce type" },
       ],
       missionIcon: "🎯",

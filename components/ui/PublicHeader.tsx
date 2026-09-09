@@ -15,8 +15,8 @@ export default function PublicHeader({ children }: { children: React.ReactNode }
       <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
         <BrandLogo size={40} />
         <div className="truncate font-tech text-sm tracking-widest sm:text-base">
-          <span className="text-nebula-cyan">NEBULA</span>
-          <span className="ml-1 hidden text-nebula-text-secondary sm:inline">COMMAND</span>
+          <span className="text-nebula-cyan">LA FORGE</span>
+          <span className="ml-1 hidden text-nebula-text-secondary sm:inline">DU CODE</span>
         </div>
       </Link>
 

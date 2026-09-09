@@ -3,7 +3,7 @@ import type { ChapterData } from "./types";
 export const chapitre3: ChapterData = {
   slug: "chapitre-3",
   tag: "DOCK D'ORBITE : CAMÉRAS",
-  title: "RESEAU DE CAPTEURS",
+  title: "RÉSEAU DE CAPTEURS",
   subtitle: "Capture, calibre et annote les images de la soute",
   totalXp: 200,
   completionBadge: "📸",
@@ -22,7 +22,7 @@ export const chapitre3: ChapterData = {
 *« Un capteur sans légende ne sert à rien dans le noir. Renseigne toujours le \`alt\` : c'est ce que « voient » les officiers privés d'écran. »* — **Kira**
 
 ### La balise <img>
-La balise **<img>** affiche une image sur la console de controle. C'est une balise **auto-fermante** : pas besoin de balise fermante </img>.
+La balise **<img>** affiche une image sur la console de contrôle. C'est une balise **auto-fermante** : pas besoin de balise fermante </img>.
 
 ### Les attributs essentiels
 - **src** : la source de l'image (URL ou fichier local de la soute).
@@ -44,7 +44,7 @@ La balise **<img>** affiche une image sur la console de controle. C'est une bali
       missionTtl: "ACTIVER LE CAPTEUR",
       bannerIcon: "🛰",
       bannerTtl: "IMAGE CAPTUREE",
-      bannerSub: "Le capteur visuel transmet sa premiere image.",
+      bannerSub: "Le capteur visuel transmet sa première image.",
       bannerXp: "⚡ +50 XP",
     },
     {
@@ -91,7 +91,7 @@ Tu peux fixer les dimensions de la zone d'affichage :
       placeholder: "<!-- Rends l'image cliquable -->",
       narrator:
         "Les images peuvent servir de raccourcis tactiles. Enveloppe le capteur <img> dans un lien <a> pour qu'un clic redirige vers la console de détails du secteur.",
-      hint: 'Place <img> a l\'interieur d\'un <a href="details.html">...</a>.',
+      hint: 'Place <img> a l\'intérieur d\'un <a href="details.html">...</a>.',
       briefing: {
         title: "Image cliquable",
         content: `
@@ -103,7 +103,7 @@ Une image peut servir d'ancre de navigation. Il suffit de la placer à l'intéri
 \`  <img src="..." alt="Détails du module" />\`
 \`</a>\`
 
-**A retenir :** La balise <a> est un conteneur générique, elle accepte du texte, mais aussi d'autres éléments comme les images.
+**À retenir :** La balise <a> est un conteneur générique, elle accepte du texte, mais aussi d'autres éléments comme les images.
         `,
       },
       objectives: [
@@ -125,13 +125,13 @@ Une image peut servir d'ancre de navigation. Il suffit de la placer à l'intéri
       placeholder: "<!-- Documente l'image avec <figure> et <figcaption> -->",
       narrator:
         "Une image sans explication technique est inutile pour l'équipage. Encadre le bloc de capture dans une <figure> et ajoute une légende explicative avec <figcaption>.",
-      hint: 'Utilise <figure>...<figcaption>Texte de legende</figcaption></figure>.',
+      hint: 'Utilise <figure>...<figcaption>Texte de légende</figcaption></figure>.',
       briefing: {
         title: "Annoter une image",
         content: `
 ### Les balises <figure> et <figcaption>
 - **<figure>** : regroupe une illustration (photo du dock, schéma électrique) et sa description.
-- **<figcaption>** : définit la **legende** de l'illustration.
+- **<figcaption>** : définit la **légende** de l'illustration.
 
 ### Structure
 \`<figure>\`
@@ -150,7 +150,7 @@ Une image peut servir d'ancre de navigation. Il suffit de la placer à l'intéri
       missionTtl: "ARCHIVER LE CLICHE",
       bannerIcon: "🏷",
       bannerTtl: "FICHE COMPLETE",
-      bannerSub: "L'image est desormais documentee et indexable dans les archives du dock.",
+      bannerSub: "L'image est désormais documentee et indexable dans les archives du dock.",
       bannerXp: "⚡ +50 XP",
     },
   ],

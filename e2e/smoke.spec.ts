@@ -4,7 +4,7 @@ import { E2E_USER } from "./global-setup";
 
 test("la page d'accueil se charge", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle(/CodeForge/i);
+  await expect(page).toHaveTitle(/La Forge du Code/i);
 });
 
 test("une route protégée redirige vers /login", async ({ page }) => {

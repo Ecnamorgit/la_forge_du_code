@@ -4,10 +4,10 @@ export const chapitre3: ChapterData = {
   slug: "chapitre-3",
   tag: "MISSION : EFFETS DE BORD",
   title: "REACT &\nuseEffect",
-  subtitle: "Synchronise tes composants avec le monde exterieur",
+  subtitle: "Synchronise tes composants avec le monde extérieur",
   totalXp: 280,
   completionBadge: "🔁",
-  completionBadgeLabel: "MAITRE DES CYCLES",
+  completionBadgeLabel: "MAÎTRE DES CYCLES",
   steps: [
     {
       startCode:
@@ -15,13 +15,13 @@ export const chapitre3: ChapterData = {
       placeholder: "// useEffect(() => { ... }, []);",
       previewMount: "Console",
       narrator:
-        "Un composant pur ne devrait jamais avoir d'effets exterieurs durant son rendu. Pour interagir avec le monde reel (logs, fetch, abonnements), React fournit useEffect. Premier protocole : detecter le montage du composant.",
-      hint: "import { useState, useEffect } from 'react';\n\nfunction Console() {\n  useEffect(() => {\n    console.log('Composant en ligne');\n  }, []);\n  return <div>Pret</div>;\n}",
+        "Un composant pur ne devrait jamais avoir d'effets exterieurs durant son rendu. Pour interagir avec le monde réel (logs, fetch, abonnements), React fournit useEffect. Premier protocole : détecter le montage du composant.",
+      hint: "import { useState, useEffect } from 'react';\n\nfunction Console() {\n  useEffect(() => {\n    console.log('Composant en ligne');\n  }, []);\n  return <div>Prêt</div>;\n}",
       briefing: {
         title: "Le hook useEffect",
         content: `
 ### Qu'est-ce qu'un effet de bord ?
-C'est toute action qui touche au monde EXTERIEUR au composant : log console, fetch, modification du DOM, timer, abonnement a un evenement. React refuse qu'on fasse ca pendant le rendu — ce serait imprevisible.
+C'est toute action qui touche au monde EXTÉRIEUR au composant : log console, fetch, modification du DOM, timer, abonnement a un événement. React refuse qu'on fasse ca pendant le rendu — ce serait imprévisible.
 
 ### La syntaxe
 \`useEffect(() => {\`
@@ -29,16 +29,16 @@ C'est toute action qui touche au monde EXTERIEUR au composant : log console, fet
 \`}, [dependances]);\`
 
 ### Les trois modes
-- \`useEffect(fn)\` -> s'execute APRES CHAQUE rendu (rarement ce que tu veux)
+- \`useEffect(fn)\` -> s'execute APRÈS CHAQUE rendu (rarement ce que tu veux)
 - \`useEffect(fn, [])\` -> s'execute UNE SEULE FOIS au montage
-- \`useEffect(fn, [a, b])\` -> s'execute au montage + a chaque changement de a ou b
+- \`useEffect(fn, [a, b])\` -> s'execute au montage + à chaque changement de a ou b
 
 ### Le tableau de dependances vide
 \`useEffect(() => { ... }, []);\`
 
-C'est le pattern "au montage uniquement". Ideal pour :
+C'est le pattern "au montage uniquement". Idéal pour :
 - Initialiser une librairie tierce
-- S'abonner a un evenement global
+- S'abonner a un événement global
 - Faire un fetch initial
 
 ### Pourquoi pas dans le corps du composant ?
@@ -46,9 +46,9 @@ C'est le pattern "au montage uniquement". Ideal pour :
 \`  console.log('Hello'); // mauvaise idee\`
 \`  return <div />;\`
 \`}\`
-Ca s'execute a CHAQUE rendu, meme inutile. useEffect te donne un contexte controle pour ces actions.
+Ca s'execute à CHAQUE rendu, même inutile. useEffect te donne un contexte contrôle pour ces actions.
 
-**A retenir :** useEffect = porte de sortie controlee vers le monde exterieur. Le tableau vide = "une fois au montage".
+**À retenir :** useEffect = porte de sortie controlee vers le monde extérieur. Le tableau vide = "une fois au montage".
         `,
       },
       objectives: [
@@ -75,16 +75,16 @@ Ca s'execute a CHAQUE rendu, meme inutile. useEffect te donne un contexte contro
         title: "Les dependances",
         content: `
 ### Le tableau de dependances
-React compare l'ancien et le nouveau tableau a chaque rendu. Si UNE seule reference change, l'effet est rejoue.
+React compare l'ancien et le nouveau tableau à chaque rendu. Si UNE seule référence change, l'effet est rejoue.
 
 \`useEffect(() => { ... }, [count]);\`
--> rejoue l'effet a chaque fois que count change.
+-> rejoue l'effet à chaque fois que count change.
 
-### La regle d'or
-Si tu utilises une variable a l'INTERIEUR de l'effet, elle DOIT etre dans le tableau de dependances. Sinon, l'effet utilisera une vieille valeur "figee" (closure stale).
+### La règle d'or
+Si tu utilises une variable à l'INTÉRIEUR de l'effet, elle DOIT être dans le tableau de dependances. Sinon, l'effet utilisera une vieille valeur "figee" (closure stale).
 
 ### Le linter ESLint
-La regle \`react-hooks/exhaustive-deps\` te le rappelle automatiquement. Active-la, fais-lui confiance.
+La règle \`react-hooks/exhaustive-deps\` te le rappelle automatiquement. Active-la, fais-lui confiance.
 
 ### Plusieurs dependances
 \`useEffect(() => {\`
@@ -92,17 +92,17 @@ La regle \`react-hooks/exhaustive-deps\` te le rappelle automatiquement. Active-
 \`}, [count, niveau]);\`
 -> l'effet relance quand l'un OU l'autre change.
 
-### Piege : les objets et tableaux
-\`useEffect(() => { ... }, [{ a: 1 }]);\` -> rejoue a CHAQUE rendu (nouvelle reference d'objet a chaque fois). Solution : mettre les valeurs primitives une par une, ou utiliser \`useMemo\`.
+### Piège : les objets et tableaux
+\`useEffect(() => { ... }, [{ a: 1 }]);\` -> rejoue à CHAQUE rendu (nouvelle référence d'objet à chaque fois). Solution : mettre les valeurs primitives une par une, ou utiliser \`useMemo\`.
 
 ### Et l'asynchrone ?
-\`useEffect\` ne peut pas etre directement \`async\`. Tu declares une fonction async a l'interieur :
+\`useEffect\` ne peut pas être directement \`async\`. Tu declares une fonction async à l'intérieur :
 \`useEffect(() => {\`
 \`  async function charger() { ... }\`
 \`  charger();\`
 \`}, []);\`
 
-**A retenir :** Le tableau de dependances declenche la re-execution. Toute variable utilisee doit y figurer.
+**À retenir :** Le tableau de dependances declenche la re-exécution. Toute variable utilisée doit y figurer.
         `,
       },
       objectives: [
@@ -114,7 +114,7 @@ La regle \`react-hooks/exhaustive-deps\` te le rappelle automatiquement. Active-
       missionTtl: "DEPENDANCES",
       bannerIcon: "🎯",
       bannerTtl: "SYNCHRONISATION",
-      bannerSub: "L'effet reagit precisement aux donnees qui changent.",
+      bannerSub: "L'effet réagit précisément aux données qui changent.",
       bannerXp: "⚡ +70 XP",
     },
     {
@@ -123,17 +123,17 @@ La regle \`react-hooks/exhaustive-deps\` te le rappelle automatiquement. Active-
       placeholder: "// useEffect(() => { const id = setInterval(...); return () => clearInterval(id); }, []);",
       previewMount: "Chronometre",
       narrator:
-        "Certains effets laissent des traces : timers, abonnements, connexions. Si tu ne les nettoies pas, ils survivent au composant et provoquent des fuites memoire. useEffect te donne une fonction de cleanup.",
+        "Certains effets laissent des traces : timers, abonnements, connexions. Si tu ne les nettoies pas, ils survivent au composant et provoquent des fuites mémoire. useEffect te donne une fonction de cleanup.",
       hint: "import { useState, useEffect } from 'react';\n\nfunction Chronometre() {\n  const [s, setS] = useState(0);\n  useEffect(() => {\n    const id = setInterval(() => setS(prev => prev + 1), 1000);\n    return () => clearInterval(id);\n  }, []);\n  return <div>Temps : {s}s</div>;\n}",
       briefing: {
         title: "La fonction de cleanup",
         content: `
 ### Pourquoi nettoyer ?
-\`setInterval\`, \`addEventListener\`, abonnements WebSocket... continuent de tourner meme apres que le composant a disparu de l'ecran. Resultat : memoire qui fuit, callbacks qui tentent d'update un composant demonté (warning React classique).
+\`setInterval\`, \`addEventListener\`, abonnements WebSocket... continuent de tourner même après que le composant a disparu de l'écran. Résultat : mémoire qui fuit, callbacks qui tentent de mettre à jour un composant demonté (warning React classique).
 
 ### Le return de useEffect
 La fonction que tu retournes EST la fonction de cleanup. React l'appelle :
-1. Avant la prochaine execution de l'effet (si les dependances changent)
+1. Avant la prochaine exécution de l'effet (si les dependances changent)
 2. Au demontage du composant
 
 \`useEffect(() => {\`
@@ -149,12 +149,12 @@ La fonction que tu retournes EST la fonction de cleanup. React l'appelle :
 \`}, []);\`
 
 ### Pourquoi setS(prev => prev + 1) et pas setS(s + 1) ?
-Dans un interval, le \`s\` est capture une fois (closure). Pour toujours avoir la valeur a jour, utilise la **forme fonctionnelle** du setter : \`setS(prev => prev + 1)\`. Sinon le chronometre reste bloque a 1.
+Dans un interval, le \`s\` est capture une fois (closure). Pour toujours avoir la valeur à jour, utilise la **forme fonctionnelle** du setter : \`setS(prev => prev + 1)\`. Sinon le chronometre reste bloque a 1.
 
 ### Strict Mode
-En dev, React monte et demonte chaque composant deux fois pour detecter les effets mal nettoyes. Si tu vois des comportements doubles, ce n'est pas un bug — c'est React qui te dit "verifie ton cleanup".
+En dev, React monte et demonte chaque composant deux fois pour détecter les effets mal nettoyes. Si tu vois des comportements doubles, ce n'est pas un bug — c'est React qui te dit "vérifie ton cleanup".
 
-**A retenir :** Si un effet ouvre quelque chose (timer, listener, connexion), son return DOIT le fermer. Pas d'exception.
+**À retenir :** Si un effet ouvre quelque chose (timer, listener, connexion), son return DOIT le fermer. Pas d'exception.
         `,
       },
       objectives: [
@@ -166,7 +166,7 @@ En dev, React monte et demonte chaque composant deux fois pour detecter les effe
       missionTtl: "CLEANUP",
       bannerIcon: "🧹",
       bannerTtl: "FUITE EVITEE",
-      bannerSub: "Ton composant se nettoie proprement a sa destruction.",
+      bannerSub: "Ton composant se nettoie proprement à sa destruction.",
       bannerXp: "⚡ +70 XP",
     },
     {
@@ -175,7 +175,7 @@ En dev, React monte et demonte chaque composant deux fois pour detecter les effe
       placeholder: "// useEffect avec async function interne + fetch",
       previewMount: "FicheVaisseau",
       narrator:
-        "Le pattern le plus utilise de toute la programmation React : fetch des donnees au montage et les afficher. Combine tout ce que tu as appris — useState, useEffect, async/await et response.ok.",
+        "Le pattern le plus utilise de toute la programmation React : fetch des données au montage et les afficher. Combine tout ce que tu as appris — useState, useEffect, async/await et response.ok.",
       hint: "import { useState, useEffect } from 'react';\n\nfunction FicheVaisseau() {\n  const [vaisseau, setVaisseau] = useState(null);\n  useEffect(() => {\n    async function charger() {\n      const res = await fetch('https://api.codeforge.space/vaisseau/42');\n      if (!res.ok) throw new Error('HTTP ' + res.status);\n      const data = await res.json();\n      setVaisseau(data);\n    }\n    charger();\n  }, []);\n  if (!vaisseau) return <div>Chargement...</div>;\n  return <div>{vaisseau.nom}</div>;\n}",
       briefing: {
         title: "Fetch dans un useEffect",
@@ -201,7 +201,7 @@ En dev, React monte et demonte chaque composant deux fois pour detecter les effe
 \`}\`
 
 ### Pourquoi pas useEffect(async () => ...) ?
-Une fonction async retourne TOUJOURS une Promise. useEffect attend soit \`undefined\`, soit une fonction de cleanup. Une Promise casserait la mecanique. Donc tu declares une fonction async A L'INTERIEUR.
+Une fonction async retourne TOUJOURS une Promise. useEffect attend soit \`undefined\`, soit une fonction de cleanup. Une Promise casserait la mécanique. Donc tu declares une fonction async À L'INTÉRIEUR.
 
 ### Le "race condition" classique
 Si le composant change d'id rapidement (ex: \`/vaisseau/1\` puis \`/vaisseau/2\`), les deux fetchs peuvent revenir dans le DESORDRE. Solution avec un drapeau :
@@ -220,18 +220,18 @@ En production, on utilise des bibliotheques dediees au data fetching :
 
 Elles eliminent 90% du boilerplate useEffect+useState.
 
-**A retenir :** Le pattern useState+useEffect+fetch est partout. Pour la production, passe a TanStack Query des que tu peux.
+**À retenir :** Le pattern useState+useEffect+fetch est partout. Pour la production, passe a TanStack Query des que tu peux.
         `,
       },
       objectives: [
         { id: "o4a", label: "Lancer un fetch au montage dans useEffect" },
-        { id: "o4b", label: "Gerer l'etat de chargement et l'affichage conditionnel" },
+        { id: "o4b", label: "Gérer l'état de chargement et l'affichage conditionnel" },
       ],
       missionIcon: "📡",
       missionTag: "PROTOCOLE 04",
       missionTtl: "FETCH + EFFECT",
       bannerIcon: "🔁",
-      bannerTtl: "DONNEES CHARGEES",
+      bannerTtl: "DONNÉES CHARGEES",
       bannerSub: "Tu maitrises le pattern le plus utilise de React.",
       bannerXp: "⚡ +75 XP",
     },

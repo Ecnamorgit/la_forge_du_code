@@ -11,13 +11,13 @@ export async function generateMetadata({
 
   if (!data) {
     return {
-      title: "Nebula Command — Chapitre introuvable",
+      title: "La Forge du Code — Chapitre introuvable",
     };
   }
 
   const cleanTitle = data.title.replace(/\n/g, " ");
   return {
-    title: `Nebula Command — ${data.tag} : ${cleanTitle}`,
+    title: `La Forge du Code — ${data.tag} : ${cleanTitle}`,
     description: data.subtitle,
   };
 }

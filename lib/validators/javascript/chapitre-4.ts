@@ -8,12 +8,12 @@ function runtimeError(error: string | null): string | null {
 export const validators: Validator[] = [
   // Step 1: array with >= 3 elements logged
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/\[\s*[^\]]*[^,\s][^\]]*\]/.test(stripped)) {
-      return { ok: false, msg: "Declare un tableau avec des elements." };
+      return { ok: false, msg: "Déclare un tableau avec des éléments." };
     }
     if (ctx.logs.length === 0) {
       return { ok: false, msg: "Logue le tableau avec console.log." };
@@ -31,13 +31,13 @@ export const validators: Validator[] = [
       if (!Array.isArray(parsed) || parsed.length < 3) {
         return {
           ok: false,
-          msg: "Le tableau doit contenir au moins 3 elements.",
+          msg: "Le tableau doit contenir au moins 3 éléments.",
         };
       }
     } catch {
       return {
         ok: false,
-        msg: "Le tableau affiche n'est pas lisible — verifie sa syntaxe.",
+        msg: "Le tableau affiche n'est pas lisible — vérifie sa syntaxe.",
       };
     }
     return {
@@ -48,12 +48,12 @@ export const validators: Validator[] = [
   },
   // Step 2: push + log length = 4
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/\.push\s*\(/.test(stripped)) {
-      return { ok: false, msg: "Utilise la methode .push(...)." };
+      return { ok: false, msg: "Utilise la méthode .push(...)." };
     }
     if (!logsInclude(ctx.logs, "4")) {
       return {
@@ -69,7 +69,7 @@ export const validators: Validator[] = [
   },
   // Step 3: for loop, 4 distinct log lines
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -90,7 +90,7 @@ export const validators: Validator[] = [
   },
   // Step 4: for loop summing to 860
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -105,7 +105,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Total verifie.",
+      msg: "Total vérifie.",
       objList: ["o4a", "o4b"],
       final: true,
     };

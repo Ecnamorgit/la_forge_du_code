@@ -24,7 +24,7 @@ export const validators: Validator[] = [
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     const body = ruleHasDeclaration(css, /\.btn:hover\b/);
-    if (!body) return { ok: false, msg: "Ajoute une regle .btn:hover { ... }." };
+    if (!body) return { ok: false, msg: "Ajoute une règle .btn:hover { ... }." };
     return { ok: true, msg: "Feedback actif.", objList: ["o1a", "o1b"] };
   },
   // Step 2: .field:focus { ... } with at least one decl
@@ -32,7 +32,7 @@ export const validators: Validator[] = [
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     const body = ruleHasDeclaration(css, /\.field:focus\b/);
-    if (!body) return { ok: false, msg: "Ajoute une regle .field:focus { ... }." };
+    if (!body) return { ok: false, msg: "Ajoute une règle .field:focus { ... }." };
     if (!/(border|box-shadow|outline|background)/i.test(body)) {
       return { ok: false, msg: "Donne un feedback visuel : border, box-shadow ou outline." };
     }
@@ -43,13 +43,13 @@ export const validators: Validator[] = [
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     const body = ruleHasDeclaration(css, /\.quote::before\b/);
-    if (!body) return { ok: false, msg: "Ajoute une regle .quote::before { ... }." };
+    if (!body) return { ok: false, msg: "Ajoute une règle .quote::before { ... }." };
     // `(?<![-\w])` et non `\b` : sinon `justify-content` ou `align-content`
     // satisferaient l'exigence d'une propriete `content`.
     if (!/(?<![-\w])content\s*:/i.test(body)) {
-      return { ok: false, msg: "Un pseudo-element a besoin d'une propriete content: \"...\" pour s'afficher." };
+      return { ok: false, msg: "Un pseudo-élément a besoin d'une propriété content: \"...\" pour s'afficher." };
     }
-    return { ok: true, msg: "Element fantome cree.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Élément fantome cree.", objList: ["o3a", "o3b"] };
   },
   // Step 4: li:nth-child(...) with background
   (code) => {
@@ -57,10 +57,10 @@ export const validators: Validator[] = [
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     const body = ruleHasDeclaration(css, /li:nth-child\([^)]+\)/);
     if (!body) {
-      return { ok: false, msg: "Ajoute une regle li:nth-child(even) ou (odd) { ... }." };
+      return { ok: false, msg: "Ajoute une règle li:nth-child(even) ou (odd) { ... }." };
     }
     if (!/\bbackground/i.test(body)) {
-      return { ok: false, msg: "Definis un background pour faire l'effet zebrure." };
+      return { ok: false, msg: "Définis un background pour faire l'effet zebrure." };
     }
     return { ok: true, msg: "Motif en zebrure.", objList: ["o4a", "o4b"], final: true };
   },

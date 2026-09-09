@@ -77,7 +77,7 @@ export const validators: Validator[] = [
     }
     const body = ruleBody(css, ".grid");
     if (body === null) {
-      return { ok: false, msg: "La regle .grid a disparu." };
+      return { ok: false, msg: "La règle .grid a disparu." };
     }
     const m = body.match(/grid-template-columns\s*:\s*([^;]+)/i);
     if (!m) {
@@ -91,7 +91,7 @@ export const validators: Validator[] = [
     if (trackCount < 3) {
       return {
         ok: false,
-        msg: `Definis au moins 3 colonnes (actuellement ${trackCount}).`,
+        msg: `Définis au moins 3 colonnes (actuellement ${trackCount}).`,
       };
     }
     return {

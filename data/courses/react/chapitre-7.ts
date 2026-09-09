@@ -15,7 +15,7 @@ export const chapitre7: ChapterData = {
       placeholder: "// function useCompteur() { ... }",
       previewMount: "Reacteur",
       narrator:
-        "Cadet, tu viens d'ecrire trois fois la meme logique de comptage dans trois modules differents. Un hook personnalise est une fonction prefixee par use qui appelle d'autres hooks : tu l'ecris une fois, tu la rebranche partout. Sors cette logique de ton composant.",
+        "Cadet, tu viens d'écrire trois fois la même logique de comptage dans trois modules différents. Un hook personnalise est une fonction prefixee par use qui appelle d'autres hooks : tu l'écris une fois, tu la rebranche partout. Sors cette logique de ton composant.",
       hint: "function useCompteur() {\n  const [poussee, setPoussee] = useState(0);\n  const augmenter = () => setPoussee(poussee + 1);\n  return { poussee, augmenter };\n}\n\nfunction Reacteur() {\n  const { poussee, augmenter } = useCompteur();\n  return <button onClick={augmenter}>Poussee : {poussee}</button>;\n}",
       briefing: {
         title: "Extraire un hook personnalise",
@@ -23,13 +23,13 @@ export const chapitre7: ChapterData = {
 ### Ce qu'est un hook personnalise
 Une **fonction JavaScript ordinaire** dont le nom commence par \`use\` et qui appelle au moins un autre hook.
 
-Il n'y a pas d'API speciale, pas de classe a etendre, rien a importer. C'est une convention de nommage plus une fonction.
+Il n'y a pas d'API spéciale, pas de classe à etendre, rien à importer. C'est une convention de nommage plus une fonction.
 
-### Pourquoi le prefixe use est obligatoire
-React et les outils de lint se servent du prefixe pour savoir qu'il faut appliquer les regles des hooks a l'interieur. Une fonction \`compteur()\` qui appelle \`useState\` ne sera pas verifiee et cassera silencieusement.
+### Pourquoi le préfixe use est obligatoire
+React et les outils de lint se servent du préfixe pour savoir qu'il faut appliquer les règles des hooks à l'intérieur. Une fonction \`compteur()\` qui appelle \`useState\` ne sera pas verifiee et cassera silencieusement.
 
 \`function useCompteur() { ... }\` -> reconnu comme hook
-\`function compteur() { ... }\` -> considere comme fonction normale, aucune verification
+\`function compteur() { ... }\` -> considere comme fonction normale, aucune vérification
 
 ### Le mouvement d'extraction
 On deplace les appels de hooks et la logique qui va avec **hors** du composant, dans la fonction \`useXxx\`. Le composant se contente d'appeler le hook.
@@ -41,18 +41,18 @@ On deplace les appels de hooks et la logique qui va avec **hors** du composant, 
 \`}\`
 
 ### Ce qui n'est PAS partage
-Chaque appel de hook cree son **propre etat**. Deux composants qui appellent \`useCompteur()\` ont deux compteurs independants.
+Chaque appel de hook cree son **propre état**. Deux composants qui appellent \`useCompteur()\` ont deux compteurs independants.
 
-C'est la difference avec un contexte : un hook partage de la **logique**, pas des **donnees**. Pour partager des donnees, il faut un contexte — c'est le chapitre suivant.
+C'est la différence avec un contexte : un hook partage de la **logique**, pas des **données**. Pour partager des données, il faut un contexte — c'est le chapitre suivant.
 
-### Le piege classique
-Extraire la logique mais oublier de retourner ce dont le composant a besoin. Le hook fonctionne, le composant n'a rien a afficher.
+### Le piège classique
+Extraire la logique mais oublier de retourner ce dont le composant a besoin. Le hook fonctionne, le composant n'a rien à afficher.
 
-**A retenir :** un hook personnalise = une fonction prefixee use qui appelle d'autres hooks. Elle partage la logique, jamais l'etat.
+**À retenir :** un hook personnalise = une fonction prefixee use qui appelle d'autres hooks. Elle partage la logique, jamais l'état.
         `,
       },
       objectives: [
-        { id: "o1a", label: "Declarer un hook useCompteur qui appelle useState" },
+        { id: "o1a", label: "Déclarer un hook useCompteur qui appelle useState" },
         { id: "o1b", label: "Appeler useCompteur depuis le composant" },
       ],
       missionIcon: "🔧",
@@ -69,7 +69,7 @@ Extraire la logique mais oublier de retourner ce dont le composant a besoin. Le 
       placeholder: "// return { charge, recharger };",
       previewMount: "Bouclier",
       narrator:
-        "Un hook qui ne retourne rien est un module scelle : sa logique tourne, mais aucun composant ne peut la lire. Definis son contrat de sortie — la valeur a afficher et les actions qui la modifient — puis recupere-les par destructuration.",
+        "Un hook qui ne retourne rien est un module scelle : sa logique tourne, mais aucun composant ne peut la lire. Définis son contrat de sortie — la valeur à afficher et les actions qui la modifient — puis recupere-les par destructuration.",
       hint: "function useBouclier() {\n  const [charge, setCharge] = useState(100);\n  const recharger = () => setCharge(100);\n  return { charge, recharger };\n}\n\nfunction Bouclier() {\n  const { charge, recharger } = useBouclier();\n  return (\n    <div>\n      Bouclier : {charge}%\n      <button onClick={recharger}>Recharger</button>\n    </div>\n  );\n}",
       briefing: {
         title: "Le contrat de retour",
@@ -77,10 +77,10 @@ Extraire la logique mais oublier de retourner ce dont le composant a besoin. Le 
 ### Objet ou tableau ?
 Les deux marchent. La convention depend du nombre de valeurs.
 
-**Tableau** quand il y a deux valeurs et que l'ordre est evident — c'est ce que fait \`useState\` lui-meme :
+**Tableau** quand il y à deux valeurs et que l'ordre est evident — c'est ce que fait \`useState\` lui-même :
 \`const [valeur, setValeur] = useEtat();\`
 
-**Objet** des qu'il y en a plus, ou que les noms comptent :
+**Objet** des qu'il y en à plus, ou que les noms comptent :
 \`const { charge, recharger, estVide } = useBouclier();\`
 
 ### Pourquoi l'objet est souvent preferable
@@ -91,20 +91,20 @@ Avec un tableau, l'appelant doit respecter l'ordre et tout prendre dans l'ordre.
 Et ajouter une valeur au hook ne casse aucun appelant existant.
 
 ### Retourner des actions, pas le setter brut
-\`return { charge, setCharge };\` -> l'appelant peut ecrire n'importe quoi
+\`return { charge, setCharge };\` -> l'appelant peut écrire n'importe quoi
 \`return { charge, recharger };\` -> l'appelant ne peut faire que ce que tu autorises
 
-Exposer des actions nommees plutot que le setter, c'est ce qui rend le hook reellement reutilisable : la regle metier reste dans le hook.
+Exposer des actions nommées plutôt que le setter, c'est ce qui rend le hook reellement réutilisable : la règle metier reste dans le hook.
 
-### Le piege classique
-Oublier le \`return\`. La fonction s'execute, l'etat existe, et le composant recoit \`undefined\` — puis plante a la destructuration.
+### Le piège classique
+Oublier le \`return\`. La fonction s'execute, l'état existe, et le composant reçoit \`undefined\` — puis plante à la destructuration.
 
-**A retenir :** un hook expose une valeur et des actions nommees. Objet des qu'il y a plus de deux sorties.
+**À retenir :** un hook expose une valeur et des actions nommées. Objet des qu'il y à plus de deux sorties.
         `,
       },
       objectives: [
         { id: "o2a", label: "Retourner la valeur et l'action depuis le hook" },
-        { id: "o2b", label: "Destructurer le resultat dans le composant" },
+        { id: "o2b", label: "Destructurer le résultat dans le composant" },
       ],
       missionIcon: "📤",
       missionTag: "PROTOCOLE 02",
@@ -120,7 +120,7 @@ Oublier le \`return\`. La fonction s'execute, l'etat existe, et le composant rec
       placeholder: "// window.addEventListener('resize', ...) puis removeEventListener",
       previewMount: "Hublot",
       narrator:
-        "Cadet, ton hublot doit connaitre sa taille. Combine un etat et un effet dans ce hook : abonne-toi a l'evenement du navigateur et, surtout, desabonne-toi quand le composant disparait. Sans ce nettoyage, chaque montage laisse un ecouteur fantome derriere toi.",
+        "Cadet, ton hublot doit connaître sa taille. Combine un état et un effet dans ce hook : abonne-toi à l'événement du navigateur et, surtout, desabonne-toi quand le composant disparait. Sans ce nettoyage, chaque montage laisse un ecouteur fantome derrière toi.",
       hint: "function useLargeurHublot() {\n  const [largeur, setLargeur] = useState(window.innerWidth);\n\n  useEffect(() => {\n    const surResize = () => setLargeur(window.innerWidth);\n    window.addEventListener('resize', surResize);\n    return () => window.removeEventListener('resize', surResize);\n  }, []);\n\n  return largeur;\n}\n\nfunction Hublot() {\n  const largeur = useLargeurHublot();\n  return <div>Largeur du hublot : {largeur}px</div>;\n}",
       briefing: {
         title: "Un hook qui s'abonne et se desabonne",
@@ -135,23 +135,23 @@ C'est le cas d'usage le plus courant d'un hook personnalise : encapsuler un abon
 \`}, []);\`
 
 ### Pourquoi la fonction de cleanup est obligatoire
-Sans elle, chaque montage du composant ajoute un ecouteur, et aucun n'est jamais retire. Apres dix navigations, dix ecouteurs tournent en parallele et mettent a jour un etat qui n'existe plus. React affiche alors un avertissement de fuite memoire.
+Sans elle, chaque montage du composant ajoute un ecouteur, et aucun n'est jamais retire. Après dix navigations, dix ecouteurs tournent en parallele et mettent à jour un état qui n'existe plus. React affiche alors un avertissement de fuite mémoire.
 
-### La MEME reference de fonction
-\`removeEventListener\` ne retire un ecouteur que si on lui passe **exactement la meme fonction** que celle donnee a \`addEventListener\`.
+### La MÊME référence de fonction
+\`removeEventListener\` ne retire un ecouteur que si on lui passe **exactement la même fonction** que celle donnée a \`addEventListener\`.
 
 \`addEventListener('resize', () => setL(w));\`
 \`removeEventListener('resize', () => setL(w));\`
 
-Ces deux fonctions flechees sont deux objets differents : le retrait ne fait rien. D'ou la variable intermediaire \`handler\`.
+Ces deux fonctions flechees sont deux objets différents : le retrait ne fait rien. D'ou la variable intermédiaire \`handler\`.
 
 ### Le tableau de dependances vide
 \`[]\` signifie : abonne-toi une fois au montage, desabonne-toi au demontage. C'est ce qu'on veut pour un ecouteur global.
 
-### Le piege classique
-Lire \`window.innerWidth\` directement dans le rendu au lieu de le mettre en etat. La valeur ne declenche aucun re-rendu : l'affichage se figera a la premiere mesure.
+### Le piège classique
+Lire \`window.innerWidth\` directement dans le rendu au lieu de le mettre en état. La valeur ne declenche aucun re-rendu : l'affichage se figera à la première mesure.
 
-**A retenir :** tout abonnement dans un useEffect doit avoir son desabonnement dans le cleanup, avec la meme reference de fonction.
+**À retenir :** tout abonnement dans un useEffect doit avoir son desabonnement dans le cleanup, avec la même référence de fonction.
         `,
       },
       objectives: [
@@ -163,7 +163,7 @@ Lire \`window.innerWidth\` directement dans le rendu au lieu de le mettre en eta
       missionTtl: "ABONNEMENT PROPRE",
       bannerIcon: "📡",
       bannerTtl: "HUBLOT CALIBRE",
-      bannerSub: "Ton hook s'abonne au navigateur et nettoie derriere lui.",
+      bannerSub: "Ton hook s'abonne au navigateur et nettoie derrière lui.",
       bannerXp: "⚡ +70 XP",
     },
     {
@@ -172,51 +172,51 @@ Lire \`window.innerWidth\` directement dans le rendu au lieu de le mettre en eta
       placeholder: "// Appelle useState AVANT tout if / return",
       previewMount: "Panneau",
       narrator:
-        "Le Spectre adore ce genre de faille. React identifie chaque hook par son ORDRE d'appel, pas par son nom : si un if saute un appel, tous les hooks suivants se decalent et lisent l'etat du voisin. Remonte cet appel tout en haut du composant.",
+        "Le Spectre adore ce genre de faille. React identifie chaque hook par son ORDRE d'appel, pas par son nom : si un if saute un appel, tous les hooks suivants se decalent et lisent l'état du voisin. Remonte cet appel tout en haut du composant.",
       hint: "function Panneau({ visible }) {\n  const [mode, setMode] = useState('auto');\n\n  if (!visible) return null;\n\n  return <div>Mode : {mode}</div>;\n}",
       briefing: {
-        title: "Les regles des hooks",
+        title: "Les règles des hooks",
         content: `
-### La regle unique
-**Toujours appeler les hooks au niveau superieur du composant ou du hook.** Jamais dans un \`if\`, une boucle, un \`try\`, ou apres un \`return\` anticipe.
+### La règle unique
+**Toujours appeler les hooks au niveau supérieur du composant ou du hook.** Jamais dans un \`if\`, une boucle, un \`try\`, ou après un \`return\` anticipe.
 
 ### Pourquoi : React compte, il ne lit pas les noms
-React ne sait pas que ton hook s'appelle \`mode\`. Il retient : "ce composant appelle 3 hooks, dans cet ordre". A chaque rendu, il redistribue les etats dans le meme ordre.
+React ne sait pas que ton hook s'appelle \`mode\`. Il retient : "ce composant appelle 3 hooks, dans cet ordre". À chaque rendu, il redistribue les états dans le même ordre.
 
 Rendu 1 (visible = true) : useState('auto'), useState(0), useEffect
 Rendu 2 (visible = false) : useState(0), useEffect
 
-Le deuxieme hook recoit maintenant l'etat du premier. Les valeurs se melangent silencieusement.
+Le deuxième hook reçoit maintenant l'état du premier. Les valeurs se melangent silencieusement.
 
-### Le bon reflexe
+### Le bon réflexe
 Le hook monte, la condition descend :
 
 \`const [mode, setMode] = useState('auto');  // toujours appele\`
 \`if (!visible) return null;                 // le return vient APRES\`
 
 ### Conditionner l'effet, pas l'appel
-Pour un \`useEffect\` qu'on ne veut executer que parfois, on garde l'appel inconditionnel et on met la condition **dedans** :
+Pour un \`useEffect\` qu'on ne veut exécuter que parfois, on garde l'appel inconditionnel et on met la condition **dedans** :
 
 \`useEffect(() => {\`
 \`  if (!visible) return;\`
 \`  // ... le travail\`
 \`}, [visible]);\`
 
-### Le second volet de la regle
-Les hooks ne s'appellent que depuis un composant React ou depuis un autre hook. Jamais depuis une fonction utilitaire ordinaire — c'est aussi a ca que sert le prefixe \`use\`.
+### Le second volet de la règle
+Les hooks ne s'appellent que depuis un composant React ou depuis un autre hook. Jamais depuis une fonction utilitaire ordinaire — c'est aussi a ca que sert le préfixe \`use\`.
 
-**A retenir :** les hooks se comptent, ils ne se nomment pas. Aucun appel dans un if, une boucle ou apres un return.
+**À retenir :** les hooks se comptent, ils ne se nomment pas. Aucun appel dans un if, une boucle ou après un return.
         `,
       },
       objectives: [
         { id: "o4a", label: "Sortir l'appel useState de la condition" },
-        { id: "o4b", label: "Garder le comportement conditionnel apres l'appel" },
+        { id: "o4b", label: "Garder le comportement conditionnel après l'appel" },
       ],
       missionIcon: "⚖",
       missionTag: "PROTOCOLE 04",
-      missionTtl: "REGLES DES HOOKS",
+      missionTtl: "RÈGLES DES HOOKS",
       bannerIcon: "🔧",
-      bannerTtl: "FORGE MAITRISEE",
+      bannerTtl: "FORGE MAÎTRISÉE",
       bannerSub: "Tes hooks respectent l'ordre d'appel que React exige.",
       bannerXp: "⚡ +75 XP",
     },

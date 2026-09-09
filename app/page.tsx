@@ -97,18 +97,18 @@ export default function LandingPage() {
                 "0 0 24px rgba(0, 240, 255, 0.35), 0 0 50px rgba(0, 240, 255, 0.12)",
             }}
           >
-            NEBULA COMMAND
+            LA FORGE DU CODE
           </h1>
 
           <div className="mb-6 h-px w-48 bg-gradient-to-r from-transparent via-nebula-cyan to-transparent sm:w-72" />
 
           <p className="mb-3 max-w-2xl font-body text-base leading-relaxed text-nebula-text-secondary sm:text-lg lg:text-xl">
-            Apprends à coder dans un univers spatial gamifié. HTML, CSS,
-            JavaScript, React et 10 autres cursus — débloque tes protocoles et
-            construis ta station orbitale.
+            Apprends à coder dans un univers spatial où chaque chapitre est une
+            mission. HTML, CSS, JavaScript, React et 10 autres cursus — débloque
+            tes protocoles et construis ta station orbitale.
           </p>
           <p className="mb-10 font-tech text-[10px] uppercase tracking-[0.35em] text-nebula-text-dim sm:text-xs sm:tracking-[0.4em]">
-            [ Plateforme d&apos;apprentissage pour cadets de la flotte ]
+            [ Coalition Nebula · plateforme d&apos;apprentissage pour cadets de la flotte ]
           </p>
 
           <div className="flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
@@ -143,12 +143,12 @@ export default function LandingPage() {
           <FeatureCard
             icon="/feature-editor-v2.png"
             title="Éditeur intégré"
-            description="Code directement dans le navigateur avec un éditeur professionnel et un feedback instantané."
+            description="Code directement dans le navigateur avec un éditeur professionnel et un retour instantané."
           />
         </section>
 
         <footer className="mt-6 mb-2 shrink-0 text-center font-tech text-[10px] uppercase tracking-[0.35em] text-nebula-text-dim sm:mt-8 sm:text-xs sm:tracking-[0.4em]">
-          © {new Date().getFullYear()} Nebula Command
+          © {new Date().getFullYear()} La Forge du Code
         </footer>
       </div>
     </div>

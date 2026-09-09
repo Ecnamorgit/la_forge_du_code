@@ -158,15 +158,15 @@ function AvatarPageInner() {
       <main className="relative z-10 mx-auto max-w-5xl px-4 py-8 lg:px-6 lg:py-12">
         <header className="mb-8 animate-fade-down text-center">
           <div className="font-tech text-[11px] uppercase tracking-[0.4em] text-nebula-blue">
-            ◈ {mode === "create" ? "ENREGISTREMENT D'IDENTITE" : "PERSONNALISATION"}
+            ◈ {mode === "create" ? "ENREGISTREMENT D'IDENTITÉ" : "PERSONNALISATION"}
           </div>
           <h1 className="mt-2 font-tech text-3xl tracking-[0.15em] text-nebula-cyan [text-shadow:0_0_22px_rgba(0,240,255,0.35)] sm:text-4xl">
-            {mode === "create" ? "CREE TON CADET" : "TON CADET"}
+            {mode === "create" ? "CRÉE TON CADET" : "TON CADET"}
           </h1>
           <p className="mt-3 mx-auto max-w-xl font-body text-sm text-nebula-text-secondary">
             {mode === "create"
-              ? "Avant de prendre les commandes, choisis ton identite. L'apparence est purement cosmetique ; ton role oriente les cursus recommandes. Tout reste modifiable depuis ton profil."
-              : "Modifie ton apparence. Les changements seront visibles partout, immediatement."}
+              ? "Avant de prendre les commandes, choisis ton identité. L'apparence est purement cosmétique ; ton rôle oriente les cursus recommandés. Tout reste modifiable depuis ton profil."
+              : "Modifie ton apparence. Les changements seront visibles partout, immédiatement."}
           </p>
         </header>
 
@@ -186,7 +186,7 @@ function AvatarPageInner() {
           {/* Species */}
           <Section
             label="Origine"
-            description="D'ou viens-tu ? Choisis ton espece d'origine."
+            description="D'où viens-tu ? Choisis ton espèce d'origine."
           >
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {SPECIES.map((sp) => (
@@ -206,7 +206,7 @@ function AvatarPageInner() {
           {/* Uniform color */}
           <Section
             label="Couleur d'uniforme"
-            description="Affichee comme accent autour de ton avatar."
+            description="Affichée comme accent autour de ton avatar."
           >
             <div className="flex flex-wrap gap-3">
               {BASE_UNIFORM_COLORS.map((c) => (
@@ -238,8 +238,8 @@ function AvatarPageInner() {
 
           {/* Role */}
           <Section
-            label="Role prefere"
-            description="Oriente les cursus recommandes pour ton profil sur la page Cursus."
+            label="Rôle préféré"
+            description="Oriente les cursus recommandés pour ton profil sur la page Cursus."
           >
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {ROLES.map((r) => (

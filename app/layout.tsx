@@ -35,22 +35,22 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
-  title: "CodeForge — Nebula Command",
+  title: "La Forge du Code — Coalition Nebula",
   description:
-    "Plateforme d'apprentissage du code gamifiée — Univers Nebula Command",
+    "Plateforme d'apprentissage du code où chaque chapitre est une mission — univers Coalition Nebula",
   openGraph: {
     type: "website",
-    siteName: "Nebula Command",
+    siteName: "La Forge du Code",
     locale: "fr_FR",
-    title: "CodeForge — Nebula Command",
+    title: "La Forge du Code — Coalition Nebula",
     description:
-      "Apprends à coder dans un univers spatial gamifié. HTML, CSS, JavaScript, React.",
+      "Apprends à coder dans un univers spatial où chaque chapitre est une mission. HTML, CSS, JavaScript, React.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "CodeForge — Nebula Command",
+    title: "La Forge du Code — Coalition Nebula",
     description:
-      "Apprends à coder dans un univers spatial gamifié. HTML, CSS, JavaScript, React.",
+      "Apprends à coder dans un univers spatial où chaque chapitre est une mission. HTML, CSS, JavaScript, React.",
   },
 };
 

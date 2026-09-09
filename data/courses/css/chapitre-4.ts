@@ -48,7 +48,7 @@ Les **enfants directs** du conteneur (.item) deviennent des **flex items** et s'
       docRefs: ["css/flexbox"],
       missionIcon: "🛬",
       missionTag: "PROTOCOLE 01",
-      missionTtl: "DEPLOIEMENT EN LIGNE",
+      missionTtl: "DÉPLOIEMENT EN LIGNE",
       bannerIcon: "🟦",
       bannerTtl: "FORMATION HORIZONTALE",
       bannerSub: "Les trois vaisseaux sont alignés sur la même ligne.",

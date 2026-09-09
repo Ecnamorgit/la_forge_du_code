@@ -22,7 +22,7 @@ export const chapitre7: ChapterData = {
 *« Une console qui ne réagit pas au contact inquiète l'équipage. \`:hover\`, \`:focus\` : style tes éléments selon leur état, donne-leur un signe de vie. »* — **Kira**
 
 ### Qu'est-ce qu'une pseudo-classe ?
-Une **pseudo-classe** cible un élément selon son **état** plutôt que sa classe statique. Format : **selecteur:pseudo-classe**.
+Une **pseudo-classe** cible un élément selon son **état** plutôt que sa classe statique. Format : **sélecteur:pseudo-classe**.
 
 ### :hover
 Cible un élément **quand le curseur le survole**.
@@ -42,7 +42,7 @@ Cible un élément **quand le curseur le survole**.
 - **Toujours** un :hover sur un élément cliquable. Sans feedback, l'utilisateur ne sait pas si c'est interactif.
 - Ajoute **transition: background 0.2s** sur l'élément de base pour adoucir le changement.
 
-**A retenir :** :hover, c'est la base du langage du web. Aucun bon site n'en fait l'économie.
+**À retenir :** :hover, c'est la base du langage du web. Aucun bon site n'en fait l'économie.
         `,
       },
       objectives: [
@@ -52,7 +52,7 @@ Cible un élément **quand le curseur le survole**.
       docRefs: ["css/pseudo-classes"],
       missionIcon: "👆",
       missionTag: "PROTOCOLE 01",
-      missionTtl: "REACTION AU SURVOL",
+      missionTtl: "RÉACTION AU SURVOL",
       bannerIcon: "👆",
       bannerTtl: "FEEDBACK ACTIF",
       bannerSub: "Le bouton réagit au passage de souris.",
@@ -89,7 +89,7 @@ Remplace par autre chose : bordure colorée, ombre extérieure, ring coloré.
 ### :focus-visible (bonus moderne)
 Variante qui ne s'affiche **que** quand le focus vient du clavier (pas du clic souris). Plus subtil pour les utilisateurs souris.
 
-**A retenir :** ne JAMAIS retirer le focus sans le remplacer.
+**À retenir :** ne JAMAIS retirer le focus sans le remplacer.
         `,
       },
       objectives: [
@@ -127,7 +127,7 @@ Variante qui ne s'affiche **que** quand le focus vient du clavier (pas du clic s
 \`}\`
 
 ### Cas d'utilisation typiques
-- **Icones décoratives** sans polluer le HTML.
+- **Icônes décoratives** sans polluer le HTML.
 - **Guillemets** automatiques pour les citations.
 - **Numérotation** automatique de listes.
 - **Tooltip** texte au survol.
@@ -140,7 +140,7 @@ Même principe, ajoute après l'élément.
 ### Astuce
 Tu peux les positionner en absolute si le parent est position: relative.
 
-**A retenir :** ::before/::after sont des "éléments virtuels" — ils acceptent presque toutes les propriétés CSS.
+**À retenir :** ::before/::after sont des "éléments virtuels" — ils acceptent presque toutes les propriétés CSS.
         `,
       },
       objectives: [
@@ -191,7 +191,7 @@ Tu peux les positionner en absolute si le parent est position: relative.
 - Galeries grid 3 colonnes (3n).
 - Première / dernière ligne stylées différemment.
 
-**Astuce :** :nth-child est calculé à partir du **parent**, pas du selecteur. Si tu écris li:nth-child(2) mais que le 2ème enfant n'est pas un <li>, rien ne match.
+**Astuce :** :nth-child est calculé à partir du **parent**, pas du sélecteur. Si tu écris li:nth-child(2) mais que le 2ème enfant n'est pas un <li>, rien ne match.
         `,
       },
       objectives: [

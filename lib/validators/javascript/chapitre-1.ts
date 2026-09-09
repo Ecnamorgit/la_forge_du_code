@@ -14,7 +14,7 @@ function runtimeError(error: string | null): string | null {
 export const validators: Validator[] = [
   // Step 1: console.log("Bonjour, station Nebula")
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     if (!hasConsoleLog(code)) {
@@ -28,17 +28,17 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Signal recu.",
+      msg: "Signal reçu.",
       objList: ["o1a", "o1b"],
     };
   },
   // Step 2: let variable + console.log of it
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     if (!hasKeyword(code, "let")) {
-      return { ok: false, msg: "Utilise let pour declarer une variable." };
+      return { ok: false, msg: "Utilise let pour déclarer une variable." };
     }
     if (!hasConsoleLog(code)) {
       return { ok: false, msg: "Logue ensuite la variable avec console.log." };
@@ -46,7 +46,7 @@ export const validators: Validator[] = [
     if (ctx.logs.length === 0) {
       return {
         ok: false,
-        msg: "La console ne recoit rien — verifie ton console.log.",
+        msg: "La console ne reçoit rien — vérifie ton console.log.",
       };
     }
     // Ensure the logged value isn't literally the word of a variable name (i.e. quoted)
@@ -67,13 +67,13 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Variable affichee.",
+      msg: "Variable affichée.",
       objList: ["o2a", "o2b"],
     };
   },
   // Step 3: const + 3 types primitifs
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     if (!hasKeyword(code, "const")) {
@@ -92,13 +92,13 @@ export const validators: Validator[] = [
       (l) => l.trim() !== "" && !/^-?\d+(?:\.\d+)?$/.test(l.trim()) && !/^(?:true|false)$/.test(l.trim())
     );
     if (!hasBoolean) {
-      return { ok: false, msg: "Une des sorties doit etre un booleen (true / false)." };
+      return { ok: false, msg: "Une des sorties doit être un booléen (true / false)." };
     }
     if (!hasNumber) {
-      return { ok: false, msg: "Une des sorties doit etre un nombre." };
+      return { ok: false, msg: "Une des sorties doit être un nombre." };
     }
     if (!hasNonNumericString) {
-      return { ok: false, msg: "Une des sorties doit etre une chaine de texte." };
+      return { ok: false, msg: "Une des sorties doit être une chaîne de texte." };
     }
     return {
       ok: true,
@@ -108,7 +108,7 @@ export const validators: Validator[] = [
   },
   // Step 4: template literal interpolating >= 2 variables
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);

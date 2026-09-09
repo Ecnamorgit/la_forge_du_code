@@ -31,12 +31,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { badge } = await params;
   const def = getBadge(badge);
-  if (!def) return { title: "Badge inconnu — Nebula Command" };
+  if (!def) return { title: "Badge inconnu — La Forge du Code" };
 
   const sp = await searchParams;
   const pseudo = sanitizeShareName(sp.u);
   const xp = parseShareXp(sp.xp);
-  const title = `${pseudo} a debloque « ${def.label} » sur Nebula Command`;
+  const title = `${pseudo} a débloqué « ${def.label} » sur La Forge du Code`;
   const image = imageUrl(badge, pseudo, xp);
 
   return {
@@ -75,7 +75,7 @@ export default async function SharePage({
     <div className="flex min-h-screen flex-col items-center justify-center bg-nebula-bg px-6 text-center">
       <div className="w-full max-w-md rounded-sm border border-nebula-cyan bg-nebula-bg-panel/80 p-8 shadow-[0_0_60px_rgba(0,240,255,0.12)]">
         <div className="font-tech text-xs uppercase tracking-[0.3em] text-nebula-text-dim">
-          Nebula Command
+          La Forge du Code
         </div>
         <div className="my-5 text-6xl">{def.icon}</div>
         <h1 className="font-tech text-2xl tracking-wider text-nebula-cyan">

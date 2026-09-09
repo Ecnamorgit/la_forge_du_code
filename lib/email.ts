@@ -18,7 +18,7 @@ function getClient(): Resend {
 
 function getFrom(): string {
   return (
-    process.env.RESEND_FROM_EMAIL ?? "Nebula Command <onboarding@resend.dev>"
+    process.env.RESEND_FROM_EMAIL ?? "La Forge du Code <onboarding@resend.dev>"
   );
 }
 
@@ -66,14 +66,14 @@ function frame(args: { title: string; body: string; cta: { href: string; label: 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${title} — Nebula Command</title>
+    <title>${title} — La Forge du Code</title>
   </head>
   <body style="margin:0;padding:0;background:#03060d;font-family:'Helvetica Neue',Arial,sans-serif;color:#c8d6e5;">
     <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background:#03060d;padding:32px 16px;">
       <tr><td align="center">
         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:520px;background:#0a1628;border:1px solid rgba(0,240,255,0.4);border-radius:4px;padding:32px;">
           <tr><td style="text-align:left;">
-            <div style="font-family:'Courier New',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#3d7eff;margin-bottom:12px;">◈ Nebula Command</div>
+            <div style="font-family:'Courier New',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#3d7eff;margin-bottom:12px;">◈ La Forge du Code</div>
             <h1 style="margin:0 0 16px 0;font-family:'Courier New',monospace;font-size:22px;letter-spacing:2px;color:#00f0ff;">${title}</h1>
             <div style="font-size:15px;line-height:1.6;color:#c8d6e5;">${body}</div>
             <p style="margin:28px 0 0 0;">
@@ -82,7 +82,7 @@ function frame(args: { title: string; body: string; cta: { href: string; label: 
             <p style="margin:24px 0 0 0;font-size:12px;color:#6b7d99;">Ou copie ce lien dans ton navigateur :<br /><span style="word-break:break-all;color:#00ff88;">${cta.href}</span></p>
           </td></tr>
         </table>
-        <p style="margin:16px 0 0 0;font-size:11px;line-height:1.5;color:#3a4a66;">Nebula Command — Plateforme d'apprentissage du code · laforgeducode.fr<br />Tu reçois ce message parce que cette adresse a été utilisée sur Nebula Command. Aucune action n'est requise si tu n'es pas concerné.</p>
+        <p style="margin:16px 0 0 0;font-size:11px;line-height:1.5;color:#3a4a66;">La Forge du Code — Plateforme d'apprentissage du code · laforgeducode.fr<br />Tu reçois ce message parce que cette adresse a été utilisée sur La Forge du Code. Aucune action n'est requise si tu n'es pas concerné.</p>
       </td></tr>
     </table>
   </body>
@@ -97,12 +97,12 @@ export async function sendVerificationEmail(args: {
   const html = frame({
     // Casse normale et accents : un titre tout en majuscules est un signal
     // classique pour les filtres anti-spam (observé sur Hotmail, 2026-09-08).
-    title: "Vérifie ton email",
+    title: "Vérifie ton adresse e-mail",
     body:
       "<p>Bienvenue à bord, Cadet.</p>" +
       "<p>Une dernière formalité avant de décoller : confirme ton adresse en cliquant sur le bouton ci-dessous. Le lien expire dans <strong>24h</strong>.</p>" +
       "<p>Si tu n'es pas à l'origine de cette inscription, ignore simplement ce message.</p>",
-    cta: { href: link, label: "> Confirmer mon email" },
+    cta: { href: link, label: "> Confirmer mon adresse" },
   });
   const text = [
     "Bienvenue à bord, Cadet.",
@@ -112,9 +112,9 @@ export async function sendVerificationEmail(args: {
     "",
     "Si tu n'es pas à l'origine de cette inscription, ignore simplement ce message.",
     "",
-    "Nebula Command — Plateforme d'apprentissage du code · laforgeducode.fr",
+    "La Forge du Code — Plateforme d'apprentissage du code · laforgeducode.fr",
   ].join("\n");
-  return send({ to: args.to, subject: "Nebula Command — Confirme ton email", html, text });
+  return send({ to: args.to, subject: "La Forge du Code — Confirme ton adresse e-mail", html, text });
 }
 
 export async function sendPasswordResetEmail(args: {
@@ -131,18 +131,18 @@ export async function sendPasswordResetEmail(args: {
     cta: { href: link, label: "> Nouveau mot de passe" },
   });
   const text = [
-    "Une demande de réinitialisation de mot de passe a été reçue pour ton compte Nebula Command.",
+    "Une demande de réinitialisation de mot de passe a été reçue pour ton compte La Forge du Code.",
     "",
     "Choisis un nouveau mot de passe en ouvrant ce lien (valable 1 h) :",
     link,
     "",
     "Si tu n'es pas à l'origine de cette demande, ignore ce message : ton mot de passe actuel reste inchangé.",
     "",
-    "Nebula Command — Plateforme d'apprentissage du code · laforgeducode.fr",
+    "La Forge du Code — Plateforme d'apprentissage du code · laforgeducode.fr",
   ].join("\n");
   return send({
     to: args.to,
-    subject: "Nebula Command — Réinitialisation de ton mot de passe",
+    subject: "La Forge du Code — Réinitialisation de ton mot de passe",
     html,
     text,
   });

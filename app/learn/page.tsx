@@ -179,7 +179,7 @@ function CourseCard({ course }: { course: CourseEntry }) {
           </span>
         ) : course.depth === "preview" ? (
           <span className="font-tech text-[10px] tracking-widest text-nebula-text-dim border border-nebula-text-dim/40 rounded px-2 py-0.5 bg-nebula-bg-panel/60">
-            APERCU
+            APERÇU
           </span>
         ) : (
           <span

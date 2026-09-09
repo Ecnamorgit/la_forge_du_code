@@ -206,7 +206,7 @@ export default function DocPanel({ entryId, onClose, onOpen }: DocPanelProps) {
 
             <footer className="shrink-0 border-t border-nebula-border/60 px-5 py-3">
               <p className="font-body text-[11px] leading-relaxed text-nebula-text-dim">
-                Fiche de référence CodeForge — rédigée par l&apos;équipe.
+                Fiche de référence La Forge du Code — rédigée par l&apos;équipe.
                 {entry.official && (
                   <>
                     {" "}

@@ -4,33 +4,33 @@ export const chapitre9: ChapterData = {
   slug: "chapitre-9",
   tag: "MISSION : COMMUNICATIONS ASYNCHRONES",
   title: "PROMISES\n& ASYNC",
-  subtitle: "Maitrise les operations qui prennent du temps",
+  subtitle: "Maîtrise les opérations qui prennent du temps",
   totalXp: 280,
   completionBadge: "🌐",
-  completionBadgeLabel: "OPERATEUR ASYNCHRONE",
+  completionBadgeLabel: "OPÉRATEUR ASYNCHRONE",
   steps: [
     {
       startCode:
         "// Cree une Promise qui resoud avec 'OK' apres 50ms (setTimeout).\n// Utilise .then() pour logger la valeur.\n",
       placeholder: "// new Promise + .then",
       narrator:
-        "Premiere promesse. Cree-en une qui resoud avec 'OK' apres 50ms, puis chain un .then() qui logge la valeur.",
+        "Première promesse. Cree-en une qui resoud avec 'OK' après 50ms, puis chain un .then() qui logge la valeur.",
       hint: "new Promise((resolve) => setTimeout(() => resolve('OK'), 50)).then((v) => console.log(v));",
       briefing: {
         title: "La Promise",
         content: `
 *« Toute communication longue distance prend du temps — inutile de figer la station en l'attendant. Une Promise te rend la main, et te rappelle quand la réponse arrive. »* — **Kira**
 
-### Le probleme
-Du JavaScript synchrone bloque le navigateur. Pour les operations longues (reseau, fichier, animation), on a besoin **d'asynchrone**.
+### Le problème
+Du JavaScript synchrone bloque le navigateur. Pour les opérations longues (réseau, fichier, animation), on a besoin **d'asynchrone**.
 
 ### La Promise
-Une **Promise** represente le **resultat futur** d'une operation. Elle peut etre dans 3 etats :
+Une **Promise** represente le **résultat futur** d'une opération. Elle peut être dans 3 états :
 - **pending** (en cours)
-- **fulfilled** (succes, avec une valeur)
+- **fulfilled** (succès, avec une valeur)
 - **rejected** (echec, avec une erreur)
 
-### Creer une Promise
+### Créer une Promise
 \`new Promise((resolve, reject) => {\`
 \`  setTimeout(() => resolve('OK'), 50);\`
 \`});\`
@@ -44,9 +44,9 @@ Une **Promise** represente le **resultat futur** d'une operation. Elle peut etre
 \`  .catch((erreur) => console.error(erreur));\`
 
 ### En pratique
-Tu cree **rarement** des Promises a la main. Les APIs (**fetch**, **setTimeout-as-promise**, etc.) te les fournissent. Mais comprendre comment elles se construisent reste utile.
+Tu cree **rarement** des Promises à la main. Les APIs (**fetch**, **setTimeout-as-promise**, etc.) te les fournissent. Mais comprendre comment elles se construisent reste utile.
 
-**A retenir :** une Promise = "appelle-moi quand c'est pret".
+**À retenir :** une Promise = "appelle-moi quand c'est prêt".
         `,
       },
       objectives: [
@@ -59,7 +59,7 @@ Tu cree **rarement** des Promises a la main. Les APIs (**fetch**, **setTimeout-a
       missionTtl: "PROMESSE FUTURE",
       bannerIcon: "⏳",
       bannerTtl: "PROMESSE TENUE",
-      bannerSub: "La Promise a resolu apres son delai.",
+      bannerSub: "La Promise a resolu après son delai.",
       bannerXp: "⚡ +65 XP",
     },
     {
@@ -67,7 +67,7 @@ Tu cree **rarement** des Promises a la main. Les APIs (**fetch**, **setTimeout-a
         "// Cree une fonction async getMission() qui retourne 'Mission lunaire' apres 30ms.\n// Appelle-la dans un autre async block (IIFE) et logge le resultat avec await.\n",
       placeholder: "// async / await",
       narrator:
-        "async/await rend l'asynchrone lisible comme du synchrone. Definis une fonction async qui retourne 'Mission lunaire' apres 30ms, puis utilise await pour recuperer la valeur.",
+        "async/await rend l'asynchrone lisible comme du synchrone. Définis une fonction async qui retourne 'Mission lunaire' après 30ms, puis utilise await pour récupérer la valeur.",
       hint: "async function getMission() { await new Promise(r => setTimeout(r, 30)); return 'Mission lunaire'; }\n(async () => { const m = await getMission(); console.log(m); })();",
       briefing: {
         title: "async / await",
@@ -85,7 +85,7 @@ async/await rend le code **asynchrone aussi lisible que synchrone**. C'est du su
 \`const result = await getMission();\`
 \`console.log(result);\`
 
-### Equivalent avec .then()
+### Équivalent avec .then()
 \`getMission()\`
 \`  .then((valeur) => console.log(valeur))\`
 
@@ -99,7 +99,7 @@ async/await rend le code **asynchrone aussi lisible que synchrone**. C'est du su
 \`  }\`
 \`}\`
 
-**A retenir :** async/await simplifie la gestion des Promises et rend le code plus lisible.
+**À retenir :** async/await simplifie la gestion des Promises et rend le code plus lisible.
         `,
       },
       objectives: [
@@ -111,7 +111,7 @@ async/await rend le code **asynchrone aussi lisible que synchrone**. C'est du su
       missionTtl: "MISSION LUNAIRE",
       bannerIcon: "🚀",
       bannerTtl: "VOYAGE REALISE",
-      bannerSub: "La mission a reussi avec succes.",
+      bannerSub: "La mission a réussi avec succès.",
       bannerXp: "⚡ +70 XP",
     },
     {
@@ -119,7 +119,7 @@ async/await rend le code **asynchrone aussi lisible que synchrone**. C'est du su
         "// Cree une fonction async getMission() qui retourne 'Mission lunaire' apres 30ms.\n// Appelle-la dans un autre async block (IIFE) et logge le resultat avec await.\n",
       placeholder: "// async / await",
       narrator:
-        "async/await rend l'asynchrone lisible comme du synchrone. Definis une fonction async qui retourne 'Mission lunaire' apres 30ms, puis utilise await pour recuperer la valeur.",
+        "async/await rend l'asynchrone lisible comme du synchrone. Définis une fonction async qui retourne 'Mission lunaire' après 30ms, puis utilise await pour récupérer la valeur.",
       hint: "async function getMission() { await new Promise(r => setTimeout(r, 30)); return 'Mission lunaire'; }\n(async () => { const m = await getMission(); console.log(m); })();",
       briefing: {
         title: "async / await",
@@ -137,7 +137,7 @@ async/await rend le code **asynchrone aussi lisible que synchrone**. C'est du su
 \`const result = await getMission();\`
 \`console.log(result);\`
 
-### Equivalent avec .then()
+### Équivalent avec .then()
 \`getMission()\`
 \`  .then((valeur) => console.log(valeur))\`
 
@@ -151,12 +151,12 @@ async/await rend le code **asynchrone aussi lisible que synchrone**. C'est du su
 \`  }\`
 \`}\`
 
-**A retenir :** async/await simplifie la gestion des Promises et rend le code plus lisible.
+**À retenir :** async/await simplifie la gestion des Promises et rend le code plus lisible.
         `,
       },
       objectives: [
         { id: "o3a", label: "Utiliser try/catch avec await" },
-        { id: "o3b", label: "Logger une chaine contenant 'timeout'" },
+        { id: "o3b", label: "Logger une chaîne contenant 'timeout'" },
       ],
       missionIcon: "⚠",
       missionTag: "PROTOCOLE 03",
@@ -171,20 +171,20 @@ async/await rend le code **asynchrone aussi lisible que synchrone**. C'est du su
         "// Cree 3 promises p1, p2, p3 qui resolvent avec 1, 2, 3 apres des delais courts.\n// Utilise Promise.all pour attendre les 3 et logger le tableau de resultats.\n",
       placeholder: "// Promise.all([...])",
       narrator:
-        "Trois operations independantes. Utilise Promise.all pour les paralleliser et recuperer leurs resultats ensemble.",
+        "Trois opérations independantes. Utilise Promise.all pour les paralleliser et récupérer leurs resultats ensemble.",
       hint: "const p1 = new Promise(r => setTimeout(() => r(1), 10));\nconst p2 = new Promise(r => setTimeout(() => r(2), 10));\nconst p3 = new Promise(r => setTimeout(() => r(3), 10));\nPromise.all([p1, p2, p3]).then((arr) => console.log(arr));",
       briefing: {
         title: "Promise.all",
         content: `
 ### Parallelisation
-Quand plusieurs operations independantes peuvent **tourner en meme temps**, on utilise **Promise.all**.
+Quand plusieurs opérations independantes peuvent **tourner en même temps**, on utilise **Promise.all**.
 
 \`Promise.all([p1, p2, p3]).then((arr) => {\`
 \`  // arr = [val1, val2, val3]\`
 \`});\`
 
 ### Pourquoi parallel et pas sequentiel ?
-- **Sequentiel** (await chaque) : temps = somme des durees.
+- **Sequentiel** (await chaque) : temps = somme des durées.
 - **Parallel** (Promise.all) : temps = la plus longue duree.
 
 Pour 3 fetches de 200ms chacun : 600ms vs 200ms.
@@ -194,14 +194,14 @@ Pour 3 fetches de 200ms chacun : 600ms vs 200ms.
 
 ### Variantes
 - **Promise.allSettled([...])** : attend toutes, retourne {status, value/reason} pour chacune. Ne rejette jamais.
-- **Promise.race([...])** : retourne la **premiere** qui resout/rejette.
-- **Promise.any([...])** : retourne la **premiere** qui resout (ignore les rejets).
+- **Promise.race([...])** : retourne la **première** qui resout/rejette.
+- **Promise.any([...])** : retourne la **première** qui resout (ignore les rejets).
 
 ### Avec async/await
 \`const [a, b, c] = await Promise.all([p1, p2, p3]);\`
 Lisible et destructurant.
 
-**A retenir :** des qu'il y a 2+ operations independantes, **paralleliser** avec Promise.all.
+**À retenir :** des qu'il y a 2+ opérations independantes, **paralleliser** avec Promise.all.
         `,
       },
       objectives: [
@@ -210,9 +210,9 @@ Lisible et destructurant.
       ],
       missionIcon: "⛓",
       missionTag: "PROTOCOLE 04",
-      missionTtl: "EXECUTION PARALLELE",
+      missionTtl: "EXÉCUTION PARALLELE",
       bannerIcon: "⛓",
-      bannerTtl: "OPERATIONS GROUPEES",
+      bannerTtl: "OPÉRATIONS GROUPEES",
       bannerSub: "Promise.all attend tout le monde en parallele.",
       bannerXp: "⚡ +70 XP",
     },

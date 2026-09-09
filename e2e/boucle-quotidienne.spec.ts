@@ -237,10 +237,10 @@ test.describe("boucle quotidienne", () => {
       await page.getByRole("button", { name: /DEPLOYER/ }).click();
 
       // Validation réussie côté client (components/lesson/ChapterWorkspace.tsx)…
-      await expect(page.getByText("SYSTEME EN LIGNE")).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText("SYSTÈME EN LIGNE")).toBeVisible({ timeout: 15_000 });
       if (sauvegarde) await sauvegarde;
       // …puis la bannière de réussite, dont le bouton avance d'une étape.
-      const suivant = page.getByRole("button", { name: /SYSTEME SUIVANT/ });
+      const suivant = page.getByRole("button", { name: /SYSTÈME SUIVANT/ });
       await expect(suivant).toBeVisible({ timeout: 15_000 });
       await suivant.click();
     }

@@ -7,7 +7,7 @@ export const chapitre12: ChapterData = {
   subtitle: "Maîtrise les verbes du protocole pour piloter un serveur",
   totalXp: 280,
   completionBadge: "🛰",
-  completionBadgeLabel: "OPERATEUR API",
+  completionBadgeLabel: "OPÉRATEUR API",
   steps: [
     {
       startCode:
@@ -25,17 +25,17 @@ export const chapitre12: ChapterData = {
 REST (REpresentational State Transfer) est une convention pour structurer les APIs web. Chaque ressource (vaisseau, pilote, mission...) a une URL, et on agit dessus avec des verbes HTTP.
 
 ### Les 4 verbes essentiels
-| Verbe | Role | Exemple |
+| Verbe | Rôle | Exemple |
 |-------|------|---------|
 | GET | LIRE | Récupérer la liste des vaisseaux |
-| POST | CREER | Ajouter un nouveau vaisseau |
-| PUT | METTRE A JOUR | Modifier un vaisseau existant |
+| POST | CRÉER | Ajouter un nouveau vaisseau |
+| PUT | METTRE À JOUR | Modifier un vaisseau existant |
 | DELETE | SUPPRIMER | Retirer un vaisseau de la flotte |
 
 ### GET, le verbe par défaut
 \`fetch()\` utilise GET par défaut. Pas besoin de le spécifier explicitement.
 
-**A retenir :** GET = lecture seule. Une requête GET ne doit JAMAIS modifier l'état du serveur.
+**À retenir :** GET = lecture seule. Une requête GET ne doit JAMAIS modifier l'état du serveur.
         `,
       },
       objectives: [
@@ -73,7 +73,7 @@ Le header \`Content-Type: application/json\` indique au serveur que le corps de 
 ### Idempotence
 POST n'est pas idempotent : envoyer la même requête 10 fois créera 10 ressources différentes.
 
-**A retenir :** POST = création d'une nouvelle ressource. Le serveur renvoie généralement un code 201 Created en cas de succès.
+**À retenir :** POST = création d'une nouvelle ressource. Le serveur renvoie généralement un code 201 Created en cas de succès.
         `,
       },
       objectives: [
@@ -111,7 +111,7 @@ Pour cibler UNE ressource précise, on ajoute son id à l'URL :
 ### Idempotence
 PUT est dit "idempotent" : envoyer la même requête 10 fois donne le même résultat qu'une seule. POST, lui, créerait 10 ressources différentes.
 
-**A retenir :** PUT = mise à jour complète d'une ressource. L'URL contient l'id de la ressource ciblee.
+**À retenir :** PUT = mise à jour complète d'une ressource. L'URL contient l'id de la ressource ciblée.
         `,
       },
       objectives: [
@@ -157,7 +157,7 @@ C'est le socle de 90% des applications web.
 - **404 Not Found** : ressource introuvable
 - **500 Internal Server Error** : panne serveur
 
-**A retenir :** GET/POST/PUT/DELETE + JSON + codes HTTP = vocabulaire universel de toute API moderne.
+**À retenir :** GET/POST/PUT/DELETE + JSON + codes HTTP = vocabulaire universel de toute API moderne.
         `,
       },
       objectives: [

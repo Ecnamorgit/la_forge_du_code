@@ -3,7 +3,7 @@ import type { ChapterData } from "@/data/courses/html/types";
 export const chapitre5: ChapterData = {
   slug: "chapitre-5",
   tag: "MISSION : REGISTRE DES VAISSEAUX",
-  title: "OBJETS\n& METHODES",
+  title: "OBJETS\n& MÉTHODES",
   subtitle: "Structure tes données et utilise les méthodes built-in",
   totalXp: 250,
   completionBadge: "🛠",
@@ -118,7 +118,7 @@ Même si l'objet est en **const**, ses propriétés restent **modifiables** : co
 - **.includes(x)** : true si x est dans la chaîne.
 - **.trim()** : retire les espaces en début/fin.
 - **.split(s)** : découpe en tableau.
-- **.replace(a, b)** : remplace une sous-chaine.
+- **.replace(a, b)** : remplace une sous-chaîne.
 
 ### Important
 Ces méthodes **ne modifient pas** la chaîne d'origine, elles **retournent** une nouvelle valeur. Les strings sont immuables.

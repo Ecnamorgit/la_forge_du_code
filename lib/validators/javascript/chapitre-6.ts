@@ -8,7 +8,7 @@ function runtimeError(error: string | null): string | null {
 export const validators: Validator[] = [
   // Step 1: .map() doubling xp + log array containing [100, 240, 160, 400, 60]
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -21,31 +21,31 @@ export const validators: Validator[] = [
         msg: "La console doit afficher le tableau double (contient 100, 240, 160, 400, 60).",
       };
     }
-    return { ok: true, msg: "Donnees transformees.", objList: ["o1a", "o1b"] };
+    return { ok: true, msg: "Données transformées.", objList: ["o1a", "o1b"] };
   },
   // Step 2: .filter() keeping niveau >= 5 + log
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/\bequipage\s*\.\s*filter\s*\(/.test(stripped)) {
-      return { ok: false, msg: "Utilise equipage.filter(...)." };
+      return { ok: false, msg: "Utilise équipage.filter(...)." };
     }
     if (!/niveau\s*>=?\s*5/.test(stripped)) {
       return { ok: false, msg: "La condition doit filtrer niveau >= 5." };
     }
     if (!logsContain(ctx.logs, "Luna") || !logsContain(ctx.logs, "Mars")) {
-      return { ok: false, msg: "La console doit afficher les elites (Luna, Mars, Phobos)." };
+      return { ok: false, msg: "La console doit afficher les élites (Luna, Mars, Phobos)." };
     }
     if (logsContain(ctx.logs, "Io")) {
-      return { ok: false, msg: 'Io ne doit pas etre dans les elites (niveau 3 < 5).' };
+      return { ok: false, msg: 'Io ne doit pas être dans les élites (niveau 3 < 5).' };
     }
-    return { ok: true, msg: "Elites identifiees.", objList: ["o2a", "o2b"] };
+    return { ok: true, msg: "Élites identifiées.", objList: ["o2a", "o2b"] };
   },
   // Step 3: .reduce() summing masse to 400
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -59,7 +59,7 @@ export const validators: Validator[] = [
   },
   // Step 4: .find() returns the maintenance ship, log "NEB-02"
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);

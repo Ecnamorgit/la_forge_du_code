@@ -284,7 +284,7 @@ export default function ProfilPage() {
               value={`${cursusBadgeCount}/${ALL_BADGES.length}`}
               accent="blue"
             />
-            <BigStat label="Streak" value={`${streak}j`} accent="green" />
+            <BigStat label="Liaison" value={`${streak}j`} accent="green" />
           </div>
         </section>
 
@@ -436,7 +436,7 @@ export default function ProfilPage() {
               />
               <div className="min-w-0 flex-1">
                 <div className="font-tech text-sm uppercase tracking-widest text-nebula-text">
-                  Identite visuelle
+                  Identité visuelle
                 </div>
                 <p className="mt-1 font-body text-xs text-nebula-text-dim">
                   {state.species ? (

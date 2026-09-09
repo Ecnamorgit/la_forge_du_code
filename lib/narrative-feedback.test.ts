@@ -10,25 +10,25 @@ import {
 
 describe("getErrorHeader", () => {
   it("renvoie un en-tête dédié pour chaque tonalité connue", () => {
-    expect(getErrorHeader("structure")).toBe("DECOMPRESSION SECTEUR");
-    expect(getErrorHeader("logic")).toBe("SURCHAUFFE REACTEUR");
-    expect(getErrorHeader("syntax")).toBe("SIGNAL BROUILLE");
+    expect(getErrorHeader("structure")).toBe("DÉCOMPRESSION SECTEUR");
+    expect(getErrorHeader("logic")).toBe("SURCHAUFFE RÉACTEUR");
+    expect(getErrorHeader("syntax")).toBe("SIGNAL BROUILLÉ");
   });
 
   it("retombe sur l'en-tête générique quand la tonalité est absente", () => {
-    expect(getErrorHeader()).toBe("BRECHE DETECTEE");
-    expect(getErrorHeader("generic")).toBe("BRECHE DETECTEE");
+    expect(getErrorHeader()).toBe("BRÈCHE DÉTECTÉE");
+    expect(getErrorHeader("generic")).toBe("BRÈCHE DÉTECTÉE");
   });
 
   it("retombe sur le générique pour une valeur inconnue", () => {
     // @ts-expect-error — on vérifie la robustesse au runtime.
-    expect(getErrorHeader("inconnu")).toBe("BRECHE DETECTEE");
+    expect(getErrorHeader("inconnu")).toBe("BRÈCHE DÉTECTÉE");
   });
 });
 
 describe("getSuccessHeader", () => {
   it("renvoie l'en-tête de succès par défaut", () => {
-    expect(getSuccessHeader()).toBe("SYSTEME EN LIGNE");
+    expect(getSuccessHeader()).toBe("SYSTÈME EN LIGNE");
   });
 });
 

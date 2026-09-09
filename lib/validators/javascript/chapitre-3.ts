@@ -8,7 +8,7 @@ function runtimeError(error: string | null): string | null {
 export const validators: Validator[] = [
   // Step 1: greet(name) → "Bonjour, <name>" with name="Cadet"
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -16,7 +16,7 @@ export const validators: Validator[] = [
       !/\bfunction\s+greet\s*\(/.test(stripped) &&
       !/\b(?:const|let|var)\s+greet\s*=\s*(?:function|\()/.test(stripped)
     ) {
-      return { ok: false, msg: "Declare une fonction nommee greet." };
+      return { ok: false, msg: "Déclare une fonction nommée greet." };
     }
     if (!/\breturn\b/.test(stripped)) {
       return { ok: false, msg: "La fonction doit utiliser return." };
@@ -29,13 +29,13 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Premiere fonction validee.",
+      msg: "Première fonction validée.",
       objList: ["o1a", "o1b"],
     };
   },
   // Step 2: addXp(120, 50) → 170
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -47,7 +47,7 @@ export const validators: Validator[] = [
     ) {
       return {
         ok: false,
-        msg: "Declare addXp avec deux parametres.",
+        msg: "Déclare addXp avec deux paramètres.",
       };
     }
     if (!/\baddXp\s*\(\s*120\s*,\s*50\s*\)/.test(stripped)) {
@@ -82,7 +82,7 @@ export const validators: Validator[] = [
     if (manqueLeRetour) {
       return {
         ok: false,
-        msg: "addXp doit retourner la somme avec return (ne pas seulement faire console.log a l'interieur).",
+        msg: "addXp doit retourner la somme avec return (ne pas seulement faire console.log à l'intérieur).",
       };
     }
     if (!logsInclude(ctx.logs, "170")) {
@@ -99,7 +99,7 @@ export const validators: Validator[] = [
   },
   // Step 3: arrow function double(7) = 14
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -117,13 +117,13 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Arrow function maitrisee.",
+      msg: "Arrow function maîtrisée.",
       objList: ["o3a", "o3b"],
     };
   },
   // Step 4: status(7) → "Pilote"
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -131,10 +131,10 @@ export const validators: Validator[] = [
       !/\bfunction\s+status\s*\(/.test(stripped) &&
       !/\b(?:const|let|var)\s+status\s*=/.test(stripped)
     ) {
-      return { ok: false, msg: "Declare une fonction nommee status." };
+      return { ok: false, msg: "Déclare une fonction nommée status." };
     }
     if (!/\bif\s*\(/.test(stripped)) {
-      return { ok: false, msg: "Utilise au moins un if a l'interieur." };
+      return { ok: false, msg: "Utilise au moins un if à l'intérieur." };
     }
     // Require comparisons with the variable on the LEFT: `level < 5` and `level < 10`
     // (or strict `<=`). Reject inverted forms like `5 < x` which trip up the logic.
@@ -143,7 +143,7 @@ export const validators: Validator[] = [
     if (!lhs5 || !lhs10) {
       return {
         ok: false,
-        msg: "Utilise des seuils progressifs avec le parametre a gauche (ex: if (level < 5) ... if (level < 10) ...).",
+        msg: "Utilise des seuils progressifs avec le parametre à gauche (ex: if (level < 5) ... if (level < 10) ...).",
       };
     }
     if (!logsInclude(ctx.logs, "Pilote")) {

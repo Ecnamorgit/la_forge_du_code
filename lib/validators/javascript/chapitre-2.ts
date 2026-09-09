@@ -8,12 +8,12 @@ function runtimeError(error: string | null): string | null {
 export const validators: Validator[] = [
   // Step 1: arithmetic — log 56
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/[+\-*/%]/.test(stripped)) {
-      return { ok: false, msg: "Utilise au moins un operateur arithmetique (+ - * /)." };
+      return { ok: false, msg: "Utilise au moins un opérateur arithmétique (+ - * /)." };
     }
     if (!logsInclude(ctx.logs, "56")) {
       return {
@@ -29,12 +29,12 @@ export const validators: Validator[] = [
   },
   // Step 2: comparison → false
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/[<>]=?|===|!==/.test(stripped)) {
-      return { ok: false, msg: "Utilise un operateur de comparaison (>, <, >=, etc.)." };
+      return { ok: false, msg: "Utilise un opérateur de comparaison (>, <, >=, etc.)." };
     }
     if (!logsInclude(ctx.logs, "false")) {
       return {
@@ -44,13 +44,13 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Booleen confirme.",
+      msg: "Booléen confirme.",
       objList: ["o2a", "o2b"],
     };
   },
   // Step 3: if/else → "ALERTE"
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -80,18 +80,18 @@ export const validators: Validator[] = [
     if (logsInclude(ctx.logs, "OK")) {
       return {
         ok: false,
-        msg: 'La console ne doit afficher que "ALERTE" ici (bouclier = 25, donc la branche else ne doit pas s\'executer).',
+        msg: 'La console ne doit afficher que "ALERTE" ici (bouclier = 25, donc la branche else ne doit pas s\'exécuter).',
       };
     }
     return {
       ok: true,
-      msg: "Reaction correcte.",
+      msg: "Réaction correcte.",
       objList: ["o3a", "o3b"],
     };
   },
   // Step 4: else if → "OK"
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -104,7 +104,7 @@ export const validators: Validator[] = [
     if (!logsInclude(ctx.logs, "OK")) {
       return {
         ok: false,
-        msg: 'La console doit afficher exactement "OK" (temperature = 72).',
+        msg: 'La console doit afficher exactement "OK" (température = 72).',
       };
     }
     return {

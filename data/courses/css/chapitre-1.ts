@@ -63,7 +63,7 @@ export const chapitre1: ChapterData = {
 ### Anatomie d'une règle CSS
 \`selecteur { propriétés : valeurs ; }\`
 
-- **selecteur** : *quel* élément on cible (ici h1).
+- **sélecteur** : *quel* élément on cible (ici h1).
 - **propriété** : *quelle* caractéristique on modifie (ici color).
 - **valeur** : la valeur appliquée (ici cyan).
 - Le **point-virgule** ; termine chaque ligne.
@@ -89,7 +89,7 @@ export const chapitre1: ChapterData = {
       missionTtl: "ALLUMER LE TITRE",
       bannerIcon: "💡",
       bannerTtl: "SIGNAL VISIBLE",
-      bannerSub: "Le titre brille desormais aux couleurs de la flotte.",
+      bannerSub: "Le titre brille désormais aux couleurs de la flotte.",
       bannerXp: "⚡ +50 XP",
     },
     {

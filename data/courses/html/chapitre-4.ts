@@ -3,7 +3,7 @@ import type { ChapterData } from "./types";
 export const chapitre4: ChapterData = {
   slug: "chapitre-4",
   tag: "DOCK D'ORBITE : INVENTAIRE",
-  title: "TETES ET CORPS\nDE TABLEAU",
+  title: "TÊTES ET CORPS\nDE TABLEAU",
   subtitle: "Organise les listes et les grilles de chargement du dock",
   totalXp: 200,
   completionBadge: "📋",
@@ -15,7 +15,7 @@ export const chapitre4: ChapterData = {
       placeholder: "<!-- Cree une liste a puces avec <ul> -->",
       narrator:
         "Tout commence par un inventaire de la soute. Liste les modules essentiels du dock dans une liste à puces.",
-      hint: 'Utilise <ul> et trois <li>, par exemple : <li>Oxygene</li><li>Energie</li><li>Communication</li>.',
+      hint: 'Utilise <ul> et trois <li>, par exemple : <li>Oxygène</li><li>Energie</li><li>Communication</li>.',
       briefing: {
         title: "Les listes a puces",
         content: `
@@ -24,7 +24,7 @@ export const chapitre4: ChapterData = {
 ### La balise <ul>
 **<ul>** signifie *unordered list* — liste **sans ordre particulier**. La console affiche une puce devant chaque compartiment.
 
-### Chaque element : <li>
+### Chaque élément : <li>
 Chaque ligne est declarée avec la balise **<li>** (*list item*).
 
 ### Exemple
@@ -34,7 +34,7 @@ Chaque ligne est declarée avec la balise **<li>** (*list item*).
 \`  <li>Communication</li>\`
 \`</ul>\`
 
-**A retenir :** Une balise <ul> ne doit contenir que des <li>.
+**À retenir :** Une balise <ul> ne doit contenir que des <li>.
         `,
       },
       objectives: [
@@ -56,7 +56,7 @@ Chaque ligne est declarée avec la balise **<li>** (*list item*).
       placeholder: "<!-- Etablis la procedure de decollage avec <ol> -->",
       narrator:
         "Certaines manoeuvres exigent un ordre strict. La procédure de décollage de la navette du dock doit s'afficher sous forme de liste ordonnée.",
-      hint: 'Utilise <ol> avec trois <li>, par exemple : <li>Pressuriser</li><li>Allumer les moteurs</li><li>Decoller</li>.',
+      hint: 'Utilise <ol> avec trois <li>, par exemple : <li>Pressuriser</li><li>Allumer les moteurs</li><li>Décoller</li>.',
       briefing: {
         title: "Les listes ordonnees",
         content: `
@@ -83,8 +83,8 @@ Pour toute suite logique obligatoire : protocoles de sécurité, checklists, ou 
       missionTag: "PROTOCOLE 02",
       missionTtl: "ORDRE DE MARCHE",
       bannerIcon: "🚀",
-      bannerTtl: "PROCEDURE PRETE",
-      bannerSub: "Les etapes de decollage sont sequencees.",
+      bannerTtl: "PROCÉDURE PRÊTE",
+      bannerSub: "Les étapes de décollage sont sequencees.",
       bannerXp: "⚡ +50 XP",
     },
     {
@@ -118,10 +118,10 @@ Pour toute suite logique obligatoire : protocoles de sécurité, checklists, ou 
       docRefs: ["html/table"],
       missionIcon: "🧮",
       missionTag: "PROTOCOLE 03",
-      missionTtl: "GRILLE DE COORDONNEES",
+      missionTtl: "GRILLE DE COORDONNÉES",
       bannerIcon: "📊",
-      bannerTtl: "GRILLE OPERATIONNELLE",
-      bannerSub: "Les donnees sont alignees, lisibles et organisees.",
+      bannerTtl: "GRILLE OPÉRATIONNELLE",
+      bannerSub: "Les données sont alignees, lisibles et organisees.",
       bannerXp: "⚡ +50 XP",
     },
     {
@@ -130,14 +130,14 @@ Pour toute suite logique obligatoire : protocoles de sécurité, checklists, ou 
       placeholder: "<!-- Ajoute des titres de colonnes avec <thead> et <th> -->",
       narrator:
         "Sans labels, les colonnes de notre manifeste de soute sont illisibles. Distingue l'en-tête du tableau avec <thead> et définis les titres de colonnes avec <th>.",
-      hint: 'Encapsule les en-tetes avec <thead><tr><th>Cible</th><th>Distance</th></tr></thead> et entoure les lignes de donnees dans <tbody>.',
+      hint: 'Encapsule les en-têtes avec <thead><tr><th>Cible</th><th>Distance</th></tr></thead> et entoure les lignes de données dans <tbody>.',
       briefing: {
-        title: "Tetes et corps de tableau",
+        title: "Têtes et corps de tableau",
         content: `
 ### Organiser la grille
 - **<thead>** : regroupe les en-têtes de colonnes.
 - **<tbody>** : contient le corps des données.
-- **<th>** : *table header*, une cellule d'en-tete (en gras par defaut, centree).
+- **<th>** : *table header*, une cellule d'en-tête (en gras par défaut, centrée).
 
 ### Exemple
 \`<table>\`
@@ -151,7 +151,7 @@ Pour toute suite logique obligatoire : protocoles de sécurité, checklists, ou 
         `,
       },
       objectives: [
-        { id: "o4a", label: "Encadrer les en-tetes dans un <thead>" },
+        { id: "o4a", label: "Encadrer les en-têtes dans un <thead>" },
         { id: "o4b", label: "Utiliser au moins deux <th>" },
       ],
       docRefs: ["html/thead"],
@@ -159,8 +159,8 @@ Pour toute suite logique obligatoire : protocoles de sécurité, checklists, ou 
       missionTag: "PROTOCOLE 04",
       missionTtl: "BAPTISER LES COLONNES",
       bannerIcon: "🗂",
-      bannerTtl: "DONNEES STRUCTUREES",
-      bannerSub: "Le tableau distingue clairement les en-tetes et les valeurs.",
+      bannerTtl: "DONNÉES STRUCTURÉES",
+      bannerSub: "Le tableau distingue clairement les en-têtes et les valeurs.",
       bannerXp: "⚡ +50 XP",
     },
   ],

@@ -26,7 +26,7 @@ export const INTRO_SCENES: IntroScene[] = [
   },
   {
     id: 1,
-    narration: "La flotte Nebula Command est paralysée. Tu es le dernier Cadet-Ingénieur encore opérationnel en secteur 7.",
+    narration: "La flotte Nebula est paralysée. Tu es le dernier Cadet-Ingénieur encore opérationnel en secteur 7.",
     visual: "cadet",
   },
   {

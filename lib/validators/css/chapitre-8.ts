@@ -23,7 +23,7 @@ export const validators: Validator[] = [
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     if (!/@media\b/i.test(css)) {
-      return { ok: false, msg: "Ajoute une regle @media (...) { ... }." };
+      return { ok: false, msg: "Ajoute une règle @media (...) { ... }." };
     }
     // Check that there's an @media block containing h1 with font-size
     if (!/@media\b[^{]+\{[\s\S]*?h1\s*\{[\s\S]*?font-size[\s\S]*?\}/i.test(css)) {
@@ -54,19 +54,19 @@ export const validators: Validator[] = [
     if (!ok) {
       return { ok: false, msg: "Dans ta media query, ajoute .grid { grid-template-columns: 1fr; }." };
     }
-    return { ok: true, msg: "Disposition reconfiguree.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Disposition reconfigurée.", objList: ["o3a", "o3b"] };
   },
   // Step 4: h1 uses clamp() with a vw unit
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     const h1Body = ruleBody(css, "h1");
-    if (!h1Body) return { ok: false, msg: "Garde une regle pour h1." };
+    if (!h1Body) return { ok: false, msg: "Garde une règle pour h1." };
     if (!/font-size\s*:\s*clamp\s*\(/i.test(h1Body)) {
       return { ok: false, msg: "Utilise clamp(...) pour font-size de h1." };
     }
     if (!/\d+\s*v(w|min|max)\b/i.test(h1Body)) {
-      return { ok: false, msg: "Le clamp doit inclure une unite vw (ex: 4vw)." };
+      return { ok: false, msg: "Le clamp doit inclure une unité vw (ex: 4vw)." };
     }
     return { ok: true, msg: "Typographie fluide.", objList: ["o4a", "o4b"], final: true };
   },

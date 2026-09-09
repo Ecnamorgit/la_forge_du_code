@@ -61,7 +61,7 @@ function LoginPageContent() {
         const data = (await check.json().catch(() => ({}))) as { unverified?: boolean };
         if (data.unverified) {
           setUnverified(true);
-          setError("Ton email n'est pas encore vérifié. Clique sur le lien envoyé à l'inscription.");
+          setError("Ton adresse e-mail n'est pas encore vérifiée. Clique sur le lien envoyé à l'inscription.");
           return;
         }
       } catch {
@@ -121,7 +121,7 @@ function LoginPageContent() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <Field
-                label="Email"
+                label="Adresse e-mail"
                 id="email"
                 type="email"
                 autoComplete="email"

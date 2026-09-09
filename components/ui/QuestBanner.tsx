@@ -65,11 +65,11 @@ export default function QuestBanner({
           <div className="mb-2 font-tech text-[11px] uppercase tracking-[0.32em] text-nebula-text-dim">
             {isLast ? (
               <span className="text-nebula-orange">
-                ★ ETAPE {progressNow} / {progressTotal} · CHAPITRE TERMINE ★
+                ★ ÉTAPE {progressNow} / {progressTotal} · CHAPITRE TERMINÉ ★
               </span>
             ) : (
               <>
-                ETAPE {progressNow} / {progressTotal}
+                ÉTAPE {progressNow} / {progressTotal}
                 <span className="ml-2 text-nebula-cyan">
                   · {remaining} restante{remaining > 1 ? "s" : ""}
                 </span>

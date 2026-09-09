@@ -7,18 +7,18 @@ export const chapitre3: ChapterData = {
   subtitle: "Encapsule la logique dans des fonctions reutilisables",
   totalXp: 220,
   completionBadge: "⚙",
-  completionBadgeLabel: "INGENIEUR FONCTIONNEL",
+  completionBadgeLabel: "INGÉNIEUR FONCTIONNEL",
   steps: [
     {
       startCode:
         '// Declare une fonction greet(name) qui retourne "Bonjour, <name>"\n// puis appelle-la et affiche le resultat\n',
       placeholder: "// function greet(name) { return ... }",
       narrator:
-        "Une fonction est un module reutilisable. Cree **greet** qui prend un nom et retourne un message d'accueil.",
+        "Une fonction est un module réutilisable. Cree **greet** qui prend un nom et retourne un message d'accueil.",
       hint:
         'function greet(name) {\\n  return `Bonjour, ${name}`;\\n}\\nconsole.log(greet("Cadet"));',
       briefing: {
-        title: "Declarer et appeler une fonction",
+        title: "Déclarer et appeler une fonction",
         content: `
 *« Un bon ingénieur n'écrit jamais deux fois la même manœuvre. Encapsule-la dans une fonction, nomme-la clairement, et réutilise. »* — **Kira**
 
@@ -28,31 +28,31 @@ export const chapitre3: ChapterData = {
 \`}\`
 
 ### Vocabulaire
-- **name** : un **parametre** — comme une variable que la fonction recoit.
+- **name** : un **parametre** — comme une variable que la fonction reçoit.
 - **return** : la **valeur retournee** par la fonction.
-- L'appel se fait avec des parentheses : \`greet("Cadet")\`.
+- L'appel se fait avec des parenthèses : \`greet("Cadet")\`.
 
 ### Combinaison classique
 \`console.log(greet("Cadet")); // -> "Bonjour, Cadet"\`
 
-### A retenir
+### À retenir
 - Une fonction sans **return** retourne **undefined**.
-- On peut appeler la meme fonction plusieurs fois avec des arguments differents.
+- On peut appeler la même fonction plusieurs fois avec des arguments différents.
 
-**Mission :** declare greet et logue **greet("Cadet")** (peu importe le mot ensuite, du moment qu'il y a "Cadet").
+**Mission :** déclare greet et logue **greet("Cadet")** (peu importe le mot ensuite, du moment qu'il y a "Cadet").
         `,
       },
       objectives: [
-        { id: "o1a", label: "Declarer une fonction nommee greet" },
-        { id: "o1b", label: 'Afficher le resultat pour name = "Cadet"' },
+        { id: "o1a", label: "Déclarer une fonction nommée greet" },
+        { id: "o1b", label: 'Afficher le résultat pour name = "Cadet"' },
       ],
       docRefs: ["js/fonctions"],
       missionIcon: "🧩",
       missionTag: "PROTOCOLE 01",
-      missionTtl: "PREMIERE FONCTION",
+      missionTtl: "PREMIÈRE FONCTION",
       bannerIcon: "🔧",
-      bannerTtl: "MODULE OPERATIONNEL",
-      bannerSub: "La fonction est reutilisable a volonte.",
+      bannerTtl: "MODULE OPÉRATIONNEL",
+      bannerSub: "La fonction est réutilisable a volonte.",
       bannerXp: "⚡ +55 XP",
     },
     {
@@ -60,11 +60,11 @@ export const chapitre3: ChapterData = {
         "// Declare addXp(current, gain) qui retourne current + gain, et logue addXp(120, 50)\n",
       placeholder: "// function addXp(current, gain) { ... }",
       narrator:
-        "Les fonctions peuvent accepter plusieurs parametres. Implemente un calcul d'XP.",
+        "Les fonctions peuvent accepter plusieurs paramètres. Implémente un calcul d'XP.",
       hint:
         "function addXp(current, gain) { return current + gain; }\\nconsole.log(addXp(120, 50));",
       briefing: {
-        title: "Plusieurs parametres",
+        title: "Plusieurs paramètres",
         content: `
 ### Syntaxe
 \`function addXp(current, gain) {\`
@@ -78,15 +78,15 @@ export const chapitre3: ChapterData = {
 L'ordre compte : le premier argument va dans le premier parametre, etc.
 
 ### Bonnes pratiques
-- Noms de parametres courts et explicites.
-- Une fonction = une responsabilite. Si elle fait trop, decoupe-la.
+- Noms de paramètres courts et explicites.
+- Une fonction = une responsabilite. Si elle fait trop, découpe-la.
 
 **Mission :** la console doit afficher **170**.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Declarer une fonction a deux parametres" },
-        { id: "o2b", label: "Afficher 170 (resultat de addXp(120, 50))" },
+        { id: "o2a", label: "Déclarer une fonction à deux paramètres" },
+        { id: "o2b", label: "Afficher 170 (résultat de addXp(120, 50))" },
       ],
       missionIcon: "➕",
       missionTag: "PROTOCOLE 02",
@@ -101,7 +101,7 @@ L'ordre compte : le premier argument va dans le premier parametre, etc.
         "// Reecris une fonction double(x) en arrow function (=>) et logue double(7)\n",
       placeholder: "// const double = (x) => ...",
       narrator:
-        "Forme alternative et plus concise : la **fonction flechee**. Reecris une simple operation.",
+        "Forme alternative et plus concise : la **fonction fléchée**. Reecris une simple opération.",
       hint: "const double = (x) => x * 2;\\nconsole.log(double(7));",
       briefing: {
         title: "Arrow functions",
@@ -109,21 +109,21 @@ L'ordre compte : le premier argument va dans le premier parametre, etc.
 ### Syntaxe courte
 \`const double = (x) => x * 2;\`
 
-### Equivalent verbeux
+### Équivalent verbeux
 \`function double(x) {\`
 \`  return x * 2;\`
 \`}\`
 
 ### Variantes
-- **Un seul parametre, pas de parentheses** : \`const f = x => x * 2;\`
+- **Un seul parametre, pas de parenthèses** : \`const f = x => x * 2;\`
 - **Plusieurs lignes, accolades + return** : \`const f = (x) => { const y = x + 1; return y * 2; };\`
-- **Plusieurs parametres** : \`const sum = (a, b) => a + b;\`
+- **Plusieurs paramètres** : \`const sum = (a, b) => a + b;\`
 
 ### Quand l'utiliser ?
 - Pour des fonctions courtes (callbacks, map, filter...).
-- Pour declarer des helpers locaux dans une autre fonction.
+- Pour déclarer des helpers locaux dans une autre fonction.
 
-**Mission :** affiche \`14\` (resultat de double(7)).
+**Mission :** affiche \`14\` (résultat de double(7)).
         `,
       },
       objectives: [
@@ -134,8 +134,8 @@ L'ordre compte : le premier argument va dans le premier parametre, etc.
       missionTag: "PROTOCOLE 03",
       missionTtl: "FORME COMPACTE",
       bannerIcon: "⚡",
-      bannerTtl: "SYNTHAXE MAITRISEE",
-      bannerSub: "Tu connais les deux facons de declarer une fonction.",
+      bannerTtl: "SYNTHAXE MAÎTRISÉE",
+      bannerSub: "Tu connais les deux façons de déclarer une fonction.",
       bannerXp: "⚡ +55 XP",
     },
     {
@@ -150,7 +150,7 @@ L'ordre compte : le premier argument va dans le premier parametre, etc.
         title: "Combiner if et return",
         content: `
 ### Astuce : return interrompt
-Des qu'une fonction execute un **return**, la suite n'est plus executee.
+Des qu'une fonction execute un **return**, la suite n'est plus exécutée.
 Pas besoin de **else** :
 
 \`function status(level) {\`
@@ -163,7 +163,7 @@ Pas besoin de **else** :
 - Code plus plat (moins de niveaux d'imbrication).
 - Plus facile a lire pour les "guard clauses" (cas particuliers en premier).
 
-**Mission :** logue \`Pilote\` (resultat de status(7)).
+**Mission :** logue \`Pilote\` (résultat de status(7)).
         `,
       },
       objectives: [
@@ -175,7 +175,7 @@ Pas besoin de **else** :
       missionTtl: "RANG DYNAMIQUE",
       bannerIcon: "🎖",
       bannerTtl: "GRADE ATTRIBUE",
-      bannerSub: "La fonction adapte sa reponse selon le niveau.",
+      bannerSub: "La fonction adapte sa réponse selon le niveau.",
       bannerXp: "⚡ +55 XP",
     },
   ],

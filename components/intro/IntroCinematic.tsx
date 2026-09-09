@@ -131,7 +131,7 @@ export default function IntroCinematic({
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label="Cinématique d'introduction Nebula Command"
+      aria-label="Cinématique d'introduction de La Forge du Code"
       tabIndex={-1}
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-nebula-bg-darkest outline-none"
     >

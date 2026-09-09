@@ -19,7 +19,7 @@ export const validators: Validator[] = [
   // Step 1: header + main + footer
   (code) => {
     const clean = stripHtmlComments(code);
-    if (!hasTag(clean, "header")) return { ok: false, msg: "Encadre l'en-tete dans une balise <header>." };
+    if (!hasTag(clean, "header")) return { ok: false, msg: "Encadre l'en-tête dans une balise <header>." };
     if (!hasTag(clean, "main")) return { ok: false, msg: "Encadre le contenu principal dans une balise <main>." };
     if (!hasTag(clean, "footer")) return { ok: false, msg: "Ajoute un <footer> en bas de la page." };
     return { ok: true, msg: "Plan de station pose.", objList: ["o1a", "o1b"] };
@@ -41,11 +41,11 @@ export const validators: Validator[] = [
   (code) => {
     const clean = stripHtmlComments(code);
     const main = tagInner(clean, "main");
-    if (main === null) return { ok: false, msg: "Le <main> doit etre conserve." };
+    if (main === null) return { ok: false, msg: "Le <main> doit être conserve." };
     const article = tagInner(main, "article");
     if (article === null) return { ok: false, msg: "Place un <article> dans <main>." };
     if (!hasTag(article, "section")) {
-      return { ok: false, msg: "Place une <section> a l'interieur de l'<article>." };
+      return { ok: false, msg: "Place une <section> à l'intérieur de l'<article>." };
     }
     return { ok: true, msg: "Blocs delimites.", objList: ["o3a", "o3b"] };
   },

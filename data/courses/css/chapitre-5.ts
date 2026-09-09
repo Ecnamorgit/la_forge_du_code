@@ -49,7 +49,7 @@ Un système de mise en page **bidimensionnel** : lignes ET colonnes en même tem
       missionTag: "PROTOCOLE 01",
       missionTtl: "DEPLOYER LA GRILLE",
       bannerIcon: "🗺",
-      bannerTtl: "GRILLE ACTIVEE",
+      bannerTtl: "GRILLE ACTIVÉE",
       bannerSub: "Le moteur de cartographie est en ligne.",
       bannerXp: "⚡ +60 XP",
     },

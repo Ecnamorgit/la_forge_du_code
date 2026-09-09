@@ -20,8 +20,8 @@ export default function DashboardNav({ userName }: DashboardNavProps) {
       <Link href="/dashboard" className="flex items-center gap-3 transition-opacity hover:opacity-80">
         <BrandLogo size={40} />
         <div className="hidden font-tech text-base tracking-widest sm:block">
-          <span className="text-nebula-cyan">NEBULA</span>
-          <span className="ml-1 text-nebula-text-secondary">COMMAND</span>
+          <span className="text-nebula-cyan">LA FORGE</span>
+          <span className="ml-1 text-nebula-text-secondary">DU CODE</span>
         </div>
       </Link>
 

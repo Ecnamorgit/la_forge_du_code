@@ -8,15 +8,15 @@ function runtimeError(error: string | null): string | null {
 export const validators: Validator[] = [
   // Step 1: createElement + appendChild + log of innerHTML containing "Centre de commande"
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/document\.createElement\s*\(/.test(stripped)) {
-      return { ok: false, msg: "Utilise document.createElement(...) pour creer le <div>." };
+      return { ok: false, msg: "Utilise document.createElement(...) pour créer le <div>." };
     }
     if (!/appendChild\s*\(/.test(stripped)) {
-      return { ok: false, msg: "Insere l'element avec appendChild." };
+      return { ok: false, msg: "Insère l'élément avec appendChild." };
     }
     if (!logsContain(ctx.logs, "Centre de commande")) {
       return {
@@ -24,11 +24,11 @@ export const validators: Validator[] = [
         msg: "La console doit contenir 'Centre de commande' (par exemple via console.log(document.body.innerHTML)).",
       };
     }
-    return { ok: true, msg: "Element injecte.", objList: ["o1a", "o1b"] };
+    return { ok: true, msg: "Élément injecte.", objList: ["o1a", "o1b"] };
   },
   // Step 2: <ul> with 3 <li>, log "3"
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -45,21 +45,21 @@ export const validators: Validator[] = [
   },
   // Step 3: className change + log "ALERTE"
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/\.className\s*=/.test(stripped) && !/\.classList\.(add|remove|toggle)/.test(stripped)) {
-      return { ok: false, msg: "Modifie className ou classList apres creation." };
+      return { ok: false, msg: "Modifie className ou classList après création." };
     }
     if (!logsContain(ctx.logs, "ALERTE")) {
-      return { ok: false, msg: "La console doit afficher 'ALERTE' apres la mise a jour du textContent." };
+      return { ok: false, msg: "La console doit afficher 'ALERTE' après la mise à jour du textContent." };
     }
-    return { ok: true, msg: "Statut mis a jour.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Statut mis à jour.", objList: ["o3a", "o3b"] };
   },
   // Step 4: querySelectorAll + log A, B, C
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);

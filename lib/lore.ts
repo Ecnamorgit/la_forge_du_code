@@ -1,5 +1,5 @@
 /**
- * Source unique du lore Nebula Command.
+ * Source unique du lore de la Coalition Nebula.
  *
  * Le texte narratif ne doit vivre nulle part ailleurs : quand il était écrit
  * en dur dans le JSX, le crawl et les scènes d'intro ont fini par nommer

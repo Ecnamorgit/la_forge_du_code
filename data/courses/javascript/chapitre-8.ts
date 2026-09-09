@@ -2,12 +2,12 @@ import type { ChapterData } from "@/data/courses/html/types";
 
 export const chapitre8: ChapterData = {
   slug: "chapitre-8",
-  tag: "MISSION : REACTIVITE",
+  tag: "MISSION : RÉACTIVITÉ",
   title: "ÉVÉNEMENTS\n",
   subtitle: "Réagis aux commandes du pilote et aux interactions du terminal",
   totalXp: 270,
   completionBadge: "⚡",
-  completionBadgeLabel: "OPÉRATEUR REACTIF",
+  completionBadgeLabel: "OPÉRATEUR RÉACTIF",
   steps: [
     {
       startCode:
@@ -129,36 +129,36 @@ Pour détacher un listener, il faut la **MÊME référence de fonction** que cel
         "// Crée un <input type='text' id='commande'>, ajoute-le au body.\n// Attache un listener 'input' qui logge 'Commande : <valeur>' à chaque changement.\n// Modifie input.value et dispatche un event 'input' manuellement.\n",
       placeholder: "// addEventListener('input', ...) + dispatchEvent",
       narrator:
-        "Reagis à la frappe utilisateur. Sur un <input>, attache un listener 'input' qui logge 'Commande : <valeur>'. Pour tester sans clavier réel, modifie input.value et dispatche un Event('input') manuellement.",
+        "Réagis à la frappe utilisateur. Sur un <input>, attache un listener 'input' qui logge 'Commande : <valeur>'. Pour tester sans clavier réel, modifie input.value et dispatche un Event('input') manuellement.",
       hint: "const inp = document.createElement('input');\ninp.type = 'text';\ninp.id = 'commande';\ndocument.body.appendChild(inp);\ninp.addEventListener('input', () => console.log('Commande : ' + inp.value));\ninp.value = 'Déplacement';\ninp.dispatchEvent(new Event('input'));",
       briefing: {
-        title: "Evenement input + dispatchEvent",
+        title: "Événement input + dispatchEvent",
         content: `
-### L'evenement 'input'
-Se declenche **a chaque modification de la valeur** d'un <input>/<textarea>/<select>. Pour la frappe au clavier, copier-coller, autofill — tout est detecte.
+### L'événement 'input'
+Se declenche **à chaque modification de la valeur** d'un <input>/<textarea>/<select>. Pour la frappe au clavier, copier-coller, autofill — tout est detecte.
 
 \`input.addEventListener('input', () => {\`
 \`  console.log(input.value);\`
 \`});\`
 
 ### vs 'change'
-- **change** ne se declenche **qu'a la perte de focus** (apres validation).
-- **input** est plus reactif (frappe par frappe).
+- **change** ne se declenche **qu'a la perte de focus** (après validation).
+- **input** est plus réactif (frappe par frappe).
 
 ### Lire la valeur
-\`input.value\` retourne **toujours une string**, meme pour un type="number".
+\`input.value\` retourne **toujours une string**, même pour un type="number".
 
 ### Modifier programmatiquement
 \`input.value = 'Déplacement';\` change la valeur **mais ne declenche PAS l'event 'input'** (sinon boucle infinie).
 
 ### dispatchEvent
-Pour declencher un evenement manuellement :
+Pour déclencher un événement manuellement :
 \`input.dispatchEvent(new Event('input'));\`
 \`btn.dispatchEvent(new MouseEvent('click', { bubbles: true }));\`
 
 Utile pour les tests automatises et certaines integrations.
 
-**A retenir :** pour un champ texte, 'input' est presque toujours le bon evenement.
+**À retenir :** pour un champ texte, 'input' est presque toujours le bon événement.
         `,
       },
       objectives: [
@@ -178,12 +178,12 @@ Utile pour les tests automatises et certaines integrations.
         "// Crée un <form><input id='commande' type='text'><button type='submit'>OK</button></form>.\n// Attache un listener 'submit' qui empeche le submit reel et logge 'Commande reçue : ' + valeur.\n// Definis input.value = 'Déplacement' puis declenche form.requestSubmit() ou simule submit.\n",
       placeholder: "// preventDefault + dispatchEvent submit",
       narrator:
-        "Empeche un formulaire de soumettre pour le navigateur (preventDefault) et fais ton propre traitement a la place. Logge la commande reçue.",
+        "Empêche un formulaire de soumettre pour le navigateur (preventDefault) et fais ton propre traitement à la place. Logge la commande reçue.",
       hint: "const form = document.createElement('form');\nconst input = document.createElement('input');\ninput.id = 'commande'; input.type = 'text';\nconst btn = document.createElement('button'); btn.type = 'submit'; btn.textContent = 'OK';\nform.appendChild(input); form.appendChild(btn);\ndocument.body.appendChild(form);\nform.addEventListener('submit', (e) => { e.preventDefault(); console.log('Commande reçue : ' + input.value); });\ninput.value = 'Déplacement';\nform.dispatchEvent(new Event('submit'));",
       briefing: {
         title: "Submit + preventDefault",
         content: `
-### L'evenement 'submit'
+### L'événement 'submit'
 Se declenche quand un formulaire est soumis (clic submit, Enter, form.requestSubmit()).
 
 \`form.addEventListener('submit', (e) => {\`
@@ -192,7 +192,7 @@ Se declenche quand un formulaire est soumis (clic submit, Enter, form.requestSub
 \`});\`
 
 ### Pourquoi preventDefault ?
-Par defaut, un submit envoie les donnees a l'URL d'**action** du formulaire et **recharge la page**. Pour une app moderne (SPA, ajax), on intercepte et on envoie via fetch.
+Par défaut, un submit envoie les données à l'URL d'**action** du formulaire et **recharge la page**. Pour une app moderne (SPA, ajax), on intercepte et on envoie via fetch.
 
 ### Lire les champs
 \`new FormData(form)\` produit un objet avec toutes les valeurs :
@@ -200,11 +200,11 @@ Par defaut, un submit envoie les donnees a l'URL d'**action** du formulaire et *
 \`data.get('email');\`
 
 ### Validation native
-Le navigateur valide deja **type="email"**, **required**, **minlength**, etc. Si invalide, le submit n'est pas declenche.
+Le navigateur valide déjà **type="email"**, **required**, **minlength**, etc. Si invalide, le submit n'est pas declenche.
 
 \`if (!form.checkValidity()) { ... }\`
 
-**A retenir :** un submit-handler typique fait 3 choses : preventDefault, lit les champs, envoie en ajax (ou met a jour l'UI).
+**À retenir :** un submit-handler typique fait 3 choses : preventDefault, lit les champs, envoie en ajax (ou met à jour l'UI).
         `,
       },
       objectives: [
@@ -215,7 +215,7 @@ Le navigateur valide deja **type="email"**, **required**, **minlength**, etc. Si
       missionTag: "PROTOCOLE 04",
       missionTtl: "FORMULAIRE INTERCEPTE",
       bannerIcon: "📨",
-      bannerTtl: "SUBMIT MAITRISE",
+      bannerTtl: "SUBMIT MAÎTRISE",
       bannerSub: "Le navigateur ne rafraichit plus la page, ton code prend le relais.",
       bannerXp: "⚡ +75 XP",
     },

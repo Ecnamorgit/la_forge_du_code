@@ -44,7 +44,7 @@ export const BADGES: BadgeDef[] = [
   { id: "css-invoker", icon: "🪄", label: "Invocateur de Styles", description: "Pseudo-classes et pseudo-éléments" },
   { id: "css-adaptive", icon: "📱", label: "Ingénieur Adaptatif", description: "Responsive design et media queries" },
   { id: "css-animator", icon: "💫", label: "Animateur de Pixels", description: "Transitions et animations" },
-  { id: "css-system", icon: "🧩", label: "Architecte de Design", description: "Variables CSS et theming" },
+  { id: "css-system", icon: "🧩", label: "Architecte de Design", description: "Variables CSS et thématisation" },
   // --- JS 6-10 ---
   { id: "js-data", icon: "🧮", label: "Analyste de Données", description: "Map, filter, reduce, find" },
   { id: "js-dom", icon: "🧰", label: "Ingénieur d'Interface", description: "DOM manipulation" },
@@ -59,7 +59,7 @@ export const BADGES: BadgeDef[] = [
   { id: "react-state", icon: "🧠", label: "Ingénieur Réactivité", description: "useState et état" },
   { id: "react-effects", icon: "🔁", label: "Maître des Cycles", description: "useEffect et cycle de vie" },
   { id: "react-router", icon: "🗺", label: "Navigateur Spatial", description: "React Router et navigation" },
-  { id: "react-fleet", icon: "🛰", label: "Cartographe de Flotte", description: "Listes et cles React" },
+  { id: "react-fleet", icon: "🛰", label: "Cartographe de Flotte", description: "Listes et clés React" },
   { id: "react-forms", icon: "🎛", label: "Opérateur de Console", description: "Formulaires controles" },
   { id: "react-hooks", icon: "🔧", label: "Forgeron de Hooks", description: "Hooks personnalises" },
   { id: "react-context", icon: "📡", label: "Coordinateur de Flotte", description: "Contexte et useReducer" },

@@ -3,8 +3,8 @@ import type { ChapterData } from "@/data/courses/html/types";
 export const chapitre11: ChapterData = {
   slug: "chapitre-11",
   tag: "MISSION : LIAISON SATELLITE",
-  title: "RESEAU &\nFETCH",
-  subtitle: "Communique avec des serveurs distants de maniere asynchrone",
+  title: "RÉSEAU &\nFETCH",
+  subtitle: "Communique avec des serveurs distants de manière asynchrone",
   totalXp: 280,
   completionBadge: "📡",
   completionBadgeLabel: "OFFICIER DE TRANSMISSION",
@@ -14,7 +14,7 @@ export const chapitre11: ChapterData = {
         "// Lance une requete vers 'https://api.codeforge.space/ping'.\n// Utilise .then() pour recuperer la reponse et logge-la.\n",
       placeholder: "// fetch(...).then(...)",
       narrator:
-        "Pour obtenir les coordonnees de vol, nous devons interroger le centre de commandement. Utilise fetch() pour envoyer une requete au serveur distant et recupere la reponse avec .then().",
+        "Pour obtenir les coordonnées de vol, nous devons interroger le centre de commandement. Utilise fetch() pour envoyer une requête au serveur distant et recupere la réponse avec .then().",
       hint: "fetch('https://api.codeforge.space/ping').then(response => console.log(response));",
       briefing: {
         title: "La fonction fetch()",
@@ -22,25 +22,25 @@ export const chapitre11: ChapterData = {
 *« Nos coordonnées viennent du central, pas de nulle part. \`fetch\` ouvre la liaison ; le \`.then\` traite la réponse quand elle nous parvient. »* — **Kira**
 
 ### Qu'est-ce que fetch ?
-\`fetch()\` est la fonction native de JavaScript pour faire des requetes reseau (HTTP). Elle permet de demander des donnees a un serveur distant.
+\`fetch()\` est la fonction native de JavaScript pour faire des requetes réseau (HTTP). Elle permet de demander des données a un serveur distant.
 
 ### Asynchrone par nature
-Interroger un serveur prend du temps a cause de la distance. \`fetch()\` ne bloque pas l'execution de ton code. Au lieu de ca, elle renvoie une **Promise** (Promesse).
+Interroger un serveur prend du temps à cause de la distance. \`fetch()\` ne bloque pas l'exécution de ton code. Au lieu de ca, elle renvoie une **Promise** (Promesse).
 
 ### Les Promesses et .then()
-Une Promise represente une valeur qui sera disponible *plus tard*. Pour executer du code quand la reponse arrive, on attache une fonction avec \`.then()\` :
+Une Promise represente une valeur qui sera disponible *plus tard*. Pour exécuter du code quand la réponse arrive, on attache une fonction avec \`.then()\` :
 
 \`fetch('https://api.serveur.com/status')\`
 \`  .then((response) => {\`
 \`    console.log("Reponse recue !", response);\`
 \`  });\`
 
-**A retenir :** \`fetch()\` lance la requete. \`.then()\` indique quoi faire une fois que le serveur repond.
+**À retenir :** \`fetch()\` lance la requête. \`.then()\` indique quoi faire une fois que le serveur répond.
         `,
       },
       objectives: [
         { id: "o1a", label: "Utiliser fetch avec la bonne URL" },
-        { id: "o1b", label: "Chainer un .then() et logger la reponse" },
+        { id: "o1b", label: "Chainer un .then() et logger la réponse" },
       ],
       docRefs: ["js/fetch"],
       missionIcon: "📡",
@@ -56,17 +56,17 @@ Une Promise represente une valeur qui sera disponible *plus tard*. Pour executer
         "// Fais un fetch vers 'https://api.codeforge.space/vaisseau'.\n// Transforme la reponse en JSON avec .json(), puis logge l'objet final.\n",
       placeholder: "// fetch(...).then(res => res.json()).then(data => ...)",
       narrator:
-        "Le serveur nous repond, mais ses donnees sont compressees au format JSON. Utilise une deuxieme etape pour decoder la reponse et afficher les donnees du vaisseau.",
+        "Le serveur nous répond, mais ses données sont compressees au format JSON. Utilise une deuxième étape pour decoder la réponse et afficher les données du vaisseau.",
       hint: "fetch('https://api.codeforge.space/vaisseau')\n  .then(res => res.json())\n  .then(data => console.log(data));",
       briefing: {
         title: "Decoder le JSON",
         content: `
-### Le flux de reponse
-Quand le premier \`.then()\` se declenche, la reponse HTTP brute vient d'arriver, mais le corps du message (le texte complet) n'est pas encore totalement telecharge.
+### Le flux de réponse
+Quand le premier \`.then()\` se declenche, la réponse HTTP brute vient d'arriver, mais le corps du message (le texte complet) n'est pas encore totalement télécharge.
 
 ### response.json()
-Pour lire le contenu sous forme d'objet JavaScript utilisable, on appelle la methode \`json()\` sur l'objet reponse. 
-Cette methode renvoie **elle aussi** une Promesse ! Il faut donc chainer un second \`.then()\`.
+Pour lire le contenu sous forme d'objet JavaScript utilisable, on appelle la méthode \`json()\` sur l'objet réponse. 
+Cette méthode renvoie **elle aussi** une Promesse ! Il faut donc chainer un second \`.then()\`.
 
 ### Le pattern standard
 \`fetch('https://api.url.com/data')\`
@@ -76,18 +76,18 @@ Cette methode renvoie **elle aussi** une Promesse ! Il faut donc chainer un seco
 \`    console.log(donnees);\`\n\`
 \`  });\`
 
-**A retenir :** \`fetch()\` retourne une Promise qui se resout avec un objet Response. Utilisez \`response.json()\` pour obtenir le contenu au format JSON.
+**À retenir :** \`fetch()\` retourne une Promise qui se resout avec un objet Response. Utilisez \`response.json()\` pour obtenir le contenu au format JSON.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Utiliser .json() pour decoder la reponse" },
+        { id: "o2a", label: "Utiliser .json() pour decoder la réponse" },
         { id: "o2b", label: "Logger l'objet JSON decode" },
       ],
       missionIcon: "⚙️",
       missionTag: "PROTOCOLE 02",
       missionTtl: "DECODEUR",
       bannerIcon: "⚙️",
-      bannerTtl: "DONNEES DÉCODÉES",
+      bannerTtl: "DONNÉES DÉCODÉES",
       bannerSub: "Le contenu JSON est maintenant exploitable.",
       bannerXp: "⚡ +70 XP",
     },
@@ -96,7 +96,7 @@ Cette methode renvoie **elle aussi** une Promesse ! Il faut donc chainer un seco
         "// Creer une fonction avec le mot-cle async pour getVaisseau.\n// Utilise await pour recuperer et parser les donnees de 'https://api.codeforge.space/vaisseau'.\n",
       placeholder: "// async function getVaisseau() { ... }",
       narrator:
-        "Le code asynchrone peut être rendu plus lisible en utilisant des fonctions async. Cela permet d'utiliser le mot-cle await pour attendre la resolution de la Promise.",
+        "Le code asynchrone peut être rendu plus lisible en utilisant des fonctions async. Cela permet d'utiliser le mot-clé await pour attendre la résolution de la Promise.",
       hint: "async function getVaisseau() {\n  const res = await fetch('https://api.codeforge.space/vaisseau');\n  const data = await res.json();\n  console.log(data);\n}\ngetVaisseau();",
       briefing: {
         title: "Syntaxe Async/Await",
@@ -104,7 +104,7 @@ Cette methode renvoie **elle aussi** une Promesse ! Il faut donc chainer un seco
 ### Asynchrone avec async/await
 La syntaxe \`async / await\` rend le code asynchrone plus lisible et plus facile à écrire. Elle permet de gérer les Promises comme si elles étaient des appels synchrones.
 
-1. Déclarez une fonction avec le mot-cle **async**.
+1. Déclarez une fonction avec le mot-clé **async**.
 2. Utilisez **await** devant une Promise pour attendre sa résolution.
 
 \`async function recupererDonnees() {\`
@@ -113,19 +113,19 @@ La syntaxe \`async / await\` rend le code asynchrone plus lisible et plus facile
 \`  console.log(data);\`
 \`}\`
 
-**A retenir :** \`await\` rend le code asynchrone synchrone en apparence, ce qui facilite sa lecture.
+**À retenir :** \`await\` rend le code asynchrone synchrone en apparence, ce qui facilite sa lecture.
         `,
       },
       objectives: [
-        { id: "o3a", label: "Creer une fonction async getVaisseau" },
-        { id: "o3b", label: "Utiliser await pour recuperer et parser les donnees" },
+        { id: "o3a", label: "Créer une fonction async getVaisseau" },
+        { id: "o3b", label: "Utiliser await pour récupérer et parser les données" },
       ],
       missionIcon: "⚡",
       missionTag: "PROTOCOLE 03",
       missionTtl: "VITESSE ASYNC",
       bannerIcon: "⚡",
       bannerTtl: "CODE MODERNISÉ",
-      bannerSub: "Ta requete utilise desormais les derniers standards JS.",
+      bannerSub: "Ta requête utilise désormais les derniers standards JS.",
       bannerXp: "⚡ +75 XP",
     },
     {
@@ -133,16 +133,16 @@ La syntaxe \`async / await\` rend le code asynchrone plus lisible et plus facile
         "// Ajoute un bloc try...catch dans ta fonction getVaisseau.\n// Provoque une erreur en fetchant 'https://api.codeforge.space/erreur'.\n// Dans le catch, logge 'Erreur de transmission : ' suivi du message d'erreur.\n",
       placeholder: "// try { ... } catch (erreur) { ... }",
       narrator:
-        "Une tempete solaire perturbe les reseaux. Les requetes peuvent echouer ! Entoure ton code asynchrone d'un bloc try/catch pour gerer les pannes avec grace.",
+        "Une tempete solaire perturbe les réseaux. Les requetes peuvent echouer ! Entoure ton code asynchrone d'un bloc try/catch pour gérer les pannes avec grâce.",
       hint: "async function getVaisseau() {\n  try {\n    const res = await fetch('https://api.codeforge.space/erreur');\n    if (!res.ok) throw new Error('HTTP ' + res.status);\n    const data = await res.json();\n    console.log(data);\n  } catch (e) {\n    console.log('Erreur de transmission : ' + e.message);\n  }\n}\ngetVaisseau();",
       briefing: {
-        title: "Gerer les erreurs reseau",
+        title: "Gérer les erreurs réseau",
         content: `
 ### Pourquoi anticiper l'echec ?
-Le reseau est imprevisible : le serveur peut etre en panne, le signal perdu, ou l'URL peut etre fausse. Si tu ne geres pas l'erreur, ton application entiere peut planter.
+Le réseau est imprévisible : le serveur peut être en panne, le signal perdu, ou l'URL peut être fausse. Si tu ne geres pas l'erreur, ton application entiere peut planter.
 
 ### Le bloc try / catch
-Avec la syntaxe \`async / await\`, la meilleure facon d'intercepter un probleme est d'utiliser \`try...catch\`.
+Avec la syntaxe \`async / await\`, la meilleure façon d'intercepter un problème est d'utiliser \`try...catch\`.
 
 \`async function mission() {\`
 \`  try {\`
@@ -153,21 +153,21 @@ Avec la syntaxe \`async / await\`, la meilleure facon d'intercepter un probleme 
 \`  }\`
 \`}\`
 
-### Piege classique : fetch ne rejette PAS sur 404 ou 500
-Attention cadet : \`fetch()\` ne declenche une erreur QUE si le reseau echoue (DNS, signal perdu). Un statut HTTP 404 ou 500 est considere comme une "reponse valide" par fetch. Pour les attraper, il faut verifier \`response.ok\` manuellement :
+### Piège classique : fetch ne rejette PAS sur 404 ou 500
+Attention cadet : \`fetch()\` ne declenche une erreur QUE si le réseau echoue (DNS, signal perdu). Un statut HTTP 404 ou 500 est considere comme une "réponse valide" par fetch. Pour les attraper, il faut vérifier \`response.ok\` manuellement :
 
 \`if (!res.ok) throw new Error('HTTP ' + res.status);\`
 
-C'est le piege n°1 des juniors. Les seniors le verifient toujours.
+C'est le piège n°1 des juniors. Les seniors le verifient toujours.
 
 ### Avec .then() ?
-Pour information, si tu utilisais l'ancienne syntaxe \`.then()\`, on attrapait les erreurs en ajoutant un \`.catch()\` a la toute fin de la chaine.
+Pour information, si tu utilisais l'ancienne syntaxe \`.then()\`, on attrapait les erreurs en ajoutant un \`.catch()\` à la toute fin de la chaîne.
 
-**A retenir :** Toujours mettre ses requetes reseau dans un \`try / catch\` ET verifier \`response.ok\`. C'est la marque des developpeurs seniors.
+**À retenir :** Toujours mettre ses requetes réseau dans un \`try / catch\` ET vérifier \`response.ok\`. C'est la marque des developpeurs seniors.
         `,
       },
       objectives: [
-        { id: "o4a", label: "Entourer les requetes avec try {} et verifier response.ok" },
+        { id: "o4a", label: "Entourer les requetes avec try {} et vérifier response.ok" },
         { id: "o4b", label: "Logger le message en cas d'erreur dans catch {}" },
       ],
       missionIcon: "🛡",
@@ -175,7 +175,7 @@ Pour information, si tu utilisais l'ancienne syntaxe \`.then()\`, on attrapait l
       missionTtl: "BOUCLIER ANTI-CRASH",
       bannerIcon: "🛡",
       bannerTtl: "PANNE GÉREE",
-      bannerSub: "Ton code est maintenant robuste face aux erreurs reseau.",
+      bannerSub: "Ton code est maintenant robuste face aux erreurs réseau.",
       bannerXp: "⚡ +70 XP",
     },
   ],

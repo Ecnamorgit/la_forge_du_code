@@ -15,7 +15,7 @@ export const chapitre1: ChapterData = {
       placeholder: "// function Radar() { ... }",
       previewMount: "Radar",
       narrator:
-        "Bienvenue dans l'ere moderne, cadet. React permet de creer des blocs d'interface reutilisables appeles 'composants'. Cree ton premier composant fonctionnel 'Radar' qui retourne un div avec le texte 'Scan en cours'.",
+        "Bienvenue dans l'ere moderne, cadet. React permet de créer des blocs d'interface reutilisables appeles 'composants'. Cree ton premier composant fonctionnel 'Radar' qui retourne un div avec le texte 'Scan en cours'.",
       hint: "function Radar() {\n  return <div>Scan en cours</div>;\n}",
       briefing: {
         title: "Le Composant React",
@@ -24,18 +24,18 @@ export const chapitre1: ChapterData = {
 En React, une interface utilisateur est decoupee en petits morceaux independants. Un composant n'est rien d'autre qu'une **fonction JavaScript** qui retourne de l'interface (du JSX).
 
 ### Le JSX
-C'est cette syntaxe etrange qui ressemble a du HTML directement ecrit dans le JavaScript :
+C'est cette syntaxe etrange qui ressemble a du HTML directement écrit dans le JavaScript :
 \`function Bouton() {\`
 \`  return <button>Clique-moi</button>;\`
 \`}\`
 
-### Regles d'or
+### Règles d'or
 1. Le nom de la fonction DOIT commencer par une **majuscule** (ex: \`Radar\`, pas \`radar\`).
-2. Un composant doit retourner un seul element racine (on peut l'englober dans un \`<div>\` ou un fragment \`<>\`).
+2. Un composant doit retourner un seul élément racine (on peut l'englober dans un \`<div>\` ou un fragment \`<>\`).
         `,
       },
       objectives: [
-        { id: "o1a", label: "Declarer une fonction Radar avec une majuscule" },
+        { id: "o1a", label: "Déclarer une fonction Radar avec une majuscule" },
         { id: "o1b", label: "Retourner <div>Scan en cours</div> en JSX" },
       ],
       missionIcon: "⚛",
@@ -43,7 +43,7 @@ C'est cette syntaxe etrange qui ressemble a du HTML directement ecrit dans le Ja
       missionTtl: "PREMIER COMPOSANT",
       bannerIcon: "⚛",
       bannerTtl: "COMPOSANT INITIALISE",
-      bannerSub: "Tu viens d'ecrire ton premier bloc React.",
+      bannerSub: "Tu viens d'écrire ton premier bloc React.",
       bannerXp: "⚡ +65 XP",
     },
     {
@@ -55,21 +55,21 @@ C'est cette syntaxe etrange qui ressemble a du HTML directement ecrit dans le Ja
         "Un composant fige ne sert pas a grand chose. Modifie ton Radar pour qu'il accepte un parametre 'props' et affiche dynamiquement la 'cible' qu'on lui transmettra.",
       hint: "function Radar(props) {\n  return <div>Cible : {props.cible}</div>;\n}",
       briefing: {
-        title: "Les Props (Proprietes)",
+        title: "Les Props (Propriétés)",
         content: `
-### Passer des donnees
-Les \`props\` sont le moyen d'envoyer des informations a un composant depuis l'exterieur. C'est l'equivalent des parametres pour une fonction classique.
+### Passer des données
+Les \`props\` sont le moyen d'envoyer des informations a un composant depuis l'extérieur. C'est l'équivalent des paramètres pour une fonction classique.
 
 ### Comment lire une prop ?
-React passe TOUTES les proprietes dans un seul objet, generalement appele \`props\`.
-Pour afficher une donnee Javascript dans du JSX, on utilise des **accolades { }**.
+React passe TOUTES les propriétés dans un seul objet, généralement appele \`props\`.
+Pour afficher une donnée Javascript dans du JSX, on utilise des **accolades { }**.
 
 \`function Salutation(props) {\`
 \`  return <h1>Bonjour, {props.nom} !</h1>;\`
 \`}\`
 
 ### Astuce : la destructuration
-Plutot que d'ecrire \`props.cible\`, les developpeurs React destructurent souvent directement l'objet dans la definition :
+Plutôt que d'écrire \`props.cible\`, les developpeurs React destructurent souvent directement l'objet dans la définition :
 \`function Radar({ cible }) {\`
 \`  return <div>{cible}</div>;\`
 \`}\`
@@ -81,10 +81,10 @@ Plutot que d'ecrire \`props.cible\`, les developpeurs React destructurent souven
       ],
       missionIcon: "📨",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "DONNEES DYNAMIQUES",
+      missionTtl: "DONNÉES DYNAMIQUES",
       bannerIcon: "📨",
       bannerTtl: "PROPS REÇUES",
-      bannerSub: "Le composant est desormais parametrable de l'exterieur.",
+      bannerSub: "Le composant est désormais parametrable de l'extérieur.",
       bannerXp: "⚡ +70 XP",
     },
     {
@@ -99,20 +99,20 @@ Plutot que d'ecrire \`props.cible\`, les developpeurs React destructurent souven
         title: "Le Rendu Conditionnel",
         content: `
 ### La logique dans le JSX
-On ne peut pas utiliser l'instruction \`if\` classique directement a l'interieur du JSX. On utilise donc des expressions JavaScript grâce aux accolades \`{ }\`.
+On ne peut pas utiliser l'instruction \`if\` classique directement à l'intérieur du JSX. On utilise donc des expressions JavaScript grâce aux accolades \`{ }\`.
 
-### L'operateur ternaire ( ? : )
+### L'opérateur ternaire ( ? : )
 C'est la technique la plus courante pour faire un "if / else" visuel :
 \`<div>\`
 \`  {props.enLigne ? <span>Connecte</span> : <span>Hors ligne</span>}\`
 \`</div>\`
 
-### L'operateur logique ET ( && )
-Si tu n'as pas de "else" (rien a afficher si la condition est fausse), tu peux utiliser \`&&\`.
+### L'opérateur logique ET ( && )
+Si tu n'as pas de "else" (rien à afficher si la condition est fausse), tu peux utiliser \`&&\`.
 \`<div>\`
 \`  {props.menace && <span>ALERTE</span>}\`
 \`</div>\`
-Si \`props.menace\` est vrai, le span s'affiche. Sinon, React l'ignore completement.
+Si \`props.menace\` est vrai, le span s'affiche. Sinon, React l'ignore complètement.
         `,
       },
       objectives: [
@@ -124,7 +124,7 @@ Si \`props.menace\` est vrai, le span s'affiche. Sinon, React l'ignore completem
       missionTtl: "RENDU CONDITIONNEL",
       bannerIcon: "🚨",
       bannerTtl: "LOGIQUE INTEGREE",
-      bannerSub: "L'interface s'adapte desormais a l'etat des donnees.",
+      bannerSub: "L'interface s'adapte désormais à l'état des données.",
       bannerXp: "⚡ +70 XP",
     },
     {
@@ -133,7 +133,7 @@ Si \`props.menace\` est vrai, le span s'affiche. Sinon, React l'ignore completem
       placeholder: "// function TableauDeBord() { return <div><Radar ... /></div>; }",
       previewMount: "TableauDeBord",
       narrator:
-        "L'assemblage final ! Cree un composant parent 'TableauDeBord' qui va utiliser ton composant Radar plusieurs fois avec des donnees differentes. C'est la force absolue de React.",
+        "L'assemblage final ! Cree un composant parent 'TableauDeBord' qui va utiliser ton composant Radar plusieurs fois avec des données différentes. C'est la force absolue de React.",
       hint: "function TableauDeBord() {\n  return (\n    <div>\n      <Radar cible='Lune' />\n      <Radar cible='Mars' menace={true} />\n    </div>\n  );\n}",
       briefing: {
         title: "La Composition",
@@ -153,20 +153,20 @@ Un composant peut retourner d'autres composants ! C'est exactement comme utilise
 ### Passer des Props dans le JSX
 Quand tu utilises ton composant (\`<Radar />\`), c'est la que tu lui envoies ses variables (props).
 - Pour une String : \`cible="Lune"\` (les guillemets suffisent)
-- Pour un Booleen/Nombre/Variable : \`menace={true}\` (les accolades sont obligatoires pour executer du JavaScript).
+- Pour un Booléen/Nombre/Variable : \`menace={true}\` (les accolades sont obligatoires pour exécuter du JavaScript).
 
-**A retenir :** Une application React entiere n'est finalement qu'un grand arbre de composants imbriques les uns dans les autres !
+**À retenir :** Une application React entiere n'est finalement qu'un grand arbre de composants imbriques les uns dans les autres !
         `,
       },
       objectives: [
-        { id: "o4a", label: "Creer le composant TableauDeBord" },
+        { id: "o4a", label: "Créer le composant TableauDeBord" },
         { id: "o4b", label: "Retourner deux composants <Radar /> avec les bonnes props" },
       ],
       missionIcon: "🧩",
       missionTag: "PROTOCOLE 04",
       missionTtl: "COMPOSITION",
       bannerIcon: "🛸",
-      bannerTtl: "TABLEAU OPERATIONNEL",
+      bannerTtl: "TABLEAU OPÉRATIONNEL",
       bannerSub: "Tu as compris l'essence de React : l'assemblage de composants.",
       bannerXp: "⚡ +75 XP",
     },

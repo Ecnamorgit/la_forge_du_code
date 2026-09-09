@@ -132,7 +132,7 @@ export default function SignupPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <Field
-                    label="Email"
+                    label="Adresse e-mail"
                     id="email"
                     type="email"
                     autoComplete="email"

@@ -11,12 +11,12 @@ export const validators: Validator[] = [
     if (!/<style\b[^>]*>[\s\S]*?<\/style>/i.test(headMatch[1])) {
       return {
         ok: false,
-        msg: "Ajoute une balise <style></style> a l'interieur du <head>.",
+        msg: "Ajoute une balise <style></style> à l'intérieur du <head>.",
       };
     }
     return {
       ok: true,
-      msg: "Console graphique branchee.",
+      msg: "Console graphique branchée.",
       objList: ["o1a", "o1b"],
     };
   },
@@ -29,7 +29,7 @@ export const validators: Validator[] = [
     if (!hasProperty(css, "h1", "color")) {
       return {
         ok: false,
-        msg: "Ajoute une regle h1 { color: ... } dans le <style>.",
+        msg: "Ajoute une règle h1 { color: ... } dans le <style>.",
       };
     }
     return {
@@ -65,7 +65,7 @@ export const validators: Validator[] = [
     if (!hasProperty(css, "p", "font-size")) {
       return {
         ok: false,
-        msg: "Ajoute une regle p { font-size: ... } dans le <style>.",
+        msg: "Ajoute une règle p { font-size: ... } dans le <style>.",
       };
     }
     return {

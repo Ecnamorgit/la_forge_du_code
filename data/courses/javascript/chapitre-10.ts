@@ -2,12 +2,12 @@ import type { ChapterData } from "@/data/courses/html/types";
 
 export const chapitre10: ChapterData = {
   slug: "chapitre-10",
-  tag: "MISSION : MEMOIRE PERSISTANTE",
+  tag: "MISSION : MÉMOIRE PERSISTANTE",
   title: "STOCKAGE\nLOCAL",
   subtitle: "Conserve les préférences du cadet entre les sessions",
   totalXp: 270,
   completionBadge: "💾",
-  completionBadgeLabel: "GARDIEN DES DONNEES",
+  completionBadgeLabel: "GARDIEN DES DONNÉES",
   steps: [
     {
       startCode:
@@ -15,7 +15,7 @@ export const chapitre10: ChapterData = {
       placeholder: "// localStorage.setItem + getItem",
       narrator:
         "Premier écriture en mémoire persistante. Stocke la préférence de thème du cadet, puis lis-la pour vérifier.",
-      hint: "localStorage.setItem('theme', 'dark');\nconsole.log(localStorage.getItem('theme'));",
+      hint: "localStorage.setItem('thème', 'dark');\nconsole.log(localStorage.getItem('thème'));",
       briefing: {
         title: "localStorage : setItem & getItem",
         content: `
@@ -46,7 +46,7 @@ Dans cet éditeur, le localStorage est un **polyfill en mémoire** : les valeurs
         `,
       },
       objectives: [
-        { id: "o1a", label: "Utiliser localStorage.setItem('theme', 'dark')" },
+        { id: "o1a", label: "Utiliser localStorage.setItem('thème', 'dark')" },
         { id: "o1b", label: "Afficher 'dark' via getItem" },
       ],
       docRefs: ["js/localstorage"],
@@ -154,7 +154,7 @@ Pour déconnecter un utilisateur, on supprime ses informations stockées :
       placeholder: "// fonction utilitaire de lecture avec fallback",
       narrator:
         "Patron classique : on lit le stockage, si la clé existe on parse, sinon on retourne une valeur par défaut. Implémente cette fonction et utilise-la.",
-      hint: "function loadOrInit(defaultValue) {\n  const raw = localStorage.getItem('settings');\n  if (raw === null) return defaultValue;\n  try { return JSON.parse(raw); } catch { return defaultValue; }\n}\nconst settings = loadOrInit({volume: 80, theme: 'dark'});\nconsole.log(settings.volume);",
+      hint: "function loadOrInit(defaultValue) {\n  const raw = localStorage.getItem('settings');\n  if (raw === null) return defaultValue;\n  try { return JSON.parse(raw); } catch { return defaultValue; }\n}\nconst settings = loadOrInit({volume: 80, thème: 'dark'});\nconsole.log(settings.volume);",
       briefing: {
         title: "Patron 'load with fallback'",
         content: `

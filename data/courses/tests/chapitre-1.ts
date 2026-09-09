@@ -2,19 +2,19 @@ import type { ChapterData } from "@/data/courses/html/types";
 
 export const chapitre1: ChapterData = {
   slug: "chapitre-1",
-  tag: "MISSION : ASSURANCE QUALITE",
+  tag: "MISSION : ASSURANCE QUALITÉ",
   title: "TESTS &\nVITEST",
-  subtitle: "Garantis que ton code ne casse pas, meme demain",
+  subtitle: "Garantis que ton code ne casse pas, même demain",
   totalXp: 280,
   completionBadge: "✅",
-  completionBadgeLabel: "INGENIEUR QA",
+  completionBadgeLabel: "INGÉNIEUR QA",
   steps: [
     {
       startCode:
         "// Ecris ton premier test avec Vitest.\n// La fonction additionner existe deja.\n// Test : additionner(2, 3) doit valoir 5.\nimport { describe, it, expect } from 'vitest';\n\nexport function additionner(a, b) { return a + b; }\n\n// describe('additionner', () => { ... });\n",
       placeholder: "// describe('...', () => { it('...', () => { expect(...).toBe(...) }); });",
       narrator:
-        "Un code sans tests est un code qui CASSERA. Pas peut-etre. Surement. Les tests automatises capturent les regressions avant tes utilisateurs. Vitest est le runner moderne de l'ecosysteme JS.",
+        "Un code sans tests est un code qui CASSERA. Pas peut-être. Surement. Les tests automatises capturent les regressions avant tes utilisateurs. Vitest est le runner moderne de l'ecosysteme JS.",
       hint: "import { describe, it, expect } from 'vitest';\n\nexport function additionner(a, b) { return a + b; }\n\ndescribe('additionner', () => {\n  it('additionne deux nombres', () => {\n    expect(additionner(2, 3)).toBe(5);\n  });\n});",
       briefing: {
         title: "Vitest : describe, it, expect",
@@ -38,34 +38,34 @@ Trois fonctions globales fournies par Vitest :
 \`});\`
 
 ### La convention AAA
-Chaque test suit trois etapes :
-1. **Arrange** : prepare les donnees
+Chaque test suit trois étapes :
+1. **Arrange** : prepare les données
 2. **Act** : appelle la fonction testee
-3. **Assert** : verifie le resultat
+3. **Assert** : vérifie le résultat
 
 ### Lancer les tests
-\`npx vitest\` -> mode watch, relance a chaque sauvegarde
+\`npx vitest\` -> mode watch, relance à chaque sauvegarde
 \`npx vitest run\` -> une seule passe (pour la CI)
 \`npx vitest --ui\` -> interface web interactive
 
 ### Nommer ses tests
-Un bon nom de test decrit le COMPORTEMENT attendu :
+Un bon nom de test décrit le COMPORTEMENT attendu :
 - BIEN : \`it('retourne 0 quand la liste est vide')\`
 - MAL : \`it('test1')\`
 
-**A retenir :** describe groupe, it teste un cas, expect verifie. Trois mots-cles, et tu couvres 90% des tests.
+**À retenir :** describe groupe, it teste un cas, expect vérifie. Trois mots-clés, et tu couvres 90% des tests.
         `,
       },
       objectives: [
         { id: "o1a", label: "Utiliser describe et it" },
-        { id: "o1b", label: "Verifier le resultat avec expect(...).toBe(...)" },
+        { id: "o1b", label: "Vérifier le résultat avec expect(...).toBe(...)" },
       ],
       missionIcon: "✅",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIER TEST",
       bannerIcon: "✅",
       bannerTtl: "TEST AU VERT",
-      bannerSub: "Ta premiere assertion est passee. Le filet de securite se tisse.",
+      bannerSub: "Ta première assertion est passée. Le filet de sécurité se tisse.",
       bannerXp: "⚡ +65 XP",
     },
     {
@@ -73,13 +73,13 @@ Un bon nom de test decrit le COMPORTEMENT attendu :
         "// La fonction filtrerActifs renvoie les pilotes dont actif === true.\n// Ecris DEUX tests :\n//  1. avec un tableau vide -> retourne []\n//  2. avec un tableau mixte -> retourne uniquement les actifs\nimport { describe, it, expect } from 'vitest';\n\nexport function filtrerActifs(pilotes) {\n  return pilotes.filter(p => p.actif);\n}\n",
       placeholder: "// expect([]).toEqual([]); expect(filtrerActifs([...])).toEqual([...]);",
       narrator:
-        "Un seul test ne suffit jamais. Couvre aussi les cas limites : tableau vide, valeurs null, donnees inattendues. C'est la qu'on attrape les vrais bugs. Decouvre les matchers Vitest.",
-      hint: "import { describe, it, expect } from 'vitest';\n\nexport function filtrerActifs(pilotes) {\n  return pilotes.filter(p => p.actif);\n}\n\ndescribe('filtrerActifs', () => {\n  it('retourne un tableau vide si entree vide', () => {\n    expect(filtrerActifs([])).toEqual([]);\n  });\n\n  it('ne garde que les pilotes actifs', () => {\n    const pilotes = [\n      { nom: 'Lia', actif: true },\n      { nom: 'Max', actif: false },\n      { nom: 'Eva', actif: true },\n    ];\n    expect(filtrerActifs(pilotes)).toEqual([\n      { nom: 'Lia', actif: true },\n      { nom: 'Eva', actif: true },\n    ]);\n  });\n});",
+        "Un seul test ne suffit jamais. Couvre aussi les cas limites : tableau vide, valeurs null, données inattendues. C'est la qu'on attrape les vrais bugs. Decouvre les matchers Vitest.",
+      hint: "import { describe, it, expect } from 'vitest';\n\nexport function filtrerActifs(pilotes) {\n  return pilotes.filter(p => p.actif);\n}\n\ndescribe('filtrerActifs', () => {\n  it('retourne un tableau vide si entrée vide', () => {\n    expect(filtrerActifs([])).toEqual([]);\n  });\n\n  it('ne garde que les pilotes actifs', () => {\n    const pilotes = [\n      { nom: 'Lia', actif: true },\n      { nom: 'Max', actif: false },\n      { nom: 'Eva', actif: true },\n    ];\n    expect(filtrerActifs(pilotes)).toEqual([\n      { nom: 'Lia', actif: true },\n      { nom: 'Eva', actif: true },\n    ]);\n  });\n});",
       briefing: {
         title: "Les matchers et les cas limites",
         content: `
 ### toBe vs toEqual
-- **toBe(x)** : compare par REFERENCE (\`===\`). Bon pour primitifs.
+- **toBe(x)** : compare par RÉFÉRENCE (\`===\`). Bon pour primitifs.
 - **toEqual(x)** : compare en PROFONDEUR. Obligatoire pour objets et tableaux.
 
 \`expect([1, 2]).toBe([1, 2]);  // ECHEC (deux tableaux differents en memoire)\`
@@ -89,7 +89,7 @@ Un bon nom de test decrit le COMPORTEMENT attendu :
 - \`.toBeTruthy() / .toBeFalsy()\` -> valeurs truthy/falsy
 - \`.toBeNull() / .toBeUndefined() / .toBeDefined()\`
 - \`.toBeGreaterThan(n) / .toBeLessThan(n)\`
-- \`.toContain(item)\` -> tableau contient l'element
+- \`.toContain(item)\` -> tableau contient l'élément
 - \`.toHaveLength(n)\` -> tableau/string de bonne longueur
 - \`.toMatch(/regex/)\` -> string match une regex
 - \`.toThrow()\` -> la fonction lance une erreur
@@ -107,17 +107,17 @@ Attention : il faut envelopper l'appel dans une fleche. Sinon l'erreur est levee
 
 Pour une Promise qui doit rejeter : \`await expect(charger()).rejects.toThrow();\`
 
-### Les "cas limites" a tester systematiquement
-- Entree vide ([], '', null, undefined)
-- Cas "happy path" (entree normale)
-- Cas erreur (entree invalide)
+### Les "cas limites" à tester systematiquement
+- Entrée vide ([], '', null, undefined)
+- Cas "happy path" (entrée normale)
+- Cas erreur (entrée invalide)
 - Borne haute (gros nombres, longue string)
 
-**A retenir :** toEqual pour les structures, toBe pour les primitifs. Toujours tester au moins 3 cas (vide / normal / erreur).
+**À retenir :** toEqual pour les structures, toBe pour les primitifs. Toujours tester au moins 3 cas (vide / normal / erreur).
         `,
       },
       objectives: [
-        { id: "o2a", label: "Ecrire un test pour le cas tableau vide" },
+        { id: "o2a", label: "Écrire un test pour le cas tableau vide" },
         { id: "o2b", label: "Utiliser toEqual pour comparer des tableaux d'objets" },
       ],
       missionIcon: "🧪",
@@ -145,44 +145,44 @@ Configure vitest avec \`environment: 'jsdom'\` dans \`vitest.config.ts\` pour si
 
 ### Les trois outils essentiels
 - **render(<Composant />)** : monte le composant dans un DOM virtuel
-- **screen** : objet global pour chercher des elements
+- **screen** : objet global pour chercher des éléments
 - **fireEvent** : simule des interactions (click, change, submit...)
 
 ### La philosophie Testing Library
 "Teste comme un utilisateur, pas comme un developpeur."
 - Cherche par TEXTE VISIBLE, pas par classe CSS ou id
 - Simule des CLICS, pas des appels de fonctions internes
-- Verifie ce que l'UTILISATEUR VOIT, pas l'etat interne du composant
+- Vérifie ce que l'UTILISATEUR VOIT, pas l'état interne du composant
 
 ### Les queries
 - \`getByText('Score : 0')\` -> ECHOUE si non trouve
 - \`queryByText(...)\` -> retourne null si non trouve (pour tester l'absence)
-- \`findByText(...)\` -> async, attend que l'element apparaisse
-- \`getByRole('button', { name: '+1' })\` -> recommande, base sur l'accessibilite
+- \`findByText(...)\` -> async, attend que l'élément apparaisse
+- \`getByRole('button', { name: '+1' })\` -> recommande, base sur l'accessibilité
 - \`getByLabelText('Email')\` -> pour les formulaires
 
 ### Tester l'absence
 \`expect(screen.queryByText('Erreur')).toBeNull();\`
 
 ### userEvent vs fireEvent
-**fireEvent** declenche un evenement brut. **userEvent** (de @testing-library/user-event) simule plus fidelement un vrai utilisateur (delai, focus, sequence d'evenements). Prefere \`userEvent\` en pratique.
+**fireEvent** declenche un événement brut. **userEvent** (de @testing-library/user-event) simule plus fidelement un vrai utilisateur (delai, focus, sequence d'événements). Préfère \`userEvent\` en pratique.
 
 \`import userEvent from '@testing-library/user-event';\`
 \`await userEvent.click(screen.getByRole('button'));\`
 
-**A retenir :** render + screen + fireEvent/userEvent. Cherche par ce que l'utilisateur voit, pas par l'implementation.
+**À retenir :** render + screen + fireEvent/userEvent. Cherche par ce que l'utilisateur voit, pas par l'implémentation.
         `,
       },
       objectives: [
         { id: "o3a", label: "Rendre le composant et chercher du texte" },
-        { id: "o3b", label: "Simuler un clic et verifier le nouveau texte" },
+        { id: "o3b", label: "Simuler un clic et vérifier le nouveau texte" },
       ],
       missionIcon: "🧩",
       missionTag: "PROTOCOLE 03",
       missionTtl: "TESTS UI",
       bannerIcon: "🧩",
       bannerTtl: "INTERACTION VERIFIEE",
-      bannerSub: "Tu testes l'experience reelle de tes utilisateurs.",
+      bannerSub: "Tu testes l'expérience réelle de tes utilisateurs.",
       bannerXp: "⚡ +70 XP",
     },
     {
@@ -190,7 +190,7 @@ Configure vitest avec \`environment: 'jsdom'\` dans \`vitest.config.ts\` pour si
         "// Test E2E avec Playwright.\n// Visite 'http://localhost:3000', clique sur le bouton 'Demarrer mission'.\n// Verifie que l'URL contient '/dashboard' apres le clic.\nimport { test, expect } from '@playwright/test';\n",
       placeholder: "// await page.goto(...); await page.click(...); await expect(page).toHaveURL(...);",
       narrator:
-        "Vitest teste le code en isolation. Playwright teste TOUTE l'application dans un vrai navigateur, comme un utilisateur final. C'est le filet de securite ultime avant la mise en production.",
+        "Vitest teste le code en isolation. Playwright teste TOUTE l'application dans un vrai navigateur, comme un utilisateur final. C'est le filet de sécurité ultime avant la mise en production.",
       hint: "import { test, expect } from '@playwright/test';\n\ntest('demarrer une mission', async ({ page }) => {\n  await page.goto('http://localhost:3000');\n  await page.click('text=Demarrer mission');\n  await expect(page).toHaveURL(/.*\\/dashboard/);\n});",
       briefing: {
         title: "Tests E2E avec Playwright",
@@ -198,14 +198,14 @@ Configure vitest avec \`environment: 'jsdom'\` dans \`vitest.config.ts\` pour si
 ### Installation
 \`npm init playwright@latest\` -> setup complet (config, premiers tests, scripts npm).
 
-Playwright telecharge automatiquement Chromium, Firefox, WebKit. Tes tests tournent sur les trois.
+Playwright télécharge automatiquement Chromium, Firefox, WebKit. Tes tests tournent sur les trois.
 
 ### La pyramide des tests
 1. **Unitaires** (Vitest) -> rapides, nombreux, isoles
-2. **Integration** (Vitest + Testing Library) -> moyens, testent plusieurs unites ensemble
+2. **Intégration** (Vitest + Testing Library) -> moyens, testent plusieurs unités ensemble
 3. **End-to-End** (Playwright) -> lents, peu nombreux, mais VRAIS
 
-Ratio classique : 70% unitaires / 20% integration / 10% E2E.
+Ratio classique : 70% unitaires / 20% intégration / 10% E2E.
 
 ### Anatomie d'un test E2E
 \`test('description', async ({ page }) => {\`
@@ -215,14 +215,14 @@ Ratio classique : 70% unitaires / 20% integration / 10% E2E.
 \`  await expect(page).toHaveURL(/.*\\/success/);\`
 \`});\`
 
-### Selectionner des elements
+### Sélectionner des éléments
 - **Par texte** : \`page.click('text=Demarrer')\`
-- **Par role** : \`page.getByRole('button', { name: 'Connexion' })\` (recommande)
+- **Par rôle** : \`page.getByRole('button', { name: 'Connexion' })\` (recommande)
 - **Par testid** : \`page.getByTestId('submit')\` (ajoute \`data-testid='submit'\` dans le JSX)
-- **Par selecteur CSS** : \`page.click('.menu-item')\` (fragile, evite)
+- **Par sélecteur CSS** : \`page.click('.menu-item')\` (fragile, évite)
 
 ### Auto-wait magique
-Playwright attend automatiquement que les elements soient visibles, cliquables, le DOM stable. Pas besoin de \`sleep()\` partout.
+Playwright attend automatiquement que les éléments soient visibles, cliquables, le DOM stable. Pas besoin de \`sleep()\` partout.
 
 ### Lancer les tests
 \`npx playwright test\` -> tous les tests
@@ -230,9 +230,9 @@ Playwright attend automatiquement que les elements soient visibles, cliquables, 
 \`npx playwright test --debug\` -> mode pas a pas
 
 ### En CI
-Tu lances la dev server avant les tests. Playwright a un \`webServer\` config pour ca : il demarre ton app, attend qu'elle reponde, lance les tests, l'arrete.
+Tu lances la dev server avant les tests. Playwright a un \`webServer\` config pour ca : il démarre ton app, attend qu'elle reponde, lance les tests, l'arrête.
 
-### Quand ecrire un test E2E ?
+### Quand écrire un test E2E ?
 Les "smoke tests" critiques :
 - Login / signup
 - Tunnel d'achat
@@ -240,19 +240,19 @@ Les "smoke tests" critiques :
 
 PAS chaque petit detail. Trop d'E2E = pipeline CI de 30 minutes et tests fragiles.
 
-**A retenir :** E2E pour les parcours critiques, pas pour tout. Selecteurs par role > texte > testid > CSS.
+**À retenir :** E2E pour les parcours critiques, pas pour tout. Sélecteurs par rôle > texte > testid > CSS.
         `,
       },
       objectives: [
         { id: "o4a", label: "Visiter une URL avec page.goto" },
-        { id: "o4b", label: "Cliquer et verifier l'URL avec toHaveURL" },
+        { id: "o4b", label: "Cliquer et vérifier l'URL avec toHaveURL" },
       ],
       missionIcon: "🎭",
       missionTag: "PROTOCOLE 04",
       missionTtl: "TESTS E2E",
       bannerIcon: "✅",
       bannerTtl: "PIPELINE COMPLET",
-      bannerSub: "Unitaire, integration, E2E : ton code est protege a tous les niveaux.",
+      bannerSub: "Unitaire, intégration, E2E : ton code est protege à tous les niveaux.",
       bannerXp: "⚡ +75 XP",
     },
   ],

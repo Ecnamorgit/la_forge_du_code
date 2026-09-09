@@ -20,7 +20,7 @@ const bodySchema = z
     path: ["species"],
   })
   .refine((data) => isRoleId(data.role), {
-    message: "Role invalide",
+    message: "Rôle invalide",
     path: ["role"],
   });
 

@@ -14,34 +14,34 @@ export const chapitre4: ChapterData = {
         '// Cree un tableau de 3 vaisseaux et affiche-le\n',
       placeholder: '// const flotte = [...]',
       narrator:
-        "Cree ta premiere liste : un tableau de trois vaisseaux, puis affiche-le pour controle.",
+        "Cree ta première liste : un tableau de trois vaisseaux, puis affiche-le pour contrôle.",
       hint: 'const flotte = ["Alpha", "Bravo", "Charlie"];\\nconsole.log(flotte);',
       briefing: {
         title: "Les tableaux (Array)",
         content: `
 *« Une flotte sans registre, c'est le chaos. Range tes unités dans un tableau — et souviens-toi : le premier vaisseau porte l'index zéro. »* — **Kira**
 
-### Declarer un tableau
+### Déclarer un tableau
 \`const flotte = ["Alpha", "Bravo", "Charlie"];\`
 
 - Les crochets **[ ]** delimitent le tableau.
-- Les elements sont separes par des virgules.
-- Les elements peuvent etre de n'importe quel type (mixte autorise).
+- Les éléments sont separes par des virgules.
+- Les éléments peuvent être de n'importe quel type (mixte autorise).
 
-### Acceder a un element
+### Accéder a un élément
 Avec un **index commencant a 0** :
 \`flotte[0]  // "Alpha"\`
 \`flotte[2]  // "Charlie"\`
 
-### A retenir
-- **flotte.length** donne le nombre d'elements.
+### À retenir
+- **flotte.length** donne le nombre d'éléments.
 - Un tableau vide se note \`[]\`.
 
-**Mission :** cree un tableau avec **au moins 3 elements** et logue-le.
+**Mission :** cree un tableau avec **au moins 3 éléments** et logue-le.
         `,
       },
       objectives: [
-        { id: "o1a", label: "Declarer un tableau (au moins 3 elements)" },
+        { id: "o1a", label: "Déclarer un tableau (au moins 3 éléments)" },
         { id: "o1b", label: "L'afficher avec console.log" },
       ],
       docRefs: ["js/tableaux"],
@@ -50,7 +50,7 @@ Avec un **index commencant a 0** :
       missionTtl: "PREMIER INVENTAIRE",
       bannerIcon: "📋",
       bannerTtl: "LISTE DRESSEE",
-      bannerSub: "La flotte est repertoriee.",
+      bannerSub: "La flotte est répertoriée.",
       bannerXp: "⚡ +55 XP",
     },
     {
@@ -61,27 +61,27 @@ Avec un **index commencant a 0** :
         "Un nouveau vaisseau rejoint la flotte. Ajoute-le et confirme le nombre total.",
       hint: 'flotte.push("Delta");\\nconsole.log(flotte.length);',
       briefing: {
-        title: "Methodes courantes",
+        title: "Méthodes courantes",
         content: `
 ### .push(...) — ajouter en fin
 \`flotte.push("Delta");\`
 
-Ajoute un element a la fin et retourne la nouvelle longueur.
+Ajoute un élément à la fin et retourne la nouvelle longueur.
 
-### .length — compter les elements
+### .length — compter les éléments
 \`flotte.length // 4\`
 
-### Autres methodes utiles
-- **.pop()** : retire et retourne le dernier element.
+### Autres méthodes utiles
+- **.pop()** : retire et retourne le dernier élément.
 - **.shift()** : retire et retourne le premier.
-- **.unshift(x)** : ajoute en debut.
+- **.unshift(x)** : ajoute en début.
 - **.includes(x)** : true si x est dans le tableau.
 
-**Mission :** apres push, **flotte.length** doit valoir **4**.
+**Mission :** après push, **flotte.length** doit valoir **4**.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Utiliser .push() pour ajouter un element" },
+        { id: "o2a", label: "Utiliser .push() pour ajouter un élément" },
         { id: "o2b", label: "Afficher 4 (la longueur finale)" },
       ],
       missionIcon: "➕",
@@ -97,7 +97,7 @@ Ajoute un element a la fin et retourne la nouvelle longueur.
         'const flotte = ["Alpha", "Bravo", "Charlie", "Delta"];\n// Affiche chaque vaisseau, un par ligne, avec une boucle for\n',
       placeholder: "// for (let i = 0; i < flotte.length; i++) { ... }",
       narrator:
-        "Liste chaque vaisseau a la console avec une boucle **for** classique.",
+        "Liste chaque vaisseau à la console avec une boucle **for** classique.",
       hint:
         "for (let i = 0; i < flotte.length; i++) { console.log(flotte[i]); }",
       briefing: {
@@ -109,12 +109,12 @@ Ajoute un element a la fin et retourne la nouvelle longueur.
 \`}\`
 
 ### Decompose en trois parties
-- **Initialisation** : \`let i = 0\` (point de depart).
+- **Initialisation** : \`let i = 0\` (point de départ).
 - **Condition** : \`i < flotte.length\` (continue tant que vrai).
 - **Increment** : \`i++\` (raccourci pour \`i = i + 1\`).
 
-### Resultat
-La console affichera **chaque element** sur sa propre ligne.
+### Résultat
+La console affichera **chaque élément** sur sa propre ligne.
 
 **Mission :** la console doit contenir **4 lignes** distinctes (une par vaisseau).
         `,
@@ -128,7 +128,7 @@ La console affichera **chaque element** sur sa propre ligne.
       missionTtl: "PARCOURS COMPLET",
       bannerIcon: "📜",
       bannerTtl: "ROLLCALL EFFECTUE",
-      bannerSub: "Tous les vaisseaux ont repondu a l'appel.",
+      bannerSub: "Tous les vaisseaux ont repondu à l'appel.",
       bannerXp: "⚡ +60 XP",
     },
     {
@@ -143,14 +143,14 @@ La console affichera **chaque element** sur sa propre ligne.
         title: "Accumulateur dans une boucle",
         content: `
 ### Le pattern
-1. Declarer une variable accumulatrice : \`let total = 0;\`
-2. La mettre a jour dans la boucle : \`total = total + distances[i];\`
-3. Loguer la valeur finale apres la boucle.
+1. Déclarer une variable accumulatrice : \`let total = 0;\`
+2. La mettre à jour dans la boucle : \`total = total + distances[i];\`
+3. Loguer la valeur finale après la boucle.
 
 ### Raccourci
-\`total += distances[i];\` est equivalent a \`total = total + distances[i];\`.
+\`total += distances[i];\` est équivalent a \`total = total + distances[i];\`.
 
-### Resultat attendu
+### Résultat attendu
 \`120 + 250 + 80 + 410 = 860\`
 
 ### Alternative moderne (a explorer plus tard)
@@ -168,7 +168,7 @@ La console affichera **chaque element** sur sa propre ligne.
       missionTtl: "TOTAL DE MISSION",
       bannerIcon: "📊",
       bannerTtl: "RAPPORT TOTALISE",
-      bannerSub: "Toutes les distances ont ete additionnees.",
+      bannerSub: "Toutes les distances ont été additionnees.",
       bannerXp: "⚡ +60 XP",
     },
   ],

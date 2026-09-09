@@ -2,12 +2,12 @@ import type { ChapterData } from "@/data/courses/html/types";
 
 export const chapitre6: ChapterData = {
   slug: "chapitre-6",
-  tag: "MISSION : TRAITEMENT DE DONNEES",
+  tag: "MISSION : TRAITEMENT DE DONNÉES",
   title: "MÉTHODES\nMODERNES",
   subtitle: "Manipule des tableaux avec map, filter, reduce et find",
   totalXp: 260,
   completionBadge: "🧮",
-  completionBadgeLabel: "ANALYSTE DE DONNEES",
+  completionBadgeLabel: "ANALYSTE DE DONNÉES",
   steps: [
     {
       startCode:
@@ -65,7 +65,7 @@ Tu as un tableau, tu veux **un nouveau tableau de même taille** où chaque él�
       placeholder: "// Utilise filter pour ne garder que les niveaux >= 5",
       narrator:
         "On veut isoler les membres d'élite (niveau ≥ 5). Utilise filter() pour créer un sous-tableau, puis affiche-le.",
-      hint: "const elites = equipage.filter((m) => m.niveau >= 5);\nconsole.log(elites);",
+      hint: "const élites = équipage.filter((m) => m.niveau >= 5);\nconsole.log(élites);",
       briefing: {
         title: "Array.filter()",
         content: `
@@ -117,9 +117,9 @@ Retourne **une seule valeur** calculée à partir des éléments d'un tableau. U
 
 **Deux arguments** :
 1. **Le callback** : reçoit un accumulateur (la valeur courante) et chaque élément du tableau, retourne la nouvelle valeur de l'accumulateur.
-2. **La valeur initiale** : ici 0 (le total commence à zero).
+2. **La valeur initiale** : ici 0 (le total commence à zéro).
 
-### Etape par étape
+### Étape par étape
 - Iteration 1 : sum = 0, item = CARGO-01 (200). Retour : 200.
 - Iteration 2 : sum = 200, item = CARGO-02 (300). Retour : 500.
 - Iteration 3 : sum = 500, item = CARGO-03 (500). Retour : 1000.
@@ -149,7 +149,7 @@ Retourne **une seule valeur** calculée à partir des éléments d'un tableau. U
       ],
       missionIcon: "📊",
       missionTag: "PROTOCOLE 03",
-      missionTtl: "AGREGATION",
+      missionTtl: "AGRÉGATION",
       bannerIcon: "📊",
       bannerTtl: "TOTAL CALCULÉ",
       bannerSub: "reduce a additionné tous les poids en une seule valeur.",
@@ -168,7 +168,7 @@ Retourne **une seule valeur** calculée à partir des éléments d'un tableau. U
 ### A quoi sert find ?
 Retourne **le premier élément** qui satisfait une condition. **Pas un tableau**, juste l'élément (ou undefined).
 
-### Difference avec filter
+### Différence avec filter
 - **filter** : retourne TOUS les éléments qui matchent (tableau).
 - **find** : retourne LE PREMIER (objet ou undefined).
 
@@ -180,7 +180,7 @@ Retourne **le premier élément** qui satisfait une condition. **Pas un tableau*
 \`const vaisseau = vaisseaux.find((v) => v.id === 'XXX');\`
 \`// undefined\`
 
-**Reflexe :** vérifie toujours que le résultat n'est pas undefined avant d'accéder à ses propriétés.
+**Réflexe :** vérifie toujours que le résultat n'est pas undefined avant d'accéder à ses propriétés.
 
 \`if (vaisseau) console.log(vaisseau.id);\`
 
@@ -202,7 +202,7 @@ Variante qui retourne **l'index** au lieu de l'élément :
       ],
       missionIcon: "🔎",
       missionTag: "PROTOCOLE 04",
-      missionTtl: "RECHERCHE CIBLEE",
+      missionTtl: "RECHERCHE CIBLÉE",
       bannerIcon: "🔎",
       bannerTtl: "VAISSEAU LOCALISÉ",
       bannerSub: "find a renvoyé le premier élément correspondant.",

@@ -12,7 +12,7 @@ type BrandLogoProps = {
 };
 
 /**
- * Brand logo — the Nebula Command fleet crest in true 2D pixel art
+ * Brand logo — the Coalition Nebula fleet crest in true 2D pixel art
  * (see PixelLogo): spinning gold-bordered écusson (orange star over the
  * cyan `</>`) orbited by a human fighter chasing an alien saucer.
  */

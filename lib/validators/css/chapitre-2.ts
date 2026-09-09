@@ -11,12 +11,12 @@ export const validators: Validator[] = [
     if (!hasProperty(css, ".alert", "color")) {
       return {
         ok: false,
-        msg: "Ajoute une regle .alert { color: ... } pour cibler la classe.",
+        msg: "Ajoute une règle .alert { color: ... } pour cibler la classe.",
       };
     }
     return {
       ok: true,
-      msg: "Classe ciblee.",
+      msg: "Classe ciblée.",
       objList: ["o1a", "o1b"],
     };
   },
@@ -29,7 +29,7 @@ export const validators: Validator[] = [
     if (!hasProperty(css, "#status", "color")) {
       return {
         ok: false,
-        msg: "Ajoute une regle #status { color: ... } pour cibler l'id.",
+        msg: "Ajoute une règle #status { color: ... } pour cibler l'id.",
       };
     }
     return {
@@ -57,7 +57,7 @@ export const validators: Validator[] = [
     ) {
       return {
         ok: false,
-        msg: "La couleur du <h1> doit etre un hex (#xxxxxx) valide ou rgb(0-255, 0-255, 0-255).",
+        msg: "La couleur du <h1> doit être un hex (#xxxxxx) valide ou rgb(0-255, 0-255, 0-255).",
       };
     }
     return {

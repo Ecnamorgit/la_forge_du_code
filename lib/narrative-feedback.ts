@@ -14,13 +14,13 @@ export type { ErrorTone };
 
 const ERROR_HEADERS: Record<ErrorTone, string> = {
   // Missing/broken structure (e.g. unclosed tag): the hull is breached.
-  structure: "DECOMPRESSION SECTEUR",
+  structure: "DÉCOMPRESSION SECTEUR",
   // Faulty logic / infinite loop: the reactor overheats.
-  logic: "SURCHAUFFE REACTEUR",
+  logic: "SURCHAUFFE RÉACTEUR",
   // Syntax error: the transmission is garbled.
-  syntax: "SIGNAL BROUILLE",
+  syntax: "SIGNAL BROUILLÉ",
   // Anything else falls back to the historical generic header.
-  generic: "BRECHE DETECTEE",
+  generic: "BRÈCHE DÉTECTÉE",
 };
 
 export function getErrorHeader(tone?: ErrorTone): string {
@@ -28,7 +28,7 @@ export function getErrorHeader(tone?: ErrorTone): string {
 }
 
 export function getSuccessHeader(): string {
-  return "SYSTEME EN LIGNE";
+  return "SYSTÈME EN LIGNE";
 }
 
 /**
@@ -46,12 +46,12 @@ export const SPECTRE_TAUNT_THRESHOLD = 2;
  * testable et éviter la répétition immédiate.
  */
 export const SPECTRE_TAUNTS: readonly string[] = [
-  "Encore une anomalie. Le systeme te rejette, Cadet.",
+  "Encore une anomalie. Le système te rejette, Cadet.",
   "Chaque erreur nourrit le Spectre. Poursuis.",
-  "Ton code se fissure. Je n'ai qu'a attendre.",
-  "Deploiement refuse. Comme prevu.",
-  "Tu confonds agitation et competence.",
-  "Le vide corrige ce que tu laisses casse.",
+  "Ton code se fissure. Je n'ai qu'à attendre.",
+  "Déploiement refusé. Comme prévu.",
+  "Tu confonds agitation et compétence.",
+  "Le vide corrige ce que tu laisses cassé.",
 ];
 
 /**
@@ -83,7 +83,7 @@ export function inferToneFromError(error: string | null): ErrorTone | undefined 
 /**
  * Tonalité par défaut selon le langage de l'étape, quand ni le validateur ni
  * l'inférence runtime n'ont fixé de tonalité. HTML (et CSS, servi en "html")
- * → structure ; JS/SQL restent génériques (undefined → « BRECHE DETECTEE »).
+ * → structure ; JS/SQL restent génériques (undefined → « BRÈCHE DÉTECTÉE »).
  */
 const DEFAULT_TONE_BY_LANGUAGE: Record<
   "html" | "javascript" | "sql" | "react",

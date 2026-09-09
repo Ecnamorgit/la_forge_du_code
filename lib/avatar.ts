@@ -73,14 +73,14 @@ export const SPECIES: SpeciesDef[] = [
     id: "cyborg",
     emoji: "🤖",
     label: "Cyborg",
-    description: "Moitie organique, moitie machine. Acces direct aux systemes.",
+    description: "Moitie organique, moitie machine. Accès direct aux systèmes.",
     image: "/species-cyborg-v2.png",
   },
   {
     id: "synthetique",
     emoji: "👾",
     label: "Synthetique",
-    description: "Conscience numerique pure. Pas de fatigue, pas de doute.",
+    description: "Conscience numérique pure. Pas de fatigue, pas de doute.",
     image: "/species-synthetique-v2.png",
   },
   {
@@ -94,7 +94,7 @@ export const SPECIES: SpeciesDef[] = [
     id: "inconnue",
     emoji: "🛸",
     label: "Origine inconnue",
-    description: "Decouvert a la derive. Aucun dossier dans les archives.",
+    description: "Decouvert à la dérive. Aucun dossier dans les archives.",
     image: "/species-inconnue-v2.png",
   },
 ];
@@ -153,14 +153,14 @@ export const ROLES: RoleDef[] = [
     id: "pilote",
     emoji: "🛸",
     label: "Pilote",
-    description: "Manoeuvre les vaisseaux. Reflexe d'abord, plan ensuite.",
+    description: "Manoeuvre les vaisseaux. Réflexe d'abord, plan ensuite.",
     image: "/role-pilote-v2.png",
   },
   {
     id: "ingenieur",
     emoji: "🔧",
-    label: "Ingenieur",
-    description: "Construit, repare, ameliore. Aime les systemes complexes.",
+    label: "Ingénieur",
+    description: "Construit, répare, ameliore. Aime les systèmes complexes.",
     image: "/role-ingenieur-v2.png",
   },
   {

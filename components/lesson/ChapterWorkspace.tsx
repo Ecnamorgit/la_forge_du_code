@@ -17,6 +17,7 @@ import type { SqlQueryResult } from "@/data/courses/html/types";
 import {
   getErrorHeader,
   getSpectreTaunt,
+  getSuccessHeader,
   resolveErrorTone,
   type ErrorTone,
 } from "@/lib/narrative-feedback";
@@ -275,20 +276,21 @@ export default function ChapterWorkspace({
                 {isJs
                   ? "Console"
                   : isSql
-                    ? "Resultat"
+                    ? "Résultat"
                     : isReact
-                      ? "Apercu"
-                      : "Apercu en direct"}
+                      ? "Aperçu"
+                      : "Aperçu en direct"}
               </span>
               <span className="font-body text-sm italic text-nebula-text-dim">
-                — En attente du prochain deploiement<span className="terminal-cursor">_</span>
+                — En attente du prochain déploiement<span className="terminal-cursor">_</span>
               </span>
             </>
           )}
           {feedback.type === "ok" && (
             <div className="animate-fb-in flex items-baseline gap-3">
               <strong className="font-tech text-sm tracking-widest text-nebula-green">
-                {"> "}SYSTEME EN LIGNE
+                {"> "}
+                {getSuccessHeader()}
               </strong>
               <span className="font-body text-base text-nebula-green/90">
                 {feedback.msg}
@@ -331,15 +333,15 @@ export default function ChapterWorkspace({
           }`}
         >
           <div className="mb-2 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
-            {"> "}Resultat de la requete
+            {"> "}Résultat de la requête
           </div>
           {!sqlView ? (
             <p className="font-tech text-xs italic text-nebula-text-dim">
-              Aucun resultat pour l&apos;instant. Appuie sur DEPLOYER pour executer ta requete.
+              Aucun résultat pour l&apos;instant. Appuie sur DÉPLOYER pour exécuter ta requête.
             </p>
           ) : sqlView.rows.length === 0 ? (
             <p className="font-tech text-xs italic text-nebula-text-dim">
-              Requete executee — 0 ligne.
+              Requête exécutée — 0 ligne.
             </p>
           ) : (
             <table className="w-full border-collapse font-code text-sm text-nebula-text">

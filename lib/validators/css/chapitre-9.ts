@@ -8,7 +8,7 @@ export const validators: Validator[] = [
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     const body = ruleBody(css, ".btn");
     if (!body || !/\btransition\s*:/i.test(body)) {
-      return { ok: false, msg: "Ajoute la propriete transition sur .btn." };
+      return { ok: false, msg: "Ajoute la propriété transition sur .btn." };
     }
     if (!/transition\s*:[^;]*\b\d*\.?\d+\s*s\b/i.test(body)) {
       return { ok: false, msg: "Specifie une duree en secondes (ex: 0.3s)." };
@@ -33,7 +33,7 @@ export const validators: Validator[] = [
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     const kfMatch = css.match(/@keyframes\s+([a-zA-Z][\w-]*)\s*\{([\s\S]*?)\}\s*\}/);
     if (!kfMatch) {
-      return { ok: false, msg: "Definis une animation avec @keyframes nom { ... }." };
+      return { ok: false, msg: "Définis une animation avec @keyframes nom { ... }." };
     }
     const pulseBody = ruleBody(css, ".pulse");
     if (!pulseBody || !/\banimation\s*:/i.test(pulseBody)) {
@@ -48,7 +48,7 @@ export const validators: Validator[] = [
     if (!/@keyframes\s+[\w-]+\s*\{[\s\S]*?transform\s*:\s*rotate/i.test(css)) {
       return {
         ok: false,
-        msg: "Definis une @keyframes qui utilise transform: rotate(...).",
+        msg: "Définis une @keyframes qui utilise transform: rotate(...).",
       };
     }
     const iconBody = ruleBody(css, ".icon");
@@ -56,7 +56,7 @@ export const validators: Validator[] = [
       return { ok: false, msg: "Applique l'animation a .icon." };
     }
     if (!/\binfinite\b/i.test(iconBody) && !/animation-iteration-count\s*:\s*infinite/i.test(iconBody)) {
-      return { ok: false, msg: "L'animation doit etre infinie (mot-cle infinite)." };
+      return { ok: false, msg: "L'animation doit être infinie (mot-clé infinite)." };
     }
     return { ok: true, msg: "Mouvement permanent.", objList: ["o4a", "o4b"], final: true };
   },

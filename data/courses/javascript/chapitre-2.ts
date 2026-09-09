@@ -2,7 +2,7 @@ import type { ChapterData } from "@/data/courses/html/types";
 
 export const chapitre2: ChapterData = {
   slug: "chapitre-2",
-  tag: "MISSION : ANALYSE DES DONNEES",
+  tag: "MISSION : ANALYSE DES DONNÉES",
   title: "OPÉRATIONS\n& DÉCISIONS",
   subtitle: "Calculs, comparaisons et structures de décision",
   totalXp: 200,
@@ -16,7 +16,7 @@ export const chapitre2: ChapterData = {
       narrator:
         "Premier calcul tactique. Soustrais deux heures de consommation au carburant et affiche le résultat.",
       hint:
-        "Ecris : console.log(carburant - consommation * 2); — la multiplication est faite avant la soustraction.",
+        "Écris : console.log(carburant - consommation * 2); — la multiplication est faite avant la soustraction.",
       briefing: {
         title: "Les opérateurs arithmétiques",
         content: `
@@ -58,7 +58,7 @@ Pour forcer l'ordre, utilise des parenthèses : \`(a + b) * c\`.
       placeholder: "// Utilise un opérateur de comparaison",
       narrator:
         "On veut savoir si l'oxygène est suffisant. Une comparaison renvoie **true** ou **false** — c'est ce qu'on appelle un booléen.",
-      hint: "Ecris : console.log(niveauOxygene > 50);",
+      hint: "Écris : console.log(niveauOxygene > 50);",
       briefing: {
         title: "Comparaisons et booléens",
         content: `
@@ -87,7 +87,7 @@ Toujours un **booléen** : true ou false.
       ],
       missionIcon: "⚖",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "TEST BOOLEEN",
+      missionTtl: "TEST BOOLÉEN",
       bannerIcon: "✅",
       bannerTtl: "VERDICT TRANCHE",
       bannerSub: "Tu sais comparer deux valeurs.",
@@ -134,7 +134,7 @@ Toujours un **booléen** : true ou false.
       missionTag: "PROTOCOLE 03",
       missionTtl: "CONDITIONS DE VOL",
       bannerIcon: "🚨",
-      bannerTtl: "REPONSE ADAPTÉE",
+      bannerTtl: "RÉPONSE ADAPTÉE",
       bannerSub: "Le système réagit selon l'état du bouclier.",
       bannerXp: "⚡ +50 XP",
     },

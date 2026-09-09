@@ -2,12 +2,12 @@ import type { ChapterData } from "@/data/courses/html/types";
 
 export const chapitre8: ChapterData = {
   slug: "chapitre-8",
-  tag: "MISSION : ADAPTATION MULTI-ECRAN",
+  tag: "MISSION : ADAPTATION MULTI-ÉCRAN",
   title: "RESPONSIVE\nDESIGN",
   subtitle: "Adapte ton design pour les terminaux mobiles et les écrans de la passerelle",
   totalXp: 260,
   completionBadge: "📱",
-  completionBadgeLabel: "INGENIEUR ADAPTATIF",
+  completionBadgeLabel: "INGÉNIEUR ADAPTATIF",
   steps: [
     {
       startCode:
@@ -23,7 +23,7 @@ export const chapitre8: ChapterData = {
 
 ### Le problème de width fixe
 \`.container { width: 800px; }\`
-Sur un mobile de 375px, le conteneur déborde à droite. L'utilisateur doit scroller horizontalement — pire expérience web qui soit.
+Sur un mobile de 375px, le conteneur déborde à droite. L'utilisateur doit faire défiler horizontalement — pire expérience web qui soit.
 
 ### La solution
 \`.container { max-width: 800px; width: 100%; }\`
@@ -44,7 +44,7 @@ Sur un mobile de 375px, le conteneur déborde à droite. L'utilisateur doit scro
 - Préférer **max-width** ou unités relatives (%, vw).
 - Tester en redimensionnant la fenêtre.
 
-**A retenir :** "responsive" commence avant les media queries. Ce sont les unités fluides qui font 80 % du travail.
+**À retenir :** "responsive" commence avant les media queries. Ce sont les unités fluides qui font 80 % du travail.
         `,
       },
       objectives: [
@@ -102,7 +102,7 @@ Au lieu de partir desktop puis "réduire", on part mobile puis on agrandit :
 - **1024px** : tablette paysage / desktop
 - **1280px** : grand desktop
 
-**A retenir :** une bonne page n'a souvent que **2 ou 3 breakpoints**. Pas un par device.
+**À retenir :** une bonne page n'a souvent que **2 ou 3 breakpoints**. Pas un par device.
         `,
       },
       objectives: [
@@ -181,7 +181,7 @@ Le navigateur crée autant de colonnes que possible, chaque colonne mesurant au 
 ### Le problème des breakpoints
 Entre les breakpoints, la taille saute (22px -> 28px d'un coup). Pas très élégant.
 
-### clamp(min, ideal, max)
+### clamp(min, idéal, max)
 **clamp()** retourne une valeur "coincée" entre min et max, calculée selon la valeur idéale.
 
 \`h1 { font-size: clamp(22px, 4vw, 48px); }\`
@@ -206,7 +206,7 @@ Entre les breakpoints, la taille saute (22px -> 28px d'un coup). Pas très élé
 - **vh** : 1 % de la hauteur.
 - **vmin** / **vmax** : la plus petite/grande des deux.
 
-**A retenir :** clamp + vw, c'est le **responsive moderne** sans media query.
+**À retenir :** clamp + vw, c'est le **responsive moderne** sans media query.
         `,
       },
       objectives: [

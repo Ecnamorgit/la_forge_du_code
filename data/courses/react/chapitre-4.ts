@@ -14,8 +14,8 @@ export const chapitre4: ChapterData = {
         "// Importe BrowserRouter, Routes, Route depuis 'react-router-dom'.\n// Cree une App qui affiche :\n//   - Accueil sur '/'\n//   - APropos sur '/about'\n// Les deux composants existent deja.\nfunction Accueil() { return <h1>Accueil</h1>; }\nfunction APropos() { return <h1>A propos</h1>; }\n\nfunction App() {\n  return <div>...</div>;\n}\n",
       placeholder: "// <BrowserRouter><Routes><Route path='...' element={...} /></Routes></BrowserRouter>",
       narrator:
-        "Une Single Page Application affiche differentes vues sans recharger le navigateur. React Router transforme l'URL en variable d'etat : chaque chemin correspond a un composant. Cree ta premiere carte de navigation.",
-      hint: "import { BrowserRouter, Routes, Route } from 'react-router-dom';\n\nfunction Accueil() { return <h1>Accueil</h1>; }\nfunction APropos() { return <h1>A propos</h1>; }\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <Routes>\n        <Route path='/' element={<Accueil />} />\n        <Route path='/about' element={<APropos />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}",
+        "Une Single Page Application affiche différentes vues sans recharger le navigateur. React Router transforme l'URL en variable d'état : chaque chemin correspond a un composant. Cree ta première carte de navigation.",
+      hint: "import { BrowserRouter, Routes, Route } from 'react-router-dom';\n\nfunction Accueil() { return <h1>Accueil</h1>; }\nfunction APropos() { return <h1>À propos</h1>; }\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <Routes>\n        <Route path='/' element={<Accueil />} />\n        <Route path='/about' element={<APropos />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}",
       briefing: {
         title: "Setup du routeur",
         content: `
@@ -27,7 +27,7 @@ C'est la bibliotheque de routing standard de l'ecosysteme React.
 ### Les trois composants de base
 - **BrowserRouter** : englobe toute ton application, active le routing
 - **Routes** : conteneur pour la liste des routes
-- **Route** : une regle "ce chemin -> ce composant"
+- **Route** : une règle "ce chemin -> ce composant"
 
 \`<BrowserRouter>\`
 \`  <Routes>\`
@@ -36,29 +36,29 @@ C'est la bibliotheque de routing standard de l'ecosysteme React.
 \`  </Routes>\`
 \`</BrowserRouter>\`
 
-### path et element
-- \`path\` : le chemin URL a matcher
-- \`element\` : le composant a afficher (entre accolades, JSX)
+### path et élément
+- \`path\` : le chemin URL à matcher
+- \`element\` : le composant à afficher (entre accolades, JSX)
 
 ### Le wildcard 404
-\`<Route path='*' element={<NotFound />} />\` -> capture tout ce qui ne matche pas les autres routes. A placer en DERNIER.
+\`<Route path='*' element={<NotFound />} />\` -> capture tout ce qui ne matche pas les autres routes. À placer en DERNIER.
 
 ### SPA vs Multi-Page App
 Une SPA charge le JS une seule fois. La navigation change UNIQUEMENT l'URL et le composant affiche, sans rechargement complet. C'est rapide, fluide, et c'est ce qui rend les apps modernes confortables.
 
-**A retenir :** BrowserRouter englobe l'app, Routes liste les regles, Route mappe chemin -> composant.
+**À retenir :** BrowserRouter englobe l'app, Routes liste les règles, Route mappe chemin -> composant.
         `,
       },
       objectives: [
         { id: "o1a", label: "Englober dans <BrowserRouter>" },
-        { id: "o1b", label: "Definir deux <Route> avec path et element" },
+        { id: "o1b", label: "Définir deux <Route> avec path et élément" },
       ],
       missionIcon: "🗺",
       missionTag: "PROTOCOLE 01",
-      missionTtl: "PREMIERE CARTE",
+      missionTtl: "PREMIÈRE CARTE",
       bannerIcon: "🗺",
       bannerTtl: "ROUTES ACTIVES",
-      bannerSub: "Ton application repond a deux URLs differentes.",
+      bannerSub: "Ton application répond à deux URLs différentes.",
       bannerXp: "⚡ +65 XP",
     },
     {
@@ -66,15 +66,15 @@ Une SPA charge le JS une seule fois. La navigation change UNIQUEMENT l'URL et le
         "// Ajoute un menu de navigation en haut de l'App.\n// Deux liens : 'Accueil' (vers '/') et 'A propos' (vers '/about').\n// IMPORTANT : utilise <Link>, PAS <a href=...>.\n",
       placeholder: "// <Link to='...'>Texte</Link>",
       narrator:
-        "Les balises <a> classiques rechargent toute la page et detruisent l'etat de ton app. React Router fournit <Link> : meme apparence, mais navigation SPA sans rechargement.",
-      hint: "import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <nav>\n        <Link to='/'>Accueil</Link>\n        {' | '}\n        <Link to='/about'>A propos</Link>\n      </nav>\n      <Routes>\n        <Route path='/' element={<Accueil />} />\n        <Route path='/about' element={<APropos />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}",
+        "Les balises <a> classiques rechargent toute la page et detruisent l'état de ton app. React Router fournit <Link> : même apparence, mais navigation SPA sans rechargement.",
+      hint: "import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';\n\nfunction App() {\n  return (\n    <BrowserRouter>\n      <nav>\n        <Link to='/'>Accueil</Link>\n        {' | '}\n        <Link to='/about'>À propos</Link>\n      </nav>\n      <Routes>\n        <Route path='/' element={<Accueil />} />\n        <Route path='/about' element={<APropos />} />\n      </Routes>\n    </BrowserRouter>\n  );\n}",
       briefing: {
         title: "Navigation avec <Link>",
         content: `
-### Le piege classique
+### Le piège classique
 \`<a href='/about'>A propos</a>\` -> recharge ENTIEREMENT la page.
 
-Resultat : l'app perd tout son etat React, refait tous les fetchs, le user voit un flash blanc. C'est exactement ce qu'une SPA cherche a eviter.
+Résultat : l'app perd tout son état React, refait tous les fetchs, le user voit un flash blanc. C'est exactement ce qu'une SPA cherche à éviter.
 
 ### La solution : <Link>
 \`<Link to='/about'>A propos</Link>\` -> modifie l'URL et le composant, sans rechargement.
@@ -84,7 +84,7 @@ Visuellement c'est un \`<a>\` (tu peux le styler comme tel), mais le comportemen
 ### NavLink : pour le menu actif
 \`<NavLink to='/about'>A propos</NavLink>\`
 
-NavLink ajoute automatiquement la classe \`active\` quand l'URL match. Tres utile pour styler le lien courant.
+NavLink ajoute automatiquement la classe \`active\` quand l'URL match. Très utile pour styler le lien courant.
 
 \`<NavLink\`
 \`  to='/about'\`
@@ -92,9 +92,9 @@ NavLink ajoute automatiquement la classe \`active\` quand l'URL match. Tres util
 \`>...</NavLink>\`
 
 ### Layout partage
-Souvent, le menu reste affiche sur toutes les pages. Pour ne pas le repeter, on utilise un **layout** avec un composant \`<Outlet />\` ou la route imbriquee s'affiche. C'est l'etape suivante quand tu auras plus de pages.
+Souvent, le menu reste affiche sur toutes les pages. Pour ne pas le repeter, on utilise un **layout** avec un composant \`<Outlet />\` ou la route imbriquee s'affiche. C'est l'étape suivante quand tu auras plus de pages.
 
-**A retenir :** Toujours <Link to=...> dans une SPA. Jamais <a href=...> pour la navigation interne.
+**À retenir :** Toujours <Link to=...> dans une SPA. Jamais <a href=...> pour la navigation interne.
         `,
       },
       objectives: [
@@ -114,7 +114,7 @@ Souvent, le menu reste affiche sur toutes les pages. Pour ne pas le repeter, on 
         "// Ajoute une route '/vaisseaux/:id' qui affiche le composant FicheVaisseau.\n// FicheVaisseau doit lire l'id depuis l'URL avec useParams et l'afficher.\nfunction FicheVaisseau() {\n  return <div>Vaisseau : ???</div>;\n}\n",
       placeholder: "// const { id } = useParams();",
       narrator:
-        "Les vraies applications ont des pages dynamiques : '/vaisseau/42', '/profil/lia'... Avec une route parametree et le hook useParams, tu accedes a la valeur de l'URL depuis le composant.",
+        "Les vraies applications ont des pages dynamiques : '/vaisseau/42', '/profil/lia'... Avec une route parametree et le hook useParams, tu accedes à la valeur de l'URL depuis le composant.",
       hint: "import { useParams } from 'react-router-dom';\n\nfunction FicheVaisseau() {\n  const { id } = useParams();\n  return <div>Vaisseau : {id}</div>;\n}\n\n// Dans App :\n// <Route path='/vaisseaux/:id' element={<FicheVaisseau />} />",
       briefing: {
         title: "Routes dynamiques et useParams",
@@ -125,10 +125,10 @@ Souvent, le menu reste affiche sur toutes les pages. Pour ne pas le repeter, on 
 Le segment \`:id\` est dynamique. Toute URL comme \`/vaisseaux/1\`, \`/vaisseaux/abc\`, \`/vaisseaux/phoenix\` match cette route.
 
 ### Le hook useParams
-A l'interieur du composant cible, on recupere les params :
+À l'intérieur du composant cible, on recupere les params :
 \`const { id } = useParams();\`
 
-Pareil qu'avec Express cote serveur — meme convention.
+Pareil qu'avec Express côté serveur — même convention.
 
 ### Plusieurs params
 \`path='/flotte/:flotteId/vaisseau/:vaisseauId'\`
@@ -152,11 +152,11 @@ Pour les filtres dans l'URL (\`/vaisseaux?classe=combat\`) :
 \`const [searchParams] = useSearchParams();\`
 \`const classe = searchParams.get('classe');\`
 
-**A retenir :** :param dans la route + useParams() dans le composant = pages dynamiques type-safe.
+**À retenir :** :param dans la route + useParams() dans le composant = pages dynamiques type-safe.
         `,
       },
       objectives: [
-        { id: "o3a", label: "Definir une route avec :id" },
+        { id: "o3a", label: "Définir une route avec :id" },
         { id: "o3b", label: "Lire l'id avec useParams et l'afficher" },
       ],
       missionIcon: "🎯",
@@ -172,7 +172,7 @@ Pour les filtres dans l'URL (\`/vaisseaux?classe=combat\`) :
         "// Composant Login : un bouton 'Se connecter'.\n// Au clic, redirige programmatiquement vers '/dashboard'.\n// Indice : useNavigate.\nfunction Login() {\n  return <button>Se connecter</button>;\n}\n",
       placeholder: "// const navigate = useNavigate(); navigate('/dashboard');",
       narrator:
-        "Tous les changements de page ne viennent pas d'un clic sur un Link. Apres un login, un formulaire, ou une action API, tu dois rediriger l'utilisateur via du code. Le hook useNavigate est fait pour ca.",
+        "Tous les changements de page ne viennent pas d'un clic sur un Link. Après un login, un formulaire, ou une action API, tu dois rediriger l'utilisateur via du code. Le hook useNavigate est fait pour ca.",
       hint: "import { useNavigate } from 'react-router-dom';\n\nfunction Login() {\n  const navigate = useNavigate();\n  return (\n    <button onClick={() => navigate('/dashboard')}>\n      Se connecter\n    </button>\n  );\n}",
       briefing: {
         title: "Navigation programmatique",
@@ -180,15 +180,15 @@ Pour les filtres dans l'URL (\`/vaisseaux?classe=combat\`) :
 ### Le hook useNavigate
 \`const navigate = useNavigate();\`
 
-\`navigate\` est une fonction qui change l'URL. Equivalent code de \`<Link>\`.
+\`navigate\` est une fonction qui change l'URL. Équivalent code de \`<Link>\`.
 
 ### Usages courants
 \`navigate('/dashboard');\` -> redirige
 \`navigate(-1);\` -> retour arriere (comme bouton Back du navigateur)
 \`navigate(1);\` -> avancer
-\`navigate('/login', { replace: true });\` -> remplace l'historique (utile apres logout pour que Back ne revienne pas)
+\`navigate('/login', { replace: true });\` -> remplace l'historique (utile après logout pour que Back ne revienne pas)
 
-### Apres une action async
+### Après une action async
 \`async function onSubmit() {\`
 \`  await api.creerVaisseau(data);\`
 \`  navigate('/vaisseaux');  // redirige apres succes\`
@@ -216,7 +216,7 @@ Plus lisible dans certains cas, surtout pour les redirections conditionnelles da
 - **useSearchParams** : lire et modifier les ?query
 - **useMatch** : tester si l'URL match un pattern
 
-**A retenir :** useNavigate pour rediriger via code. Navigate (composant) pour les redirections conditionnelles dans le rendu.
+**À retenir :** useNavigate pour rediriger via code. Navigate (composant) pour les redirections conditionnelles dans le rendu.
         `,
       },
       objectives: [
@@ -227,7 +227,7 @@ Plus lisible dans certains cas, surtout pour les redirections conditionnelles da
       missionTag: "PROTOCOLE 04",
       missionTtl: "NAVIGATION CODE",
       bannerIcon: "🗺",
-      bannerTtl: "SPA MAITRISEE",
+      bannerTtl: "SPA MAÎTRISÉE",
       bannerSub: "Tu controles entierement la navigation de ton application.",
       bannerXp: "⚡ +75 XP",
     },

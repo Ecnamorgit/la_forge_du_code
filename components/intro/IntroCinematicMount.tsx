@@ -57,7 +57,7 @@ export default function IntroCinematicMount() {
       ref={overlayRef}
       role="dialog"
       aria-modal="true"
-      aria-label="Transmission d'introduction Nebula Command"
+      aria-label="Transmission d'introduction de La Forge du Code"
       tabIndex={-1}
       className="fixed inset-0 z-[100] outline-none"
     >

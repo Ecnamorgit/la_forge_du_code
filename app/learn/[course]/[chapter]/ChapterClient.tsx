@@ -96,7 +96,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
   const step = chapter.steps[currentStep];
   const validate =
     validators[currentStep] ??
-    (() => ({ ok: false, msg: "Validateur manquant pour cette etape" }));
+    (() => ({ ok: false, msg: "Validateur manquant pour cette étape" }));
   const stepDone = useMemo(
     () => chapter.steps.map((_, i) => completedStepIndexes.includes(i)),
     [completedStepIndexes, chapter.steps]
@@ -400,7 +400,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
         title={step.bannerTtl}
         subtitle={step.bannerSub}
         xpLabel={`⚡ +${xpForStep(step.objectives.length)} XP`}
-        buttonLabel={isLastStep ? "TERMINER LE PROTOCOLE ->" : "SYSTEME SUIVANT ->"}
+        buttonLabel={isLastStep ? "TERMINER LE PROTOCOLE ->" : "SYSTÈME SUIVANT ->"}
         bannerFrame={step.bannerFrame}
         progressNow={currentStep + 1}
         progressTotal={chapter.steps.length}
@@ -462,7 +462,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
           <div className="hidden h-5 w-px bg-nebula-border lg:block" />
           <BrandLogo size={32} className="hidden lg:block" />
           <div className="hidden font-tech text-sm tracking-widest lg:block">
-            <span className="text-nebula-cyan">NEBULA</span>
+            <span className="text-nebula-cyan">LA FORGE</span>
             <span className="ml-1.5 text-nebula-text-secondary">/ {course.toUpperCase()} / {chapter.slug.toUpperCase()}</span>
           </div>
         </div>
@@ -519,7 +519,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
             <div className="mb-4 flex items-center gap-2 font-tech text-xs uppercase tracking-[0.22em] text-nebula-blue">
               <span>◈ {chapter.tag}</span>
               <span className="text-nebula-text-dim">/</span>
-              <span>Etape {currentStep + 1} sur {chapter.steps.length}</span>
+              <span>Étape {currentStep + 1} sur {chapter.steps.length}</span>
             </div>
 
             <h1 className="mb-3 font-tech text-4xl leading-tight tracking-[0.1em] text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.25)]">
@@ -684,7 +684,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
       <footer className="relative z-50 flex h-14 shrink-0 items-center justify-between gap-2 border-t border-nebula-border/70 bg-nebula-bg-darkest/70 px-3 backdrop-blur-md lg:h-16 lg:px-6">
         <div className="flex min-w-0 items-center gap-2 lg:gap-3">
           <span className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary lg:text-sm">
-            <span className="hidden sm:inline">Etape </span>
+            <span className="hidden sm:inline">Étape </span>
             {currentStep + 1} / {chapter.steps.length}
           </span>
           <div className="ml-1 hidden items-center gap-2 sm:flex">

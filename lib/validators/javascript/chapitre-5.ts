@@ -8,7 +8,7 @@ function runtimeError(error: string | null): string | null {
 export const validators: Validator[] = [
   // Step 1: object with >= 3 properties, logged
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -17,13 +17,13 @@ export const validators: Validator[] = [
       /\b(?:const|let|var)\s+pilote\s*=\s*\{([\s\S]*?)\}\s*;?/
     );
     if (!objMatch) {
-      return { ok: false, msg: "Declare un objet pilote entre accolades { ... }." };
+      return { ok: false, msg: "Déclare un objet pilote entre accolades { ... }." };
     }
     const props = objMatch[1].match(/[a-zA-Z_$][\w$]*\s*:/g) ?? [];
     if (props.length < 3) {
       return {
         ok: false,
-        msg: `L'objet doit avoir au moins 3 proprietes (actuellement ${props.length}).`,
+        msg: `L'objet doit avoir au moins 3 propriétés (actuellement ${props.length}).`,
       };
     }
     const hasObjectLog = ctx.logs.some(
@@ -37,13 +37,13 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Fiche pilote creee.",
+      msg: "Fiche pilote créée.",
       objList: ["o1a", "o1b"],
     };
   },
   // Step 2: read .name + modify .level
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -59,26 +59,26 @@ export const validators: Validator[] = [
     if (!ctx.logs.some((l) => l.includes("8"))) {
       return {
         ok: false,
-        msg: "Logue l'objet apres modification pour verifier level: 8.",
+        msg: "Logue l'objet après modification pour vérifier level: 8.",
       };
     }
     return {
       ok: true,
-      msg: "Fiche mise a jour.",
+      msg: "Fiche mise à jour.",
       objList: ["o2a", "o2b"],
     };
   },
   // Step 3: .toUpperCase + .length
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/\.toUpperCase\s*\(/.test(stripped)) {
-      return { ok: false, msg: "Utilise la methode .toUpperCase()." };
+      return { ok: false, msg: "Utilise la méthode .toUpperCase()." };
     }
     if (!/\.length\b/.test(stripped)) {
-      return { ok: false, msg: "Utilise la propriete .length." };
+      return { ok: false, msg: "Utilise la propriété .length." };
     }
     if (!logsInclude(ctx.logs, "NEBULA-7")) {
       return {
@@ -94,13 +94,13 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Chaine maitrisee.",
+      msg: "Chaîne maîtrisée.",
       objList: ["o3a", "o3b"],
     };
   },
   // Step 4: method greet() returning "Salut <name>"
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -112,13 +112,13 @@ export const validators: Validator[] = [
     ) {
       return {
         ok: false,
-        msg: "Ajoute une methode greet a pilote.",
+        msg: "Ajoute une méthode greet a pilote.",
       };
     }
     if (!/\bthis\.name\b/.test(stripped)) {
       return {
         ok: false,
-        msg: "Dans greet, utilise this.name pour acceder au nom.",
+        msg: "Dans greet, utilise this.name pour accéder au nom.",
       };
     }
     if (!logsContain(ctx.logs, "Salut Cadet")) {

@@ -7,7 +7,7 @@ export const chapitre1: ChapterData = {
   subtitle: "Affiche tes premiers messages et utilise des variables",
   totalXp: 200,
   completionBadge: "📟",
-  completionBadgeLabel: "OPERATEUR RADIO",
+  completionBadgeLabel: "OPÉRATEUR RADIO",
   steps: [
     {
       startCode: 'consol.log("Bonjour, station Nebula");\n',
@@ -16,7 +16,7 @@ export const chapitre1: ChapterData = {
       placeholder: "// Ecris ton code ici",
       narrator:
         "Cadet, ton premier ordre est d'envoyer un signal radio. En JavaScript, on parle à la console via console.log.",
-      hint: 'Ecris : console.log("Bonjour, station Nebula");',
+      hint: 'Écris : console.log("Bonjour, station Nebula");',
       briefing: {
         title: "Le premier signal : console.log",
         content: `
@@ -28,7 +28,7 @@ export const chapitre1: ChapterData = {
 ### Syntaxe
 \`console.log("Bonjour, station Nebula");\`
 
-### A retenir
+### À retenir
 - Les chaînes de texte se mettent entre **guillemets** ("..." ou '...').
 - Chaque instruction se termine par **;** (recommandé, même si JS pardonne souvent l'oubli).
 - Le panneau "Sortie console" en bas affiche tout ce que tu logues.
@@ -55,15 +55,15 @@ export const chapitre1: ChapterData = {
       placeholder: "// Utilise let pour créer une variable",
       narrator:
         "Maintenant, donne-toi un indicatif d'appel. En JS, **let** déclare une variable que tu pourras modifier plus tard.",
-      hint: 'Ecris : let callsign = "NEBULA-7"; puis console.log(callsign);',
+      hint: 'Écris : let callsign = "NEBULA-7"; puis console.log(callsign);',
       briefing: {
         title: "Variables avec let",
         content: `
 ### let — déclarer une variable modifiable
 \`let callsign = "NEBULA-7";\`
 
-- **let** dit : "je crée une boite nommée callsign".
-- Le **=** range la valeur dans la boite.
+- **let** dit : "je crée une boîte nommée callsign".
+- Le **=** range la valeur dans la boîte.
 - Tu peux changer la valeur plus tard : \`callsign = "ECLIPSE-3";\`
 
 ### Afficher la variable
@@ -80,7 +80,7 @@ Note : pas de guillemets autour de **callsign** — sinon tu afficherais littér
       ],
       missionIcon: "📦",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "BOITE À VALEUR",
+      missionTtl: "BOÎTE À VALEUR",
       bannerIcon: "🪪",
       bannerTtl: "INDICATIF ENREGISTRÉ",
       bannerSub: "Ta variable est lue et envoyée à la console.",
@@ -107,7 +107,7 @@ Une fois affectée, **const** ne peut **plus être réaffectée**. C'est ton ami
 - **number** : un nombre. \`42\`, \`3.14\`, \`-7\` (pas de guillemets !)
 - **boolean** : vrai ou faux. \`true\`, \`false\`
 
-### A retenir
+### À retenir
 - \`let\` pour ce qui change, \`const\` par défaut sinon.
 - Pas de guillemets autour des nombres ou booléens.
 
@@ -133,7 +133,7 @@ Une fois affectée, **const** ne peut **plus être réaffectée**. C'est ton ami
       narrator:
         "Place à la composition. Combine plusieurs variables dans un seul message avec un **template literal** (les accents graves \\`).",
       hint:
-        'Ecris : console.log(`Pilote ${pilote} en mission ${mission}`);',
+        'Écris : console.log(`Pilote ${pilote} en mission ${mission}`);',
       briefing: {
         title: "Template literals",
         content: `

@@ -44,7 +44,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Procedure sequencee.",
+      msg: "Procédure sequencee.",
       objList: ["o2a", "o2b"],
     };
   },
@@ -73,7 +73,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Grille operationnelle.",
+      msg: "Grille opérationnelle.",
       objList: ["o3a", "o3b"],
     };
   },
@@ -83,7 +83,7 @@ export const validators: Validator[] = [
     if (!theadMatch) {
       return {
         ok: false,
-        msg: "Encadre les en-tetes dans une zone <thead>.",
+        msg: "Encadre les en-têtes dans une zone <thead>.",
       };
     }
     const ths = theadMatch[1].match(/<th\b[^>]*>[\s\S]*?<\/th>/gi) ?? [];
@@ -95,7 +95,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Donnees structurees.",
+      msg: "Données structurées.",
       objList: ["o4a", "o4b"],
       final: true,
     };

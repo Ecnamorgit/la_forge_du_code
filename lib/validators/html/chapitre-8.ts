@@ -11,9 +11,9 @@ export const validators: Validator[] = [
     const m = clean.match(/<video\b[^>]*>[\s\S]*?<\/video>/i);
     if (!m) return { ok: false, msg: "Ajoute une balise <video>...</video>." };
     if (!/\bcontrols\b/i.test(m[0])) {
-      return { ok: false, msg: "Ajoute l'attribut controls a la balise <video>." };
+      return { ok: false, msg: "Ajoute l'attribut controls à la balise <video>." };
     }
-    return { ok: true, msg: "Flux video actif.", objList: ["o1a", "o1b"] };
+    return { ok: true, msg: "Flux vidéo actif.", objList: ["o1a", "o1b"] };
   },
   // Step 2: <audio> with controls
   (code) => {
@@ -21,7 +21,7 @@ export const validators: Validator[] = [
     const m = clean.match(/<audio\b[^>]*>[\s\S]*?<\/audio>/i);
     if (!m) return { ok: false, msg: "Ajoute une balise <audio>...</audio>." };
     if (!/\bcontrols\b/i.test(m[0])) {
-      return { ok: false, msg: "Ajoute l'attribut controls a la balise <audio>." };
+      return { ok: false, msg: "Ajoute l'attribut controls à la balise <audio>." };
     }
     return { ok: true, msg: "Transmission radio ouverte.", objList: ["o2a", "o2b"] };
   },
@@ -49,7 +49,7 @@ export const validators: Validator[] = [
       return { ok: false, msg: `Place au moins 2 <source> dans <picture> (actuellement ${sources.length}).` };
     }
     if (!/<img\b[^>]*>/i.test(inner)) {
-      return { ok: false, msg: "Garde une balise <img> de fallback a l'interieur de <picture>." };
+      return { ok: false, msg: "Garde une balise <img> de fallback à l'intérieur de <picture>." };
     }
     return { ok: true, msg: "Diffusion optimale.", objList: ["o4a", "o4b"], final: true };
   },

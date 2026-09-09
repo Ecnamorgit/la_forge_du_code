@@ -23,28 +23,28 @@ export const chapitre1: ChapterData = {
 Cree un dossier cache \`.git\` qui contient tout l'historique. C'est la racine de ton journal.
 
 ### Les trois zones
-Git separe ton travail en trois espaces distincts :
+Git sépare ton travail en trois espaces distincts :
 
 1. **Working directory** : tes fichiers tels que tu les modifies
-2. **Staging area (index)** : la liste des changements PRETS a etre enregistres
+2. **Staging area (index)** : la liste des changements PRETS a être enregistres
 3. **Repository** : l'historique des commits
 
 \`Working --[git add]--> Staging --[git commit]--> Repository\`
 
 ### git add
-Selectionne ce qui ira dans le prochain commit. \`git add .\` ajoute tout, \`git add fichier.js\` cible un seul fichier.
+Sélectionne ce qui ira dans le prochain commit. \`git add .\` ajoute tout, \`git add fichier.js\` cible un seul fichier.
 
 ### git commit
-Photographie l'etat de la staging area. Le message (\`-m\`) decrit ce qui change. Un bon commit = un changement coherent + un message clair.
+Photographie l'état de la staging area. Le message (\`-m\`) décrit ce qui change. Un bon commit = un changement coherent + un message clair.
 
 \`git commit -m "Ajoute la mission radar"\`
 
-**A retenir :** Modifie -> ajoute (add) -> grave (commit). Trois etapes, trois zones.
+**À retenir :** Modifie -> ajoute (add) -> grave (commit). Trois étapes, trois zones.
         `,
       },
       objectives: [
         { id: "o1a", label: "Lancer git init dans le projet" },
-        { id: "o1b", label: "Stager les fichiers et creer le premier commit" },
+        { id: "o1b", label: "Stager les fichiers et créer le premier commit" },
       ],
       missionIcon: "🗂",
       missionTag: "PROTOCOLE 01",
@@ -59,7 +59,7 @@ Photographie l'etat de la staging area. Le message (\`-m\`) decrit ce qui change
         "# Tu viens de modifier deux fichiers.\n# 1. Affiche l'etat actuel (fichiers modifies, stages, non suivis).\n# 2. Affiche l'historique compact des commits.\n",
       placeholder: "# git status / git log --oneline",
       narrator:
-        "Avant de commiter, un bon developpeur inspecte toujours l'etat du depot. Apprends a lire le statut courant et a consulter l'historique pour savoir ou tu en es.",
+        "Avant de commiter, un bon developpeur inspecte toujours l'état du depot. Apprends a lire le statut courant et à consulter l'historique pour savoir ou tu en es.",
       hint: "git status\ngit log --oneline",
       briefing: {
         title: "Inspecter le depot",
@@ -70,35 +70,35 @@ Te dit en permanence :
 - Quels fichiers sont STAGES (vert)
 - Quels fichiers ne sont PAS SUIVIS (untracked)
 
-C'est la commande que tu vas taper le plus souvent dans ta carriere. Litteralement.
+C'est la commande que tu vas taper le plus souvent dans ta carriere. Littéralement.
 
 ### git log
-Affiche l'historique complet des commits. Tres verbeux par defaut. Les options utiles :
+Affiche l'historique complet des commits. Très verbeux par défaut. Les options utiles :
 
 \`git log --oneline\` -> une ligne par commit
 \`git log --graph\` -> ajoute un graphique des branches
 \`git log -5\` -> seulement les 5 derniers commits
 
 ### git diff
-Bonus : affiche les modifications precises ligne par ligne, AVANT de commiter.
+Bonus : affiche les modifications précises ligne par ligne, AVANT de commiter.
 \`git diff\` -> changements non stages
-\`git diff --staged\` -> changements stages prets a commiter
+\`git diff --staged\` -> changements stages prets à commiter
 
 ### Le .gitignore
-Liste les fichiers que Git doit IGNORER (node_modules, .env, fichiers builds...). Cree un fichier \`.gitignore\` a la racine du projet. C'est obligatoire pour tout projet propre.
+Liste les fichiers que Git doit IGNORER (node_modules, .env, fichiers builds...). Cree un fichier \`.gitignore\` à la racine du projet. C'est obligatoire pour tout projet propre.
 
-**A retenir :** \`status\` avant chaque action. \`log\` pour le passe. \`diff\` pour le present.
+**À retenir :** \`status\` avant chaque action. \`log\` pour le passe. \`diff\` pour le present.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Utiliser git status pour voir l'etat" },
+        { id: "o2a", label: "Utiliser git status pour voir l'état" },
         { id: "o2b", label: "Consulter l'historique avec git log --oneline" },
       ],
       missionIcon: "🔍",
       missionTag: "PROTOCOLE 02",
       missionTtl: "INSPECTION",
       bannerIcon: "🔍",
-      bannerTtl: "ETAT DECRYPTE",
+      bannerTtl: "ÉTAT DECRYPTE",
       bannerSub: "Tu sais lire le statut et l'historique du depot.",
       bannerXp: "⚡ +70 XP",
     },
@@ -107,7 +107,7 @@ Liste les fichiers que Git doit IGNORER (node_modules, .env, fichiers builds...)
         "# Cree une branche 'feature/radar' et bascule dessus.\n# Apres avoir fait tes commits, reviens sur main et fusionne la branche.\n",
       placeholder: "# git checkout -b ... / git merge ...",
       narrator:
-        "Les branches permettent de developper plusieurs fonctionnalites en parallele sans casser la version stable. Cree une branche feature, travaille dessus, puis fusionne-la dans main.",
+        "Les branches permettent de développer plusieurs fonctionnalités en parallele sans casser la version stable. Cree une branche feature, travaille dessus, puis fusionne-la dans main.",
       hint: "git checkout -b feature/radar\n# ... travail et commits ...\ngit checkout main\ngit merge feature/radar",
       briefing: {
         title: "Branches et fusion",
@@ -115,7 +115,7 @@ Liste les fichiers que Git doit IGNORER (node_modules, .env, fichiers builds...)
 ### Qu'est-ce qu'une branche ?
 Une branche est une ligne de developpement parallele. Chaque commit que tu fais sur une branche reste isole de \`main\` jusqu'a la fusion.
 
-### Creer et basculer
+### Créer et basculer
 \`git branch feature/radar\` -> cree la branche
 \`git checkout feature/radar\` -> bascule dessus
 \`git checkout -b feature/radar\` -> les deux en une commande (raccourci classique)
@@ -129,17 +129,17 @@ Alternative moderne : \`git switch feature/radar\` et \`git switch -c feature/ra
 
 ### git merge
 Fusionne les commits d'une autre branche dans la branche courante.
-1. \`git checkout main\` (la branche qui RECOIT)
+1. \`git checkout main\` (la branche qui REÇOIT)
 2. \`git merge feature/radar\` (la branche qui DONNE)
 
 ### Les conflits
-Si deux branches modifient la meme ligne, Git ne peut pas decider tout seul. Il ouvre le fichier avec des marqueurs \`<<<<<<<\` et te demande de choisir. C'est normal, ca arrive a tout le monde.
+Si deux branches modifient la même ligne, Git ne peut pas décider tout seul. Il ouvre le fichier avec des marqueurs \`<<<<<<<\` et te demande de choisir. C'est normal, ca arrive à tout le monde.
 
-**A retenir :** Une fonctionnalite = une branche. Ne jamais coder directement sur main.
+**À retenir :** Une fonctionnalite = une branche. Ne jamais coder directement sur main.
         `,
       },
       objectives: [
-        { id: "o3a", label: "Creer et basculer sur une branche feature" },
+        { id: "o3a", label: "Créer et basculer sur une branche feature" },
         { id: "o3b", label: "Revenir sur main et fusionner avec git merge" },
       ],
       missionIcon: "🌿",
@@ -147,7 +147,7 @@ Si deux branches modifient la meme ligne, Git ne peut pas decider tout seul. Il 
       missionTtl: "BRANCHES",
       bannerIcon: "🌿",
       bannerTtl: "FUSION REUSSIE",
-      bannerSub: "Ta branche feature est integree a la base stable.",
+      bannerSub: "Ta branche feature est integree à la base stable.",
       bannerXp: "⚡ +70 XP",
     },
     {
@@ -155,7 +155,7 @@ Si deux branches modifient la meme ligne, Git ne peut pas decider tout seul. Il 
         "# Lie ton depot local a un depot distant sur GitHub.\n# URL : https://github.com/cadet/codeforge.git\n# Puis pousse la branche main vers le serveur.\n",
       placeholder: "# git remote add origin ... / git push -u origin main",
       narrator:
-        "Ton depot local doit etre sauvegarde et partage. Connecte-le a un serveur distant (GitHub, GitLab) et envoie ton historique pour que toute l'equipe puisse y acceder.",
+        "Ton depot local doit être sauvegarde et partage. Connecte-le a un serveur distant (GitHub, GitLab) et envoie ton historique pour que toute l'équipe puisse y accéder.",
       hint: "git remote add origin https://github.com/cadet/codeforge.git\ngit push -u origin main",
       briefing: {
         title: "Travailler avec un remote",
@@ -166,28 +166,28 @@ Un "remote" est une copie distante de ton depot, hebergee sur un serveur (GitHub
 ### Configurer le remote
 \`git remote add origin https://github.com/user/repo.git\`
 
-Tu peux verifier avec \`git remote -v\`.
+Tu peux vérifier avec \`git remote -v\`.
 
 ### git push
 Envoie tes commits LOCAUX vers le remote.
-\`git push -u origin main\` -> la premiere fois (le \`-u\` memorise la liaison)
+\`git push -u origin main\` -> la première fois (le \`-u\` memorise la liaison)
 \`git push\` -> les fois suivantes
 
 ### git pull
-Recupere les commits distants et les fusionne dans ta branche locale. A faire AVANT chaque \`push\` si tu travailles en equipe.
+Recupere les commits distants et les fusionne dans ta branche locale. A faire AVANT chaque \`push\` si tu travailles en équipe.
 
 ### git clone
-Pour recuperer un projet existant depuis zero :
+Pour récupérer un projet existant depuis zéro :
 \`git clone https://github.com/user/repo.git\`
 
-### Le workflow complet en equipe
-1. \`git pull\` -> recuperer les changements de l'equipe
+### Le workflow complet en équipe
+1. \`git pull\` -> récupérer les changements de l'équipe
 2. Coder + \`git add\` + \`git commit\`
-3. \`git pull\` (encore une fois pour etre sur)
+3. \`git pull\` (encore une fois pour être sur)
 4. \`git push\` -> envoyer ton travail
 5. Ouvrir une **Pull Request** sur GitHub pour faire reviser le code
 
-**A retenir :** Local = ton brouillon. Remote = la source de verite partagee. Push pour partager, pull pour recevoir.
+**À retenir :** Local = ton brouillon. Remote = la source de verite partagee. Push pour partager, pull pour recevoir.
         `,
       },
       objectives: [
@@ -199,7 +199,7 @@ Pour recuperer un projet existant depuis zero :
       missionTtl: "REMOTE & PUSH",
       bannerIcon: "🗂",
       bannerTtl: "CODE PARTAGE",
-      bannerSub: "Ton journal de bord est desormais accessible a toute la flotte.",
+      bannerSub: "Ton journal de bord est désormais accessible à toute la flotte.",
       bannerXp: "⚡ +75 XP",
     },
   ],

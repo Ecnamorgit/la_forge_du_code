@@ -16,7 +16,7 @@ export async function GET() {
       status: 200,
       headers: {
         "Content-Type": "application/json; charset=utf-8",
-        "Content-Disposition": 'attachment; filename="codeforge-mes-donnees.json"',
+        "Content-Disposition": 'attachment; filename="la-forge-du-code-mes-donnees.json"',
       },
     });
   } catch (err) {

@@ -14,12 +14,12 @@ function runtimeError(error: string | null): string | null {
 export const validators: Validator[] = [
   // Step 1: new Promise + .then logs 'OK'
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/new\s+Promise\s*\(/.test(stripped)) {
-      return { ok: false, msg: "Utilise new Promise(...) pour creer une promesse." };
+      return { ok: false, msg: "Utilise new Promise(...) pour créer une promesse." };
     }
     if (!/\.then\s*\(/.test(stripped)) {
       return { ok: false, msg: "Utilise .then() pour consommer la valeur." };
@@ -27,22 +27,22 @@ export const validators: Validator[] = [
     if (!logsInclude(ctx.logs, "OK")) {
       return {
         ok: false,
-        msg: "La console doit afficher exactement 'OK' (resultat de la Promise).",
+        msg: "La console doit afficher exactement 'OK' (résultat de la Promise).",
       };
     }
     return { ok: true, msg: "Promesse tenue.", objList: ["o1a", "o1b"] };
   },
   // Step 2: async function + await logs 'Mission lunaire'
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/\basync\s+(function|\()/.test(stripped) && !/\basync\s*=>/.test(stripped) && !/\basync\s*\(/.test(stripped)) {
-      return { ok: false, msg: "Declare une fonction async." };
+      return { ok: false, msg: "Déclare une fonction async." };
     }
     if (!/\bawait\b/.test(stripped)) {
-      return { ok: false, msg: "Utilise await pour recuperer la valeur." };
+      return { ok: false, msg: "Utilise await pour récupérer la valeur." };
     }
     if (!logsContain(ctx.logs, "Mission lunaire")) {
       return { ok: false, msg: "La console doit afficher 'Mission lunaire'." };
@@ -51,7 +51,7 @@ export const validators: Validator[] = [
   },
   // Step 3: try/catch with await, log contains 'timeout'
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -62,13 +62,13 @@ export const validators: Validator[] = [
       return { ok: false, msg: "Le try doit contenir un await." };
     }
     if (!logsContain(ctx.logs, "timeout")) {
-      return { ok: false, msg: "La console doit logger une chaine contenant 'timeout'." };
+      return { ok: false, msg: "La console doit logger une chaîne contenant 'timeout'." };
     }
     return { ok: true, msg: "Erreur interceptee.", objList: ["o3a", "o3b"] };
   },
   // Step 4: Promise.all returning [1,2,3]
   (code, ctx) => {
-    if (!ctx) return { ok: false, msg: "Execution requise." };
+    if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
@@ -83,6 +83,6 @@ export const validators: Validator[] = [
         msg: "La console doit afficher un tableau contenant 1, 2, 3.",
       };
     }
-    return { ok: true, msg: "Operations groupees.", objList: ["o4a", "o4b"], final: true };
+    return { ok: true, msg: "Opérations groupees.", objList: ["o4a", "o4b"], final: true };
   },
 ];

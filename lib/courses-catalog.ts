@@ -71,11 +71,11 @@ export const COURSES_CATALOG: CourseInfo[] = [
   {
     slug: "git",
     title: "Git",
-    subtitle: "Versioning & collaboration",
+    subtitle: "Gestion de versions & collaboration",
     icon: "🗂",
     color: "orange",
     description:
-      "Trace, branche, fusionne. L'outil de versioning indispensable de toute équipe.",
+      "Trace, branche, fusionne. L'outil de gestion de versions indispensable de toute équipe.",
   },
   {
     slug: "sql",
@@ -107,11 +107,11 @@ export const COURSES_CATALOG: CourseInfo[] = [
   {
     slug: "devops",
     title: "DevOps",
-    subtitle: "Build, deploy & Docker",
+    subtitle: "Compilation, déploiement & Docker",
     icon: "🚀",
     color: "orange",
     description:
-      "Build, Vercel, variables d'env et Docker. Mets ton application en production.",
+      "Compilation, Vercel, variables d'environnement et Docker. Mets ton application en production.",
   },
   {
     slug: "mongodb",
@@ -120,11 +120,11 @@ export const COURSES_CATALOG: CourseInfo[] = [
     icon: "🍃",
     color: "blue",
     description:
-      "L'alternative NoSQL : documents flexibles, aggregation pipeline, scaling horizontal.",
+      "L'alternative NoSQL : documents flexibles, pipeline d'agrégation, mise à l'échelle horizontale.",
   },
   {
     slug: "security",
-    title: "Security",
+    title: "Sécurité",
     subtitle: "OWASP & sécurité web",
     icon: "🛡",
     color: "orange",
@@ -138,7 +138,7 @@ export const COURSES_CATALOG: CourseInfo[] = [
     icon: "🐍",
     color: "blue",
     description:
-      "Le langage le plus polyvalent : data, AI, scripts et web (Django/FastAPI).",
+      "Le langage le plus polyvalent : données, IA, scripts et web (Django/FastAPI).",
   },
   {
     slug: "algo",

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Pixel-art brand logo — Nebula Command fleet crest, fake-3D edition.
+ * Pixel-art brand logo — Coalition Nebula fleet crest, fake-3D edition.
  *
  * True 2D pixel art (hand-drawn bitmaps, nearest-neighbour scaling, no AA —
  * per docs/PIXEL_ART_GUIDE.md) composed into a pseudo-3D scene:

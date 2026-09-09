@@ -44,7 +44,7 @@ export async function GET(
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ fontSize: 30, letterSpacing: 6, color: "#00f0ff" }}>
-            NEBULA COMMAND
+            LA FORGE DU CODE
           </div>
           <div style={{ fontSize: 26, color: "#7c8aa0" }}>{pseudo}</div>
         </div>

@@ -17,7 +17,7 @@ export const validators: Validator[] = [
     if (!/\balt\s*=\s*["'][^"']+["']/i.test(img[0])) {
       return {
         ok: false,
-        msg: "L'attribut alt est obligatoire pour decrire l'image.",
+        msg: "L'attribut alt est obligatoire pour décrire l'image.",
       };
     }
     return {
@@ -52,7 +52,7 @@ export const validators: Validator[] = [
     if (!wrapped) {
       return {
         ok: false,
-        msg: "L'image doit etre placee a l'interieur d'une balise <a> avec href.",
+        msg: "L'image doit être placée à l'intérieur d'une balise <a> avec href.",
       };
     }
     return {
@@ -71,14 +71,14 @@ export const validators: Validator[] = [
     if (!/<img\b[^>]*>/i.test(inner)) {
       return {
         ok: false,
-        msg: "L'image doit rester a l'interieur de la <figure>.",
+        msg: "L'image doit rester à l'intérieur de la <figure>.",
       };
     }
     const caption = inner.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i);
     if (!caption || !caption[1].trim()) {
       return {
         ok: false,
-        msg: "Ajoute une legende non vide dans <figcaption>.",
+        msg: "Ajoute une légende non vide dans <figcaption>.",
       };
     }
     return {

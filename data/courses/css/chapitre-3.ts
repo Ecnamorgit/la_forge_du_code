@@ -4,10 +4,10 @@ export const chapitre3: ChapterData = {
   slug: "chapitre-3",
   tag: "MISSION : MODULES PRESSURISES",
   title: "MODULES\n& DIMENSIONS",
-  subtitle: "Comprends le modele de boite (box model)",
+  subtitle: "Comprends le modèle de boîte (box model)",
   totalXp: 200,
   completionBadge: "📦",
-  completionBadgeLabel: "INGENIEUR MODULAIRE",
+  completionBadgeLabel: "INGÉNIEUR MODULAIRE",
   steps: [
     {
       startCode:

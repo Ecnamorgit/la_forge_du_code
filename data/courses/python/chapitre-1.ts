@@ -20,7 +20,7 @@ export const chapitre1: ChapterData = {
         title: "Variables, types et f-strings",
         content: `
 ### Pas de let / const / var
-En Python, on declare une variable juste en lui assignant une valeur :
+En Python, on déclare une variable juste en lui assignant une valeur :
 \`nom = 'Lia'\`
 
 L'inference de type fait tout. Pas besoin d'annotation (mais possible : \`nom: str = 'Lia'\`).
@@ -30,20 +30,20 @@ L'inference de type fait tout. Pas besoin d'annotation (mais possible : \`nom: s
 - **int** : entier (5, -42)
 - **float** : decimal (3.14)
 - **bool** : True / False (avec majuscule)
-- **None** : equivalent de null/undefined
+- **None** : équivalent de null/undefined
 
-Verifie avec \`type(variable)\`.
+Vérifie avec \`type(variable)\`.
 
 ### print et f-strings
 \`print()\` affiche dans la console.
 
-Les **f-strings** sont l'equivalent des template literals JS :
+Les **f-strings** sont l'équivalent des template literals JS :
 \`print(f"Bonjour {nom}, tu as {age} ans")\`
 
 Le \`f\` devant la string active l'interpolation.
 
 ### Indentation = structure
-Pas d'accolades en Python. Les blocs sont definis par l'indentation (4 espaces par convention) :
+Pas d'accolades en Python. Les blocs sont définis par l'indentation (4 espaces par convention) :
 \`if niveau >= 5:\`
 \`    print("Senior")\`
 \`else:\`
@@ -56,16 +56,16 @@ Mal indenter = erreur de syntaxe.
 - Constantes : \`UPPER_CASE\`
 - Classes : \`PascalCase\`
 
-**A retenir :** Pas de declarations explicites. f-strings pour l'interpolation. Indentation = structure.
+**À retenir :** Pas de declarations explicites. f-strings pour l'interpolation. Indentation = structure.
         `,
       },
       objectives: [
-        { id: "o1a", label: "Declarer trois variables typees implicitement" },
+        { id: "o1a", label: "Déclarer trois variables typees implicitement" },
         { id: "o1b", label: "Utiliser une f-string pour le print" },
       ],
       missionIcon: "🐍",
       missionTag: "PROTOCOLE 01",
-      missionTtl: "PREMIERES VARIABLES",
+      missionTtl: "PREMIÈRES VARIABLES",
       bannerIcon: "🐍",
       bannerTtl: "PYTHON INITIALISE",
       bannerSub: "Tu maitrises la syntaxe de base de Python.",
@@ -76,8 +76,8 @@ Mal indenter = erreur de syntaxe.
         "# Definis une fonction calculer_xp(niveau, bonus) qui retourne niveau * 10 + bonus.\n# Appelle-la avec niveau=5, bonus=20 et affiche le resultat.\n",
       placeholder: "# def calculer_xp(niveau, bonus):",
       narrator:
-        "En Python, une fonction se declare avec le mot-cle 'def'. Pas de parentheses superflues, pas d'accolades. La logique reside dans l'indentation. Cree ta premiere fonction.",
-      hint: "def calculer_xp(niveau, bonus):\n    return niveau * 10 + bonus\n\nresultat = calculer_xp(5, 20)\nprint(resultat)",
+        "En Python, une fonction se déclare avec le mot-clé 'def'. Pas de parenthèses superflues, pas d'accolades. La logique reside dans l'indentation. Cree ta première fonction.",
+      hint: "def calculer_xp(niveau, bonus):\n    return niveau * 10 + bonus\n\nresultat = calculer_xp(5, 20)\nprint(résultat)",
       briefing: {
         title: "Fonctions en Python",
         content: `
@@ -85,12 +85,12 @@ Mal indenter = erreur de syntaxe.
 \`def nom_fonction(param1, param2):\`
 \`    return param1 + param2\`
 
-- \`def\` declare une fonction
+- \`def\` déclare une fonction
 - Les deux points \`:\` ouvrent le bloc
 - L'indentation delimite le corps
 - \`return\` rend une valeur (optionnel — sinon retourne None)
 
-### Parametres par defaut
+### Paramètres par défaut
 \`def saluer(nom, formel=False):\`
 \`    if formel:\`
 \`        return f"Bonjour M. {nom}"\`
@@ -98,7 +98,7 @@ Mal indenter = erreur de syntaxe.
 
 ### Arguments nommes (kwargs)
 \`calculer_xp(niveau=5, bonus=20)\`
-Tres lisible quand il y a plusieurs parametres.
+Très lisible quand il y a plusieurs paramètres.
 
 ### Annotations de type (optionnelles mais recommandees)
 \`def calculer_xp(niveau: int, bonus: int) -> int:\`
@@ -111,25 +111,25 @@ Comme TypeScript pour JS, **mypy** est le typechecker pour Python.
 Plus limitees qu'en JS — une seule expression, pas de blocs.
 
 ### Docstrings
-La premiere chaine d'une fonction sert de documentation :
+La première chaîne d'une fonction sert de documentation :
 \`def calculer_xp(niveau, bonus):\`
 \`    """Calcule l'XP a partir du niveau et d'un bonus."""\`
 \`    return niveau * 10 + bonus\`
 
 Outils comme \`help(calculer_xp)\` la lisent.
 
-**A retenir :** def + : + indentation. Les annotations de type sont la voie pro.
+**À retenir :** def + : + indentation. Les annotations de type sont la voie pro.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Declarer une fonction avec def" },
-        { id: "o2b", label: "L'appeler et afficher le resultat" },
+        { id: "o2a", label: "Déclarer une fonction avec def" },
+        { id: "o2b", label: "L'appeler et afficher le résultat" },
       ],
       missionIcon: "⚙",
       missionTag: "PROTOCOLE 02",
       missionTtl: "FONCTIONS",
       bannerIcon: "⚙",
-      bannerTtl: "FONCTION CREEE",
+      bannerTtl: "FONCTION CRÉÉE",
       bannerSub: "Tu sais structurer du code en fonctions Python.",
       bannerXp: "⚡ +70 XP",
     },
@@ -138,26 +138,26 @@ Outils comme \`help(calculer_xp)\` la lisent.
         "# Cree une liste 'pilotes' contenant : 'Lia', 'Max', 'Eva'.\n# Parcours la avec une boucle for et affiche : 'Pilote N°1 : Lia', etc.\n# Indice : utilise enumerate() pour avoir l'index.\n",
       placeholder: "# for i, nom in enumerate(pilotes): ...",
       narrator:
-        "Les listes sont l'equivalent des tableaux JS. La boucle 'for' Python est plus elegante : elle itere directement sur les elements, pas sur les index. enumerate() te donne les deux a la fois.",
+        "Les listes sont l'équivalent des tableaux JS. La boucle 'for' Python est plus elegante : elle itere directement sur les éléments, pas sur les index. enumerate() te donne les deux à la fois.",
       hint: "pilotes = ['Lia', 'Max', 'Eva']\nfor i, nom in enumerate(pilotes):\n    print(f\"Pilote N°{i + 1} : {nom}\")",
       briefing: {
         title: "Listes et boucles for",
         content: `
-### Declarer une liste
+### Déclarer une liste
 \`pilotes = ['Lia', 'Max', 'Eva']\`
 
-Comme un Array JS. Acces par index : \`pilotes[0]\`, longueur : \`len(pilotes)\`.
+Comme un Array JS. Accès par index : \`pilotes[0]\`, longueur : \`len(pilotes)\`.
 
-### Methodes utiles
-- \`liste.append(x)\` -> ajoute a la fin (= push)
-- \`liste.remove(x)\` -> supprime la PREMIERE occurrence
+### Méthodes utiles
+- \`liste.append(x)\` -> ajoute à la fin (= push)
+- \`liste.remove(x)\` -> supprime la PREMIÈRE occurrence
 - \`liste.pop()\` -> retire et retourne le dernier
 - \`liste.sort()\` -> tri en place
 - \`sorted(liste)\` -> retourne une nouvelle liste triee
 - \`x in liste\` -> teste l'appartenance
 
 ### La boucle for
-Itere DIRECTEMENT sur les elements :
+Itere DIRECTEMENT sur les éléments :
 \`for nom in pilotes:\`
 \`    print(nom)\`
 
@@ -173,7 +173,7 @@ Pas besoin de \`for (i = 0; i < length; i++)\` comme en C/JS classique.
 \`for i in range(0, 100, 2):\` -> pairs de 0 a 98
 
 ### List comprehensions
-LA feature Python iconique. Ecrit une boucle + map/filter en une ligne :
+LA fonctionnalité Python iconique. Écrit une boucle + map/filter en une ligne :
 
 \`carres = [x * x for x in range(10)]\`
 \`actifs = [p for p in pilotes if p.actif]\`
@@ -185,18 +185,18 @@ Comme partout :
 \`while compteur > 0:\`
 \`    compteur -= 1\`
 
-**A retenir :** Listes Python = arrays JS. for itere sur les elements, pas les index. enumerate quand tu veux les deux.
+**À retenir :** Listes Python = arrays JS. for itere sur les éléments, pas les index. enumerate quand tu veux les deux.
         `,
       },
       objectives: [
-        { id: "o3a", label: "Creer une liste et la parcourir avec for" },
-        { id: "o3b", label: "Utiliser enumerate pour acceder a l'index" },
+        { id: "o3a", label: "Créer une liste et la parcourir avec for" },
+        { id: "o3b", label: "Utiliser enumerate pour accéder à l'index" },
       ],
       missionIcon: "📋",
       missionTag: "PROTOCOLE 03",
       missionTtl: "LISTES & BOUCLES",
       bannerIcon: "📋",
-      bannerTtl: "ITERATION MAITRISEE",
+      bannerTtl: "ITERATION MAÎTRISÉE",
       bannerSub: "Tu manipules les structures de base de Python.",
       bannerXp: "⚡ +70 XP",
     },
@@ -205,26 +205,26 @@ Comme partout :
         "# Cree un dictionnaire 'pilote' avec :\n#   nom='Lia', niveau=5, vaisseau='Phoenix'\n# Affiche le niveau, puis ajoute un champ 'badge' = 'gold'.\n# Enfin, parcours et affiche toutes les paires cle:valeur.\n",
       placeholder: "# pilote = {'cle': valeur, ...} / for k, v in pilote.items():",
       narrator:
-        "Le dictionnaire Python est l'equivalent des objets JS. Cle:valeur, structure souple, omnipresent. Comprendre ses methodes est un passage oblige pour tout Pythoniste.",
-      hint: "pilote = {\n    'nom': 'Lia',\n    'niveau': 5,\n    'vaisseau': 'Phoenix'\n}\n\nprint(pilote['niveau'])\n\npilote['badge'] = 'gold'\n\nfor cle, valeur in pilote.items():\n    print(f\"{cle}: {valeur}\")",
+        "Le dictionnaire Python est l'équivalent des objets JS. Clé:valeur, structure souple, omnipresent. Comprendre ses méthodes est un passage oblige pour tout Pythoniste.",
+      hint: "pilote = {\n    'nom': 'Lia',\n    'niveau': 5,\n    'vaisseau': 'Phoenix'\n}\n\nprint(pilote['niveau'])\n\npilote['badge'] = 'gold'\n\nfor clé, valeur in pilote.items():\n    print(f\"{clé}: {valeur}\")",
       briefing: {
         title: "Dictionnaires et au-dela",
         content: `
-### Declarer un dictionnaire
+### Déclarer un dictionnaire
 \`pilote = { 'nom': 'Lia', 'niveau': 5 }\`
 
-Comme un objet JS, mais les cles sont entre quotes.
+Comme un objet JS, mais les clés sont entre quotes.
 
-### Acceder, modifier, supprimer
+### Accéder, modifier, supprimer
 \`pilote['nom']\` -> lecture (erreur si absent)
 \`pilote.get('nom')\` -> lecture safe (None si absent)
-\`pilote.get('nom', 'inconnu')\` -> avec valeur par defaut
+\`pilote.get('nom', 'inconnu')\` -> avec valeur par défaut
 \`pilote['badge'] = 'gold'\` -> ajout / modification
 \`del pilote['niveau']\` -> suppression
 \`'nom' in pilote\` -> teste l'existence
 
-### Iterer
-\`for cle in pilote:\` -> les cles
+### Itérer
+\`for cle in pilote:\` -> les clés
 \`for valeur in pilote.values():\` -> les valeurs
 \`for cle, valeur in pilote.items():\` -> les deux
 
@@ -238,7 +238,7 @@ Comme les list comprehensions, mais pour dicts :
 - **pip** : installer des packages (\`pip install requests\`)
 - **virtualenv** : isoler les dependances par projet
 - **Frameworks web** : **Django** (full-featured), **FastAPI** (moderne, async, types-natifs)
-- **Data** : **pandas**, **numpy**, **matplotlib** — le standard de la science des donnees
+- **Data** : **pandas**, **numpy**, **matplotlib** — le standard de la science des données
 - **AI/ML** : **PyTorch**, **TensorFlow**, **scikit-learn**
 
 ### Python vs JavaScript pour les devs JS
@@ -247,19 +247,19 @@ Comme les list comprehensions, mais pour dicts :
 
 Apprendre Python en complement de JS te rend embauchable dans 2x plus de roles.
 
-**A retenir :** Dict = objet JS avec quotes sur les cles. .get() pour acceder safe, .items() pour iterer cle+valeur.
+**À retenir :** Dict = objet JS avec quotes sur les clés. .get() pour accéder safe, .items() pour itérer clé+valeur.
         `,
       },
       objectives: [
-        { id: "o4a", label: "Creer un dictionnaire et lire une valeur" },
-        { id: "o4b", label: "Ajouter une cle et iterer avec .items()" },
+        { id: "o4a", label: "Créer un dictionnaire et lire une valeur" },
+        { id: "o4b", label: "Ajouter une clé et itérer avec .items()" },
       ],
       missionIcon: "📚",
       missionTag: "PROTOCOLE 04",
       missionTtl: "DICTIONNAIRES",
       bannerIcon: "🐍",
-      bannerTtl: "PYTHON OPERATIONNEL",
-      bannerSub: "Tu peux desormais lire et ecrire du Python idiomatique.",
+      bannerTtl: "PYTHON OPÉRATIONNEL",
+      bannerSub: "Tu peux désormais lire et écrire du Python idiomatique.",
       bannerXp: "⚡ +75 XP",
     },
   ],

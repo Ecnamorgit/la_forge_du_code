@@ -50,7 +50,7 @@ Tu peux aussi définir des variables dans un sélecteur spécifique. Elles ne se
 - Sass : variables résolues à la compilation, statiques.
 - CSS : variables **dynamiques**, modifiables à chaud (par media query, par classe, par JS).
 
-**A retenir :** une variable CSS bien nommée est une **intention** (--color-primary), pas une description (--blue-light).
+**À retenir :** une variable CSS bien nommée est une **intention** (--color-primary), pas une description (--blue-light).
         `,
       },
       objectives: [
@@ -60,7 +60,7 @@ Tu peux aussi définir des variables dans un sélecteur spécifique. Elles ne se
       docRefs: ["css/variables"],
       missionIcon: "🎯",
       missionTag: "PROTOCOLE 01",
-      missionTtl: "DECLARATION CENTRALE",
+      missionTtl: "DÉCLARATION CENTRALE",
       bannerIcon: "🎯",
       bannerTtl: "VARIABLE EN PLACE",
       bannerSub: "La couleur primaire a un nom logique.",
@@ -84,7 +84,7 @@ Tu peux aussi définir des variables dans un sélecteur spécifique. Elles ne se
 \`background: var(--color-primary, #00b8d4);\`
 Si --color-primary n'est pas défini, le navigateur utilise #00b8d4.
 
-### Cas typique : theme switcher
+### Cas typique : thème switcher
 \`:root {\`
 \`  --bg: #fff;\`
 \`  --text: #000;\`
@@ -97,12 +97,12 @@ Si --color-primary n'est pas défini, le navigateur utilise #00b8d4.
 
 \`body { background: var(--bg); color: var(--text); }\`
 
-Ajouter data-theme="dark" sur <html> bascule tout le site en sombre.
+Ajouter data-thème="dark" sur <html> bascule tout le site en sombre.
 
 ### Performance
 **Aucune perte.** Les variables CSS sont natives, résolues en temps réel sans coût perceptible.
 
-**A retenir :** dès qu'une couleur ou une valeur de design apparaît 2 fois, **en faire une variable**.
+**À retenir :** dès qu'une couleur ou une valeur de design apparaît 2 fois, **en faire une variable**.
         `,
       },
       objectives: [
@@ -111,7 +111,7 @@ Ajouter data-theme="dark" sur <html> bascule tout le site en sombre.
       ],
       missionIcon: "♻",
       missionTag: "PROTOCOLE 02",
-      missionTtl: "REUTILISATION",
+      missionTtl: "RÉUTILISATION",
       bannerIcon: "♻",
       bannerTtl: "COULEUR CENTRALisée",
       bannerSub: "Changer la valeur de la variable suffit pour répercuter partout.",
@@ -155,7 +155,7 @@ Les variables ne sont pas réservées aux couleurs. **Espacements, rayons, taill
 ### Pourquoi nommer par taille (sm/md/lg) plutôt que valeur (16/32) ?
 Si demain tu décides que ton "medium" passe de 16 à 18 px, tu changes UNE variable. Si tu nommais --space-16, il faudrait aussi renommer la variable.
 
-**A retenir :** un bon nommage de variables suit l'**intention**, pas la valeur.
+**À retenir :** un bon nommage de variables suit l'**intention**, pas la valeur.
         `,
       },
       objectives: [
@@ -175,8 +175,8 @@ Si demain tu décides que ton "medium" passe de 16 à 18 px, tu changes UNE vari
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Variables CSS</title>\n    <style>\n      :root {\n        --color-primary: #00b8d4;\n        --color-bg: #03060d;\n        --color-text: #ffffff;\n      }\n      body { background: var(--color-bg); color: var(--color-text); font-family: sans-serif; padding: 40px; }\n      .panel { background: #0a1322; padding: 20px; }\n      \n    </style>\n  </head>\n  <body>\n    <div class="panel">Panneau de bord</div>\n  </body>\n</html>',
       placeholder: "/* Crée un thème clair sur [data-theme=light] */",
       narrator:
-        "Crée un thème clair en redéfinissant --color-bg en blanc et --color-text en noir, dans un sélecteur [data-theme=\"light\"]. Le panneau changera automatiquement sans toucher au reste du CSS.",
-      hint: '[data-theme="light"] { --color-bg: #ffffff; --color-text: #000000; }',
+        "Crée un thème clair en redéfinissant --color-bg en blanc et --color-text en noir, dans un sélecteur [data-thème=\"light\"]. Le panneau changera automatiquement sans toucher au reste du CSS.",
+      hint: '[data-thème="light"] { --color-bg: #ffffff; --color-text: #000000; }',
       briefing: {
         title: "Theming via les variables",
         content: `
@@ -202,9 +202,9 @@ Ou via JS :
 \`document.documentElement.dataset.theme = "light";\`
 
 ### Avantages
-- **Zero refactor CSS** : seules les variables changent.
+- **Zéro refactor CSS** : seules les variables changent.
 - **Transition possible** : ajoute transition: background 0.3s sur body pour un fondu doux entre thèmes.
-- **Multi-themes triviaux** : --theme-dark, --theme-light, --theme-sepia...
+- **Multi-thèmes triviaux** : --thème-dark, --thème-light, --thème-sepia...
 
 ### Cas plus avancé
 Un site peut détecter automatiquement la préférence système :
@@ -215,16 +215,16 @@ Un site peut détecter automatiquement la préférence système :
 \`  }\`
 \`}\`
 
-**A retenir :** une fois ton design system extrait en variables, ajouter un dark/light mode prend 10 minutes.
+**À retenir :** une fois ton design system extrait en variables, ajouter un dark/light mode prend 10 minutes.
         `,
       },
       objectives: [
-        { id: "o4a", label: 'Cibler [data-theme="light"] (ou similaire)' },
+        { id: "o4a", label: 'Cibler [data-thème="light"] (ou similaire)' },
         { id: "o4b", label: "Redéfinir --color-bg ou --color-text" },
       ],
       missionIcon: "🌗",
       missionTag: "PROTOCOLE 04",
-      missionTtl: "THEME ALTERNATIF",
+      missionTtl: "THÈME ALTERNATIF",
       bannerIcon: "🌗",
       bannerTtl: "DESIGN SYSTEM COMPLET",
       bannerSub: "Tu maîtrises les variables CSS pour theming et maintenance.",

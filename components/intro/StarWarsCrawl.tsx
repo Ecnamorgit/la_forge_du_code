@@ -24,7 +24,7 @@ export default function StarWarsCrawl({
           --- TRANSMISSION SPATIALE REÇUE ---
         </span>
         <h1 className="font-tech text-3xl font-bold uppercase tracking-[0.25em] text-yellow-400 drop-shadow-[0_0_20px_rgba(255,230,0,0.4)] sm:text-5xl lg:text-6xl">
-          NEBULA COMMAND
+          COALITION NEBULA
         </h1>
       </div>
 

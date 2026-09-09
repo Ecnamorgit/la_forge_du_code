@@ -27,14 +27,14 @@ const SLIDES: Slide[] = [
     tag: "PROTOCOLE 02",
     title: "DÉPLOIE TON CODE",
     body:
-      "À gauche, le briefing et tes objectifs. À droite, l'éditeur de code. Tape ton code, puis clique DEPLOYER pour exécuter. Si tu valides tous les objectifs, l'étape est marquée terminée.",
+      "À gauche, le briefing et tes objectifs. À droite, l'éditeur de code. Tape ton code, puis clique DÉPLOYER pour exécuter. Si tu valides tous les objectifs, l'étape est marquée terminée.",
   },
   {
     icon: "⚡",
     tag: "PROTOCOLE 03",
     title: "SYSTÈME XP & BADGES",
     body:
-      "Chaque étape complétée te rapporte de l'XP et fait monter ton niveau. Terminer un chapitre entier débloque un badge spécial — visible sur ton profil. Reviens chaque jour pour faire grimper ton streak.",
+      "Chaque étape complétée te rapporte de l'XP et fait monter ton niveau. Terminer un chapitre entier débloque un badge spécial — visible sur ton profil. Reviens chaque jour pour faire grimper ta liaison.",
   },
   {
     icon: "🚀",
@@ -270,7 +270,7 @@ export default function OnboardingOverlay() {
                   >
                     <div className="flex items-center justify-between">
                       <span>{opt.text}</span>
-                      {isSelected && <span className="text-xs font-tech text-nebula-cyan">✓ SELECTIONNE</span>}
+                      {isSelected && <span className="text-xs font-tech text-nebula-cyan">✓ SÉLECTIONNÉ</span>}
                     </div>
                   </button>
                 );

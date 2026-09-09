@@ -54,7 +54,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Premier champ etiquete.",
+      msg: "Premier champ étiquete.",
       objList: ["o1a", "o1b"],
     };
   },

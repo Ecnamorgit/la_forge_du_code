@@ -5,9 +5,9 @@ import PublicHeader from "@/components/ui/PublicHeader";
 import TrialCtaLink from "@/components/ui/TrialCtaLink";
 
 export const metadata: Metadata = {
-  title: "Codex — Nebula Command",
+  title: "Codex — La Forge du Code",
   description:
-    "L'univers de Nebula Command : la Coalition, la menace Spectre et le rôle du Cadet-Ingénieur.",
+    "L'univers de la Coalition Nebula : la flotte, la menace Spectre et le rôle du Cadet-Ingénieur.",
 };
 
 export default function CodexPage() {

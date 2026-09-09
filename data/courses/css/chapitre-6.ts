@@ -132,7 +132,7 @@ absolu se positionne par rapport au **plus proche ancêtre positionné** (relati
 ### Attention
 - Le contenu derrière la barre fixed est caché. **Ajoute du padding-top sur <body>** équivalent à la hauteur de la barre pour ne pas masquer le début du contenu.
 
-**A retenir :** fixed = "épingle au navigateur".
+**À retenir :** fixed = "épingle au navigateur".
         `,
       },
       objectives: [

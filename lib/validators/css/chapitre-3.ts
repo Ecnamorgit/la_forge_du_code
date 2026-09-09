@@ -11,13 +11,13 @@ export const validators: Validator[] = [
     if (!hasProperty(css, ".module", "width")) {
       return {
         ok: false,
-        msg: "Ajoute une propriete width sur .module.",
+        msg: "Ajoute une propriété width sur .module.",
       };
     }
     if (!hasProperty(css, ".module", "height")) {
       return {
         ok: false,
-        msg: "Ajoute aussi une propriete height sur .module.",
+        msg: "Ajoute aussi une propriété height sur .module.",
       };
     }
     return {
@@ -90,7 +90,7 @@ export const validators: Validator[] = [
     if (hasPropertyWithValue(css, ".module", "border", /^\s*none\s*$/i)) {
       return {
         ok: false,
-        msg: "La border ne doit pas etre 'none'.",
+        msg: "La border ne doit pas être 'none'.",
       };
     }
     return {

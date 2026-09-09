@@ -54,7 +54,7 @@ export default async function VerifyEmailPage({ params }: PageProps) {
             <>
               <div className="mb-3 text-5xl">✅</div>
               <h1 className="mb-3 font-tech text-2xl tracking-[0.18em] text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)]">
-                EMAIL VÉRIFIÉ
+                ADRESSE VÉRIFIÉE
               </h1>
               <p className="mb-6 font-body text-sm leading-relaxed text-nebula-text-secondary">
                 Ton compte <strong className="break-all text-nebula-green">{result.email}</strong> est

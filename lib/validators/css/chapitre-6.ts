@@ -16,7 +16,7 @@ export const validators: Validator[] = [
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     if (!hasPropertyWithValue(css, ".badge", "position", /\brelative\b/i)) {
-      return { ok: false, msg: "Definis position: relative sur .badge." };
+      return { ok: false, msg: "Définis position: relative sur .badge." };
     }
     const body = ruleBody(css, ".badge");
     if (!body || !hasOffset(body)) {
@@ -32,7 +32,7 @@ export const validators: Validator[] = [
       return { ok: false, msg: "Donne position: relative a .card pour ancrer son enfant." };
     }
     if (!hasPropertyWithValue(css, ".ribbon", "position", /\babsolute\b/i)) {
-      return { ok: false, msg: "Definis position: absolute sur .ribbon." };
+      return { ok: false, msg: "Définis position: absolute sur .ribbon." };
     }
     const body = ruleBody(css, ".ribbon");
     if (!body || !hasOffset(body)) {
@@ -45,7 +45,7 @@ export const validators: Validator[] = [
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     if (!hasPropertyWithValue(css, ".topbar", "position", /\bfixed\b/i)) {
-      return { ok: false, msg: "Definis position: fixed sur .topbar." };
+      return { ok: false, msg: "Définis position: fixed sur .topbar." };
     }
     if (!hasPropertyWithValue(css, ".topbar", "top", /^\s*0(px)?\s*$/i)) {
       return { ok: false, msg: "Ancre la barre avec top: 0." };
@@ -57,12 +57,12 @@ export const validators: Validator[] = [
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     if (!hasPropertyWithValue(css, ".section-title", "position", /\bsticky\b/i)) {
-      return { ok: false, msg: "Definis position: sticky sur .section-title." };
+      return { ok: false, msg: "Définis position: sticky sur .section-title." };
     }
     const body = ruleBody(css, ".section-title");
     if (!body || !/(?<![-\w])top\s*:\s*[^;]/i.test(body)) {
-      return { ok: false, msg: "Sticky exige un top (ou bottom) defini. Ajoute top: 0 par exemple." };
+      return { ok: false, msg: "Sticky exige un top (ou bottom) défini. Ajoute top: 0 par exemple." };
     }
-    return { ok: true, msg: "Positionnement maitrise.", objList: ["o4a", "o4b"], final: true };
+    return { ok: true, msg: "Positionnement maîtrise.", objList: ["o4a", "o4b"], final: true };
   },
 ];

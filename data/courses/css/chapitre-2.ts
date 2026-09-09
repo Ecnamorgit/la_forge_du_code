@@ -4,10 +4,10 @@ export const chapitre2: ChapterData = {
   slug: "chapitre-2",
   tag: "MISSION : CHROMATIQUE",
   title: "PALETTE\nTACTIQUE",
-  subtitle: "Maitrise les selecteurs et les formats de couleur",
+  subtitle: "Maîtrise les sélecteurs et les formats de couleur",
   totalXp: 200,
   completionBadge: "🌈",
-  completionBadgeLabel: "OPERATEUR PALETTE",
+  completionBadgeLabel: "OPÉRATEUR PALETTE",
   steps: [
     {
       startCode:
@@ -17,12 +17,12 @@ export const chapitre2: ChapterData = {
         "Tous les paragraphes ne se valent pas. Cible uniquement celui qui porte la classe alert pour l'alerter visuellement.",
       hint: "Dans le <style>, ajoute : .alert { color: red; }",
       briefing: {
-        title: "Le selecteur de classe",
+        title: "Le sélecteur de classe",
         content: `
 *« Tirer sur tout ce qui bouge, c'est bon pour les amateurs. Une \`class\`, un point, et tu ne cibles que ce que tu veux — précision avant puissance. »* — **Kira**
 
-### Selectionner par classe
-Un meme element peut porter une **class** (etiquette) ajoutee dans le HTML : \`<p class="alert">\`.
+### Sélectionner par classe
+Un même élément peut porter une **class** (étiquette) ajoutee dans le HTML : \`<p class="alert">\`.
 
 ### En CSS, on cible une classe avec le **point**
 \`.alert {\`
@@ -30,21 +30,21 @@ Un meme element peut porter une **class** (etiquette) ajoutee dans le HTML : \`<
 \`}\`
 
 ### Pourquoi utiliser des classes ?
-- Cibler **un sous-ensemble** d'elements (pas tous les <p>).
-- Reutiliser le meme style sur plusieurs elements.
+- Cibler **un sous-ensemble** d'éléments (pas tous les <p>).
+- Reutiliser le même style sur plusieurs éléments.
 - Garder le HTML neutre et le style modifiable.
 
-**A retenir :** \`.alert\` cible **tout element** ayant \`class="alert"\`, peu importe son type (p, div, span...).
+**À retenir :** \`.alert\` cible **tout élément** ayant \`class="alert"\`, peu importe son type (p, div, span...).
         `,
       },
       objectives: [
-        { id: "o1a", label: "Utiliser un selecteur de classe (.alert)" },
-        { id: "o1b", label: "Appliquer une propriete color" },
+        { id: "o1a", label: "Utiliser un sélecteur de classe (.alert)" },
+        { id: "o1b", label: "Appliquer une propriété color" },
       ],
       docRefs: ["css/selecteurs"],
       missionIcon: "🏷",
       missionTag: "PROTOCOLE 01",
-      missionTtl: "CIBLAGE PRECIS",
+      missionTtl: "CIBLAGE PRÉCIS",
       bannerIcon: "🎯",
       bannerTtl: "CLASSE ACTIVE",
       bannerSub: "Seul le paragraphe d'alerte change de couleur.",
@@ -55,12 +55,12 @@ Un meme element peut porter une **class** (etiquette) ajoutee dans le HTML : \`<
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Palette tactique</title>\n    <style>\n      body { background-color: #03060d; color: white; }\n      .alert { color: red; }\n      \n    </style>\n  </head>\n  <body>\n    <h1>Statut equipage</h1>\n    <p class="alert">Alerte : pression instable</p>\n    <p id="status">Code mission : NEBULA-7</p>\n  </body>\n</html>',
       placeholder: "<!-- Cible l'element ayant id=\"status\" -->",
       narrator:
-        "Un identifiant unique permet de cibler un seul element precisement. Le paragraphe id=\"status\" doit afficher une couleur cyan signature.",
+        "Un identifiant unique permet de cibler un seul élément précisément. Le paragraphe id=\"status\" doit afficher une couleur cyan signature.",
       hint: "Dans le <style>, ajoute : #status { color: cyan; }",
       briefing: {
-        title: "Le selecteur d'id",
+        title: "Le sélecteur d'id",
         content: `
-### Selectionner par id
+### Sélectionner par id
 Un **id** est un identifiant **unique** dans la page : \`<p id="status">\`.
 
 ### En CSS, on cible un id avec le **diese**
@@ -68,18 +68,18 @@ Un **id** est un identifiant **unique** dans la page : \`<p id="status">\`.
 \`  color: cyan;\`
 \`}\`
 
-### Difference class vs id
-- **class** : peut etre portee par plusieurs elements -> en CSS avec **.**
-- **id** : un seul element par page -> en CSS avec **#**
+### Différence class vs id
+- **class** : peut être portee par plusieurs éléments -> en CSS avec **.**
+- **id** : un seul élément par page -> en CSS avec **#**
 
 **Bonnes pratiques :**
-- Utilise plutot les **classes** pour les styles reutilisables.
-- Reserve les **id** aux elements vraiment uniques.
+- Utilise plutôt les **classes** pour les styles reutilisables.
+- Reserve les **id** aux éléments vraiment uniques.
         `,
       },
       objectives: [
-        { id: "o2a", label: "Utiliser un selecteur d'id (#status)" },
-        { id: "o2b", label: "Appliquer une propriete color" },
+        { id: "o2a", label: "Utiliser un sélecteur d'id (#status)" },
+        { id: "o2b", label: "Appliquer une propriété color" },
       ],
       missionIcon: "🆔",
       missionTag: "PROTOCOLE 02",
@@ -94,14 +94,14 @@ Un **id** est un identifiant **unique** dans la page : \`<p id="status">\`.
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Palette tactique</title>\n    <style>\n      body { background-color: #03060d; color: white; }\n      .alert { color: red; }\n      #status { color: cyan; }\n      \n    </style>\n  </head>\n  <body>\n    <h1>Statut equipage</h1>\n    <p class="alert">Alerte : pression instable</p>\n    <p id="status">Code mission : NEBULA-7</p>\n  </body>\n</html>',
       placeholder: "<!-- Utilise une couleur hex ou rgb sur le <h1> -->",
       narrator:
-        "Les noms de couleur sont pratiques mais limites. Passe au format hex ou rgb pour personnaliser precisement la teinte du titre.",
+        "Les noms de couleur sont pratiques mais limites. Passe au format hex ou rgb pour personnaliser précisément la teinte du titre.",
       hint: "Dans le <style>, ajoute : h1 { color: #ff6b2c; } ou h1 { color: rgb(255, 107, 44); }",
       briefing: {
         title: "Formats de couleur",
         content: `
 ### Trois formats principaux
 1. **Nom de couleur** : cyan, red, white...
-2. **Hexadecimal** : commence par # suivi de 6 caracteres.
+2. **Hexadecimal** : commence par # suivi de 6 caractères.
    - \`#ff0000\` = rouge
    - \`#00f0ff\` = cyan
    - \`#ffffff\` = blanc
@@ -122,7 +122,7 @@ Chaque paire represente une composante (rouge, vert, bleu) en base 16.
       ],
       missionIcon: "🎨",
       missionTag: "PROTOCOLE 03",
-      missionTtl: "TEINTE PRECISE",
+      missionTtl: "TEINTE PRÉCISE",
       bannerIcon: "🟧",
       bannerTtl: "COULEUR CALIBREE",
       bannerSub: "Le titre adopte la couleur exacte de la flotte.",
@@ -133,24 +133,24 @@ Chaque paire represente une composante (rouge, vert, bleu) en base 16.
         '<!DOCTYPE html>\n<html>\n  <head>\n    <title>Palette tactique</title>\n    <style>\n      body { background-color: #03060d; color: white; }\n      h1 { color: #ff6b2c; }\n      .alert { color: red; }\n      #status { color: cyan; }\n      \n    </style>\n  </head>\n  <body>\n    <h1>Statut equipage</h1>\n    <p class="alert">Alerte : pression instable</p>\n    <p id="status">Code mission : NEBULA-7</p>\n  </body>\n</html>',
       placeholder: "<!-- Centre le h1 et mets l'alerte en gras -->",
       narrator:
-        "Finition typographique. Centre le titre principal et donne du poids visuel a l'alerte avec font-weight.",
+        "Finition typographique. Centre le titre principal et donne du poids visuel à l'alerte avec font-weight.",
       hint: "Ajoute h1 { text-align: center; } et .alert { font-weight: bold; }.",
       briefing: {
         title: "Mise en forme du texte",
         content: `
 ### text-align
-Aligne le texte horizontalement : **left** (par defaut), **center**, **right**, **justify**.
+Aligne le texte horizontalement : **left** (par défaut), **center**, **right**, **justify**.
 \`h1 { text-align: center; }\`
 
 ### font-weight
-Controle l'**epaisseur** de la police : **normal**, **bold**, ou un nombre (100-900).
+Contrôle l'**epaisseur** de la police : **normal**, **bold**, ou un nombre (100-900).
 \`.alert { font-weight: bold; }\`
 
-### text-decoration (bonus)
-Souligne, barre ou enleve la decoration : **underline**, **line-through**, **none**.
+### text-décoration (bonus)
+Souligne, barre ou enleve la décoration : **underline**, **line-through**, **none**.
 \`a { text-decoration: none; }\`
 
-**Reflexe :** pour les liens, on enleve souvent le soulignement avec **text-decoration: none**.
+**Réflexe :** pour les liens, on enleve souvent le soulignement avec **text-décoration: none**.
         `,
       },
       objectives: [
@@ -163,7 +163,7 @@ Souligne, barre ou enleve la decoration : **underline**, **line-through**, **non
       bannerIcon: "🖋",
       bannerTtl: "STYLE COMPLET",
       bannerSub:
-        "La hierarchie visuelle de la console est maintenant claire.",
+        "La hiérarchie visuelle de la console est maintenant claire.",
       bannerXp: "⚡ +50 XP",
     },
   ],
