@@ -1,6 +1,6 @@
 # Tests automatisés & intégration continue
 
-Ce document présente l'architecture, la configuration et le périmètre des tests de CodeForge, ainsi que la configuration du pipeline d'intégration continue (CI).
+Ce document présente l'architecture, la configuration et le périmètre des tests de La Forge du Code, ainsi que la configuration du pipeline d'intégration continue (CI).
 
 ## Stack de Tests
 

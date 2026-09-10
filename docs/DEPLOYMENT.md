@@ -1,6 +1,6 @@
-# CodeForge — Mise en production
+# La Forge du Code — Mise en production
 
-Guide pour déployer Nebula Command (CodeForge) en production. À suivre dans l'ordre.
+Guide pour déployer La Forge du Code en production. À suivre dans l'ordre.
 
 ---
 
@@ -15,7 +15,7 @@ Configure ces variables dans le dashboard de l'hébergeur (Vercel → _Project S
 | `AUTH_SECRET` | ✅ | **Nouveau** secret unique, jamais celui de dev. Génère-le avec `openssl rand -base64 32`. |
 | `AUTH_TRUST_HOST` | ✅ | `true` (derrière le proxy Vercel). |
 | `RESEND_API_KEY` | ✅ | Clé Resend de prod (`re_...`). |
-| `RESEND_FROM_EMAIL` | ✅ | Expéditeur sur **domaine vérifié** (ex. `Nebula Command <noreply@laforgeducode.fr>`). `onboarding@resend.dev` n'envoie qu'au compte propriétaire. |
+| `RESEND_FROM_EMAIL` | ✅ | Expéditeur sur **domaine vérifié** (ex. `La Forge du Code <noreply@laforgeducode.fr>`). `onboarding@resend.dev` n'envoie qu'au compte propriétaire. |
 | `APP_URL` | ✅ | URL HTTPS publique **sans slash final** (ex. `https://www.laforgeducode.fr`). Sert à construire les liens d'email — un mauvais réglage casse la vérification et le reset. |
 | `UPSTASH_REDIS_REST_URL` | ⚠️ multi-instance | Rate-limiter partagé (CF-7). Requis sur déploiement **serverless/multi-instance** (Vercel) pour que la limite soit respectée entre instances. Absent → fallback mémoire (OK en mono-instance). |
 | `UPSTASH_REDIS_REST_TOKEN` | ⚠️ multi-instance | Token REST Upstash, va de pair avec l'URL ci-dessus. |

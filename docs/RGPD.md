@@ -1,6 +1,6 @@
 # Conformité RGPD — note de traitement des données personnelles
 
-**Projet :** CodeForge / Nebula Command
+**Projet :** La Forge du Code
 **Date :** 2026-06-17
 
 > Document de cadrage RGPD. À adapter avec une politique de confidentialité
@@ -10,7 +10,7 @@
 
 ## 1. Responsable de traitement
 
-L'éditeur de la plateforme CodeForge. Un contact (email) doit être publié dans
+L'éditeur de la plateforme La Forge du Code. Un contact (email) doit être publié dans
 la politique de confidentialité pour l'exercice des droits.
 
 ## 2. Données collectées et finalités

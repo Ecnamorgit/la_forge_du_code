@@ -1,16 +1,16 @@
 <svg viewBox="0 0 1320 880" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
-  <title id="t">Diagramme de cas d'usage CodeForge</title>
+  <title id="t">Diagramme de cas d'usage La Forge du Code</title>
   <desc id="d">Acteurs Visiteur, Apprenant et Service Email avec les cas d'usage de la plateforme.</desc>
   <defs>
     <marker id="open" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto" markerUnits="strokeWidth"><path d="M1,1 L9,4 L1,7" fill="none" stroke="#64748b" stroke-width="1.4"/></marker>
     <marker id="tri" markerWidth="16" markerHeight="16" refX="13" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M1,1 L13,6 L1,11 Z" fill="#fff" stroke="#475569" stroke-width="1.4"/></marker>
   </defs>
   <rect x="0" y="0" width="1320" height="880" fill="#f8fafc"/>
-  <text x="40" y="46" font-size="24" font-weight="700" fill="#0f172a">Cas d'usage — CodeForge / Nebula Command</text>
+  <text x="40" y="46" font-size="24" font-weight="700" fill="#0f172a">Cas d'usage — La Forge du Code</text>
 
   <!-- system boundary -->
   <rect x="300" y="110" width="770" height="720" rx="12" fill="#ffffff" stroke="#0e7490" stroke-width="1.8"/>
-  <text x="685" y="138" font-size="15" font-weight="700" fill="#0e7490" text-anchor="middle">CodeForge (système)</text>
+  <text x="685" y="138" font-size="15" font-weight="700" fill="#0e7490" text-anchor="middle">La Forge du Code (système)</text>
 
   <!-- ===== ACTORS ===== -->
   <!-- Visiteur -->

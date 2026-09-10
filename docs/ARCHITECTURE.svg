@@ -1,5 +1,5 @@
 <svg viewBox="0 0 1400 640" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
-  <title id="t">Architecture technique CodeForge</title>
+  <title id="t">Architecture technique La Forge du Code</title>
   <desc id="d">Architecture en trois couches : navigateur client, serveur Next.js, données et services externes.</desc>
   <defs>
     <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
@@ -8,7 +8,7 @@
   </defs>
 
   <rect x="0" y="0" width="1400" height="640" fill="#f8fafc"/>
-  <text x="40" y="46" font-size="25" font-weight="700" fill="#0f172a">Architecture technique — CodeForge / Nebula Command</text>
+  <text x="40" y="46" font-size="25" font-weight="700" fill="#0f172a">Architecture technique — La Forge du Code</text>
   <text x="40" y="72" font-size="14" fill="#475569">Next.js 16 (App Router) · Auth.js v5 · Prisma + PostgreSQL · Resend</text>
 
   <rect x="40" y="92" width="360" height="510" rx="10" fill="#eff6ff" stroke="#1d4ed8" stroke-width="1.6"/>

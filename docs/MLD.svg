@@ -1,10 +1,10 @@
 <svg viewBox="0 0 1480 1090" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
-  <title id="t">MLD relationnel CodeForge / Nebula Command</title>
+  <title id="t">MLD relationnel La Forge du Code</title>
   <desc id="d">Modèle logique de données : tables PostgreSQL avec clés primaires, clés étrangères et contraintes d'unicité.</desc>
 
   <rect x="0" y="0" width="1480" height="1090" fill="#f8fafc"/>
 
-  <text x="40" y="46" font-size="26" font-weight="700" fill="#0f172a">MLD relationnel — CodeForge / Nebula Command</text>
+  <text x="40" y="46" font-size="26" font-weight="700" fill="#0f172a">MLD relationnel — La Forge du Code</text>
   <text x="40" y="72" font-size="14" fill="#475569">Modèle Logique de Données — schéma relationnel PostgreSQL (Prisma). PK = clé primaire · FK = clé étrangère · U = unique</text>
 
   <g stroke="#0e7490" stroke-width="1.8" fill="none">

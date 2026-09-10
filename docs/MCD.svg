@@ -1,11 +1,11 @@
 <svg viewBox="0 0 1460 1080" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d">
-  <title id="t">MCD CodeForge / Nebula Command</title>
+  <title id="t">MCD La Forge du Code</title>
   <desc id="d">Modèle conceptuel de données Merise : utilisateurs, authentification, gamification et contenu pédagogique.</desc>
 
   <rect x="0" y="0" width="1460" height="1080" fill="#f8fafc"/>
 
   <!-- ===== TITLE ===== -->
-  <text x="40" y="46" font-size="26" font-weight="700" fill="#0f172a">MCD — CodeForge / Nebula Command</text>
+  <text x="40" y="46" font-size="26" font-weight="700" fill="#0f172a">MCD — La Forge du Code</text>
   <text x="40" y="72" font-size="14" fill="#475569">Modèle Conceptuel de Données (Merise) — base PostgreSQL + domaine pédagogique défini en code/données</text>
 
   <!-- =========================================================

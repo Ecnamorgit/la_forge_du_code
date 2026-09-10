@@ -1,4 +1,4 @@
-# CodeForge — Nebula Command
+# La Forge du Code
 
 Plateforme web d'apprentissage du code, sur un thème spatial rétro (pixel-art).
 L'apprenant progresse dans des cursus, écrit du code dans un éditeur intégré, le
