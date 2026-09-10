@@ -12,11 +12,19 @@ import BrandLogo from "@/components/ui/BrandLogo";
 export default function PublicHeader({ children }: { children: React.ReactNode }) {
   return (
     <header className="relative z-50 flex h-16 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/80 px-4 backdrop-blur-md sm:px-6">
-      <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
+      {/* Sous `sm`, la navigation (Codex · Se connecter · S'inscrire) occupe
+          presque toute la largeur : le nom écrit se tronquait en « LA FO… ».
+          On ne garde que le pictogramme ; le nom reste annoncé aux lecteurs
+          d'écran via aria-label, et le héros l'affiche en grand juste dessous. */}
+      <Link
+        href="/"
+        aria-label="La Forge du Code — accueil"
+        className="flex min-w-0 items-center gap-2 sm:gap-3"
+      >
         <BrandLogo size={40} />
-        <div className="truncate font-tech text-sm tracking-widest sm:text-base">
+        <div className="hidden font-tech tracking-widest sm:block sm:text-base">
           <span className="text-nebula-cyan">LA FORGE</span>
-          <span className="ml-1 hidden text-nebula-text-secondary sm:inline">DU CODE</span>
+          <span className="ml-1 text-nebula-text-secondary">DU CODE</span>
         </div>
       </Link>
 
