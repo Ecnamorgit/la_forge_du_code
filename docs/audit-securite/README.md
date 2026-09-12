@@ -69,7 +69,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | EXE-02 | Faible | Boucle infinie : onglet figé, délai inopérant | | | Ouvert |
 | EXE-04 | Faible | Indices injectés via dangerouslySetInnerHTML | | | Ouvert |
 | SRV-05 | Faible | Énumération des comptes | | | Ouvert |
-| SRV-06 | Faible | Redirection ouverte sur /avatar?from= | | | Ouvert |
+| SRV-06 | Faible | Redirection ouverte sur /avatar?from= | `dfdb1ac` (e2e) | [fiche](corrections/SRV-06.md) | Corrigé |
 | SRV-07 | Faible | Pas de compteur d'échecs par compte | | | Ouvert |
 | SRV-09 | Faible | Pas de contrôle Origin ; suppression de compte sans réauthentification | | | Ouvert |
 | SRV-10 | Faible | Page chapitre protégée par le seul proxy | | | Ouvert |

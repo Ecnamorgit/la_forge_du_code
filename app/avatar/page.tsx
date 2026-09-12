@@ -16,6 +16,7 @@ import {
   type UniformColorId,
 } from "@/lib/avatar";
 import { clearLocalSeen, readLocalSeen } from "@/lib/cinematics/local-seen";
+import { safeInternalPath } from "@/lib/safe-redirect";
 import { clearTrialState, readTrialState, trialCompletedSteps } from "@/lib/trial-user";
 import { useUser } from "@/lib/use-user";
 import { getCompletionStats } from "@/lib/courses-meta";
@@ -38,7 +39,9 @@ function AvatarPageInner() {
   const { state, hydrated, setAvatar, setCosmetics } = useUser();
 
   const mode: Mode = state.species ? "edit" : "create";
-  const returnTo = searchParams.get("from") || "/dashboard";
+  // Chemin interne uniquement : sert au bouton d'enregistrement ET au lien
+  // « Annuler » (constat SRV-06, redirection ouverte).
+  const returnTo = safeInternalPath(searchParams.get("from"));
 
   const [species, setSpecies] = useState<SpeciesId>(
     (state.species as SpeciesId) || "humain"
