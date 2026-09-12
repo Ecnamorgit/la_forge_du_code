@@ -1,0 +1,69 @@
+# SRV-09 - demonstration sur le code non corrige (commit 868da78), 2026-09-12
+# npx playwright test e2e/securite-csrf-suppression.spec.ts, base PostgreSQL locale
+
+Running 1 test using 1 worker
+[1/1] [chromium] › e2e\securite-csrf-suppression.spec.ts:56:5 › les API refusent une autre origine, et la suppression exige le mot de passe
+  1) [chromium] › e2e\securite-csrf-suppression.spec.ts:56:5 › les API refusent une autre origine, et la suppression exige le mot de passe 
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 403
+    Received: 200
+      72 |       data: JSON.stringify({ course: "html" }),
+      73 |     });
+    > 74 |     expect.soft(res.status()).toBe(403);
+         |                               ^
+      75 |   });
+      76 |
+      77 |   await test.step("supprimer le compte sans mot de passe est refusé", async () => {
+        at e2e\securite-csrf-suppression.spec.ts:74:31
+        at e2e\securite-csrf-suppression.spec.ts:69:3
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 400
+    Received: 200
+      76 |
+      77 |   await test.step("supprimer le compte sans mot de passe est refusé", async () => {
+    > 78 |     expect.soft(await supprimer()).toBe(400);
+         |                                    ^
+      79 |   });
+      80 |
+      81 |   await test.step("le compte existe toujours", async () => {
+        at e2e\securite-csrf-suppression.spec.ts:78:36
+        at e2e\securite-csrf-suppression.spec.ts:77:3
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 200
+    Received: 401
+      80 |
+      81 |   await test.step("le compte existe toujours", async () => {
+    > 82 |     expect.soft((await page.request.get("/api/me")).status()).toBe(200);
+         |                                                               ^
+      83 |   });
+      84 |
+      85 |   await test.step("un mauvais mot de passe est refusé", async () => {
+        at e2e\securite-csrf-suppression.spec.ts:82:63
+        at e2e\securite-csrf-suppression.spec.ts:81:3
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 403
+    Received: 401
+      84 |
+      85 |   await test.step("un mauvais mot de passe est refusé", async () => {
+    > 86 |     expect.soft(await supprimer("pas-le-bon")).toBe(403);
+         |                                                ^
+      87 |   });
+      88 |
+      89 |   await test.step("avec le bon mot de passe, la suppression aboutit", async () => {
+        at e2e\securite-csrf-suppression.spec.ts:86:48
+        at e2e\securite-csrf-suppression.spec.ts:85:3
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 200
+    Received: 401
+      88 |
+      89 |   await test.step("avec le bon mot de passe, la suppression aboutit", async () => {
+    > 90 |     expect.soft(await supprimer(CIBLE.password)).toBe(200);
+         |                                                  ^
+      91 |   });
+      92 | });
+      93 |
+        at e2e\securite-csrf-suppression.spec.ts:90:50
+        at e2e\securite-csrf-suppression.spec.ts:89:3
+    Error Context: test-results\securite-csrf-suppression--7324b-ssion-exige-le-mot-de-passe-chromium\error-context.md
+  1 failed
+    [chromium] › e2e\securite-csrf-suppression.spec.ts:56:5 › les API refusent une autre origine, et la suppression exige le mot de passe 
