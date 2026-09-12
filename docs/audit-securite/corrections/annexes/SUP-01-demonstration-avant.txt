@@ -1,0 +1,20 @@
+# SUP-01 - demonstration sur le code non corrige (commit 57bbdc9), 2026-09-12
+# npx playwright test e2e/securite-security-txt.spec.ts, base PostgreSQL locale
+
+Running 1 test using 1 worker
+[1/1] [chromium] › e2e\securite-security-txt.spec.ts:13:5 › un chercheur trouve où signaler une faille
+  1) [chromium] › e2e\securite-security-txt.spec.ts:13:5 › un chercheur trouve où signaler une faille 
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 200
+    Received: 404
+      13 | test("un chercheur trouve où signaler une faille", async ({ request }) => {
+      14 |   const res = await request.get("/.well-known/security.txt");
+    > 15 |   expect(res.status()).toBe(200);
+         |                        ^
+      16 |
+      17 |   const texte = await res.text();
+      18 |   await test.step("un contact est donné", async () => {
+        at e2e\securite-security-txt.spec.ts:15:24
+    Error Context: test-results\securite-security-txt-un-c-370a5-ouve-où-signaler-une-faille-chromium\error-context.md
+  1 failed
+    [chromium] › e2e\securite-security-txt.spec.ts:13:5 › un chercheur trouve où signaler une faille 
