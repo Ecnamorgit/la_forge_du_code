@@ -92,15 +92,17 @@ export default function SignupPage() {
               <div className="text-center">
                 <div className="mb-3 text-5xl">📡</div>
                 <h1 className="mb-3 font-tech text-2xl tracking-[0.18em] text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)]">
-                  COMPTE CRÉÉ
+                  VÉRIFIE TA BOÎTE MAIL
                 </h1>
+                {/* Même message que l'adresse soit libre ou déjà inscrite
+                    (constat SRV-05) : l'e-mail reçu dit la suite. */}
                 <p className="mb-5 font-body text-sm leading-relaxed text-nebula-text-secondary">
-                  On vient d&apos;envoyer un lien de confirmation à
+                  On vient d&apos;envoyer un e-mail à
                   <br />
                   <strong className="break-all text-nebula-cyan">{sentTo}</strong>
                 </p>
                 <p className="mb-6 font-body text-xs leading-relaxed text-nebula-text-dim">
-                  Clique sur le lien dans l&apos;email pour activer ton compte (valable 24h).
+                  Suis les instructions qu&apos;il contient pour continuer.
                   Pense à vérifier ton dossier <strong>spam</strong>.
                 </p>
                 {emailWarning && (

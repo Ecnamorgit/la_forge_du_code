@@ -1,9 +1,12 @@
+import crypto from "node:crypto";
+
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
-import { sendVerificationEmail } from "@/lib/email";
+import { sendAccountExistsEmail, sendVerificationEmail } from "@/lib/email";
+import { logger } from "@/lib/logger";
 import { createToken } from "@/lib/tokens";
 import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import { crossOriginRefusal } from "@/lib/same-origin";
@@ -22,6 +25,18 @@ const signupSchema = z.object({
     .regex(/[A-Za-z]/, "Le mot de passe doit contenir au moins une lettre")
     .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre"),
 });
+
+/**
+ * Même réponse que l'adresse soit libre ou déjà inscrite (constat SRV-05) :
+ * la page affiche « vérifie ta boîte mail » dans les deux cas.
+ */
+function reponseInscription(mail: { ok: boolean; error?: string }) {
+  return NextResponse.json({
+    ok: true,
+    emailSent: mail.ok,
+    emailError: mail.ok ? null : mail.error ?? "Envoi du mail impossible",
+  });
+}
 
 export async function POST(request: Request) {
   const refus = crossOriginRefusal(request);
@@ -53,22 +68,38 @@ export async function POST(request: Request) {
   const { email, username, password } = parsed.data;
   const emailLower = email.toLowerCase();
 
-  const existing = await prisma.user.findFirst({
-    where: {
-      OR: [{ email: emailLower }, { username }],
-    },
-    select: { email: true, username: true },
+  // Adresse déjà inscrite (constat SRV-05) : on ne le dit pas à l'écran. Le
+  // titulaire reçoit un e-mail « tu as déjà un compte », et la réponse est
+  // celle d'une inscription réussie. Le hachage est calculé quand même, pour
+  // que le temps de réponse ne trahisse pas la différence.
+  const dejaInscrit = await prisma.user.findUnique({
+    where: { email: emailLower },
+    select: { id: true },
   });
+  if (dejaInscrit) {
+    await bcrypt.hash(password, 12);
+    // Au plus 3 avis par adresse et par jour : l'inscription ne doit pas
+    // servir à inonder la boîte d'un tiers. Au-delà, on n'envoie plus, sans le
+    // dire. La clé est une empreinte : l'adresse n'apparaît pas dans le limiteur.
+    const empreinte = crypto.createHash("sha256").update(emailLower).digest("hex");
+    const avis = await rateLimit(`signup-exists:${empreinte}`, {
+      limit: 3,
+      windowMs: 24 * 60 * 60 * 1000,
+    });
+    const mailRes = avis.ok ? await sendAccountExistsEmail({ to: emailLower }) : { ok: true };
+    logger.info("signup_existing_email", { noticeSent: avis.ok });
+    return reponseInscription(mailRes);
+  }
 
-  if (existing) {
+  // Les pseudos sont publics (classement) : dire qu'un pseudo est pris ne
+  // révèle rien, et l'utilisateur doit pouvoir en choisir un autre.
+  const pseudoPris = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true },
+  });
+  if (pseudoPris) {
     return NextResponse.json(
-      {
-        error:
-          existing.email === emailLower
-            ? "Cet email est déjà utilisé"
-            : "Ce pseudo est déjà pris",
-        field: existing.email === emailLower ? "email" : "username",
-      },
+      { error: "Ce pseudo est déjà pris", field: "username" },
       { status: 409 }
     );
   }
@@ -98,9 +129,5 @@ export async function POST(request: Request) {
   // Comptage minimal, sans identifiant : ne doit jamais faire échouer l'inscription.
   await prisma.trackEvent.create({ data: { name: "inscription" } }).catch(() => {});
 
-  return NextResponse.json({
-    ok: true,
-    emailSent: mailRes.ok,
-    emailError: mailRes.ok ? null : mailRes.error ?? "Envoi du mail impossible",
-  });
+  return reponseInscription(mailRes);
 }

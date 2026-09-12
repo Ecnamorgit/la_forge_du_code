@@ -147,3 +147,33 @@ export async function sendPasswordResetEmail(args: {
     text,
   });
 }
+
+/**
+ * Avis envoyé quand quelqu'un tente de s'inscrire avec une adresse déjà
+ * inscrite (constat SRV-05) : l'écran d'inscription ne le révèle pas, le
+ * titulaire l'apprend dans sa propre boîte.
+ */
+export async function sendAccountExistsEmail(args: { to: string }): Promise<SendResult> {
+  const login = `${appUrl()}/login`;
+  const reset = `${appUrl()}/forgot-password`;
+  const html = frame({
+    title: "Tu as déjà un compte",
+    body:
+      "<p>Quelqu'un, peut-être toi, vient d'essayer de créer un compte avec cette adresse. Tu en as déjà un : aucun nouveau compte n'a été créé.</p>" +
+      `<p>Connecte-toi avec le bouton ci-dessous. Mot de passe oublié ? <a href="${reset}" style="color:#00ff88;">Choisis-en un nouveau</a>.</p>` +
+      "<p>Si ce n'est pas toi, ignore ce message : rien n'a changé sur ton compte.</p>",
+    cta: { href: login, label: "> Me connecter" },
+  });
+  const text = [
+    "Quelqu'un, peut-être toi, vient d'essayer de créer un compte La Forge du Code avec cette adresse.",
+    "Tu en as déjà un : aucun nouveau compte n'a été créé.",
+    "",
+    `Te connecter : ${login}`,
+    `Mot de passe oublié : ${reset}`,
+    "",
+    "Si ce n'est pas toi, ignore ce message : rien n'a changé sur ton compte.",
+    "",
+    "La Forge du Code — Plateforme d'apprentissage du code · laforgeducode.fr",
+  ].join("\n");
+  return send({ to: args.to, subject: "La Forge du Code — Tu as déjà un compte", html, text });
+}
