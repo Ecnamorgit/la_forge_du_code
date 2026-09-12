@@ -1,0 +1,19 @@
+# SRV-06 - demonstration sur le code non corrige (commit b66be2d), 2026-09-12
+# npx playwright test e2e/securite-redirection.spec.ts, base PostgreSQL locale
+
+Running 1 test using 1 worker
+[1/1] [chromium] › e2e\securite-redirection.spec.ts:22:5 › après l'enregistrement de l'avatar, un lien piégé ne fait pas quitter le site
+  1) [chromium] › e2e\securite-redirection.spec.ts:22:5 › après l'enregistrement de l'avatar, un lien piégé ne fait pas quitter le site 
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: "http://localhost:3000"
+    Received: "https://piege.invalid"
+      39 |   await page.waitForURL((url) => url.pathname !== "/avatar", { timeout: 15_000 });
+      40 |
+    > 41 |   expect(new URL(page.url()).origin).toBe(new URL(baseURL!).origin);
+         |                                      ^
+      42 | });
+      43 |
+        at e2e\securite-redirection.spec.ts:41:38
+    Error Context: test-results\securite-redirection-après-1af14-ne-fait-pas-quitter-le-site-chromium\error-context.md
+  1 failed
+    [chromium] › e2e\securite-redirection.spec.ts:22:5 › après l'enregistrement de l'avatar, un lien piégé ne fait pas quitter le site 
