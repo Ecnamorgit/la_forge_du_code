@@ -1,0 +1,40 @@
+# EXE-04 - demonstration sur le code non corrige (commit 4d0ccdf), 2026-09-12
+# npx playwright test e2e/securite-indices.spec.ts, base PostgreSQL locale
+
+Running 1 test using 1 worker
+[1/1] [chromium] › e2e\securite-indices.spec.ts:23:5 › l'indice montre le code à taper, sans l'injecter dans la page
+  1) [chromium] › e2e\securite-indices.spec.ts:23:5 › l'indice montre le code à taper, sans l'injecter dans la page 
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 0
+    Received: 1
+      41 |   // un contrôle qui patiente verrait le lien disparaître avec la boîte.
+      42 |   await test.step("aucun lien n'est injecté dans la page", async () => {
+    > 43 |     expect.soft(await lienInjecte.count()).toBe(0);
+         |                                            ^
+      44 |   });
+      45 |
+      46 |   await test.step("le code de l'indice est affiché tel quel", async () => {
+        at e2e\securite-indices.spec.ts:43:44
+        at e2e\securite-indices.spec.ts:42:3
+    Error: expect(locator).toContainText(expected) failed
+    Locator: locator('div.fixed').filter({ hasText: 'H.E.L.P.' }).filter({ hasText: 'Documentation MDN' })
+    Expected substring: "<a href=\"https://developer.mozilla.org\" target=\"_blank\">Documentation MDN</a>"
+    Received string:    "🤖 H.E.L.P._Ajoute Documentation MDN."
+    Timeout: 5000ms
+    Call log:
+      - Expect "soft toContainText" with timeout 5000ms
+      - waiting for locator('div.fixed').filter({ hasText: 'H.E.L.P.' }).filter({ hasText: 'Documentation MDN' })
+        14 × locator resolved to <div class="fixed bottom-5 left-1/2 z-[250] w-[calc(100%-40px)] max-w-[460px] -translate-x-1/2 rounded-sm border border-l-2 border-l-nebula-cyan border-nebula-cyan-dim bg-nebula-bg-panel px-4 py-3 shadow-[0_0_20px_rgba(0,240,255,0.1)] animate-slide-up-in">…</div>
+           - unexpected value "🤖 H.E.L.P._Ajoute Documentation MDN."
+      45 |
+      46 |   await test.step("le code de l'indice est affiché tel quel", async () => {
+    > 47 |     await expect.soft(boite).toContainText(CODE_DE_L_INDICE);
+         |                              ^
+      48 |   });
+      49 | });
+      50 |
+        at e2e\securite-indices.spec.ts:47:30
+        at e2e\securite-indices.spec.ts:46:3
+    Error Context: test-results\securite-indices-l-indice--fe53b-ans-l-injecter-dans-la-page-chromium\error-context.md
+  1 failed
+    [chromium] › e2e\securite-indices.spec.ts:23:5 › l'indice montre le code à taper, sans l'injecter dans la page 
