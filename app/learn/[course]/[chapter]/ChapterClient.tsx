@@ -438,7 +438,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
         newConductBadges={dailyLoopAnnounce.conductBadges}
         href={`/learn/${course}`}
       />
-      <HintBox show={showHint} html={step.hint} />
+      <HintBox show={showHint} text={step.hint} />
       <DocPanel
         entryId={openDocId}
         onClose={() => setOpenDocId(null)}

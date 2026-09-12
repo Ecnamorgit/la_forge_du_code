@@ -67,7 +67,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | EXE-03 | Moyenne | CSP avec 'unsafe-inline' et 'unsafe-eval' | | | Ouvert |
 | BCK-01 | Moyenne | Restauration des sauvegardes jamais testée | | | Ouvert |
 | EXE-02 | Faible | Boucle infinie : onglet figé, délai inopérant | | | Ouvert |
-| EXE-04 | Faible | Indices injectés via dangerouslySetInnerHTML | | | Ouvert |
+| EXE-04 | Faible | Indices injectés via dangerouslySetInnerHTML | `14029ac` (e2e) | [fiche](corrections/EXE-04.md) | Corrigé |
 | SRV-05 | Faible | Énumération des comptes | | | Ouvert |
 | SRV-06 | Faible | Redirection ouverte sur /avatar?from= | `dfdb1ac` (e2e) | [fiche](corrections/SRV-06.md) | Corrigé |
 | SRV-07 | Faible | Pas de compteur d'échecs par compte | | | Ouvert |

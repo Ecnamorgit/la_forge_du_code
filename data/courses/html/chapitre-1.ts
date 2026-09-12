@@ -14,7 +14,7 @@ export const chapitre1: ChapterData = {
       placeholder: "<!-- Écris ton code ici -->",
       narrator:
         "Cadet, nous commençons par les fondations. Sans un protocole d'identification et une enceinte pressurisée, la base lunaire s'effondrera.",
-      hint: 'Utilise &lt;!DOCTYPE html&gt; puis &lt;html&gt;&lt;/html&gt;.',
+      hint: "Utilise <!DOCTYPE html> puis <html></html>.",
       briefing: {
         title: "Les Fondations de l'Acier Numérique",
         content: `
@@ -50,7 +50,7 @@ En HTML, tout fonctionne par **emboîtement**. La balise [[doc:html/html-element
       placeholder: "<!-- Configure le centre de contrôle -->",
       narrator:
         "Structure confirmée. Maintenant, installons le cerveau de la base. Le <head> gère tout ce qui n'est pas visible mais vital.",
-      hint: 'Place un &lt;head&gt; dans ton &lt;html&gt;, puis un &lt;title&gt; à l\'intérieur.',
+      hint: "Place un <head> dans ton <html>, puis un <title> à l'intérieur.",
       briefing: {
         title: "Le Centre de Contrôle Invisible",
         content: `
@@ -85,7 +85,7 @@ La balise **<title>** est cruciale. Elle donne un nom officiel à votre document
       placeholder: "<!-- Déploie le message final -->",
       narrator:
         "L'infrastructure est prête. Il est temps d'envoyer le premier signal visuel vers la Terre. Tout ce qui est visible doit être dans le <body>.",
-      hint: 'Ajoute &lt;body&gt; après le &lt;/head&gt;, puis un &lt;h1&gt;Hello World&lt;/h1&gt; à l\'intérieur.',
+      hint: "Ajoute <body> après le </head>, puis un <h1>Hello World</h1> à l'intérieur.",
       briefing: {
         title: "La Zone de Vie et le Signal Alpha",
         content: `
