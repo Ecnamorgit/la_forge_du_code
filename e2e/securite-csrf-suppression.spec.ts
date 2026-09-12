@@ -90,3 +90,21 @@ test("les API refusent une autre origine, et la suppression exige le mot de pass
     expect.soft(await supprimer(CIBLE.password)).toBe(200);
   });
 });
+
+test("la page profil demande le mot de passe avant de supprimer le compte", async ({ page }) => {
+  await recreerCible();
+  await connecter(page);
+  await page.goto("/profil");
+
+  await page.getByRole("button", { name: "Supprimer définitivement" }).click();
+  const champ = page.getByLabel("Mot de passe");
+  const confirmer = page.getByRole("button", { name: "Confirmer la suppression" });
+
+  await champ.fill("pas-le-bon");
+  await confirmer.click();
+  await expect(page.getByText(/Mot de passe incorrect/)).toBeVisible();
+
+  await champ.fill(CIBLE.password);
+  await confirmer.click();
+  await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
+});

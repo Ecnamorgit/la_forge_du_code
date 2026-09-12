@@ -1,5 +1,7 @@
 import "server-only";
 
+import bcrypt from "bcryptjs";
+
 import { prisma } from "@/lib/db";
 import { getBadgeForChapter, getChaptersMeta } from "@/lib/courses-meta";
 import { getChapterData } from "@/lib/courses-registry";
@@ -852,6 +854,20 @@ export async function exportUserData(userId: string) {
 export async function deleteAccount(userId: string): Promise<void> {
   await assertUserExists(userId);
   await prisma.user.delete({ where: { id: userId } });
+}
+
+/**
+ * Vérifie le mot de passe du compte avant une action irréversible (suppression
+ * du compte, constat SRV-09). Même comparaison que la connexion (`auth.ts`).
+ */
+export async function verifyPassword(userId: string, password: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { password: true },
+  });
+  if (!user) throw new UserNotFoundError();
+  if (!user.password) return false;
+  return bcrypt.compare(password, user.password);
 }
 
 export async function resetProgress(userId: string): Promise<UserState> {

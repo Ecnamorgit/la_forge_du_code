@@ -3,12 +3,16 @@ import { z } from "zod";
 
 import { auth } from "@/auth";
 import { markCourseVisited, UserNotFoundError } from "@/lib/me-server";
+import { crossOriginRefusal } from "@/lib/same-origin";
 
 const bodySchema = z.object({
   course: z.string().min(1).max(64),
 });
 
 export async function POST(req: Request) {
+  const refus = crossOriginRefusal(req);
+  if (refus) return refus;
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });

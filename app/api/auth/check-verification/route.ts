@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/db";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { crossOriginRefusal } from "@/lib/same-origin";
 
 const bodySchema = z.object({
   email: z.string().email().max(254),
@@ -17,6 +18,9 @@ const bodySchema = z.object({
 const DUMMY_HASH = bcrypt.hashSync("check-verification-timing-guard", 12);
 
 export async function POST(req: Request) {
+  const refus = crossOriginRefusal(req);
+  if (refus) return refus;
+
   // On partage le bucket du login (`login:${ip}`) plutôt qu'un compteur dédié :
   // cet endpoint accepte email+password et confirme un mot de passe correct pour
   // un compte non vérifié. Un bucket séparé doublerait le budget de brute-force

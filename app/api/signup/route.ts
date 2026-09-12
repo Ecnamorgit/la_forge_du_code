@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { sendVerificationEmail } from "@/lib/email";
 import { createToken } from "@/lib/tokens";
 import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
+import { crossOriginRefusal } from "@/lib/same-origin";
 
 const signupSchema = z.object({
   email: z.string().email().max(254),
@@ -23,6 +24,9 @@ const signupSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const refus = crossOriginRefusal(request);
+  if (refus) return refus;
+
   // Throttle account creation per IP to curb spam / mass signups.
   const limit = await rateLimit(`signup:${getClientIp(request)}`, {
     limit: 5,

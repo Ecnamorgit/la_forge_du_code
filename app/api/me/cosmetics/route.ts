@@ -7,6 +7,7 @@ import {
   UserNotFoundError,
   setCosmetics,
 } from "@/lib/me-server";
+import { crossOriginRefusal } from "@/lib/same-origin";
 
 const bodySchema = z.object({
   frame: z.string().min(1).max(48).optional(),
@@ -17,6 +18,9 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: Request) {
+  const refus = crossOriginRefusal(req);
+  if (refus) return refus;
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });

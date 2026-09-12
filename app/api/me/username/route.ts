@@ -8,12 +8,16 @@ import {
   UsernameTakenError,
   renameUser,
 } from "@/lib/me-server";
+import { crossOriginRefusal } from "@/lib/same-origin";
 
 const bodySchema = z.object({
   username: z.string().min(2).max(16),
 });
 
 export async function PATCH(req: Request) {
+  const refus = crossOriginRefusal(req);
+  if (refus) return refus;
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });

@@ -9,9 +9,13 @@ import {
   markCinematicView,
 } from "@/lib/me-server";
 import { rateLimit, tooManyRequests } from "@/lib/rate-limit";
+import { crossOriginRefusal } from "@/lib/same-origin";
 import { filterTrialCinematics, filterTrialSteps } from "@/lib/trial-import";
 
 export async function POST(req: Request) {
+  const refus = crossOriginRefusal(req);
+  if (refus) return refus;
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });

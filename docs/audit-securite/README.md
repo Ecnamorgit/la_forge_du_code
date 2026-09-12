@@ -71,7 +71,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | SRV-05 | Faible | Énumération des comptes | | | Ouvert |
 | SRV-06 | Faible | Redirection ouverte sur /avatar?from= | `dfdb1ac` (e2e) | [fiche](corrections/SRV-06.md) | Corrigé |
 | SRV-07 | Faible | Pas de compteur d'échecs par compte | | | Ouvert |
-| SRV-09 | Faible | Pas de contrôle Origin ; suppression de compte sans réauthentification | | | Ouvert |
+| SRV-09 | Faible | Pas de contrôle Origin ; suppression de compte sans réauthentification | `c42b65c` (e2e) | [fiche](corrections/SRV-09.md) | Corrigé |
 | SRV-10 | Faible | Page chapitre protégée par le seul proxy | | | Ouvert |
 | SUP-01 | Faible | Pas de security.txt | | | Ouvert |
 | DEP-02 | Faible | Avis restants sur des dépendances d'outillage (CLI Prisma, plugin de build Sentry, dompurify de Monaco) | [DEP-01, avis restants](corrections/annexes/DEP-01-pnpm-audit-apres.md) | | Ouvert |
