@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 
 import { auth } from "@/auth";
 import { logger } from "@/lib/logger";
-import { InvalidStepError, completeStep, markCinematicView } from "@/lib/me-server";
+import {
+  InvalidStepError,
+  StepOrderError,
+  completeStep,
+  markCinematicView,
+} from "@/lib/me-server";
 import { rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import { filterTrialCinematics, filterTrialSteps } from "@/lib/trial-import";
 
@@ -43,8 +48,10 @@ export async function POST(req: Request) {
       );
       if (!result.alreadyDone) imported += 1;
     } catch (err) {
-      // Une étape refusée ne doit pas faire échouer l'onboarding.
-      if (err instanceof InvalidStepError) continue;
+      // Une étape refusée ne doit pas faire échouer l'onboarding. Les étapes
+      // arrivent triées (filterTrialSteps) : un refus d'ordre ne vient que
+      // d'un trou dans la progression d'essai, et les suivantes le suivront.
+      if (err instanceof InvalidStepError || err instanceof StepOrderError) continue;
       throw err;
     }
   }

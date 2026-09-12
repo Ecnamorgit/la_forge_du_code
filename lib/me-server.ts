@@ -3,6 +3,7 @@ import "server-only";
 import { prisma } from "@/lib/db";
 import { getBadgeForChapter, getChaptersMeta } from "@/lib/courses-meta";
 import { getChapterData } from "@/lib/courses-registry";
+import { checkStepOrder } from "@/lib/step-order";
 import { MAX_XP, xpForStep } from "@/lib/xp";
 import { COURSES_CATALOG } from "@/lib/courses-catalog";
 import { evaluateConductBadges } from "@/lib/conduct-badges";
@@ -213,6 +214,8 @@ export class UserNotFoundError extends Error {}
 export class UsernameTakenError extends Error {}
 export class InvalidUsernameError extends Error {}
 export class InvalidStepError extends Error {}
+/** Étape demandée avant la précédente (lib/step-order.ts) : message affichable. */
+export class StepOrderError extends Error {}
 
 async function assertUserExists(userId: string): Promise<void> {
   const exists = await prisma.user.findUnique({
@@ -325,6 +328,16 @@ export async function completeStep(
       alreadyDone = true;
       return;
     }
+
+    // Ordre de progression (constat EXE-01) : vérifié APRÈS le test
+    // d'idempotence, pour qu'une étape déjà faite reste une réponse normale,
+    // et DANS la transaction, sur les complétions qu'elle voit.
+    const faites = await tx.stepCompletion.findMany({
+      where: { userId, course },
+      select: { chapter: true, stepIndex: true },
+    });
+    const ordre = checkStepOrder(CHAPTERS_BY_COURSE[course] ?? [], faites, chapter, stepIndex);
+    if (!ordre.ok) throw new StepOrderError(ordre.reason);
 
     await tx.stepCompletion.create({
       data: { userId, course, chapter, stepIndex },

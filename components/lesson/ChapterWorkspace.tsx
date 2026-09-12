@@ -36,7 +36,11 @@ interface ChapterWorkspaceProps {
   sqlConfig?: SqlRunOptions;
   /** On screens below `lg`, only one internal panel is shown at a time. */
   mobilePanel?: "editor" | "output";
-  onStepSuccess: (result: ValidationResult) => void;
+  /**
+   * Called with the code that just passed and its result. The code is sent to
+   * the server, which replays the validator (lib/step-proof.ts).
+   */
+  onStepSuccess: (code: string, result: ValidationResult) => void;
   /** Notified each time the Deploy button is pressed (used for mobile tab routing). */
   onDeploy?: () => void;
   onTeleportFlash: () => void;
@@ -198,7 +202,7 @@ export default function ChapterWorkspace({
       setFailCount(0);
       playSystemOnline();
       setEnemyState((prev) => ({ type: "explode", trigger: prev.trigger + 1 }));
-      onStepSuccess(result);
+      onStepSuccess(code, result);
       return;
     }
 

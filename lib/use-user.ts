@@ -24,11 +24,16 @@ export interface UseUserReturn {
   hydrated: boolean;
   /** Refetch the state from the server (e.g. after an external change). */
   refresh: () => Promise<void>;
-  /** Server-validated step completion. Returns awarded XP + new badge. */
+  /**
+   * Server-validated step completion. `code` is the submission that just
+   * passed; the server replays the validator on it (lib/step-proof.ts).
+   * Returns awarded XP + new badge.
+   */
   completeStep: (
     course: string,
     chapter: string,
-    stepIndex: number
+    stepIndex: number,
+    code?: string
   ) => Promise<CompleteStepResponse>;
   /** Rename the current user. Throws on invalid name or conflict. */
   renameUser: (newUsername: string) => Promise<UserState>;
@@ -131,14 +136,15 @@ export function useUser(): UseUserReturn {
     async (
       course: string,
       chapter: string,
-      stepIndex: number
+      stepIndex: number,
+      code?: string
     ): Promise<CompleteStepResponse> => {
       let res: Response;
       try {
         res = await fetch("/api/me/step", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ course, chapter, stepIndex }),
+          body: JSON.stringify({ course, chapter, stepIndex, code }),
         });
       } catch {
         throw new Error(toNetworkMessage());

@@ -60,7 +60,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | ID | Gravité | Constat | Démonstration | Correctif | Statut |
 |---|---|---|---|---|---|
 | DEP-01 | Haute | Dépendances vulnérables : next 16.2.4, next-auth 5.0.0-beta.31 | `pnpm audit` initial | [fiche](corrections/DEP-01.md) | Corrigé |
-| EXE-01 | Moyenne | Réussite d'étape accordée sans preuve côté serveur | | | Ouvert |
+| EXE-01 | Moyenne | Réussite d'étape accordée sans preuve côté serveur | `c710b61` (e2e) | [fiche](corrections/EXE-01.md) | Corrigé (risque résiduel) |
 | SRV-01 | Moyenne | Limitation de débit en mémoire si Upstash absent ou en panne | | | Ouvert |
 | SRV-03 | Moyenne | Sessions JWT de 30 jours non révoquées | | | Ouvert |
 | SRV-04 | Moyenne | Aucune RLS sur les tables Supabase | | | Ouvert |
