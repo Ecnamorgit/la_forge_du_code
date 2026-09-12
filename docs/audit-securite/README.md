@@ -14,6 +14,7 @@ Chaque étape correspond à des commits de la branche `audit/securite-2026-09` :
 | Dossier | Rôle |
 |---|---|
 | [2026-09-12-audit-initial/](2026-09-12-audit-initial/) | État de départ, figé : dossier BLACKPROOF complet et annexes brutes des outils |
+| [corrections/](corrections/) | Une fiche par constat traité : démonstration, correctif, vérification avant / après |
 | [outils/](outils/) | Générateur du dossier et données de l'audit |
 
 Dans chaque dossier d'audit :
@@ -58,7 +59,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 
 | ID | Gravité | Constat | Démonstration | Correctif | Statut |
 |---|---|---|---|---|---|
-| DEP-01 | Haute | Dépendances vulnérables : next 16.2.4, next-auth 5.0.0-beta.31 | | | Ouvert |
+| DEP-01 | Haute | Dépendances vulnérables : next 16.2.4, next-auth 5.0.0-beta.31 | `pnpm audit` initial | [fiche](corrections/DEP-01.md) | Corrigé |
 | EXE-01 | Moyenne | Réussite d'étape accordée sans preuve côté serveur | | | Ouvert |
 | SRV-01 | Moyenne | Limitation de débit en mémoire si Upstash absent ou en panne | | | Ouvert |
 | SRV-03 | Moyenne | Sessions JWT de 30 jours non révoquées | | | Ouvert |
@@ -73,6 +74,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | SRV-09 | Faible | Pas de contrôle Origin ; suppression de compte sans réauthentification | | | Ouvert |
 | SRV-10 | Faible | Page chapitre protégée par le seul proxy | | | Ouvert |
 | SUP-01 | Faible | Pas de security.txt | | | Ouvert |
+| DEP-02 | Faible | Avis restants sur des dépendances d'outillage (CLI Prisma, plugin de build Sentry, dompurify de Monaco) | [DEP-01, avis restants](corrections/annexes/DEP-01-pnpm-audit-apres.md) | | Ouvert |
 
 Les points d'information (EXE-05, EXE-06, SRV-11) sont détaillés dans le rapport.
 
