@@ -1,0 +1,10 @@
+1. Le code saisi par les apprenants est-il exécuté dans un environnement isolé, sans accès à la session ni aux données des autres utilisateurs ?
+2. La validation des exercices et l'attribution de l'XP, des badges et du classement sont-elles protégées contre la triche ?
+3. Les mots de passe, les sessions et les jetons de vérification et de réinitialisation sont-ils gérés selon l'état de l'art ?
+4. Chaque requête vérifie-t-elle que l'utilisateur n'accède qu'à ses propres données ?
+5. Les points sensibles (connexion, inscription, envoi d'e-mails) sont-ils protégés contre la force brute et l'abus ?
+6. Le site applique-t-il les protections attendues côté transport et navigateur (HTTPS, en-têtes de sécurité, CSP) ?
+7. Les dépendances sont-elles à jour et exemptes de vulnérabilités connues exploitables ?
+8. Les données personnelles et les secrets sont-ils protégés (exposition, stockage, RGPD) ?
+9. Les données sont-elles sauvegardées, et la restauration est-elle testée ?
+10. Les erreurs et incidents sont-ils détectés et journalisés, et une faille peut-elle être signalée ?

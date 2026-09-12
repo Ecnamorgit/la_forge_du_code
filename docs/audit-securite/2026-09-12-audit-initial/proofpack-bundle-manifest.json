@@ -1,0 +1,118 @@
+{
+  "id": "proofpack_bundle_la-forge-du-code_20260912",
+  "title": "ProofPack - La Forge du Code - Audit de sécurité du site",
+  "caseId": "case_la-forge-du-code",
+  "auditedCommit": "48b1627",
+  "generatedAt": "2026-09-12T00:00:00.000Z",
+  "files": [
+    {
+      "path": "proofpack-la-forge-du-code.json",
+      "role": "machine_contract",
+      "description": "ProofPack machine-readable (schema v3) avec liens, resume et empreinte.",
+      "size": 48636,
+      "sha256": "65f177d9b5990123a3baa29d0b681cdeb9de2fd260b4235ec8c867bc97ed5208"
+    },
+    {
+      "path": "registre-preuves-la-forge-du-code.csv",
+      "role": "evidence_register",
+      "description": "Registre des preuves : sensibilite, statut, force, source et empreinte.",
+      "size": 9306,
+      "sha256": "264358fad667067f55ed1f85a1672344b3e30cb21ec565fd06cb1bfb8cd4c6fa"
+    },
+    {
+      "path": "plan-remediation-la-forge-du-code.csv",
+      "role": "proofdebt_plan",
+      "description": "Plan de corrections classe par gravite, avec echeances.",
+      "size": 5157,
+      "sha256": "795daef878c424fc7e380205786c798da138e3facc0a711fbe9a94ead35a1cc6"
+    },
+    {
+      "path": "rapport-audit-la-forge-du-code.md",
+      "role": "supplier_answer",
+      "description": "Rapport detaille : reponses, constats, preuves.",
+      "size": 16852,
+      "sha256": "344b84f05dfb41d1acb0d9cd9ff1e57e8d6af4838480882bda33abe056b26410"
+    },
+    {
+      "path": "note-synthese-la-forge-du-code.md",
+      "role": "executive_summary",
+      "description": "Synthese de l'audit en une page.",
+      "size": 1945,
+      "sha256": "c794a6794a4eff0120945a5acf9aa65448c92268f57c808216f967a839c74543"
+    },
+    {
+      "path": "questionnaire-la-forge-du-code.txt",
+      "role": "source_questionnaire",
+      "description": "Questionnaire source.",
+      "size": 1121,
+      "sha256": "64cee1eacad442773d1fa95e3f9b7fb382b558d861db7a96444a9dffcedece44"
+    },
+    {
+      "path": "annexes/carte-des-routes.md",
+      "role": "annex",
+      "description": "Annexe brute (sortie d'outil ou releve).",
+      "size": 1735,
+      "sha256": "bfc0c8702ff71a4e9a073e7c8b0f889051aaf526004d4fa2c83a26a36c83fd90"
+    },
+    {
+      "path": "annexes/en-tetes-http.txt",
+      "role": "annex",
+      "description": "Annexe brute (sortie d'outil ou releve).",
+      "size": 1828,
+      "sha256": "149869139d7569bf8bc39ceb97315c019a2a9a425b9781a8296473d7dd5753ac"
+    },
+    {
+      "path": "annexes/lighthouse.html",
+      "role": "annex",
+      "description": "Annexe brute (sortie d'outil ou releve).",
+      "size": 588671,
+      "sha256": "dcd88d0dd1670c32c83ed0e56bf9b9a8ac06bd1bf8a79a03a126d80b25062a4d"
+    },
+    {
+      "path": "annexes/observatory.json",
+      "role": "annex",
+      "description": "Annexe brute (sortie d'outil ou releve).",
+      "size": 13442,
+      "sha256": "638bd75ba7a79b1b0cf172b02dd754e34f2a9e766d0bba82a8ebe05532034c18"
+    },
+    {
+      "path": "annexes/pnpm-audit.md",
+      "role": "annex",
+      "description": "Annexe brute (sortie d'outil ou releve).",
+      "size": 13148,
+      "sha256": "61a124476ddd0797ec3629bfe2d37a4391856535816a960456248a540f9e4c59"
+    },
+    {
+      "path": "annexes/ssllabs.json",
+      "role": "annex",
+      "description": "Annexe brute (sortie d'outil ou releve).",
+      "size": 81227,
+      "sha256": "cfe76b779aac3848b6c71c5f612234f7009950652f8825006640334aa6c9ac50"
+    },
+    {
+      "path": "annexes/zap-baseline.html",
+      "role": "annex",
+      "description": "Annexe brute (sortie d'outil ou releve).",
+      "size": 114525,
+      "sha256": "b47ffeba2512209aece8e8080b7cc6402452e6c42f04efd601a5d06e14d3513e"
+    },
+    {
+      "path": "annexes/zap-baseline.json",
+      "role": "annex",
+      "description": "Annexe brute (sortie d'outil ou releve).",
+      "size": 46399,
+      "sha256": "fa2d80ed803a46dfc4c050e43179e5eac3bd92d6740abf990dbd19e1b5264bb6"
+    }
+  ],
+  "verification": {
+    "page": "https://blackproof.fr/verify",
+    "schema": "https://blackproof.fr/schemas/proofpack/v3.schema.json",
+    "fingerprint": "bp_sha256_96a0444932b028acf57f2eb0309b40d365fc3bcfb8c576ad89026e380b2b963f"
+  },
+  "limits": [
+    "Auto-evaluation assistee",
+    "Pas une certification",
+    "Pas un audit officiel",
+    "Aucun test d'intrusion actif"
+  ]
+}
