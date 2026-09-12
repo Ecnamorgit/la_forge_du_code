@@ -1,0 +1,57 @@
+# EXE-01 - demonstration sur le code non corrige (commit 2054390), 2026-09-12
+# npx playwright test e2e/securite-progression.spec.ts, base PostgreSQL locale
+
+Running 1 test using 1 worker
+[1/1] [chromium] › e2e\securite-progression.spec.ts:67:5 › l'API n'accorde une étape que sur une vraie solution, à son tour, sans rafale
+  1) [chromium] › e2e\securite-progression.spec.ts:67:5 › l'API n'accorde une étape que sur une vraie solution, à son tour, sans rafale 
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 409
+    Received: 200
+      85 |   await test.step("sauter une étape est refusé", async () => {
+      86 |     // L'étape 2 est valide en soi, mais l'étape 1 n'a jamais été faite.
+    > 87 |     expect.soft(await declarer("chapitre-1", 2, CH1[2])).toBe(409);
+         |                                                          ^
+      88 |   });
+      89 |
+      90 |   await test.step("déclarer une étape sans solution est refusé", async () => {
+        at e2e\securite-progression.spec.ts:87:58
+        at e2e\securite-progression.spec.ts:85:3
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 422
+    Received: 200
+      89 |
+      90 |   await test.step("déclarer une étape sans solution est refusé", async () => {
+    > 91 |     expect.soft(await declarer("chapitre-1", 1)).toBe(422);
+         |                                                  ^
+      92 |   });
+      93 |
+      94 |   await test.step("la solution d'une autre étape est refusée", async () => {
+        at e2e\securite-progression.spec.ts:91:50
+        at e2e\securite-progression.spec.ts:90:3
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 422
+    Received: 200
+      94 |   await test.step("la solution d'une autre étape est refusée", async () => {
+      95 |     // Solution de l'étape 0, sans <title> : ne valide pas l'étape 1.
+    > 96 |     expect.soft(await declarer("chapitre-1", 1, CH1[0])).toBe(422);
+         |                                                          ^
+      97 |   });
+      98 |
+      99 |   await test.step("une rafale d'appels est limitée", async () => {
+        at e2e\securite-progression.spec.ts:96:58
+        at e2e\securite-progression.spec.ts:94:3
+    Error: expect(received).toContain(expected) // indexOf
+    Expected value: 429
+    Received array: [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, …]
+      100 |     const statuts: number[] = [];
+      101 |     for (let i = 0; i < 25; i++) statuts.push(await declarer("chapitre-1", 1, ""));
+    > 102 |     expect.soft(statuts).toContain(429);
+          |                          ^
+      103 |   });
+      104 | });
+      105 |
+        at e2e\securite-progression.spec.ts:102:26
+        at e2e\securite-progression.spec.ts:99:3
+    Error Context: test-results\securite-progression-l-API-2b9cf-tion-à-son-tour-sans-rafale-chromium\error-context.md
+  1 failed
+    [chromium] › e2e\securite-progression.spec.ts:67:5 › l'API n'accorde une étape que sur une vraie solution, à son tour, sans rafale 
