@@ -70,7 +70,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | EXE-04 | Faible | Indices injectés via dangerouslySetInnerHTML | `14029ac` (e2e) | [fiche](corrections/EXE-04.md) | Corrigé |
 | SRV-05 | Faible | Énumération des comptes | `11de9f9` (e2e) | [fiche](corrections/SRV-05.md) | Corrigé |
 | SRV-06 | Faible | Redirection ouverte sur /avatar?from= | `dfdb1ac` (e2e) | [fiche](corrections/SRV-06.md) | Corrigé |
-| SRV-07 | Faible | Pas de compteur d'échecs par compte | | | Ouvert |
+| SRV-07 | Faible | Pas de compteur d'échecs par compte | `85690c9` (e2e) | [fiche](corrections/SRV-07.md) | Corrigé |
 | SRV-09 | Faible | Pas de contrôle Origin ; suppression de compte sans réauthentification | `c42b65c` (e2e) | [fiche](corrections/SRV-09.md) | Corrigé |
 | SRV-10 | Faible | Page chapitre protégée par le seul proxy | `74ec0e9` (vitest) | [fiche](corrections/SRV-10.md) | Corrigé |
 | SUP-01 | Faible | Pas de security.txt | `5d866fd` (e2e) | [fiche](corrections/SUP-01.md) | Corrigé (adresse à créer chez OVH) |

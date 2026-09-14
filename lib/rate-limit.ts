@@ -123,6 +123,27 @@ export async function rateLimit(
 }
 
 /**
+ * Dit si `key` a déjà atteint sa limite, sans compter d'essai. Sert quand
+ * seuls les échecs comptent (lib/login-guard.ts) : on regarde avant l'action,
+ * on compte après un échec.
+ */
+export async function isRateLimited(key: string, opts: RateLimitOptions): Promise<boolean> {
+  const client = getRedis();
+  if (client) {
+    try {
+      const count = await client.get<number>(`rl:${key}`);
+      return count !== null && Number(count) >= opts.limit;
+    } catch (err) {
+      logger.warn("rate_limit_redis_error_fallback_memory", {
+        message: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+  const bucket = store.get(key);
+  return !!bucket && bucket.resetAt > Date.now() && bucket.count >= opts.limit;
+}
+
+/**
  * IP client dérivée des en-têtes de proxy, résistante au spoofing.
  *
  * `X-Forwarded-For` est une liste `client, proxy1, proxy2, …` où le client

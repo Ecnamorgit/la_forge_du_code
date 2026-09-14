@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { authConfig } from "@/auth.config";
 import { prisma } from "@/lib/db";
+import { compteVerrouille, hashFactice, noterEchecConnexion } from "@/lib/login-guard";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 
 declare module "next-auth" {
@@ -52,14 +53,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!parsed.success) return null;
 
         const { email, password } = parsed.data;
+
+        // Limite par compte (constat SRV-07) : la limite par IP ne freine pas
+        // un attaquant aux IP multiples. À 10 échecs en 15 minutes, même le bon
+        // mot de passe est refusé jusqu'à la fin de la fenêtre.
+        if (await compteVerrouille(email)) return null;
+
         const user = await prisma.user.findUnique({
           where: { email: email.toLowerCase() },
         });
 
-        if (!user || !user.password) return null;
+        if (!user || !user.password) {
+          // Comparaison factice : le temps de réponse ne révèle pas que
+          // l'adresse n'a pas de compte (constats SRV-05 et SRV-07).
+          await bcrypt.compare(password, await hashFactice());
+          await noterEchecConnexion(email);
+          return null;
+        }
 
         const ok = await bcrypt.compare(password, user.password);
-        if (!ok) return null;
+        if (!ok) {
+          await noterEchecConnexion(email);
+          return null;
+        }
 
         // On refuse la connexion tant que l'adresse n'est pas vérifiée : sans ce
         // contrôle, n'importe qui peut s'inscrire avec l'email d'un tiers et s'en
