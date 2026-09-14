@@ -9,6 +9,7 @@ import { authConfig } from "@/auth.config";
 import { prisma } from "@/lib/db";
 import { compteVerrouille, hashFactice, noterEchecConnexion } from "@/lib/login-guard";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+import { sessionEstValide } from "@/lib/session-guard";
 
 declare module "next-auth" {
   interface Session {
@@ -34,6 +35,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // contract is identical — safe cast.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: PrismaAdapter(prisma as any),
+  callbacks: {
+    ...authConfig.callbacks,
+    // Version côté Node de `jwt` : elle ajoute la révocation de session
+    // (constat SRV-03), qui lit la base et ne peut donc pas vivre dans
+    // `auth.config.ts`, partagé avec le middleware edge.
+    jwt: async ({ token, user }) => {
+      if (user) {
+        // Connexion : on emmène l'identité ET la version de session du moment.
+        token.id = user.id;
+        token.username = (user as { username?: string }).username;
+        token.sessionVersion = (user as { sessionVersion?: number }).sessionVersion ?? 0;
+        return token;
+      }
+      // Requêtes suivantes : on refuse le jeton si le mot de passe a changé
+      // depuis son émission. Renvoyer null détruit la session.
+      if (typeof token.id === "string") {
+        const ok = await sessionEstValide(token.id, token.sessionVersion);
+        if (!ok) return null;
+      }
+      return token;
+    },
+  },
   providers: [
     Credentials({
       name: "Credentials",
@@ -61,6 +84,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const user = await prisma.user.findUnique({
           where: { email: email.toLowerCase() },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            username: true,
+            password: true,
+            emailVerified: true,
+            sessionVersion: true,
+          },
         });
 
         if (!user || !user.password) {
@@ -90,6 +122,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           name: user.name ?? user.username,
           username: user.username,
+          sessionVersion: user.sessionVersion,
         };
       },
     }),

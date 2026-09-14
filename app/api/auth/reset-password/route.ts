@@ -56,6 +56,10 @@ export async function POST(req: Request) {
         password: hashed,
         // Resetting the password also confirms email ownership.
         emailVerified: new Date(),
+        // Révoque toutes les sessions émises avant ce changement (constat
+        // SRV-03) : une session volée cesse de fonctionner dès la
+        // réinitialisation.
+        sessionVersion: { increment: 1 },
       },
     });
     return NextResponse.json({ ok: true });

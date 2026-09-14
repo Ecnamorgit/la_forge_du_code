@@ -55,12 +55,21 @@ async function revoquerEnBase(): Promise<void> {
   }
 }
 
+// Connexion via l'API de next-auth, avec une IP dédiée (x-forwarded-for) : le
+// formulaire de login partage un budget de débit par IP (`login:unknown` en
+// local) avec toutes les autres specs, et une connexion de plus le ferait
+// déborder. La session s'installe dans le contexte de `page`, réutilisée par
+// les `page.request` suivants.
 async function connecter(page: Page): Promise<void> {
-  await page.goto("/login");
-  await page.locator("#email").fill(CIBLE.email);
-  await page.locator("#password").fill(CIBLE.password);
-  await page.getByRole("button", { name: /se connecter/i }).click();
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
+  const headers = { "x-forwarded-for": "198.51.100.77" };
+  const { csrfToken } = await (await page.request.get("/api/auth/csrf", { headers })).json();
+  await page.request.post("/api/auth/callback/credentials", {
+    headers,
+    form: { email: CIBLE.email, password: CIBLE.password, csrfToken, callbackUrl: "/dashboard" },
+    maxRedirects: 0,
+  });
+  const session = await (await page.request.get("/api/auth/session")).json();
+  expect(session?.user?.email, "la connexion a échoué").toBe(CIBLE.email);
 }
 
 const statutMe = async (page: Page) => (await page.request.get("/api/me")).status();
