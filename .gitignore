@@ -27,6 +27,8 @@
 # probe.js, ecrit a la main et suivi par git (force-add), qui sert la sonde
 # CSP e2e (e2e/csp-srcdoc-script.spec.ts).
 /public/react-runtime/
+# fichiers WebAssembly de sql.js, copies par scripts/copy-sql-wasm.mjs
+/public/sql/*.wasm
 
 # next.js
 /.next/

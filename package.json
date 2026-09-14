@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "node scripts/copy-monaco.mjs && node scripts/build-react-runtime.mjs",
+    "predev": "node scripts/copy-monaco.mjs && node scripts/build-react-runtime.mjs && node scripts/copy-sql-wasm.mjs",
     "dev": "next dev ",
-    "prebuild": "node scripts/copy-monaco.mjs && node scripts/build-react-runtime.mjs",
+    "prebuild": "node scripts/copy-monaco.mjs && node scripts/build-react-runtime.mjs && node scripts/copy-sql-wasm.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
