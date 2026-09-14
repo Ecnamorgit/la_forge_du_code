@@ -9,6 +9,6 @@ import { reponseBacASable } from "@/lib/sandbox/sandbox-response";
  * Sa CSP permissive et son `frame-ancestors` sont posés par `reponseBacASable`,
  * commun aux trois documents du bac à sable.
  */
-export function GET(): Response {
-  return reponseBacASable(buildPreviewDocument());
+export function GET(req: Request): Response {
+  return reponseBacASable(buildPreviewDocument(), req);
 }

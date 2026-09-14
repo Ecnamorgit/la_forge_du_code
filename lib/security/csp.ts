@@ -26,20 +26,16 @@ export interface CspOptions {
    * `'unsafe-eval'` est alors requis. Jamais en production.
    */
   isDev?: boolean;
+  /**
+   * Origine des documents du bac à sable (constat EXE-03), la seule autorisée
+   * dans `frame-src` : ils sont servis depuis une AUTRE origine que
+   * l'application. Dérivée de la requête par `sandboxOriginFor`
+   * (`lib/sandbox/sandbox-origin.ts`) : le sous-domaine dédié en production,
+   * l'autre hôte local en développement et en CI — jamais les deux à la fois,
+   * pour ne pas laisser des origines de développement dans la politique livrée.
+   */
+  sandboxOrigin: string;
 }
-
-/**
- * Origines des documents du bac à sable (constat EXE-03), à autoriser dans
- * `frame-src` : ils sont servis depuis une AUTRE origine que l'application.
- * - Production : le sous-domaine dédié.
- * - Local : `localhost` et `127.0.0.1` (l'app est sur l'un, le bac à sable sur
- *   l'autre, même serveur de dev).
- */
-export const SANDBOX_FRAME_SRCS = [
-  "https://bac-a-sable.laforgeducode.fr",
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-] as const;
 
 /**
  * Jetons de `script-src` sans lesquels des fonctionnalités entières cessent de
@@ -87,7 +83,7 @@ export function cspDirectives(options: CspOptions): string[] {
     "worker-src 'self' blob:",
     "child-src 'self' blob:",
     // Les aperçus (React, JS, HTML) sont encadrés depuis l'origine dédiée.
-    `frame-src 'self' ${SANDBOX_FRAME_SRCS.join(" ")}`,
+    `frame-src 'self' ${options.sandboxOrigin}`,
     "form-action 'self'",
     "upgrade-insecure-requests",
   ];

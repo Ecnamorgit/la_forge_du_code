@@ -10,35 +10,37 @@
  * Ces routes sont exclues des en-têtes globaux de `next.config.ts`.
  */
 
-// Origines autorisées à encadrer le bac à sable : l'application, dans ses deux
-// formes de production et ses deux formes locales (localhost / 127.0.0.1).
-const APP_ANCESTORS = [
-  "https://laforgeducode.fr",
-  "https://www.laforgeducode.fr",
-  "http://localhost:3000",
-  "http://127.0.0.1:3000",
-].join(" ");
+import { appOriginsForSandbox, originDeLaRequete } from "./sandbox-origin";
 
-const SANDBOX_CSP = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
-  "worker-src 'self' blob:",
-  "base-uri 'none'",
-  "object-src 'none'",
-  "form-action 'none'",
-  `frame-ancestors ${APP_ANCESTORS}`,
-].join("; ");
+/**
+ * La CSP d'un document du bac à sable. Les origines autorisées à l'encadrer
+ * sont dérivées de la requête (`appOriginsForSandbox`) : l'application en
+ * production (domaine nu et `www.`), ou l'autre hôte local en développement et
+ * en CI — sans jamais livrer d'origine de développement en production.
+ */
+export function cspBacASable(req: { headers: Headers; url: string }): string {
+  const ancetres = appOriginsForSandbox(originDeLaRequete(req));
+  return [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self'",
+    "worker-src 'self' blob:",
+    "base-uri 'none'",
+    "object-src 'none'",
+    "form-action 'none'",
+    `frame-ancestors ${ancetres.length > 0 ? ancetres.join(" ") : "'none'"}`,
+  ].join("; ");
+}
 
 /** Réponse HTML d'un document du bac à sable, avec sa CSP dédiée. */
-export function reponseBacASable(html: string): Response {
+export function reponseBacASable(html: string, req: { headers: Headers; url: string }): Response {
   return new Response(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Content-Security-Policy": SANDBOX_CSP,
+      "Content-Security-Policy": cspBacASable(req),
       "X-Content-Type-Options": "nosniff",
       "Cache-Control": "no-store",
     },

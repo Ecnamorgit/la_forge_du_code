@@ -7,6 +7,6 @@ import { reponseBacASable } from "@/lib/sandbox/sandbox-response";
  * lui poste le code de l'apprenant, au lieu de figer ce code dans un `srcdoc`
  * qui hériterait de la CSP de l'application.
  */
-export function GET(): Response {
-  return reponseBacASable(buildJsRunnerDocument());
+export function GET(req: Request): Response {
+  return reponseBacASable(buildJsRunnerDocument(), req);
 }
