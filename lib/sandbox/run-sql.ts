@@ -8,33 +8,30 @@
  * per-step `seed` is applied, the student's SQL is executed, and an optional
  * `verify` query reads back the resulting state (used to validate INSERT /
  * UPDATE / DELETE steps that produce no visible result set).
+ *
+ * Dans le navigateur, la requête s'exécute dans un Web Worker (constat EXE-02
+ * de l'audit de sécurité du 2026-09-12) : une requête sans fin ne fige plus
+ * l'onglet, et la page arrête le Worker quand le délai est dépassé. Sous Node
+ * (les tests), elle s'exécute directement.
  */
 
 import initSqlJs, { type SqlJsStatic } from "sql.js";
 
-export interface SqlQueryResult {
-  columns: string[];
-  rows: unknown[][];
-}
+import { executerSql, type SqlRun, type SqlRunOptions } from "./sql-engine";
 
-export interface SqlRun {
-  /** Last result set produced by the student's SQL (null if none, e.g. INSERT). */
-  result: SqlQueryResult | null;
-  /** Read-back of the DB state via the step's verify query, when configured. */
-  verify: SqlQueryResult | null;
-  /** Error message if the student's SQL threw, else null. */
-  error: string | null;
-}
+export type { SqlQueryResult, SqlRun, SqlRunOptions } from "./sql-engine";
 
-export interface SqlRunOptions {
-  /** SQL run before the student's code to set up tables/data for the step. */
-  seed?: string;
-  /** SQL run after the student's code to inspect the resulting state. */
-  verify?: string;
-}
+/** Délai au-delà duquel une requête est interrompue (chargement du moteur compris). */
+export const DELAI_SQL_MS = 5000;
 
-// Where to fetch the wasm. Browser: self-hosted under /sql. Overridable so Node
-// tests can point at the file inside node_modules.
+export const MESSAGE_SQL_INTERROMPU =
+  `Exécution interrompue après ${DELAI_SQL_MS / 1000} s : la requête ne se termine pas. ` +
+  "Vérifie la condition d'arrêt de ta requête récursive.";
+
+// --- Node (tests) -----------------------------------------------------------
+
+// Where to fetch the wasm. Overridable so Node tests can point at the file
+// inside node_modules.
 let locateFile = (file: string): string => `/sql/${file}`;
 let sqlPromise: Promise<SqlJsStatic> | null = null;
 
@@ -51,41 +48,53 @@ function getSql(): Promise<SqlJsStatic> {
   return sqlPromise;
 }
 
-function toResult(
-  exec: { columns: string[]; values: unknown[][] }[]
-): SqlQueryResult | null {
-  if (exec.length === 0) return null;
-  const last = exec[exec.length - 1];
-  return { columns: last.columns, rows: last.values };
+// --- Navigateur : Web Worker --------------------------------------------------
+
+// Un Worker réutilisé d'un déploiement à l'autre (le moteur reste chargé), et
+// recréé après une interruption : un Worker bloqué ne se débloque pas.
+let worker: Worker | null = null;
+let prochainId = 0;
+const enAttente = new Map<number, (run: SqlRun) => void>();
+
+function terminerTout(error: string): void {
+  worker?.terminate();
+  worker = null;
+  const run: SqlRun = { result: null, verify: null, error };
+  for (const terminer of enAttente.values()) terminer(run);
+  enAttente.clear();
 }
 
-export async function runSql(
-  code: string,
-  options: SqlRunOptions = {}
-): Promise<SqlRun> {
-  const SQL = await getSql();
-  const db = new SQL.Database();
-  try {
-    if (options.seed) db.run(options.seed);
-
-    let result: SqlQueryResult | null = null;
-    try {
-      result = toResult(db.exec(code));
-    } catch (err) {
-      return {
-        result: null,
-        verify: null,
-        error: err instanceof Error ? err.message : String(err),
-      };
-    }
-
-    let verify: SqlQueryResult | null = null;
-    if (options.verify) {
-      verify = toResult(db.exec(options.verify)) ?? { columns: [], rows: [] };
-    }
-
-    return { result, verify, error: null };
-  } finally {
-    db.close();
+function obtenirWorker(): Worker {
+  if (!worker) {
+    // Bundlé par scripts/build-sql-worker.mjs avant `dev` et `build`.
+    worker = new Worker("/sql/sql-worker.js");
+    worker.addEventListener("message", (event: MessageEvent<{ id: number; run: SqlRun }>) => {
+      const terminer = enAttente.get(event.data.id);
+      if (!terminer) return;
+      enAttente.delete(event.data.id);
+      terminer(event.data.run);
+    });
+    // Worker introuvable ou en erreur : on le dit tout de suite, plutôt que
+    // de laisser croire à une requête trop longue.
+    worker.addEventListener("error", () => {
+      terminerTout("Moteur SQL indisponible. Recharge la page et réessaie.");
+    });
   }
+  return worker;
+}
+
+export async function runSql(code: string, options: SqlRunOptions = {}): Promise<SqlRun> {
+  if (typeof Worker === "undefined") {
+    return executerSql(await getSql(), code, options);
+  }
+
+  return new Promise<SqlRun>((resolve) => {
+    const id = ++prochainId;
+    const minuteur = setTimeout(() => terminerTout(MESSAGE_SQL_INTERROMPU), DELAI_SQL_MS);
+    enAttente.set(id, (run) => {
+      clearTimeout(minuteur);
+      resolve(run);
+    });
+    obtenirWorker().postMessage({ id, code, options });
+  });
 }

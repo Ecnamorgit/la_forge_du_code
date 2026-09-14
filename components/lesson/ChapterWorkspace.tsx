@@ -12,6 +12,7 @@ import {
   playSystemOnline,
 } from "@/lib/audio";
 import { runJs } from "@/lib/sandbox/run-js";
+import { protegerScriptsHtml } from "@/lib/sandbox/loop-protect";
 import { runSql, type SqlRunOptions } from "@/lib/sandbox/run-sql";
 import type { SqlQueryResult } from "@/data/courses/html/types";
 import {
@@ -127,7 +128,7 @@ export default function ChapterWorkspace({
 
   useEffect(() => {
     if (!isJs && !isReact && iframeRef.current) {
-      iframeRef.current.srcdoc = step.startCode;
+      iframeRef.current.srcdoc = protegerScriptsHtml(step.startCode);
     }
   }, [isJs, isReact, step.startCode]);
 
@@ -192,7 +193,9 @@ export default function ChapterWorkspace({
       });
     } else {
       if (iframeRef.current) {
-        iframeRef.current.srcdoc = code;
+        // Scripts en ligne de l'apprenant : boucles interrompues au lieu de
+        // figer l'onglet (constat EXE-02).
+        iframeRef.current.srcdoc = protegerScriptsHtml(code);
       }
       result = validate(code);
     }

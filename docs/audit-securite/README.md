@@ -66,7 +66,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | SRV-04 | Moyenne | Aucune RLS sur les tables Supabase | | | Ouvert |
 | EXE-03 | Moyenne | CSP avec 'unsafe-inline' et 'unsafe-eval' | | | Ouvert |
 | BCK-01 | Moyenne | Restauration des sauvegardes jamais testée | | | Ouvert |
-| EXE-02 | Faible | Boucle infinie : onglet figé, délai inopérant | | | Ouvert |
+| EXE-02 | Faible | Boucle infinie : onglet figé, délai inopérant | `a410813` (e2e) | [fiche](corrections/EXE-02.md) | Corrigé |
 | EXE-04 | Faible | Indices injectés via dangerouslySetInnerHTML | `14029ac` (e2e) | [fiche](corrections/EXE-04.md) | Corrigé |
 | EXE-07 | Moyenne | Moteur SQL jamais chargé dans le navigateur, cursus SQL inutilisable (découvert pendant l'audit) | `c1d311a` (e2e) | [fiche](corrections/EXE-07.md) | Corrigé |
 | SRV-05 | Faible | Énumération des comptes | `11de9f9` (e2e) | [fiche](corrections/SRV-05.md) | Corrigé |

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { transformJsx } from "@/lib/sandbox/jsx-transform";
 import { detecterBoucleInfinie, messageBoucleInfinie } from "@/lib/sandbox/loop-guard";
+import { protegerBoucles } from "@/lib/sandbox/loop-protect";
 import {
   PREVIEW_MOUNT_NAME_RE,
   buildPreviewSrcdoc,
@@ -191,7 +192,9 @@ export default function ReactPreview({
       }
 
       setEtat({ phase: "rendu" });
-      const payload = { js: r.js, mount };
+      // Les boucles que le filtre littéral ci-dessus laisse passer sont
+      // interrompues à l'exécution, au lieu de figer l'onglet (constat EXE-02).
+      const payload = { js: protegerBoucles(r.js), mount };
       if (pretRef.current) {
         envoyerOuMettreEnFile(payload);
       } else {

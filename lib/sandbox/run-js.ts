@@ -3,7 +3,13 @@
  *
  * This prevents student code from accessing the app's window, sessionStorage,
  * localStorage, cookies, and other same-origin resources.
+ *
+ * L'iframe partage le fil d'exécution de la page : le délai de 3 s ci-dessous
+ * ne peut rien contre une boucle synchrone sans fin. Les boucles sont donc
+ * instrumentées avant l'envoi (lib/sandbox/loop-protect.ts, constat EXE-02).
  */
+
+import { protegerBoucles } from "./loop-protect";
 
 export interface JsRunResult {
   /** True iff the code executed without throwing. */
@@ -71,15 +77,18 @@ export function runJs(code: string): Promise<JsRunResult> {
       finish(data.payload);
     };
 
+    // Filet pour le code asynchrone qui ne rend jamais sa réponse. Les boucles
+    // synchrones, elles, sont arrêtées à 3 s par la garde de loop-protect.ts :
+    // ce délai-ci reste plus long pour que son message, plus précis, s'affiche.
     const timeout = setTimeout(() => {
       finish({
         ok: false,
         logs: [],
         error:
-          "Execution interrompue apres 3s. Verifie une boucle infinie ou un script bloque.",
+          "Exécution interrompue après 4 s : le script ne rend pas la main (attente asynchrone sans fin ?).",
         lastValue: undefined,
       });
-    }, 3000);
+    }, 4000);
 
     window.addEventListener("message", onMessage);
 
@@ -118,7 +127,7 @@ export function runJs(code: string): Promise<JsRunResult> {
         let error = null;
         try {
           const fn = new Function("console", "localStorage", '"use strict"; return (function(){\\n' + ${JSON.stringify(
-            code
+            protegerBoucles(code)
           )} + '\\n})();');
           lastValue = fn(fakeConsole, fakeStorage);
         } catch (err) {

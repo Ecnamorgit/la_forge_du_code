@@ -1,6 +1,27 @@
 import { test, expect, type Page } from "@playwright/test";
+import { Client } from "pg";
 
-import { STORAGE_STATE } from "./global-setup";
+import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
+import { E2E_USER, STORAGE_STATE } from "./global-setup";
+
+/**
+ * Efface la progression du compte e2e sur un chapitre : l'interface ouvre la
+ * première étape non faite, et d'autres specs partagent ce compte. Sans ça,
+ * le témoin tomberait sur l'étape 2 selon l'ordre d'exécution des specs.
+ */
+async function repartirDuDebut(course: string, chapter: string): Promise<void> {
+  assertTestDatabaseUrl(process.env.DATABASE_URL);
+  const client = new Client({ connectionString: process.env.DATABASE_URL });
+  await client.connect();
+  try {
+    await client.query(
+      'DELETE FROM "StepCompletion" WHERE "userId" = $1 AND course = $2 AND chapter = $3',
+      [E2E_USER.id, course, chapter]
+    );
+  } finally {
+    await client.end();
+  }
+}
 
 /**
  * Constat EXE-02 de l'audit de sécurité du 2026-09-12 : une boucle sans fin
@@ -56,6 +77,7 @@ const DEPLOYER = /DEPLOYER/;
 // sql-moteur.spec.ts, constat EXE-07.
 
 test("témoin JavaScript : un programme normal est exécuté et validé", async ({ page }) => {
+  await repartirDuDebut("javascript", "chapitre-1");
   await page.goto("/learn/javascript/chapitre-1");
   await saisir(page, 'console.log("Bonjour, station Nebula")');
   await page.getByRole("button", { name: DEPLOYER }).click();
@@ -72,7 +94,8 @@ test("SQL : une requête sans fin est interrompue, l'onglet reste utilisable", a
   await page.getByRole("button", { name: DEPLOYER }).click();
 
   expect(await ongletRepond(page), "l'onglet est figé").toBe(true);
-  await expect(page.getByText(/interrompue/i)).toBeVisible({ timeout: 15_000 });
+  // Le message apparaît dans le retour ET dans la console : le premier suffit.
+  await expect(page.getByText(/interrompue/i).first()).toBeVisible({ timeout: 15_000 });
 });
 
 test("JavaScript : une boucle sans fin est interrompue, l'onglet reste utilisable", async ({
@@ -85,5 +108,6 @@ test("JavaScript : une boucle sans fin est interrompue, l'onglet reste utilisabl
   await page.getByRole("button", { name: DEPLOYER }).click();
 
   expect(await ongletRepond(page), "l'onglet est figé").toBe(true);
-  await expect(page.getByText(/interrompue/i)).toBeVisible({ timeout: 15_000 });
+  // Le message apparaît dans le retour ET dans la console : le premier suffit.
+  await expect(page.getByText(/interrompue/i).first()).toBeVisible({ timeout: 15_000 });
 });
