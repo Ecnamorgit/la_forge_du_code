@@ -1,0 +1,35 @@
+# SRV-04 - RLS : demonstration sur la base PostgreSQL locale, 2026-09-14
+# docker exec -i codeforge-e2e psql -U postgres -d codeforge_test < scripts/demontrer-rls.sql
+
+INSERT 0 0
+CREATE ROLE
+GRANT
+GRANT
+AVANT (RLS desactivee) : le role anon (cle publique Supabase) lit toute la table User
+ALTER TABLE
+SET
+ lignes_vues_par_anon 
+----------------------
+                   15
+(1 row)
+
+RESET
+APRES (RLS activee, sans politique) : le role anon ne voit plus aucune ligne
+ALTER TABLE
+SET
+ lignes_vues_par_anon 
+----------------------
+                    0
+(1 row)
+
+RESET
+Le proprietaire (role par lequel Prisma se connecte) voit toujours les lignes
+ lignes_vues_par_owner 
+-----------------------
+                    15
+(1 row)
+
+REVOKE
+REVOKE
+DROP ROLE
+DELETE 1

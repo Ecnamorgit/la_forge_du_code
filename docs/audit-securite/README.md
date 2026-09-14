@@ -63,7 +63,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | EXE-01 | Moyenne | Réussite d'étape accordée sans preuve côté serveur | `c710b61` (e2e) | [fiche](corrections/EXE-01.md) | Corrigé (risque résiduel) |
 | SRV-01 | Moyenne | Limitation de débit en mémoire si Upstash absent ou en panne | `2faa3bb` (vitest) | [fiche](corrections/SRV-01.md) | Corrigé (Redis à relier dans Vercel) |
 | SRV-03 | Moyenne | Sessions JWT de 30 jours non révoquées | `b17f3df` (e2e) | [fiche](corrections/SRV-03.md) | Corrigé |
-| SRV-04 | Moyenne | Aucune RLS sur les tables Supabase | | | Ouvert |
+| SRV-04 | Moyenne | Aucune RLS sur les tables Supabase | [démonstration RLS](corrections/annexes/SRV-04-demonstration-rls.txt) | [fiche](corrections/SRV-04.md) | Corrigé (Security Advisor Supabase à vérifier) |
 | EXE-03 | Moyenne | CSP avec 'unsafe-inline' et 'unsafe-eval' | | | Ouvert |
 | BCK-01 | Moyenne | Restauration des sauvegardes jamais testée | | | Ouvert |
 | EXE-02 | Faible | Boucle infinie : onglet figé, délai inopérant | `a410813` (e2e) | [fiche](corrections/EXE-02.md) | Corrigé |
