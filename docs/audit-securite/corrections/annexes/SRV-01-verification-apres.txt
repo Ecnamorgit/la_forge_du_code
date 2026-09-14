@@ -1,0 +1,12 @@
+# SRV-01 - demonstration apres correctif, 2026-09-14
+# pnpm vitest run lib/rate-limit-redis.test.ts lib/env-redis.test.ts
+
+
+ RUN  v4.1.9 <depot>
+
+
+ Test Files  2 passed (2)
+      Tests  7 passed (7)
+   Start at  10:42:12
+   Duration  508ms (transform 137ms, setup 0ms, import 283ms, tests 179ms, environment 0ms)
+

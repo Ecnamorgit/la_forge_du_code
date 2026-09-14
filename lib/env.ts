@@ -54,6 +54,14 @@ const baseSchema = z.object({
       message: "TRUSTED_PROXY_HOPS doit être un entier >= 1",
     })
     .optional(),
+  // Redis partagé du limiteur de débit (lib/rate-limit.ts) : noms d'Upstash,
+  // ou ceux de l'intégration Upstash de Vercel.
+  UPSTASH_REDIS_REST_URL: z.string().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+  KV_REST_API_URL: z.string().optional(),
+  KV_REST_API_TOKEN: z.string().optional(),
+  // Posée par Vercel ("1") sur ses déploiements.
+  VERCEL: z.string().optional(),
 });
 
 export type AppEnv = z.infer<typeof baseSchema>;
@@ -82,6 +90,21 @@ function buildSchema(nodeEnv: string) {
           path: ["AUTH_SECRET"],
           message:
             "AUTH_SECRET utilise encore la valeur d'exemple du .env.example — génère un secret unique pour la production",
+        });
+      }
+
+      // Sur Vercel, chaque instance serverless compte en mémoire : sans Redis
+      // partagé, la limitation de débit n'a pas d'effet réel (constat SRV-01).
+      // Hors de Vercel (instance unique, CI), la mémoire suffit.
+      const redis =
+        (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) ||
+        (env.KV_REST_API_URL && env.KV_REST_API_TOKEN);
+      if (env.VERCEL === "1" && !redis) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["KV_REST_API_URL"],
+          message:
+            "Redis (Upstash) est requis sur Vercel : relie la base Upstash au projet (KV_REST_API_URL / KV_REST_API_TOKEN). Sans lui, la limitation de débit est comptée par instance et reste sans effet",
         });
       }
 

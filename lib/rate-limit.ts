@@ -11,8 +11,10 @@ import { logger } from "@/lib/logger";
  * - **Par défaut** : compteurs en mémoire process. Parfait pour une instance
  *   unique (`next start`, VPS, conteneur), zéro dépendance.
  * - **Multi-instance / serverless** : si `UPSTASH_REDIS_REST_URL` +
- *   `UPSTASH_REDIS_REST_TOKEN` sont définis, les compteurs sont partagés via
- *   Upstash Redis, donc la limite est respectée à travers toutes les instances.
+ *   `UPSTASH_REDIS_REST_TOKEN` (ou `KV_REST_API_URL` + `KV_REST_API_TOKEN`,
+ *   noms de l'intégration Upstash de Vercel) sont définis, les compteurs sont
+ *   partagés via Upstash Redis, donc la limite est respectée à travers toutes
+ *   les instances. Sur Vercel, `lib/env.ts` l'exige.
  *
  * L'API publique (`rateLimit`) est asynchrone dans les deux cas. En cas de panne
  * Redis, on bascule en mémoire (fail-open) plutôt que de bloquer l'auth.
@@ -75,8 +77,12 @@ let redisChecked = false;
 function getRedis(): Redis | null {
   if (redisChecked) return redis;
   redisChecked = true;
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  // Les noms d'Upstash, sinon ceux que pose l'intégration Upstash de Vercel
+  // (constat SRV-01 : le Redis de production ne fournit que les seconds).
+  const [url, token] =
+    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+      ? [process.env.UPSTASH_REDIS_REST_URL, process.env.UPSTASH_REDIS_REST_TOKEN]
+      : [process.env.KV_REST_API_URL, process.env.KV_REST_API_TOKEN];
   if (url && token) {
     redis = new Redis({ url, token });
     logger.info("rate_limit_backend", { backend: "upstash" });
