@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { Client } from "pg";
 
 import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
-import { E2E_USER } from "./global-setup";
+import { E2E_USER, STORAGE_STATE } from "./global-setup";
 
 /**
  * Efface la progression du compte e2e sur un chapitre : l'interface ouvre la
@@ -69,9 +69,15 @@ const CH1_SOLUTIONS = [
  * Placé en tête de fichier : le chapitre 1 est encore vierge pour l'utilisateur
  * E2E (recréé à chaque run), avant que le test de complétion ne le termine.
  */
-test("l'aperçu HTML est rendu depuis une origine distincte", async ({ page }) => {
+test.describe("aperçu HTML sur l'origine dédiée", () => {
+  // Session partagée écrite par global-setup, PAS de connexion formulaire : le
+  // budget de connexion par IP (10 / 5 min, en mémoire) est partagé par toute
+  // la suite, et une connexion de plus ici faisait déborder `trial.spec.ts`,
+  // dernier de l'ordre d'exécution (échec dur en CI, pas seulement flaky).
+  test.use({ storageState: STORAGE_STATE });
+
+  test("l'aperçu HTML est rendu depuis une origine distincte", async ({ page }) => {
   await repartirDuDebut("html", "chapitre-1");
-  await login(page);
   await page.goto("/learn/html/chapitre-1");
   await expect(page.locator(".monaco-editor").first()).toBeVisible({ timeout: 30_000 });
 
@@ -101,6 +107,7 @@ test("l'aperçu HTML est rendu depuis une origine distincte", async ({ page }) =
     .frameLocator('iframe[title="Apercu"]')
     .frameLocator('iframe[title="Rendu HTML"]');
   await expect(scene.locator("h1")).toHaveText("Bonjour Nebula", { timeout: 20_000 });
+  });
 });
 
 test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async ({
