@@ -1,0 +1,52 @@
+# SRV-05 - demonstration sur le code non corrige (commit 8462f13), 2026-09-12
+# RESEND_API_KEY="" npx playwright test e2e/securite-inscription.spec.ts, base PostgreSQL locale, aucun e-mail reel
+
+Running 1 test using 1 worker
+[1/1] [chromium] › e2e\securite-inscription.spec.ts:20:5 › l'inscription ne révèle pas si une adresse a déjà un compte
+  1) [chromium] › e2e\securite-inscription.spec.ts:20:5 › l'inscription ne révèle pas si une adresse a déjà un compte 
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 200
+    Received: 409
+      29 |
+      30 |   await test.step("même statut de réponse", async () => {
+    > 31 |     expect.soft(existante.status()).toBe(libre.status());
+         |                                     ^
+      32 |   });
+      33 |
+      34 |   await test.step("même forme de réponse", async () => {
+        at e2e\securite-inscription.spec.ts:31:37
+        at e2e\securite-inscription.spec.ts:30:3
+    Error: expect(received).toEqual(expected) // deep equality
+    - Expected  - 3
+    + Received  + 2
+      Array [
+    -   "emailError",
+    -   "emailSent",
+    -   "ok",
+    +   "error",
+    +   "field",
+      ]
+      33 |
+      34 |   await test.step("même forme de réponse", async () => {
+    > 35 |     expect.soft(Object.keys(corpsExistante).sort()).toEqual(Object.keys(corpsLibre).sort());
+         |                                                     ^
+      36 |   });
+      37 |
+      38 |   await test.step("aucune mention d'une adresse déjà utilisée", async () => {
+        at e2e\securite-inscription.spec.ts:35:53
+        at e2e\securite-inscription.spec.ts:34:3
+    Error: expect(received).not.toMatch(expected)
+    Expected pattern: not /déjà utilisé/i
+    Received string:      "{\"error\":\"Cet email est déjà utilisé\",\"field\":\"email\"}"
+      37 |
+      38 |   await test.step("aucune mention d'une adresse déjà utilisée", async () => {
+    > 39 |     expect.soft(JSON.stringify(corpsExistante)).not.toMatch(/déjà utilisé/i);
+         |                                                     ^
+      40 |   });
+      41 | });
+      42 |
+        at e2e\securite-inscription.spec.ts:39:53
+        at e2e\securite-inscription.spec.ts:38:3
+    Error Context: test-results\securite-inscription-l-ins-d57c9-ne-adresse-a-déjà-un-compte-chromium\error-context.md
+  1 failed
+    [chromium] › e2e\securite-inscription.spec.ts:20:5 › l'inscription ne révèle pas si une adresse a déjà un compte 

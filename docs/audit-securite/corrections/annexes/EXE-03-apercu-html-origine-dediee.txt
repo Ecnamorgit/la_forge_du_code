@@ -1,0 +1,22 @@
+Constat EXE-03 — étape 1c : l'aperçu HTML est câblé sur l'origine DÉDIÉE.
+
+ChapterWorkspace charge désormais l'aperçu par `src` vers
+http://127.0.0.1:3000/bac-a-sable/html (origine distincte de l'app
+localhost:3000, comme `bac-a-sable.laforgeducode.fr` en production). Cette
+coquille reçoit le HTML de l'apprenant par message et le rend dans une iframe
+imbriquée, qui hérite de la CSP permissive de la coquille — pas de celle,
+stricte, de l'application. Le HTML n'est plus figé dans un `srcdoc` du site.
+
+Commande (base de test locale, sans e-mail réel, contre `pnpm dev`) :
+  DATABASE_URL=…@127.0.0.1:54329/codeforge_test RESEND_API_KEY="" \
+    npx playwright test html-parcours.spec.ts --reporter=list
+
+  ok 1 › l'aperçu HTML est rendu depuis une origine distincte (5.8s)
+  ok 2 › chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion (12.2s)
+  ok 3 › le panneau de référence s'ouvre depuis un docRef d'un chapitre tardif (ch8) (4.1s)
+  3 passed (27.2s)
+
+Le test 1 est nouveau : il vérifie que l'aperçu est servi depuis une autre
+origine que l'app, et que le HTML de l'apprenant se rend bien à travers les
+deux iframes imbriquées (coquille servie → scène). Le test 2 prouve qu'un
+parcours HTML complet reste jouable de bout en bout avec ce câblage.

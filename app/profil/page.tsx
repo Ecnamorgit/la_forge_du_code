@@ -507,21 +507,31 @@ export default function ProfilPage() {
 
 function DangerZone() {
   const router = useRouter();
+  // Le mot de passe est redemandé avant la suppression (constat SRV-09) : une
+  // session restée ouverte ne suffit plus à effacer le compte.
+  const [confirming, setConfirming] = useState(false);
+  const [password, setPassword] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleDelete = async () => {
-    if (
-      !window.confirm(
-        "Supprimer définitivement ton compte et TOUTES tes données ? Cette action est irréversible."
-      )
-    ) {
-      return;
-    }
+  const cancel = () => {
+    setConfirming(false);
+    setPassword("");
+    setError(null);
+  };
+
+  const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setDeleting(true);
     setError(null);
     try {
-      const res = await fetch("/api/me", { method: "DELETE" });
+      const res = await fetch("/api/me", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      if (res.status === 403) throw new Error("Mot de passe incorrect.");
+      if (res.status === 429) throw new Error("Trop de tentatives. Réessaie dans quelques minutes.");
       if (!res.ok) throw new Error("Suppression impossible. Réessaie.");
       await signOut({ redirect: false });
       router.push("/");
@@ -540,20 +550,57 @@ function DangerZone() {
         <p className="mt-1 font-body text-xs text-nebula-text-dim">
           Efface définitivement ton compte, ta progression et tes badges. Aucune récupération possible.
         </p>
+        {confirming && (
+          <p className="mt-1 font-body text-xs text-nebula-text-dim">
+            Saisis ton mot de passe pour confirmer.
+          </p>
+        )}
         {error && (
           <p className="mt-2 font-tech text-[11px] uppercase tracking-wider text-nebula-red">
             {"> "}ERREUR : {error}
           </p>
         )}
       </div>
-      <button
-        type="button"
-        onClick={handleDelete}
-        disabled={deleting}
-        className="rounded-sm border border-nebula-red/60 bg-transparent px-4 py-2 font-tech text-xs uppercase tracking-widest text-nebula-red transition-all enabled:hover:bg-nebula-red/10 disabled:opacity-50"
-      >
-        {deleting ? "Suppression..." : "Supprimer définitivement"}
-      </button>
+      {confirming ? (
+        <form onSubmit={handleDelete} className="flex flex-wrap items-center gap-3">
+          <label htmlFor="delete-password" className="sr-only">
+            Mot de passe
+          </label>
+          <input
+            id="delete-password"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Mot de passe"
+            className="rounded-sm border border-nebula-border bg-transparent px-3 py-2 font-body text-sm text-nebula-text focus:border-nebula-red focus:outline-none"
+          />
+          <button
+            type="submit"
+            disabled={deleting || !password}
+            className="rounded-sm border border-nebula-red/60 bg-transparent px-4 py-2 font-tech text-xs uppercase tracking-widest text-nebula-red transition-all enabled:hover:bg-nebula-red/10 disabled:opacity-50"
+          >
+            {deleting ? "Suppression..." : "Confirmer la suppression"}
+          </button>
+          <button
+            type="button"
+            onClick={cancel}
+            disabled={deleting}
+            className="font-tech text-xs uppercase tracking-widest text-nebula-text-dim transition-colors hover:text-nebula-text-secondary"
+          >
+            Annuler
+          </button>
+        </form>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setConfirming(true)}
+          className="rounded-sm border border-nebula-red/60 bg-transparent px-4 py-2 font-tech text-xs uppercase tracking-widest text-nebula-red transition-all enabled:hover:bg-nebula-red/10 disabled:opacity-50"
+        >
+          Supprimer définitivement
+        </button>
+      )}
     </div>
   );
 }

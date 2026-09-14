@@ -17,8 +17,8 @@ Configure ces variables dans le dashboard de l'hébergeur (Vercel → _Project S
 | `RESEND_API_KEY` | ✅ | Clé Resend de prod (`re_...`). |
 | `RESEND_FROM_EMAIL` | ✅ | Expéditeur sur **domaine vérifié** (ex. `La Forge du Code <noreply@laforgeducode.fr>`). `onboarding@resend.dev` n'envoie qu'au compte propriétaire. |
 | `APP_URL` | ✅ | URL HTTPS publique **sans slash final** (ex. `https://www.laforgeducode.fr`). Sert à construire les liens d'email — un mauvais réglage casse la vérification et le reset. |
-| `UPSTASH_REDIS_REST_URL` | ⚠️ multi-instance | Rate-limiter partagé (CF-7). Requis sur déploiement **serverless/multi-instance** (Vercel) pour que la limite soit respectée entre instances. Absent → fallback mémoire (OK en mono-instance). |
-| `UPSTASH_REDIS_REST_TOKEN` | ⚠️ multi-instance | Token REST Upstash, va de pair avec l'URL ci-dessus. |
+| `KV_REST_API_URL` / `UPSTASH_REDIS_REST_URL` | ✅ sur Vercel | Rate-limiter partagé (CF-7, SRV-01). **Obligatoire sur Vercel** : `lib/env.ts` refuse de démarrer sans lui. Les noms `KV_…` sont posés par l'intégration Upstash de Vercel, les noms `UPSTASH_…` sont ceux d'une base créée sur upstash.com ; l'une des deux paires suffit. Hors Vercel (instance unique) → fallback mémoire. |
+| `KV_REST_API_TOKEN` / `UPSTASH_REDIS_REST_TOKEN` | ✅ sur Vercel | Token REST, va de pair avec l'URL ci-dessus. |
 | `SENTRY_DSN` | ⬜ optionnel | Monitoring d'erreurs serveur (CF-10). Absent → inerte (erreurs loggées via `lib/logger.ts`). Présent → init Sentry + remontée via `onRequestError`. |
 | `SENTRY_TRACES_SAMPLE_RATE` | ⬜ optionnel | Taux d'échantillonnage des traces (défaut `0.1`). |
 
@@ -102,7 +102,7 @@ Sur Vercel : connecter le repo GitHub → chaque push sur `main` déclenche un d
 
 > ⚠️ **À vérifier en navigateur avant de déployer** : la CSP n'est active qu'en production. Lance `npm run build && npm start`, ouvre une mission (ex. `/learn/javascript/chapitre-1`) avec la console DevTools, et confirme que l'éditeur Monaco se charge, que « Déployer » exécute le code, et qu'il n'y a **aucune erreur `Content-Security-Policy`**. Si Monaco est bloqué, ajuste `script-src`/`worker-src`/`connect-src` (domaine `cdn.jsdelivr.net` + `blob:`).
 
-> ℹ️ **Rate limiting** (CF-7) : `lib/rate-limit.ts` est enfichable. Par défaut il compte en mémoire (suffisant en **mono-instance**). Sur un déploiement **serverless/multi-instance** (Vercel), renseigne `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` : les compteurs sont alors partagés via Upstash Redis et la limite est respectée à travers les instances. Sans ces variables, le fallback mémoire reste actif ; en cas de panne Redis, on bascule en mémoire (fail-open).
+> ℹ️ **Rate limiting** (CF-7) : `lib/rate-limit.ts` est enfichable. Par défaut il compte en mémoire (suffisant en **mono-instance**). Sur un déploiement **serverless/multi-instance** (Vercel), relie une base Upstash au projet (intégration Vercel : `KV_REST_API_URL` + `KV_REST_API_TOKEN`, ou `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`) : les compteurs sont alors partagés et la limite est respectée à travers les instances. Sur Vercel, `lib/env.ts` refuse de démarrer sans ces variables (constat SRV-01). Hors Vercel, le fallback mémoire reste actif ; en cas de panne Redis, on bascule en mémoire (fail-open).
 
 > ✅ **Vérifié automatiquement** (serveur de prod local) : `/api/me` sans session → 401 ; signup mot de passe faible → 400 ; rate limit signup → 429 après 5 requêtes/IP ; tous les headers de sécurité présents dans la réponse HTTP.
 

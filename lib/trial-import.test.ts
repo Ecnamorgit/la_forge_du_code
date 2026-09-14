@@ -45,6 +45,20 @@ describe("filterTrialSteps", () => {
     expect(filterTrialSteps(many).length).toBeLessThanOrEqual(50);
   });
 
+  it("remet les étapes dans l'ordre du parcours", () => {
+    // Le serveur n'accorde une étape qu'après la précédente (lib/step-order.ts).
+    const desordre = [
+      { course: TRIAL_COURSE, chapter: TRIAL_CHAPTERS[1], stepIndex: 0 },
+      { ...valid, stepIndex: 1 },
+      valid,
+    ];
+    expect(filterTrialSteps(desordre)).toEqual([
+      valid,
+      { ...valid, stepIndex: 1 },
+      { course: TRIAL_COURSE, chapter: TRIAL_CHAPTERS[1], stepIndex: 0 },
+    ]);
+  });
+
   it("ne garde que ce qui est atteignable par l'allowlist", () => {
     const mixed = [valid, { course: "css", chapter: "chapitre-1", stepIndex: 0 }];
     expect(filterTrialSteps(mixed)).toEqual([valid]);

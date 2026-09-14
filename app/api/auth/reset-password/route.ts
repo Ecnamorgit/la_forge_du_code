@@ -5,6 +5,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { TokenError, consumeToken } from "@/lib/tokens";
 import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
+import { crossOriginRefusal } from "@/lib/same-origin";
 
 const bodySchema = z.object({
   token: z.string().min(20).max(200),
@@ -17,6 +18,9 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: Request) {
+  const refus = crossOriginRefusal(req);
+  if (refus) return refus;
+
   // Throttle par IP : empêche de marteler des tokens au hasard, et borne le
   // coût des bcrypt.hash déclenchés par cette route.
   const limit = await rateLimit(`reset:${getClientIp(req)}`, {
@@ -52,6 +56,10 @@ export async function POST(req: Request) {
         password: hashed,
         // Resetting the password also confirms email ownership.
         emailVerified: new Date(),
+        // Révoque toutes les sessions émises avant ce changement (constat
+        // SRV-03) : une session volée cesse de fonctionner dès la
+        // réinitialisation.
+        sessionVersion: { increment: 1 },
       },
     });
     return NextResponse.json({ ok: true });

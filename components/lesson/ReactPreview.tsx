@@ -4,12 +4,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { transformJsx } from "@/lib/sandbox/jsx-transform";
 import { detecterBoucleInfinie, messageBoucleInfinie } from "@/lib/sandbox/loop-guard";
+import { protegerBoucles } from "@/lib/sandbox/loop-protect";
 import {
   PREVIEW_MOUNT_NAME_RE,
-  buildPreviewSrcdoc,
   parsePreviewMessage,
   type PreviewErrorKind,
 } from "@/lib/sandbox/react-preview";
+import { SANDBOX_PATH, sandboxOriginFor } from "@/lib/sandbox/sandbox-origin";
 
 /** Délai au-delà duquel on considère que l'iframe ne répondra jamais. */
 const READY_TIMEOUT_MS = 5000;
@@ -191,7 +192,9 @@ export default function ReactPreview({
       }
 
       setEtat({ phase: "rendu" });
-      const payload = { js: r.js, mount };
+      // Les boucles que le filtre littéral ci-dessus laisse passer sont
+      // interrompues à l'exécution, au lieu de figer l'onglet (constat EXE-02).
+      const payload = { js: protegerBoucles(r.js), mount };
       if (pretRef.current) {
         envoyerOuMettreEnFile(payload);
       } else {
@@ -205,13 +208,16 @@ export default function ReactPreview({
     };
   }, [deployNonce, mount, envoyerOuMettreEnFile, demarrerAttenteFile]);
 
-  // Construit après le montage, jamais au rendu : `buildPreviewSrcdoc` a besoin
-  // de `window.location.origin`, et un repli "" côté serveur puis la vraie
-  // valeur côté client provoquerait un écart d'hydratation sur l'attribut.
-  const [srcdoc, setSrcdoc] = useState<string | null>(null);
+  // URL du document du bac à sable, sur son origine DÉDIÉE (constat EXE-03) :
+  // l'iframe le charge par `src` et non `srcDoc`, pour que son exécution porte
+  // sa propre CSP permissive au lieu d'hériter de celle du site. Résolue après
+  // le montage : `sandboxOriginFor` a besoin de `window.location.origin`, et un
+  // repli "" côté serveur puis la vraie valeur côté client provoquerait un
+  // écart d'hydratation sur l'attribut `src`.
+  const [sandboxSrc, setSandboxSrc] = useState<string | null>(null);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture ponctuelle de l'origine au montage
-    setSrcdoc(buildPreviewSrcdoc(window.location.origin));
+    setSandboxSrc(sandboxOriginFor(window.location.origin) + SANDBOX_PATH);
   }, []);
 
   // Dérivé au rendu plutôt que posé par un effet : un effet ferait clignoter
@@ -269,10 +275,10 @@ export default function ReactPreview({
               Déploie pour voir ton composant s&apos;exécuter.
             </p>
           )}
-          {srcdoc !== null && (
+          {sandboxSrc !== null && (
             <iframe
               ref={iframeRef}
-              srcDoc={srcdoc}
+              src={sandboxSrc}
               className={`min-h-0 flex-1 border-none bg-white ${
                 deployNonce === 0 ? "hidden" : "block"
               }`}

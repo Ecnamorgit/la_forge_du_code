@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 
 import { getChapterData, listCourseSlugs, listChapterSlugs } from "@/lib/courses-registry";
 import { getValidators, listValidatorCourses } from "./index";
+import { RUNTIME_CHAPTERS } from "./runtime";
 
 /**
  * Balayage structurel du parcours entier.
@@ -28,12 +29,7 @@ import { getValidators, listValidatorCourses } from "./index";
  *
  * Leur couverture passe par des tests dédiés qui fournissent un contexte réel.
  */
-const ETAPES_RUNTIME = new Set<string>([
-  // javascript 1 à 10 : validés sur `ctx.logs`.
-  ...Array.from({ length: 10 }, (_, i) => `javascript/chapitre-${i + 1}`),
-  // sql : validé sur le résultat d'une vraie requête (`ctx.sql`).
-  "sql/chapitre-1",
-]);
+const ETAPES_RUNTIME = RUNTIME_CHAPTERS;
 
 /** Un couple (cursus, chapitre) par chapitre déclaré au registre de contenu. */
 const CHAPITRES = listCourseSlugs().flatMap((course) =>

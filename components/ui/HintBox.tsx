@@ -2,10 +2,15 @@ import { CHARACTERS } from "@/lib/characters";
 
 interface HintBoxProps {
   show: boolean;
-  html: string;
+  /**
+   * Texte de l'indice, affiché tel quel. Beaucoup d'indices contiennent du code
+   * HTML ou JSX à recopier : il doit se lire, jamais s'interpréter (constat
+   * EXE-04 de l'audit de sécurité du 2026-09-12).
+   */
+  text: string;
 }
 
-export default function HintBox({ show, html }: HintBoxProps) {
+export default function HintBox({ show, text }: HintBoxProps) {
   if (!show) return null;
 
   return (
@@ -14,10 +19,9 @@ export default function HintBox({ show, html }: HintBoxProps) {
         {CHARACTERS.help.glyph} {CHARACTERS.help.name}
         <span className="terminal-cursor">_</span>
       </div>
-      <div
-        className="font-body text-sm leading-relaxed text-nebula-text"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div className="whitespace-pre-wrap break-words font-body text-sm leading-relaxed text-nebula-text">
+        {text}
+      </div>
     </div>
   );
 }

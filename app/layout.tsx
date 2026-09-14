@@ -33,6 +33,12 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+// La CSP à nonce (constat EXE-03) exige un rendu dynamique : le nonce est
+// unique par requête, une page pré-rendue au build n'en aurait aucun et ses
+// scripts d'amorçage seraient bloqués. `force-dynamic` sur le layout racine
+// s'applique à toutes les routes. Coût assumé : plus d'optimisation statique.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
   title: "La Forge du Code — Coalition Nebula",

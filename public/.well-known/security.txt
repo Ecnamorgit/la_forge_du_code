@@ -1,0 +1,6 @@
+# La Forge du Code : signaler une faille de sécurité (RFC 9116).
+# Merci d'écrire avant toute publication. Réponse en français ou en anglais.
+Contact: mailto:securite@laforgeducode.fr
+Expires: 2027-09-01T00:00:00.000Z
+Preferred-Languages: fr, en
+Canonical: https://www.laforgeducode.fr/.well-known/security.txt

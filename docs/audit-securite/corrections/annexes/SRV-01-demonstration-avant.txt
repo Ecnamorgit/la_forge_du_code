@@ -1,0 +1,62 @@
+# SRV-01 - demonstration sur le code non corrige (commit a410813), 2026-09-14
+# pnpm vitest run lib/rate-limit-redis.test.ts lib/env-redis.test.ts
+
+
+ RUN  v4.1.9 <depot>
+
+ ❯ lib/env-redis.test.ts (4 tests | 1 failed) 13ms
+     × refuse de démarrer sur Vercel en production sans Redis 9ms
+ ❯ lib/rate-limit-redis.test.ts (3 tests | 1 failed) 189ms
+     × utilise le Redis de l'intégration Vercel (KV_REST_API_*) 182ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/env-redis.test.ts > configuration : Redis sur Vercel > refuse de démarrer sur Vercel en production sans Redis
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ lib/env-redis.test.ts:27:38
+     25| describe("configuration : Redis sur Vercel", () => {
+     26|   it("refuse de démarrer sur Vercel en production sans Redis", () => {
+     27|     expect(parseEnv(VERCEL).success).toBe(false);
+       |                                      ^
+     28|   });
+     29|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  lib/rate-limit-redis.test.ts > limiteur de débit : Redis partagé > utilise le Redis de l'intégration Vercel (KV_REST_API_*)
+AssertionError: expected [] to deeply equal [ { …(2) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "token": "jeton-kv",
+-     "url": "https://exemple.upstash.io",
+-   },
+- ]
++ []
+
+ ❯ lib/rate-limit-redis.test.ts:62:26
+     60|     const { rateLimit } = await import("./rate-limit");
+     61|     await rateLimit("srv01", { limit: 5, windowMs: 1000 });
+     62|     expect(clientsCrees).toEqual([{ url: "https://exemple.upstash.io",…
+       |                          ^
+     63|   });
+     64|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 5 passed (7)
+   Start at  10:39:26
+   Duration  535ms (transform 114ms, setup 0ms, import 265ms, tests 202ms, environment 0ms)
+

@@ -1,0 +1,21 @@
+# SRV-07 - demonstration sur le code non corrige (commit c0f531d), 2026-09-14
+# RESEND_API_KEY="" npx playwright test e2e/securite-connexion.spec.ts, base PostgreSQL locale
+
+Running 2 tests using 1 worker
+[1/2] [chromium] › e2e\securite-connexion.spec.ts:64:5 › témoin : le bon mot de passe ouvre la session
+[2/2] [chromium] › e2e\securite-connexion.spec.ts:70:5 › des essais répartis sur de nombreuses IP verrouillent le compte
+  1) [chromium] › e2e\securite-connexion.spec.ts:70:5 › des essais répartis sur de nombreuses IP verrouillent le compte 
+    Error: compte verrouillé après 12 échecs
+    expect(received).toBeNull()
+    Received: "connexion@codeforge.test"
+      77 |   // rester fermé jusqu'à la fin de la fenêtre.
+      78 |   await tenter(request, CIBLE.password, "203.0.113.100");
+    > 79 |   expect(await emailConnecte(request), "compte verrouillé après 12 échecs").toBeNull();
+         |                                                                             ^
+      80 | });
+      81 |
+        at e2e\securite-connexion.spec.ts:79:77
+    Error Context: test-results\securite-connexion-des-ess-e6916-s-IP-verrouillent-le-compte-chromium\error-context.md
+  1 failed
+    [chromium] › e2e\securite-connexion.spec.ts:70:5 › des essais répartis sur de nombreuses IP verrouillent le compte 
+  1 passed (21.0s)

@@ -1,0 +1,66 @@
+# SRV-09 - suite e2e complete apres correctif, 2026-09-12
+# npx playwright test, base PostgreSQL locale ; la demonstration est le test [18/39], le parcours dans l'interface le test [19/39]
+# L'echec trial-etendu.spec.ts est anterieur a l'audit (test non commite, sans lien avec SRV-09)
+
+Running 39 tests using 1 worker
+[1/39] [chromium] › e2e\boucle-quotidienne.spec.ts:142:7 › boucle quotidienne › le bandeau de liaison et le briefing s'affichent, un ordre mène en mission
+[2/39] [chromium] › e2e\boucle-quotidienne.spec.ts:162:7 › boucle quotidienne › l'ancien bouton « Récupérer le bonus » de la mission du jour a disparu
+[3/39] [chromium] › e2e\boucle-quotidienne.spec.ts:169:7 › boucle quotidienne › l'armurerie montre des objets verrouillés avec leur condition
+[4/39] [chromium] › e2e\boucle-quotidienne.spec.ts:193:7 › boucle quotidienne › deux étapes validées accomplissent un ordre du jour, et l'XP est persistée
+[5/39] [chromium] › e2e\cinematics.spec.ts:13:5 › intro de cursus : rejouable via le bouton, jamais deux auto-play
+[6/39] [chromium] › e2e\csp-srcdoc-script.spec.ts:16:5 › une iframe srcdoc charge un script de l'origine du parent
+[7/39] [chromium] › e2e\doc-panel.spec.ts:10:5 › le panneau de doc s'ouvre depuis un chip et se ferme avec Échap
+[8/39] [chromium] › e2e\html-parcours.spec.ts:39:5 › chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion
+[9/39] [chromium] › e2e\html-parcours.spec.ts:88:5 › le panneau de référence s'ouvre depuis un docRef d'un chapitre tardif (ch8)
+[10/39] [chromium] › e2e\intro.spec.ts:4:7 › intro d'arrivée › joue le crawl à la première visite et le laisse passer
+[11/39] [chromium] › e2e\intro.spec.ts:18:7 › intro d'arrivée › ne rejoue pas le crawl à la visite suivante
+[12/39] [chromium] › e2e\monaco.spec.ts:14:5 › Monaco se charge en local, sans le CDN jsdelivr
+[13/39] [chromium] › e2e\react-preview.spec.ts:88:7 › apercu React › monte le composant et reagit au clic
+[14/39] [chromium] › e2e\react-preview.spec.ts:147:7 › apercu React › une exception levee pendant le rendu remonte au panneau
+[15/39] [chromium] › e2e\react-preview.spec.ts:164:7 › apercu React › le chapitre 4, exempte, n'affiche pas d'apercu
+[16/39] [chromium] › e2e\react-preview.spec.ts:182:7 › apercu React › une boucle infinie est refusee avant l'envoi, et le deploiement suivant marche
+[17/39] [chromium] › e2e\react-preview.spec.ts:226:7 › apercu React › une exception non rattrapee dans un onClick remonte un vrai message
+[18/39] [chromium] › e2e\securite-csrf-suppression.spec.ts:56:5 › les API refusent une autre origine, et la suppression exige le mot de passe
+[19/39] [chromium] › e2e\securite-csrf-suppression.spec.ts:94:5 › la page profil demande le mot de passe avant de supprimer le compte
+[20/39] [chromium] › e2e\securite-indices.spec.ts:23:5 › l'indice montre le code à taper, sans l'injecter dans la page
+[21/39] [chromium] › e2e\securite-progression.spec.ts:67:5 › l'API n'accorde une étape que sur une vraie solution, à son tour, sans rafale
+[22/39] [chromium] › e2e\securite-redirection.spec.ts:22:5 › après l'enregistrement de l'avatar, un lien piégé ne fait pas quitter le site
+[23/39] [chromium] › e2e\smoke.spec.ts:5:5 › la page d'accueil se charge
+[24/39] [chromium] › e2e\smoke.spec.ts:10:5 › une route protégée redirige vers /login
+[25/39] [chromium] › e2e\smoke.spec.ts:15:5 › la page de connexion affiche le formulaire
+[26/39] [chromium] › e2e\smoke.spec.ts:21:5 › un utilisateur vérifié peut se connecter
+[27/39] [chromium] › e2e\smoke.spec.ts:29:5 › le codex est public et rend le lore
+[28/39] [chromium] › e2e\smoke.spec.ts:45:5 › le cursus React a un vrai apercu en direct, plus l'ancienne etiquette d'analyse statique
+[29/39] [chromium] › e2e\smoke.spec.ts:69:5 › le cursus HTML garde son apercu en direct
+[30/39] [chromium] › e2e\trial-etendu.spec.ts:9:5 › la carte HTML est publique, avec verrous d'inscription au-delà du chapitre 3
+  1) [chromium] › e2e\trial-etendu.spec.ts:9:5 › la carte HTML est publique, avec verrous d'inscription au-delà du chapitre 3 
+    Error: expect(locator).toBeVisible() failed
+    Locator: getByText('Inscription requise').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByText('Inscription requise').first()
+      20 |
+      21 |   // Nœuds hors essai : verrouillés vers l'inscription.
+    > 22 |   await expect(page.getByText("Inscription requise").first()).toBeVisible();
+         |                                                               ^
+      23 |
+      24 |   // Rechargement : pas de re-auto-play (nc_cine_seen).
+      25 |   await page.reload();
+        at e2e\trial-etendu.spec.ts:22:63
+    Error Context: test-results\trial-etendu-la-carte-HTML-f5e26-ption-au-delà-du-chapitre-3-chromium\error-context.md
+[31/39] [chromium] › e2e\trial-etendu.spec.ts:30:5 › un chapitre protégé redirige vers la connexion
+[32/39] [chromium] › e2e\trial-etendu.spec.ts:35:5 › le chapitre 1 en essai joue l'outro puis propose le chapitre suivant
+[33/39] [chromium] › e2e\trial.spec.ts:12:7 › essai sans compte › un visiteur atteint le chapitre d'essai depuis la landing
+[34/39] [chromium] › e2e\trial.spec.ts:21:7 › essai sans compte › le mur tient sur les autres chapitres
+[35/39] [chromium] › e2e\trial.spec.ts:29:7 › essai sans compte › la progression d'essai survit à un rechargement
+[36/39] [chromium] › e2e\trial.spec.ts:79:7 › import de la progression d'essai vers un compte › la progression d'essai est importée à l'arrivée sur /avatar
+[37/39] [chromium] › e2e\web-vitals.spec.ts:141:7 › Core Web Vitals › page d'accueil
+[38/39] [chromium] › e2e\web-vitals.spec.ts:147:7 › Core Web Vitals › page de lecon
+[39/39] [chromium] › e2e\web-vitals.spec.ts:156:9 › Core Web Vitals › connecte › tableau de bord
+  1 failed
+    [chromium] › e2e\trial-etendu.spec.ts:9:5 › la carte HTML est publique, avec verrous d'inscription au-delà du chapitre 3 
+  4 skipped
+  34 passed (1.6m)

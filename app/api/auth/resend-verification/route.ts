@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { sendVerificationEmail } from "@/lib/email";
 import { createToken } from "@/lib/tokens";
 import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
+import { crossOriginRefusal } from "@/lib/same-origin";
 
 const bodySchema = z.object({
   email: z.string().email().max(254),
@@ -16,6 +17,9 @@ const bodySchema = z.object({
  * leaking the user database via response timing/content.
  */
 export async function POST(req: Request) {
+  const refus = crossOriginRefusal(req);
+  if (refus) return refus;
+
   // Throttle to prevent verification-email spam.
   const limit = await rateLimit(`resend:${getClientIp(req)}`, {
     limit: 5,

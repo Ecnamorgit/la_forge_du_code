@@ -49,7 +49,14 @@ export function filterTrialSteps(steps: unknown): TrialStepRef[] {
     kept.push({ course: TRIAL_COURSE, chapter: canonicalChapter, stepIndex });
   }
 
-  return kept;
+  // Dans l'ordre du parcours : le serveur n'accorde une étape qu'après la
+  // précédente (lib/step-order.ts), et rien ne garantit l'ordre dans lequel le
+  // navigateur remonte les étapes de l'essai.
+  return kept.sort(
+    (a, b) =>
+      TRIAL_CHAPTERS.indexOf(a.chapter) - TRIAL_CHAPTERS.indexOf(b.chapter) ||
+      a.stepIndex - b.stepIndex
+  );
 }
 
 /** Ids de cinématiques atteignables en essai — construits en dur, jamais dérivés de l'entrée. */

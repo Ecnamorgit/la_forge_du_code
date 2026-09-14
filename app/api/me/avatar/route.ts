@@ -4,6 +4,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { InvalidAvatarError, UserNotFoundError, setAvatar } from "@/lib/me-server";
 import { isRoleId, isSpeciesId } from "@/lib/avatar";
+import { crossOriginRefusal } from "@/lib/same-origin";
 
 // `uniformColor` n'est validé qu'en forme ici (chaîne non vide) : la
 // décision de fond — couleur de base toujours libre, couleur méritée
@@ -25,6 +26,9 @@ const bodySchema = z
   });
 
 export async function POST(req: Request) {
+  const refus = crossOriginRefusal(req);
+  if (refus) return refus;
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });

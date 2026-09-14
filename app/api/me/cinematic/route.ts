@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { auth } from "@/auth";
 import { listCinematicViews, markCinematicView } from "@/lib/me-server";
+import { crossOriginRefusal } from "@/lib/same-origin";
 
 // Forme canonique d'un identifiant de cinématique (cf. lib/cinematics/types) :
 // "<cursus>:intro", "<cursus>:finale" ou "<cursus>:chapter:<slug>". Refuser
@@ -27,6 +28,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const refus = crossOriginRefusal(req);
+  if (refus) return refus;
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });

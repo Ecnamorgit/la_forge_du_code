@@ -1,0 +1,1007 @@
+{
+  "formatVersion": "blackproof-proofpack-v3",
+  "schemaVersion": "blackproof-proofpack-schema-v3",
+  "id": "proofpack_la-forge-du-code_20260912",
+  "revisionId": "revision_la-forge-du-code_20260912",
+  "case": {
+    "id": "case_la-forge-du-code",
+    "title": "La Forge du Code - Audit de sécurité du site",
+    "companyName": "La Forge du Code",
+    "clientName": "Jury du projet fil rouge",
+    "framework": "OWASP Top 10 2021 / ASVS 4.0 / RGPD art. 32",
+    "createdAt": "2026-09-12T00:00:00.000Z",
+    "updatedAt": "2026-09-12T00:00:00.000Z",
+    "status": "ready"
+  },
+  "sourceQuestionnaire": {
+    "fileName": "questionnaire-la-forge-du-code.txt",
+    "format": "text",
+    "importedAt": "2026-09-12T00:00:00.000Z",
+    "sha256": "sha256:64cee1eacad442773d1fa95e3f9b7fb382b558d861db7a96444a9dffcedece44",
+    "canonicalizationVersion": "blackproof-questionnaire-canonicalization-v2",
+    "size": 1121
+  },
+  "questions": [
+    {
+      "id": "question_isolation_code",
+      "text": "Le code saisi par les apprenants est-il exécuté dans un environnement isolé, sans accès à la session ni aux données des autres utilisateurs ?",
+      "category": "vulnerability-management",
+      "criticality": "critical",
+      "mappedRequirements": [
+        "OWASP-TOP10-2021-A03-INJECTION",
+        "OWASP-ASVS-V5-VALIDATION-SANITIZATION-SANDBOXING"
+      ],
+      "suggestedAnswer": "Décrire où s'exécute le code, les attributs d'isolation et la vérification des messages échangés.",
+      "evidenceIds": [
+        "evidence_sandbox_iframe",
+        "evidence_pas_execution_serveur"
+      ],
+      "confidence": "high",
+      "answerText": "Oui. Tout le code des apprenants (JavaScript, HTML/CSS, React, SQL) s'exécute dans leur propre navigateur : iframes `sandbox=\"allow-scripts\"` sans `allow-same-origin` (origine opaque : aucun accès aux cookies, au localStorage ni à la page parente) et sql.js (WebAssembly) sur une base éphémère. Aucun code apprenant n'est transmis ni exécuté côté serveur (pas d'eval, de vm ni de child_process). Les échanges postMessage vérifient la source et l'origine.",
+      "answerReservation": "Une boucle infinie peut figer l'onglet de l'apprenant lui-même (EXE-02) : impact limité à son propre poste.",
+      "answerConfidence": "high",
+      "answerExportStatus": "ready",
+      "caseId": "case_la-forge-du-code"
+    },
+    {
+      "id": "question_integrite_progression",
+      "text": "La validation des exercices et l'attribution de l'XP, des badges et du classement sont-elles protégées contre la triche ?",
+      "category": "access-control",
+      "criticality": "high",
+      "mappedRequirements": [
+        "OWASP-TOP10-2021-A04-INSECURE-DESIGN",
+        "OWASP-ASVS-V11-BUSINESS-LOGIC"
+      ],
+      "suggestedAnswer": "Indiquer ce que le serveur vérifie avant d'accorder une étape, et les limites connues.",
+      "evidenceIds": [
+        "evidence_route_progression"
+      ],
+      "confidence": "high",
+      "answerText": "Partiellement. La route de progression exige une session, valide ses entrées (zod), est idempotente (une étape ne rapporte qu'une fois) et plafonne l'XP. En revanche, la réussite est déclarée par le navigateur : le serveur ne reçoit pas le code et ne vérifie ni la réussite ni l'ordre des étapes, et la route n'a pas de limite de débit (EXE-01).",
+      "answerReservation": "Correctif planifié. Ne pas présenter le classement comme infalsifiable.",
+      "answerConfidence": "high",
+      "answerExportStatus": "reserved",
+      "caseId": "case_la-forge-du-code"
+    },
+    {
+      "id": "question_authentification",
+      "text": "Les mots de passe, les sessions et les jetons de vérification et de réinitialisation sont-ils gérés selon l'état de l'art ?",
+      "category": "access-control",
+      "criticality": "critical",
+      "mappedRequirements": [
+        "OWASP-TOP10-2021-A07-AUTHENTICATION",
+        "OWASP-ASVS-V2-AUTHENTICATION",
+        "OWASP-ASVS-V3-SESSION"
+      ],
+      "suggestedAnswer": "Décrire le hachage, la gestion des jetons, les cookies et les limites connues.",
+      "evidenceIds": [
+        "evidence_hachage_bcrypt",
+        "evidence_jetons_hash",
+        "evidence_cookies_session"
+      ],
+      "confidence": "high",
+      "answerText": "Oui pour l'essentiel. Mots de passe hachés avec bcrypt (coût 12) ; connexion refusée tant que l'e-mail n'est pas vérifié ; jetons de vérification et de réinitialisation de 32 octets aléatoires, stockés uniquement sous forme de hash SHA-256, à usage unique atomique, valables 24 h et 1 h ; réponses identiques sur « mot de passe oublié » ; cookies `__Host-` / `__Secure-`, HttpOnly, Secure, SameSite=Lax ; secret d'authentification obligatoire en production.",
+      "answerReservation": "Sessions JWT de 30 jours non révoquées après un changement de mot de passe (SRV-03) ; existence d'un compte détectable à l'inscription (SRV-05) ; pas de compteur d'échecs par compte (SRV-07).",
+      "answerConfidence": "high",
+      "answerExportStatus": "reserved",
+      "caseId": "case_la-forge-du-code"
+    },
+    {
+      "id": "question_controle_acces",
+      "text": "Chaque requête vérifie-t-elle que l'utilisateur n'accède qu'à ses propres données ?",
+      "category": "access-control",
+      "criticality": "critical",
+      "mappedRequirements": [
+        "OWASP-TOP10-2021-A01-BROKEN-ACCESS-CONTROL",
+        "OWASP-ASVS-V4-ACCESS-CONTROL"
+      ],
+      "suggestedAnswer": "Présenter la carte des routes et le contrôle appliqué à chacune.",
+      "evidenceIds": [
+        "evidence_carte_routes"
+      ],
+      "confidence": "high",
+      "answerText": "Oui. Les 20 routes API ont été relues une à une. Toutes les routes `/api/me/*` et `/api/leaderboard` vérifient la session dans la route elle-même et n'agissent que sur l'identifiant de session, jamais sur un identifiant fourni par le client : pas d'IDOR possible. Pas de server action, pas de rôle administrateur exposé, pas d'affectation de masse (champs Prisma construits explicitement).",
+      "answerReservation": "La page d'un chapitre ne repose que sur le proxy (SRV-10) ; un contrôle dans la page est à ajouter.",
+      "answerConfidence": "high",
+      "answerExportStatus": "ready",
+      "caseId": "case_la-forge-du-code"
+    },
+    {
+      "id": "question_anti_abus",
+      "text": "Les points sensibles (connexion, inscription, envoi d'e-mails) sont-ils protégés contre la force brute et l'abus ?",
+      "category": "vulnerability-management",
+      "criticality": "high",
+      "mappedRequirements": [
+        "OWASP-ASVS-V2.2-ANTI-AUTOMATION",
+        "OWASP-TOP10-2021-A07-AUTHENTICATION"
+      ],
+      "suggestedAnswer": "Donner les limites appliquées et leur mode de stockage en production.",
+      "evidenceIds": [
+        "evidence_limitation_debit"
+      ],
+      "confidence": "medium",
+      "answerText": "Des limites sont codées sur toutes les routes sensibles (connexion 10 / 5 min, inscription 5 / h, mot de passe oublié et renvoi d'e-mail 5 / 15 min, réinitialisation 10 / 15 min), avec une adresse IP lue de façon résistante à la falsification. Leur efficacité en production dépend de la présence d'Upstash Redis : sans lui, les compteurs vivent en mémoire, instance par instance, et sont contournables (SRV-01).",
+      "answerReservation": "Configuration Redis de production non vérifiée pendant l'audit (pas d'accès au projet Vercel).",
+      "answerConfidence": "medium",
+      "answerExportStatus": "reserved",
+      "caseId": "case_la-forge-du-code"
+    },
+    {
+      "id": "question_protections_web",
+      "text": "Le site applique-t-il les protections attendues côté transport et navigateur (HTTPS, en-têtes de sécurité, CSP) ?",
+      "category": "vulnerability-management",
+      "criticality": "high",
+      "mappedRequirements": [
+        "OWASP-TOP10-2021-A05-MISCONFIGURATION",
+        "OWASP-ASVS-V14-CONFIGURATION",
+        "OWASP-ASVS-V9-COMMUNICATION"
+      ],
+      "suggestedAnswer": "Donner les résultats des scanners externes et les écarts relevés.",
+      "evidenceIds": [
+        "evidence_entetes_config",
+        "evidence_observatory",
+        "evidence_ssllabs",
+        "evidence_zap"
+      ],
+      "confidence": "high",
+      "answerText": "Oui. TLS 1.2 et 1.3 uniquement, notes SSL Labs A+ et A, certificat Let's Encrypt valide jusqu'au 2026-12-07, HSTS de 2 ans avec preload, redirection vers HTTPS. En-têtes : CSP, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy. Mozilla Observatory : B+ (80/100, 11 tests réussis sur 12). OWASP ZAP (analyse passive) : aucun échec, 58 contrôles réussis, 9 avertissements mineurs.",
+      "answerReservation": "La CSP autorise 'unsafe-inline' et 'unsafe-eval' pour le bac à sable, ce qui affaiblit la défense contre les XSS (EXE-03) ; redirection ouverte sur /avatar?from= (SRV-06).",
+      "answerConfidence": "high",
+      "answerExportStatus": "ready",
+      "caseId": "case_la-forge-du-code"
+    },
+    {
+      "id": "question_dependances",
+      "text": "Les dépendances sont-elles à jour et exemptes de vulnérabilités connues exploitables ?",
+      "category": "vulnerability-management",
+      "criticality": "critical",
+      "mappedRequirements": [
+        "OWASP-TOP10-2021-A06-VULNERABLE-COMPONENTS",
+        "OWASP-ASVS-V14.2-DEPENDENCY"
+      ],
+      "suggestedAnswer": "Donner le résultat de pnpm audit et le plan de mise à jour.",
+      "evidenceIds": [
+        "evidence_pnpm_audit"
+      ],
+      "confidence": "high",
+      "answerText": "Non à la date de l'audit. `pnpm audit --prod` remonte 97 avis (5 critiques, 34 hauts). Les plus importants concernent next 16.2.4 (contournements du proxy, SSRF, déni de service ; corrigés à partir de 16.2.11 et 16.3.3) et next-auth 5.0.0-beta.31 (2 avis critiques, corrigés en beta.32). Une partie des avis ne s'applique pas à l'hébergement Vercel (exécution de code sur serveur Windows) ou ne touche que des outils de build (Prisma CLI, plugin Sentry).",
+      "answerReservation": "Mise à jour de next et next-auth planifiée sous 7 jours.",
+      "answerConfidence": "high",
+      "answerExportStatus": "reserved",
+      "caseId": "case_la-forge-du-code"
+    },
+    {
+      "id": "question_donnees_secrets",
+      "text": "Les données personnelles et les secrets sont-ils protégés (exposition, stockage, RGPD) ?",
+      "category": "data-protection",
+      "criticality": "high",
+      "mappedRequirements": [
+        "RGPD-ART-32",
+        "OWASP-TOP10-2021-A02-CRYPTOGRAPHIC-FAILURES",
+        "OWASP-ASVS-V8-DATA-PROTECTION"
+      ],
+      "suggestedAnswer": "Décrire la minimisation des réponses API, la gestion des secrets et les droits RGPD.",
+      "evidenceIds": [
+        "evidence_secrets_git",
+        "evidence_minimisation_donnees",
+        "evidence_config_production"
+      ],
+      "confidence": "medium",
+      "answerText": "Aucun secret dans le dépôt ni dans l'historique git (.env ignoré, aucune variable NEXT_PUBLIC_). Les API ne renvoient ni e-mail, ni hash, ni jeton ; le classement n'expose que pseudo et scores. Export des données (RGPD) sans hash de mot de passe, suppression de compte disponible. Sentry sans données personnelles (ni sendDefaultPii ni replay). La base n'est interrogée que par Prisma, côté serveur.",
+      "answerReservation": "Aucune RLS n'est activée sur les tables Supabase : si l'API de données Supabase est active, la clé publique « anon » donnerait accès aux tables (SRV-04, à vérifier dans le tableau de bord Supabase).",
+      "answerConfidence": "medium",
+      "answerExportStatus": "reserved",
+      "caseId": "case_la-forge-du-code"
+    },
+    {
+      "id": "question_sauvegardes",
+      "text": "Les données sont-elles sauvegardées, et la restauration est-elle testée ?",
+      "category": "backup",
+      "criticality": "medium",
+      "mappedRequirements": [
+        "RGPD-ART-32-1-C",
+        "ISO27001-2022-A.8.13-BACKUP"
+      ],
+      "suggestedAnswer": "Décrire la sauvegarde, son chiffrement et la date du dernier test de restauration.",
+      "evidenceIds": [
+        "evidence_sauvegarde"
+      ],
+      "confidence": "medium",
+      "answerText": "Une sauvegarde de la base est produite automatiquement par GitHub Actions et chiffrée en AES-256 avant de quitter le runner.",
+      "answerReservation": "Aucun test de restauration n'est documenté à ce jour.",
+      "answerConfidence": "medium",
+      "answerExportStatus": "reserved",
+      "caseId": "case_la-forge-du-code"
+    },
+    {
+      "id": "question_supervision",
+      "text": "Les erreurs et incidents sont-ils détectés et journalisés, et une faille peut-elle être signalée ?",
+      "category": "logging-monitoring",
+      "criticality": "medium",
+      "mappedRequirements": [
+        "OWASP-TOP10-2021-A09-LOGGING-MONITORING",
+        "OWASP-ASVS-V7-LOGGING"
+      ],
+      "suggestedAnswer": "Décrire les outils de supervision et le canal de signalement.",
+      "evidenceIds": [
+        "evidence_sentry",
+        "evidence_sonde_sante"
+      ],
+      "confidence": "medium",
+      "answerText": "Sentry côté serveur (erreurs de requêtes via onRequestError), journalisation structurée des événements de sécurité (par exemple le repli du limiteur de débit), sonde /api/health qui vérifie la base.",
+      "answerReservation": "Pas de fichier /.well-known/security.txt pour signaler une faille ; le jeton de vérification d'e-mail figure dans l'URL et peut être journalisé en cas d'erreur (SRV-11).",
+      "answerConfidence": "medium",
+      "answerExportStatus": "ready",
+      "caseId": "case_la-forge-du-code"
+    }
+  ],
+  "evidence": [
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_sandbox_iframe",
+      "questionId": "question_isolation_code",
+      "templateId": "template_code_sandbox",
+      "title": "Bac à sable d'exécution JavaScript",
+      "category": "vulnerability-management",
+      "description": "Iframe sandbox=\"allow-scripts\" sans allow-same-origin (l.49), contrôle de event.source et event.origin (l.65-68), délai et destruction de l'iframe (l.53-82). Même isolation pour HTML/CSS (ChapterWorkspace.tsx:425) et React (ReactPreview.tsx:279).",
+      "linkedRequirements": [
+        "OWASP-ASVS-V5-VALIDATION-SANITIZATION-SANDBOXING"
+      ],
+      "controlResult": "Isolation conforme : origine opaque, aucun accès à la session",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:lib/sandbox/run-js.ts",
+      "fileName": "run-js.ts",
+      "fileUri": "git://48b1627/lib/sandbox/run-js.ts",
+      "documentHash": "sha256:1c37a749571b42acad6e41a2345e1d34b821b979a9557ea68386929e7d023881",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_pas_execution_serveur",
+      "questionId": "question_isolation_code",
+      "templateId": "template_api_input_schema",
+      "title": "Schéma d'entrée de la route de progression",
+      "category": "vulnerability-management",
+      "description": "La route ne reçoit que course, chapter et stepIndex (l.11-15) : aucun code apprenant n'arrive au serveur. Aucune occurrence d'eval, vm, child_process ou $queryRawUnsafe dans le dépôt.",
+      "linkedRequirements": [
+        "OWASP-TOP10-2021-A03-INJECTION"
+      ],
+      "controlResult": "Conforme : pas d'exécution côté serveur",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:app/api/me/step/route.ts",
+      "fileName": "route.ts",
+      "fileUri": "git://48b1627/app/api/me/step/route.ts",
+      "documentHash": "sha256:ad717510efa6c7c8a40fae490e32fb1d62e977342622eada8a0737c9bde7fc22",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "medium",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_route_progression",
+      "questionId": "question_integrite_progression",
+      "templateId": "template_business_logic",
+      "title": "Attribution des étapes et de l'XP",
+      "category": "access-control",
+      "description": "completeStep ne vérifie que l'existence de l'étape (l.288-292) ; transaction idempotente (l.311-327) ; XP plafonnée (l.343-348).",
+      "linkedRequirements": [
+        "OWASP-ASVS-V11-BUSINESS-LOGIC"
+      ],
+      "controlResult": "Contrôle partiel : aucune preuve de réussite exigée",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:lib/me-server.ts",
+      "fileName": "me-server.ts",
+      "fileUri": "git://48b1627/lib/me-server.ts",
+      "documentHash": "sha256:c2efc9b364d3bfb12ce74bf08c351fabe036abeed564ce59e09345695fa41e9b",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_hachage_bcrypt",
+      "questionId": "question_authentification",
+      "templateId": "template_password_hashing",
+      "title": "Hachage des mots de passe",
+      "category": "access-control",
+      "description": "bcrypt coût 12 à l'inscription (l.74) et à la réinitialisation (reset-password/route.ts:48) ; politique : 8 caractères, une lettre et un chiffre.",
+      "linkedRequirements": [
+        "OWASP-ASVS-V2.4-CREDENTIAL-STORAGE"
+      ],
+      "controlResult": "Conforme",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:app/api/signup/route.ts",
+      "fileName": "route.ts",
+      "fileUri": "git://48b1627/app/api/signup/route.ts",
+      "documentHash": "sha256:9311ffb6add9948c2249e436290465ef07ede45c91b508eb4a8d466737aa9e17",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_jetons_hash",
+      "questionId": "question_authentification",
+      "templateId": "template_reset_tokens",
+      "title": "Jetons de vérification et de réinitialisation",
+      "category": "access-control",
+      "description": "32 octets de crypto.randomBytes (l.9-11), seul le hash SHA-256 est stocké (l.20-22) ; usage unique atomique et expiration dans lib/tokens.ts (l.8-11, 86-92).",
+      "linkedRequirements": [
+        "OWASP-ASVS-V2.5-CREDENTIAL-RECOVERY"
+      ],
+      "controlResult": "Conforme",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:lib/token-crypto.ts",
+      "fileName": "token-crypto.ts",
+      "fileUri": "git://48b1627/lib/token-crypto.ts",
+      "documentHash": "sha256:85213e3e4ef1c45c1ddb5018268243bce6f95b30ab4d05d1e6ff363cb9629704",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "public",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Relevé d'en-têtes HTTP",
+      "sourceSystem": "curl sur la production",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_cookies_session",
+      "questionId": "question_authentification",
+      "templateId": "template_session_cookies",
+      "title": "Cookies de session relevés en production",
+      "category": "access-control",
+      "description": "Relevé curl des en-têtes : cookies __Host-authjs.csrf-token et __Secure-authjs.callback-url en HttpOnly, Secure, SameSite=Lax (valeurs masquées).",
+      "linkedRequirements": [
+        "OWASP-ASVS-V3.4-COOKIE-SESSION"
+      ],
+      "controlResult": "Conforme",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "annexes/en-tetes-http.txt",
+      "fileName": "en-tetes-http.txt",
+      "fileUri": "local://annexes/en-tetes-http.txt",
+      "documentHash": "sha256:149869139d7569bf8bc39ceb97315c019a2a9a425b9781a8296473d7dd5753ac",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Matrice des accès",
+      "sourceSystem": "Relecture du code",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_carte_routes",
+      "questionId": "question_controle_acces",
+      "templateId": "template_access_matrix",
+      "title": "Carte des routes et contrôles d'accès",
+      "category": "access-control",
+      "description": "Tableau des 20 routes API : méthode, authentification, contrôle de propriété, validation.",
+      "linkedRequirements": [
+        "OWASP-ASVS-V4-ACCESS-CONTROL"
+      ],
+      "controlResult": "Conforme : aucune IDOR relevée",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "annexes/carte-des-routes.md",
+      "fileName": "carte-des-routes.md",
+      "fileUri": "local://annexes/carte-des-routes.md",
+      "documentHash": "sha256:bfc0c8702ff71a4e9a073e7c8b0f889051aaf526004d4fa2c83a26a36c83fd90",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "declared",
+      "strength": "medium",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_limitation_debit",
+      "questionId": "question_anti_abus",
+      "templateId": "template_rate_limiting",
+      "title": "Limiteur de débit",
+      "category": "vulnerability-management",
+      "description": "Upstash Redis si configuré (l.72-85), sinon compteurs en mémoire ; repli en mémoire si Redis échoue (l.106-123) ; IP lue par la droite de X-Forwarded-For (l.125-156).",
+      "linkedRequirements": [
+        "OWASP-ASVS-V2.2-ANTI-AUTOMATION"
+      ],
+      "controlResult": "Implémenté ; backend Redis de production non confirmé",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:lib/rate-limit.ts",
+      "fileName": "rate-limit.ts",
+      "fileUri": "git://48b1627/lib/rate-limit.ts",
+      "documentHash": "sha256:579e68c3628e881e1b8fcb0a2495a20ccf44fc3eb0f6b42b7c02fdc08b1e2093",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_entetes_config",
+      "questionId": "question_protections_web",
+      "templateId": "template_security_headers",
+      "title": "Configuration des en-têtes de sécurité",
+      "category": "vulnerability-management",
+      "description": "En-têtes nosniff, DENY, Referrer-Policy, Permissions-Policy, HSTS preload et CSP de production (l.7-21) ; poweredByHeader désactivé (l.31). Politique CSP dans lib/security/csp.ts, surveillée par un test unitaire.",
+      "linkedRequirements": [
+        "OWASP-ASVS-V14.4-HTTP-HEADERS"
+      ],
+      "controlResult": "Conforme, CSP permissive (unsafe-inline, unsafe-eval)",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:next.config.ts",
+      "fileName": "next.config.ts",
+      "fileUri": "git://48b1627/next.config.ts",
+      "documentHash": "sha256:88bea9232c88ca5ca3c703b4dd14dceb677cdae4b4778ca0d6e4276875a2370c",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "public",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Rapport JSON de l'outil",
+      "sourceSystem": "observatory-api.mdn.mozilla.net",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_observatory",
+      "questionId": "question_protections_web",
+      "templateId": "template_external_scan",
+      "title": "Mozilla Observatory",
+      "category": "vulnerability-management",
+      "description": "Note B+ (80/100). Tests non réussis : CSP avec unsafe-inline, SRI non implémenté (scripts servis depuis la même origine), CORP absent.",
+      "linkedRequirements": [
+        "OWASP-ASVS-V14.4-HTTP-HEADERS"
+      ],
+      "controlResult": "B+ (80/100)",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "annexes/observatory.json",
+      "fileName": "observatory.json",
+      "fileUri": "local://annexes/observatory.json",
+      "documentHash": "sha256:638bd75ba7a79b1b0cf172b02dd754e34f2a9e766d0bba82a8ebe05532034c18",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "public",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Rapport JSON de l'outil",
+      "sourceSystem": "api.ssllabs.com",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_ssllabs",
+      "questionId": "question_protections_web",
+      "templateId": "template_tls_scan",
+      "title": "Qualys SSL Labs",
+      "category": "vulnerability-management",
+      "description": "Deux adresses Vercel : A+ et A (HSTS absent sur la réponse de la seconde). TLS 1.2 et 1.3 seulement. Certificat Let's Encrypt valide jusqu'au 2026-12-07. Scan non publié.",
+      "linkedRequirements": [
+        "OWASP-ASVS-V9-COMMUNICATION"
+      ],
+      "controlResult": "A+ / A",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "annexes/ssllabs.json",
+      "fileName": "ssllabs.json",
+      "fileUri": "local://annexes/ssllabs.json",
+      "documentHash": "sha256:cfe76b779aac3848b6c71c5f612234f7009950652f8825006640334aa6c9ac50",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "public",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Rapport HTML de l'outil",
+      "sourceSystem": "ghcr.io/zaproxy/zaproxy:stable",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_zap",
+      "questionId": "question_protections_web",
+      "templateId": "template_dast_passive",
+      "title": "OWASP ZAP (analyse passive)",
+      "category": "vulnerability-management",
+      "description": "zap-baseline.py sur la production, exploration de 3 minutes, sans attaque active : 0 échec, 58 contrôles réussis, 9 avertissements.",
+      "linkedRequirements": [
+        "OWASP-TOP10-2021-A05-MISCONFIGURATION"
+      ],
+      "controlResult": "0 échec / 9 avertissements",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "annexes/zap-baseline.html",
+      "fileName": "zap-baseline.html",
+      "fileUri": "local://annexes/zap-baseline.html",
+      "documentHash": "sha256:b47ffeba2512209aece8e8080b7cc6402452e6c42f04efd601a5d06e14d3513e",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Sortie d'outil résumée",
+      "sourceSystem": "pnpm audit",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_pnpm_audit",
+      "questionId": "question_dependances",
+      "templateId": "template_dependency_scan",
+      "title": "Audit des dépendances (pnpm audit --prod)",
+      "category": "vulnerability-management",
+      "description": "97 avis : 5 critiques, 34 hauts, 50 moyens, 8 faibles, regroupés par paquet avec la version corrigée.",
+      "linkedRequirements": [
+        "OWASP-TOP10-2021-A06-VULNERABLE-COMPONENTS"
+      ],
+      "controlResult": "Non conforme : mises à jour requises",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "annexes/pnpm-audit.md",
+      "fileName": "pnpm-audit.md",
+      "fileUri": "local://annexes/pnpm-audit.md",
+      "documentHash": "sha256:61a124476ddd0797ec3629bfe2d37a4391856535816a960456248a540f9e4c59",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_secrets_git",
+      "questionId": "question_donnees_secrets",
+      "templateId": "template_secret_management",
+      "title": "Exclusion des secrets du dépôt",
+      "category": "data-protection",
+      "description": ".env* ignorés sauf .env.example (l.50-51) ; git log --all -- .env vide ; aucune variable NEXT_PUBLIC_ dans le code.",
+      "linkedRequirements": [
+        "OWASP-ASVS-V6.4-SECRET-MANAGEMENT"
+      ],
+      "controlResult": "Conforme",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:.gitignore",
+      "fileName": ".gitignore",
+      "fileUri": "git://48b1627/.gitignore",
+      "documentHash": "sha256:7da2984fc3849c29f7e464dd2675364cf48dcbc64fee92d573a599d4bca045b6",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_minimisation_donnees",
+      "questionId": "question_donnees_secrets",
+      "templateId": "template_data_minimisation",
+      "title": "Minimisation des données exposées",
+      "category": "data-protection",
+      "description": "Le classement ne renvoie que pseudo, XP, série et nombre de badges, aux seuls comptes vérifiés (l.23-36). getUserState et l'export RGPD n'incluent ni e-mail d'autrui, ni hash, ni jeton (lib/me-server.ts:161-190, 796-830).",
+      "linkedRequirements": [
+        "RGPD-ART-5-1-C",
+        "OWASP-ASVS-V8.3-SENSITIVE-DATA"
+      ],
+      "controlResult": "Conforme",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:app/api/leaderboard/route.ts",
+      "fileName": "route.ts",
+      "fileUri": "git://48b1627/app/api/leaderboard/route.ts",
+      "documentHash": "sha256:c6a4c52c5bf1c092b29889dc2251407f41e9876cab23f95532bac6ad5a5b4488",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "strong",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_config_production",
+      "questionId": "question_donnees_secrets",
+      "templateId": "template_prod_config_guard",
+      "title": "Garde-fous de configuration de production",
+      "category": "data-protection",
+      "description": "AUTH_SECRET obligatoire et valeur d'exemple refusée, APP_URL en https, contournement de test interdit en production (l.35-114). Upstash n'y est pas obligatoire (voir SRV-01).",
+      "linkedRequirements": [
+        "OWASP-ASVS-V14.1-BUILD-DEPLOY"
+      ],
+      "controlResult": "Conforme, à compléter pour Upstash",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:lib/env.ts",
+      "fileName": "env.ts",
+      "fileUri": "git://48b1627/lib/env.ts",
+      "documentHash": "sha256:3853b2acb75408e2d2acaf8880e019e3cdadb21ca9e9fa48735e37bdff74147a",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "medium",
+      "recommendedFormat": "Définition du workflow + note de test de restauration",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_sauvegarde",
+      "questionId": "question_sauvegardes",
+      "templateId": "template_backup_job",
+      "title": "Sauvegarde automatique chiffrée",
+      "category": "backup",
+      "description": "Workflow GitHub Actions quotidien (cron 03:00, l.27-30) : pg_dump de la base puis chiffrement gpg --symmetric --cipher-algo AES256 avant dépôt en artefact (l.151-160).",
+      "linkedRequirements": [
+        "ISO27001-2022-A.8.13-BACKUP"
+      ],
+      "controlResult": "Sauvegarde en place ; restauration non testée",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:.github/workflows/backup.yml",
+      "fileName": "backup.yml",
+      "fileUri": "git://48b1627/.github/workflows/backup.yml",
+      "documentHash": "sha256:45925cf25b3e8df0d788d2ca2e897447035fcd0f91c2369ab296165837b8702c",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "medium",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_sentry",
+      "questionId": "question_supervision",
+      "templateId": "template_error_monitoring",
+      "title": "Supervision des erreurs (Sentry)",
+      "category": "logging-monitoring",
+      "description": "Sentry initialisé côté serveur si SENTRY_DSN est défini (l.20-26), capture des erreurs de requête (onRequestError), sans données personnelles.",
+      "linkedRequirements": [
+        "OWASP-ASVS-V7-LOGGING"
+      ],
+      "controlResult": "En place",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:instrumentation.ts",
+      "fileName": "instrumentation.ts",
+      "fileUri": "git://48b1627/instrumentation.ts",
+      "documentHash": "sha256:fab310f12a08e3db4bd271735dd7426d7a007a38321bf466e0fa2589b990bfbb",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    },
+    {
+      "sensitivity": "internal",
+      "status": "available",
+      "strength": "medium",
+      "recommendedFormat": "Extrait de code source",
+      "sourceSystem": "Dépôt Git, commit 48b1627",
+      "owner": "Joan",
+      "coveredScope": "Application de production",
+      "id": "evidence_sonde_sante",
+      "questionId": "question_supervision",
+      "templateId": "template_health_check",
+      "title": "Sonde de disponibilité",
+      "category": "logging-monitoring",
+      "description": "GET /api/health exécute SELECT 1 et renvoie {status, db} ; relevé en production : {\"status\":\"ok\",\"db\":\"up\"}.",
+      "linkedRequirements": [
+        "OWASP-ASVS-V7-LOGGING"
+      ],
+      "controlResult": "En place",
+      "caseId": "case_la-forge-du-code",
+      "referenceType": "document-hash",
+      "referenceId": "48b1627:app/api/health/route.ts",
+      "fileName": "route.ts",
+      "fileUri": "git://48b1627/app/api/health/route.ts",
+      "documentHash": "sha256:fcf6a7be0b1760ddba7be6985d5fa57852451ee64c08f9d6ae281f22bd8432c0",
+      "observedAt": "2026-09-12T00:00:00.000Z",
+      "validator": "Joan (auto-evaluation assistee)",
+      "validatedAt": "2026-09-12T00:00:00.000Z",
+      "version": "2026-09-12",
+      "history": [
+        "2026-09-12: preuve relevee pendant l'audit"
+      ]
+    }
+  ],
+  "debts": [
+    {
+      "id": "debt_dependances_next_auth",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_dependances",
+      "evidenceId": "evidence_pnpm_audit",
+      "severity": "high",
+      "reason": "next 16.2.4 et next-auth 5.0.0-beta.31 portent des avis critiques et hauts (contournement du proxy, SSRF, déni de service, contrôle d'authentification qui échoue en mode ouvert).",
+      "recommendedAction": "Mettre à jour next vers 16.3.5 (ou au minimum 16.2.12), next-auth vers 5.0.0-beta.32 et @auth/prisma-adapter vers 2.11.3 ; relancer tests unitaires, e2e et pnpm audit."
+    },
+    {
+      "id": "debt_limitation_debit_prod",
+      "kind": "declared",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_anti_abus",
+      "evidenceId": "evidence_limitation_debit",
+      "severity": "medium",
+      "reason": "Sans Upstash en production, les limites sont par instance serverless et contournables ; en cas de panne Redis le limiteur bascule en mémoire.",
+      "recommendedAction": "Vérifier les variables UPSTASH_REDIS_REST_* dans Vercel ; les rendre obligatoires en production dans lib/env.ts ; refuser (fail-closed) connexion, réinitialisation et e-mails si Redis est indisponible ; rendre l'incrément atomique (SET NX PX)."
+    },
+    {
+      "id": "debt_rls_supabase",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_donnees_secrets",
+      "evidenceId": "evidence_secrets_git",
+      "severity": "medium",
+      "reason": "Aucune table n'a la RLS activée : si l'API de données Supabase est exposée, la clé anon permet de lire les tables User et OneTimeToken.",
+      "recommendedAction": "Consulter le Security Advisor de Supabase ; ajouter une migration ALTER TABLE … ENABLE ROW LEVEL SECURITY sur toutes les tables (sans politique, Prisma n'est pas bloqué) ou désactiver l'API de données."
+    },
+    {
+      "id": "debt_integrite_progression",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_integrite_progression",
+      "evidenceId": "evidence_route_progression",
+      "severity": "medium",
+      "reason": "Le serveur accorde étapes, XP, badges et place au classement sur simple déclaration du navigateur, sans limite de débit.",
+      "recommendedAction": "Limite de débit par utilisateur sur /api/me/step (ex. 60/min) ; exiger que l'étape précédente soit validée ; à terme, envoyer le code et rejouer côté serveur les validateurs statiques."
+    },
+    {
+      "id": "debt_revocation_sessions",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_authentification",
+      "evidenceId": "evidence_cookies_session",
+      "severity": "medium",
+      "reason": "Les sessions JWT durent 30 jours et restent valides après une réinitialisation de mot de passe.",
+      "recommendedAction": "Ajouter sessionVersion (ou passwordChangedAt) en base, l'inclure dans le jeton et le revérifier dans le callback jwt ; réduire maxAge à 7 jours."
+    },
+    {
+      "id": "debt_test_restauration",
+      "kind": "declared",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_sauvegardes",
+      "evidenceId": "evidence_sauvegarde",
+      "severity": "medium",
+      "reason": "La sauvegarde existe mais aucune restauration n'a été testée ni documentée.",
+      "recommendedAction": "Restaurer la dernière sauvegarde dans un PostgreSQL local (docker) et consigner date, durée, volume et résultat."
+    },
+    {
+      "id": "debt_csp_stricte",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_protections_web",
+      "evidenceId": "evidence_entetes_config",
+      "severity": "medium",
+      "reason": "La CSP autorise 'unsafe-inline' et 'unsafe-eval' dans toute l'application pour faire fonctionner le bac à sable.",
+      "recommendedAction": "Servir le bac à sable depuis un sous-domaine dédié avec sa propre CSP (ticket CF-15), puis passer l'application à une CSP à nonce sans unsafe-eval."
+    },
+    {
+      "id": "debt_redirection_ouverte",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_protections_web",
+      "evidenceId": "evidence_entetes_config",
+      "severity": "low",
+      "reason": "/avatar?from= redirige vers n'importe quelle URL après l'enregistrement.",
+      "recommendedAction": "Réutiliser le filtre de la page de connexion (chemin commençant par « / » et pas par « // »)."
+    },
+    {
+      "id": "debt_garde_chapitre",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_controle_acces",
+      "evidenceId": "evidence_carte_routes",
+      "severity": "low",
+      "reason": "La page d'un chapitre n'appelle pas auth() et dépend du seul proxy, visé par plusieurs avis de contournement sur next 16.2.4.",
+      "recommendedAction": "Ajouter auth() puis redirect dans app/learn/[course]/[chapter]/page.tsx pour les chapitres hors essai."
+    },
+    {
+      "id": "debt_indices_html",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_isolation_code",
+      "evidenceId": "evidence_sandbox_iframe",
+      "severity": "low",
+      "reason": "Les indices sont injectés en HTML brut (dangerouslySetInnerHTML) ; escapeHtml n'échappe pas les guillemets.",
+      "recommendedAction": "Rendre step.hint en texte ou via renderLessonMarkdown ; compléter escapeHtml."
+    },
+    {
+      "id": "debt_enumeration_comptes",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_authentification",
+      "evidenceId": "evidence_hachage_bcrypt",
+      "severity": "low",
+      "reason": "L'inscription révèle qu'une adresse est déjà utilisée, les temps de réponse diffèrent, et aucun compteur d'échecs n'existe par compte.",
+      "recommendedAction": "Message neutre à l'inscription, comparaison bcrypt factice dans authorize, envoi des e-mails via after(), compteur d'échecs par e-mail."
+    },
+    {
+      "id": "debt_boucles_infinies",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_isolation_code",
+      "evidenceId": "evidence_sandbox_iframe",
+      "severity": "low",
+      "reason": "Une boucle infinie en JS, SQL ou HTML fige l'onglet : le délai de 3 s tourne dans le même thread.",
+      "recommendedAction": "Exécuter JS et SQL dans un Web Worker terminé à l'expiration du délai ; appliquer detecterBoucleInfinie au cursus JS."
+    },
+    {
+      "id": "debt_csrf_suppression",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_protections_web",
+      "evidenceId": "evidence_entetes_config",
+      "severity": "low",
+      "reason": "Les routes POST et DELETE ne vérifient pas l'en-tête Origin ; la suppression de compte ne redemande pas le mot de passe.",
+      "recommendedAction": "Contrôle Origin commun à /api/me/* ; demander le mot de passe avant DELETE /api/me."
+    },
+    {
+      "id": "debt_signalement_failles",
+      "kind": "missing",
+      "caseId": "case_la-forge-du-code",
+      "questionId": "question_supervision",
+      "evidenceId": "evidence_sentry",
+      "severity": "low",
+      "reason": "Pas de canal de signalement de faille ; le jeton de vérification est dans l'URL (journalisé en cas d'erreur, consommé par un simple GET).",
+      "recommendedAction": "Publier /.well-known/security.txt ; consommer le jeton de vérification sur un POST de confirmation."
+    }
+  ],
+  "deliveryHistory": [],
+  "summary": {
+    "questionCount": 10,
+    "evidenceCount": 19,
+    "proofDebtCount": 14,
+    "criticalDebtCount": 0,
+    "highDebtCount": 1,
+    "responseCompletenessScore": 100,
+    "evidenceCoverageScore": 90,
+    "evidenceQualityFreshnessScore": 74,
+    "exportReadinessScore": 40,
+    "proofDebtScore": 44
+  },
+  "methodVersion": "blackproof-method-v0.1.0-alpha",
+  "generatedAt": "2026-09-12T00:00:00.000Z",
+  "fingerprint": "bp_sha256_96a0444932b028acf57f2eb0309b40d365fc3bcfb8c576ad89026e380b2b963f"
+}

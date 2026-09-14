@@ -1,0 +1,163 @@
+# INF-01 - demonstration sur la configuration actuelle (commit 30975f9), 2026-09-14
+# pnpm vitest run lib/vercel-build.test.ts
+
+
+ RUN  v4.1.9 <depot>
+
+node:internal/modules/cjs/loader:1252
+  throw err;
+  ^
+
+Error: Cannot find module 'scripts\migrer-si-production.mjs'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1249:15)
+    at Function._load (node:internal/modules/cjs/loader:1075:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:219:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.12.0
+node:internal/modules/cjs/loader:1252
+  throw err;
+  ^
+
+Error: Cannot find module 'scripts\migrer-si-production.mjs'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1249:15)
+    at Function._load (node:internal/modules/cjs/loader:1075:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:219:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.12.0
+node:internal/modules/cjs/loader:1252
+  throw err;
+  ^
+
+Error: Cannot find module 'scripts\migrer-si-production.mjs'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1249:15)
+    at Function._load (node:internal/modules/cjs/loader:1075:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:219:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.12.0
+ ❯ lib/vercel-build.test.ts (5 tests | 4 failed) 183ms
+     × n'applique pas les migrations directement dans la commande de build 6ms
+     × passe par le script qui ne migre qu'en production 3ms
+     × n'applique pas les migrations sur une préversion 64ms
+     × applique les migrations au déploiement de production 56ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/vercel-build.test.ts > build Vercel : migrations de la base > n'applique pas les migrations directement dans la commande de build
+AssertionError: expected 'pnpm prisma generate && pnpm prisma m…' not to match /prisma migrate deploy/
+
+- Expected:
+/prisma migrate deploy/
+
++ Received:
+"pnpm prisma generate && pnpm prisma migrate deploy && pnpm build"
+
+ ❯ lib/vercel-build.test.ts:35:37
+     33| describe("build Vercel : migrations de la base", () => {
+     34|   it("n'applique pas les migrations directement dans la commande de bu…
+     35|     expect(vercel.buildCommand).not.toMatch(/prisma migrate deploy/);
+       |                                     ^
+     36|   });
+     37|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  lib/vercel-build.test.ts > build Vercel : migrations de la base > passe par le script qui ne migre qu'en production
+AssertionError: expected 'pnpm prisma generate && pnpm prisma m…' to contain 'node scripts/migrer-si-production.mjs'
+
+Expected: "node scripts/migrer-si-production.mjs"
+Received: "pnpm prisma generate && pnpm prisma migrate deploy && pnpm build"
+
+ ❯ lib/vercel-build.test.ts:39:33
+     37|
+     38|   it("passe par le script qui ne migre qu'en production", () => {
+     39|     expect(vercel.buildCommand).toContain("node scripts/migrer-si-prod…
+       |                                 ^
+     40|   });
+     41|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  lib/vercel-build.test.ts > build Vercel : migrations de la base > n'applique pas les migrations sur une préversion
+Error: Command failed: C:\nvm4w\nodejs\node.exe scripts\migrer-si-production.mjs --simulation
+node:internal/modules/cjs/loader:1252
+  throw err;
+  ^
+
+Error: Cannot find module 'scripts\migrer-si-production.mjs'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1249:15)
+    at Function._load (node:internal/modules/cjs/loader:1075:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:219:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.12.0
+
+ ❯ lancer lib/vercel-build.test.ts:27:10
+     25| /** Lance le script en simulation (il ne touche jamais à Prisma), avec…
+     26| function lancer(env: Record<string, string>): string {
+     27|   return execFileSync(process.execPath, [SCRIPT, "--simulation"], {
+       |          ^
+     28|     env: { ...process.env, VERCEL: "", VERCEL_ENV: "", ...env },
+     29|     encoding: "utf8",
+ ❯ lib/vercel-build.test.ts:43:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  lib/vercel-build.test.ts > build Vercel : migrations de la base > applique les migrations au déploiement de production
+Error: Command failed: C:\nvm4w\nodejs\node.exe scripts\migrer-si-production.mjs --simulation
+node:internal/modules/cjs/loader:1252
+  throw err;
+  ^
+
+Error: Cannot find module 'scripts\migrer-si-production.mjs'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1249:15)
+    at Function._load (node:internal/modules/cjs/loader:1075:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:219:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.12.0
+
+ ❯ lancer lib/vercel-build.test.ts:27:10
+     25| /** Lance le script en simulation (il ne touche jamais à Prisma), avec…
+     26| function lancer(env: Record<string, string>): string {
+     27|   return execFileSync(process.execPath, [SCRIPT, "--simulation"], {
+       |          ^
+     28|     env: { ...process.env, VERCEL: "", VERCEL_ENV: "", ...env },
+     29|     encoding: "utf8",
+ ❯ lib/vercel-build.test.ts:47:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 1 passed (5)
+   Start at  10:58:23
+   Duration  505ms (transform 26ms, setup 0ms, import 67ms, tests 183ms, environment 0ms)
+

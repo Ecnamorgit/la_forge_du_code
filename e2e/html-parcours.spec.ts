@@ -1,6 +1,28 @@
 import { test, expect, type Page } from "@playwright/test";
+import { Client } from "pg";
 
-import { E2E_USER } from "./global-setup";
+import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
+import { E2E_USER, STORAGE_STATE } from "./global-setup";
+
+/**
+ * Efface la progression du compte e2e sur un chapitre : l'interface ouvre la
+ * première étape non faite, et le compte est partagé entre tests et specs.
+ * Sans ça, un test qui valide une étape ferait démarrer le suivant sur la
+ * mauvaise étape.
+ */
+async function repartirDuDebut(course: string, chapter: string): Promise<void> {
+  assertTestDatabaseUrl(process.env.DATABASE_URL);
+  const client = new Client({ connectionString: process.env.DATABASE_URL });
+  await client.connect();
+  try {
+    await client.query(
+      'DELETE FROM "StepCompletion" WHERE "userId" = $1 AND course = $2 AND chapter = $3',
+      [E2E_USER.id, course, chapter]
+    );
+  } finally {
+    await client.end();
+  }
+}
 
 /**
  * Parcours HTML de bout en bout.
@@ -36,9 +58,63 @@ const CH1_SOLUTIONS = [
   "<!DOCTYPE html>\n<html>\n<head>\n<title>Mission Selene</title>\n</head>\n<body>\n<h1>Hello World</h1>\n</body>\n</html>",
 ];
 
+/**
+ * Constat EXE-03 : l'aperçu HTML n'est plus un `srcdoc` (qui hérite de la CSP
+ * du site) mais une coquille chargée par `src` depuis une origine DÉDIÉE, qui
+ * rend le HTML de l'apprenant dans une iframe imbriquée. On vérifie deux choses
+ * qu'un `srcdoc` rendait impossibles : la coquille est servie depuis une autre
+ * origine que l'app, et le HTML de l'apprenant s'y rend bien (deux niveaux
+ * d'iframe traversés par Playwright au niveau du protocole).
+ *
+ * Placé en tête de fichier : le chapitre 1 est encore vierge pour l'utilisateur
+ * E2E (recréé à chaque run), avant que le test de complétion ne le termine.
+ */
+test.describe("aperçu HTML sur l'origine dédiée", () => {
+  // Session partagée écrite par global-setup, PAS de connexion formulaire : le
+  // budget de connexion par IP (10 / 5 min, en mémoire) est partagé par toute
+  // la suite, et une connexion de plus ici faisait déborder `trial.spec.ts`,
+  // dernier de l'ordre d'exécution (échec dur en CI, pas seulement flaky).
+  test.use({ storageState: STORAGE_STATE });
+
+  test("l'aperçu HTML est rendu depuis une origine distincte", async ({ page }) => {
+  await repartirDuDebut("html", "chapitre-1");
+  await page.goto("/learn/html/chapitre-1");
+  await expect(page.locator(".monaco-editor").first()).toBeVisible({ timeout: 30_000 });
+
+  const apercu = page.locator('iframe[title="Apercu"]');
+  await expect(apercu).toHaveCount(1);
+  const src = await apercu.getAttribute("src");
+  expect(src, "l'aperçu doit être chargé par src, plus par srcDoc").not.toBeNull();
+  const origineApercu = new URL(src!).origin;
+  const origineApp = new URL(page.url()).origin;
+  expect(new URL(src!).pathname).toBe("/bac-a-sable/html");
+  expect(
+    origineApercu,
+    `l'aperçu (${origineApercu}) doit être servi depuis une autre origine que l'app (${origineApp})`
+  ).not.toBe(origineApp);
+
+  // HTML volontairement INVALIDE pour l'étape (pas de <!DOCTYPE>) : il se rend
+  // quand même, mais ne déclenche ni bannière de réussite ni avancement d'étape
+  // — ce test prouve le RENDU cross-origin, pas la validation.
+  await setEditorContent(page, "<h1>Bonjour Nebula</h1>");
+  await page.getByRole("button", { name: /DEPLOYER/ }).click();
+
+  // Le HTML se rend dans la scène imbriquée (coquille → scène) : on entre les
+  // DEUX frames en chaînant `frameLocator` depuis `page`. On cible par sélecteur
+  // DOM et non `getByRole` : l'arbre d'accessibilité ne traverse pas de façon
+  // fiable deux iframes opaques imbriquées (vérifié empiriquement).
+  const scene = page
+    .frameLocator('iframe[title="Apercu"]')
+    .frameLocator('iframe[title="Rendu HTML"]');
+  await expect(scene.locator("h1")).toHaveText("Bonjour Nebula", { timeout: 20_000 });
+  });
+});
+
 test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async ({
   page,
 }) => {
+  // Indépendant de ce qui a tourné avant sur ce compte partagé.
+  await repartirDuDebut("html", "chapitre-1");
   await login(page);
   await page.goto("/learn/html/chapitre-1");
 

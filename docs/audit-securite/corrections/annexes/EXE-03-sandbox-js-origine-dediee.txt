@@ -1,0 +1,21 @@
+Constat EXE-03 — étape 1b : le sandbox JavaScript est câblé sur l'origine DÉDIÉE.
+
+`run-js.ts` charge désormais une iframe cachée par `src` vers
+http://127.0.0.1:3000/bac-a-sable/js (origine distincte de l'app localhost:3000,
+comme `bac-a-sable.laforgeducode.fr` en production), attend sa poignée de main
+`sandbox:ready`, puis lui poste le code de l'apprenant (déjà instrumenté contre
+les boucles sans fin). Le code n'est plus figé dans un `srcdoc` qui héritait de
+la CSP du site.
+
+Commande (base de test locale, sans e-mail réel, contre `pnpm dev`) :
+  DATABASE_URL=…@127.0.0.1:54329/codeforge_test RESEND_API_KEY="" \
+    npx playwright test securite-boucles.spec.ts --reporter=list
+
+  ok 1 › témoin JavaScript : un programme normal est exécuté et validé (7.4s)
+  ok 2 › SQL : une requête sans fin est interrompue, l'onglet reste utilisable (8.4s)
+  ok 3 › JavaScript : une boucle sans fin est interrompue, l'onglet reste utilisable (8.5s)
+  3 passed (35.0s)
+
+Le témoin prouve qu'un programme normal s'exécute et est validé à travers la
+nouvelle origine ; le test de boucle prouve que la garde EXE-02 (instrumentation
+côté parent) fonctionne toujours et que l'onglet reste vivant.

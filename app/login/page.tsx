@@ -6,6 +6,7 @@ import { signIn } from "next-auth/react";
 import { Suspense, useState } from "react";
 
 import BrandLogo from "@/components/ui/BrandLogo";
+import { safeInternalPath } from "@/lib/safe-redirect";
 
 export default function LoginPage() {
   return (
@@ -18,12 +19,10 @@ export default function LoginPage() {
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // On n'accepte que des chemins internes : un seul slash initial, jamais `//`
-  // ni une URL absolue — sinon un lien `?from=https://evil.example` renverrait
-  // l'utilisateur vers un site tiers après connexion (open redirect / phishing).
-  const rawFrom = searchParams.get("from");
-  const callbackUrl =
-    rawFrom && rawFrom.startsWith("/") && !rawFrom.startsWith("//") ? rawFrom : "/dashboard";
+  // Chemins internes uniquement : sinon un lien `?from=https://evil.example`
+  // renverrait l'utilisateur vers un site tiers après connexion (open redirect
+  // / phishing). next-auth revérifie l'origine, ceci est la première barrière.
+  const callbackUrl = safeInternalPath(searchParams.get("from"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

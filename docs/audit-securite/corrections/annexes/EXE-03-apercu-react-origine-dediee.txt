@@ -1,0 +1,23 @@
+Constat EXE-03 — étape 1 : l'aperçu React est câblé sur l'origine DÉDIÉE.
+
+Commande (base de test locale, sans e-mail réel, contre `pnpm dev`) :
+  DATABASE_URL=…@127.0.0.1:54329/codeforge_test RESEND_API_KEY="" \
+    npx playwright test react-preview.spec.ts --reporter=list
+
+Sous un vrai Chromium, l'app est sur http://localhost:3000 et l'aperçu est
+chargé par `src` depuis http://127.0.0.1:3000/bac-a-sable — une origine
+distincte, comme en production `bac-a-sable.laforgeducode.fr`. La poignée de
+main aboutit, le composant se monte et réagit au clic : la séparation d'origine
+ne casse rien.
+
+  ok 1 › l'aperçu est chargé depuis une origine distincte de l'application (3.5s)
+  ok 2 › monte le composant et reagit au clic (5.0s)
+  ok 3 › une exception levee pendant le rendu remonte au panneau (2.4s)
+  ok 4 › le chapitre 4, exempte, n'affiche pas d'apercu (631ms)
+  ok 5 › une boucle infinie est refusee avant l'envoi, et le deploiement suivant marche (2.6s)
+  ok 6 › une exception non rattrapee dans un onClick remonte un vrai message (2.6s)
+  6 passed (28.0s)
+
+Le test 1 (« origine distincte ») est nouveau : il aurait été impossible tant
+que l'aperçu vivait dans un `srcdoc`, qui n'a pas d'origine propre et emprunte
+celle du parent. C'est exactement la dépendance CSP qu'EXE-03 supprime.

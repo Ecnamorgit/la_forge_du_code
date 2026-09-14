@@ -207,7 +207,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
     [chapter.slug, chapter.steps.length]
   );
 
-  const handleStepSuccess = useCallback(() => {
+  const handleStepSuccess = useCallback((code: string) => {
     const alreadyDone = stepDone[currentStep];
     setSaveError(null);
 
@@ -229,7 +229,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
         2400
       );
 
-      void completeStep(course, chapter.slug, currentStep)
+      void completeStep(course, chapter.slug, currentStep, code)
         .then((result) => {
           setDailyLoopAnnounce({
             completedQuests: result.completedQuests,
@@ -438,7 +438,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
         newConductBadges={dailyLoopAnnounce.conductBadges}
         href={`/learn/${course}`}
       />
-      <HintBox show={showHint} html={step.hint} />
+      <HintBox show={showHint} text={step.hint} />
       <DocPanel
         entryId={openDocId}
         onClose={() => setOpenDocId(null)}

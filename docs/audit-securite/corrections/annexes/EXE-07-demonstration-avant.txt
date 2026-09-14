@@ -1,0 +1,46 @@
+# EXE-07 - demonstration sur le code non corrige (commit 8e17447), 2026-09-14
+# RESEND_API_KEY="" npx playwright test e2e/sql-moteur.spec.ts, base PostgreSQL locale
+
+Running 1 test using 1 worker
+[1/1] [chromium] › e2e\sql-moteur.spec.ts:19:5 › le cursus SQL exécute une requête et valide l'étape
+  1) [chromium] › e2e\sql-moteur.spec.ts:19:5 › le cursus SQL exécute une requête et valide l'étape 
+    Error: expect(locator).toBeVisible() failed
+    Locator: getByText('SYSTÈME EN LIGNE')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+    Call log:
+      - Expect "soft toBeVisible" with timeout 15000ms
+      - waiting for getByText('SYSTÈME EN LIGNE')
+      36 |
+      37 |   await test.step("l'étape est validée", async () => {
+    > 38 |     await expect.soft(page.getByText("SYSTÈME EN LIGNE")).toBeVisible({ timeout: 15_000 });
+         |                                                           ^
+      39 |   });
+      40 |
+      41 |   await test.step("aucune erreur de chargement du moteur", async () => {
+        at e2e\sql-moteur.spec.ts:38:59
+        at e2e\sql-moteur.spec.ts:37:3
+    Error: expect(received).toEqual(expected) // deep equality
+    - Expected  - 1
+    + Received  + 7
+    - Array []
+    + Array [
+    +   "wasm streaming compile failed: TypeError: Failed to execute 'compile' on 'WebAssembly': HTTP status code is not ok",
+    +   "failed to asynchronously prepare wasm: both async and sync fetching of the wasm failed",
+    +   "Aborted(both async and sync fetching of the wasm failed)",
+    +   "both async and sync fetching of the wasm failed",
+    +   "Aborted(both async and sync fetching of the wasm failed). Build with -sASSERTIONS for more info.",
+    + ]
+      40 |
+      41 |   await test.step("aucune erreur de chargement du moteur", async () => {
+    > 42 |     expect.soft(erreurs.filter((e) => /wasm/i.test(e))).toEqual([]);
+         |                                                         ^
+      43 |   });
+      44 | });
+      45 |
+        at e2e\sql-moteur.spec.ts:42:57
+        at e2e\sql-moteur.spec.ts:41:3
+    Error Context: test-results\sql-moteur-le-cursus-SQL-e-9bf7e-e-requête-et-valide-l-étape-chromium\error-context.md
+  1 failed
+    [chromium] › e2e\sql-moteur.spec.ts:19:5 › le cursus SQL exécute une requête et valide l'étape ─

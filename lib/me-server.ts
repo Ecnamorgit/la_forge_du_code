@@ -1,8 +1,11 @@
 import "server-only";
 
+import bcrypt from "bcryptjs";
+
 import { prisma } from "@/lib/db";
 import { getBadgeForChapter, getChaptersMeta } from "@/lib/courses-meta";
 import { getChapterData } from "@/lib/courses-registry";
+import { checkStepOrder } from "@/lib/step-order";
 import { MAX_XP, xpForStep } from "@/lib/xp";
 import { COURSES_CATALOG } from "@/lib/courses-catalog";
 import { evaluateConductBadges } from "@/lib/conduct-badges";
@@ -213,6 +216,8 @@ export class UserNotFoundError extends Error {}
 export class UsernameTakenError extends Error {}
 export class InvalidUsernameError extends Error {}
 export class InvalidStepError extends Error {}
+/** Étape demandée avant la précédente (lib/step-order.ts) : message affichable. */
+export class StepOrderError extends Error {}
 
 async function assertUserExists(userId: string): Promise<void> {
   const exists = await prisma.user.findUnique({
@@ -325,6 +330,16 @@ export async function completeStep(
       alreadyDone = true;
       return;
     }
+
+    // Ordre de progression (constat EXE-01) : vérifié APRÈS le test
+    // d'idempotence, pour qu'une étape déjà faite reste une réponse normale,
+    // et DANS la transaction, sur les complétions qu'elle voit.
+    const faites = await tx.stepCompletion.findMany({
+      where: { userId, course },
+      select: { chapter: true, stepIndex: true },
+    });
+    const ordre = checkStepOrder(CHAPTERS_BY_COURSE[course] ?? [], faites, chapter, stepIndex);
+    if (!ordre.ok) throw new StepOrderError(ordre.reason);
 
     await tx.stepCompletion.create({
       data: { userId, course, chapter, stepIndex },
@@ -839,6 +854,20 @@ export async function exportUserData(userId: string) {
 export async function deleteAccount(userId: string): Promise<void> {
   await assertUserExists(userId);
   await prisma.user.delete({ where: { id: userId } });
+}
+
+/**
+ * Vérifie le mot de passe du compte avant une action irréversible (suppression
+ * du compte, constat SRV-09). Même comparaison que la connexion (`auth.ts`).
+ */
+export async function verifyPassword(userId: string, password: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { password: true },
+  });
+  if (!user) throw new UserNotFoundError();
+  if (!user.password) return false;
+  return bcrypt.compare(password, user.password);
 }
 
 export async function resetProgress(userId: string): Promise<UserState> {
