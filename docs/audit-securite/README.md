@@ -78,6 +78,8 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | INF-01 | Moyenne | Préversions Vercel branchées sur la base de production, qui y appliquaient les migrations (découvert pendant l'audit) | `96109fb` (vitest) | [fiche](corrections/INF-01.md) | Corrigé (base de préversion séparée recommandée) |
 | DEP-02 | Faible | Avis restants sur des dépendances d'outillage (CLI Prisma, plugin de build Sentry, dompurify de Monaco) | [`pnpm audit` avant](corrections/annexes/DEP-02-pnpm-audit-avant.md) | [fiche](corrections/DEP-02.md) | Corrigé (1 avis accepté) |
 
+| EXE-03 | Moyenne | CSP avec 'unsafe-inline' et 'unsafe-eval' imposée par le bac à sable | fondation posée | [fiche](corrections/EXE-03.md) | En cours (câblage + CSP à nonce à venir) |
+
 Les points d'information (EXE-05, EXE-06, SRV-11) sont détaillés dans le rapport.
 
 ## Limites

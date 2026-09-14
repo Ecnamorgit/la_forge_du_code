@@ -30,7 +30,10 @@ const nextConfig: NextConfig = {
   // Don't advertise the framework version (minor info-leak hardening).
   poweredByHeader: false,
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    // Le bac à sable (`app/bac-a-sable/route.ts`) est exclu : il pose lui-même
+    // sa CSP permissive et son `frame-ancestors`, incompatibles avec les
+    // en-têtes stricts du reste du site (constat EXE-03).
+    return [{ source: "/((?!bac-a-sable).*)", headers: securityHeaders }];
   },
   experimental: {
     optimizePackageImports: ["@monaco-editor/react"],
