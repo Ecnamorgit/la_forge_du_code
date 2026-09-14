@@ -1,0 +1,31 @@
+# SRV-10 - demonstration sur le code non corrige (commit 60ea1de), 2026-09-14
+# pnpm vitest run app/learn/[course]/[chapter]/page.test.ts
+
+ RUN  v4.1.9 <depot>
+ ❯ app/learn/[course]/[chapter]/page.test.ts (4 tests | 2 failed) 51ms
+     × renvoie vers la connexion un visiteur sans session sur un chapitre protégé 34ms
+     × renvoie vers la connexion un visiteur sans session sur un autre cursus 7ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  app/learn/[course]/[chapter]/page.test.ts > page chapitre, sans compter sur le proxy > renvoie vers la connexion un visiteur sans session sur un chapitre protégé
+AssertionError: promise resolved "{ …(10) }" instead of rejecting
+- Expected
++ Received
+- Error {
+-   "message": "rejected promise",
++ <default
++   chapter={
++     {
++       "completionBadge": "📝",
++       "completionBadgeLabel": "OFFICIER DES LOGISTIQUES",
++       "slug": "chapitre-5",
++       "steps": [
++         {
++           "bannerIcon": "📁",
++           "bannerSub": "Le canal de transmission des données est configure.",
++           "bannerTtl": "STRUCTURE DU FORMULAIRE ACTIVÉE",
++           "bannerXp": "⚡ +50 XP",
++           "briefing": {
+[... sortie tronquee : la page renvoie le chapitre complet (briefing, etapes, indices) ...]
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
