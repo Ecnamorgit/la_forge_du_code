@@ -1,0 +1,12 @@
+# SRV-10 - demonstration apres correctif, 2026-09-14
+# pnpm vitest run app/learn/[course]/[chapter]/page.test.ts
+
+
+ RUN  v4.1.9 <depot>
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  09:51:49
+   Duration  2.68s (transform 743ms, setup 0ms, import 2.16s, tests 14ms, environment 0ms)
+
