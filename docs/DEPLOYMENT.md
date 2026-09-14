@@ -76,13 +76,49 @@ npm run build   # next build (Turbopack) — doit finir sans erreur
 npm run start   # test local du bundle de prod avant de pousser
 ```
 
-Sur Vercel : connecter le repo GitHub → chaque push sur `main` déclenche un déploiement. Renseigner les variables d'env (étape 1) **avant** le premier build.
+Le build chez Vercel est défini par `vercel.json` : `prisma generate`, puis les migrations **seulement en production** (`scripts/migrer-si-production.mjs`, constat INF-01), puis `pnpm build`. Renseigner les variables d'env (étape 1) **avant** le premier build.
+
+### Déployer en production (dépôt privé, plan Hobby)
+
+> ⚠️ **Fusionner dans `main` ne déploie PAS.** Le dépôt est privé et le projet
+> est sur un compte Vercel **Hobby** : ce plan bloque tout déploiement dont
+> l'auteur du commit n'est pas le compte GitHub relié à Vercel (« Deployment
+> Blocked — the commit author did not have contributing access »). Les commits
+> sont signés par un autre compte GitHub, relié à l'ancien compte Vercel bloqué.
+> `vercel --prod` lancé depuis le dépôt est bloqué de la même façon : la CLI
+> joint les métadonnées git locales. Constaté le 2026-09-14 : deux déploiements
+> `BLOCKED` (la CLI n'affiche que `UNKNOWN` ; l'état réel se lit dans le tableau
+> de bord ou l'API).
+
+La procédure qui fonctionne : déployer une **copie de `main` sans `.git`** — sans métadonnées, rien à bloquer. Le script le fait :
+
+```bash
+# Une seule fois : se connecter (compte pluriface) et lier le dossier au projet.
+npx vercel login
+npx vercel link
+```
+
+```bash
+# À chaque mise en production, une fois la PR fusionnée et `main` à jour :
+node scripts/deployer-production.mjs
+```
+
+Le script refuse de partir si `main` local diffère de `origin/main` (on déploie ce qui est fusionné, rien d'autre). Le build tourne chez Vercel, avec `vercel.json` et les variables du projet — identique à un déploiement déclenché par git. Vercel ne bascule le domaine que sur un build réussi : en cas d'échec, l'ancien reste en ligne.
+
+Vérifier ensuite (étape 6), et pour les changements de sécurité : `curl -sI https://www.laforgeducode.fr/ | grep -i content-security-policy` doit montrer `script-src` à nonce sans `'unsafe-inline'`, et `https://bac-a-sable.laforgeducode.fr/bac-a-sable/html` doit répondre `200`.
+
+> `vercel link` crée un `.env.local` (jeton `VERCEL_OIDC_TOKEN`) et peut ajouter
+> des lignes à `.gitignore` : les deux sont inutiles ici, on peut les retirer.
+> Alternative durable si un jour le dépôt passe en public : le blocage ne vise
+> que les dépôts privés, et chaque push sur `main` se déploierait à nouveau seul.
 
 > ℹ️ **Bascule de compte (2026-09-07)** : le projet est hébergé sur le compte
 > Vercel `pluriface` (plan Hobby), projet `la-forge-du-code`. En cas de nouveau
-> changement de compte : importer le repo, saisir les 7 variables (Vercel
-> détecte leurs noms depuis `.env.example`, pas leurs valeurs), puis pousser sur
-> `main`. `vercel.json` fait le reste.
+> changement de compte : importer le repo, saisir les variables (Vercel
+> détecte leurs noms depuis `.env.example`, pas leurs valeurs), lier Upstash
+> (variables `KV_REST_API_*`, obligatoires en production : `lib/env.ts` refuse
+> de démarrer sans), ajouter les domaines `www.laforgeducode.fr` et
+> `bac-a-sable.laforgeducode.fr`, puis déployer par le script ci-dessus.
 
 ---
 
