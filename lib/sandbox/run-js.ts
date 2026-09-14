@@ -1,15 +1,24 @@
 /**
- * JS sandbox executed inside an isolated iframe (`sandbox="allow-scripts"`).
+ * Sandbox JavaScript exécuté dans une iframe cachée à origine opaque
+ * (`sandbox="allow-scripts"`).
  *
- * This prevents student code from accessing the app's window, sessionStorage,
- * localStorage, cookies, and other same-origin resources.
+ * L'iframe est chargée par `src` depuis une **origine dédiée**
+ * (`/bac-a-sable/js`, constat EXE-03), et non plus par un `srcdoc` : un `srcdoc`
+ * hérite de la CSP du parent, ce qui forçait l'application à garder
+ * `'unsafe-eval'`. Le code de l'apprenant n'est plus figé dans le HTML : il est
+ * posté au document une fois sa poignée de main reçue.
  *
- * L'iframe partage le fil d'exécution de la page : le délai de 3 s ci-dessous
- * ne peut rien contre une boucle synchrone sans fin. Les boucles sont donc
- * instrumentées avant l'envoi (lib/sandbox/loop-protect.ts, constat EXE-02).
+ * Cela empêche le code de l'apprenant d'accéder au window, au sessionStorage,
+ * au localStorage, aux cookies et aux autres ressources de même origine de
+ * l'application.
+ *
+ * L'iframe partage le fil d'exécution de la page : le délai ci-dessous ne peut
+ * rien contre une boucle synchrone sans fin. Les boucles sont donc instrumentées
+ * avant l'envoi (lib/sandbox/loop-protect.ts, constat EXE-02).
  */
 
 import { protegerBoucles } from "./loop-protect";
+import { SANDBOX_JS_PATH, sandboxOriginFor } from "./sandbox-origin";
 
 export interface JsRunResult {
   /** True iff the code executed without throwing. */
@@ -20,19 +29,6 @@ export interface JsRunResult {
   error: string | null;
   /** Value of the last expression in the code, when retrievable. */
   lastValue: unknown;
-}
-
-function formatArg(v: unknown): string {
-  if (v === null) return "null";
-  if (v === undefined) return "undefined";
-  if (typeof v === "string") return v;
-  if (typeof v === "number" || typeof v === "boolean") return String(v);
-  if (typeof v === "function") return "[Function]";
-  try {
-    return JSON.stringify(v);
-  } catch {
-    return String(v);
-  }
 }
 
 export function runJs(code: string): Promise<JsRunResult> {
@@ -47,13 +43,18 @@ export function runJs(code: string): Promise<JsRunResult> {
       return;
     }
 
-    // Origine de la fenêtre parente (l'app). Sert de cible explicite au
-    // postMessage du sandbox, au lieu du "*" permissif.
-    const parentOrigin = window.location.origin;
+    // Boucles instrumentées AVANT l'envoi : une fois posté, le code partage le
+    // fil du parent et une boucle synchrone gèlerait l'onglet (constat EXE-02).
+    const codeProtege = protegerBoucles(code);
+
+    // Origine DÉDIÉE : le document d'exécution y porte sa propre CSP permissive,
+    // au lieu d'hériter de celle (stricte) de l'application.
+    const sandboxSrc = sandboxOriginFor(window.location.origin) + SANDBOX_JS_PATH;
 
     const iframe = document.createElement("iframe");
     iframe.setAttribute("sandbox", "allow-scripts");
     iframe.style.display = "none";
+    iframe.src = sandboxSrc;
     document.body.appendChild(iframe);
 
     const cleanup = () => {
@@ -69,17 +70,30 @@ export function runJs(code: string): Promise<JsRunResult> {
 
     const onMessage = (event: MessageEvent) => {
       if (event.source !== iframe.contentWindow) return;
-      // Sandboxed iframe without allow-same-origin → origin is the literal "null".
-      // Defense-in-depth in case the sandbox attributes change later.
+      // Iframe sandbox sans allow-same-origin → origine littérale "null".
       if (event.origin !== "null") return;
       const data = event.data as { type?: string; payload?: JsRunResult };
+
+      // Poignée de main : le document est prêt, on lui poste le code. L'iframe
+      // est à origine opaque, "*" est la seule cible possible ; la charge utile
+      // est le code de l'apprenant lui-même, pas un secret, et le document
+      // vérifie `event.source === parent`.
+      if (data?.type === "sandbox:ready") {
+        iframe.contentWindow?.postMessage(
+          { type: "sandbox:run", code: codeProtege },
+          "*"
+        );
+        return;
+      }
+
       if (data?.type !== "sandbox:result" || !data.payload) return;
       finish(data.payload);
     };
 
-    // Filet pour le code asynchrone qui ne rend jamais sa réponse. Les boucles
-    // synchrones, elles, sont arrêtées à 3 s par la garde de loop-protect.ts :
-    // ce délai-ci reste plus long pour que son message, plus précis, s'affiche.
+    // Filet pour le code asynchrone qui ne rend jamais sa réponse — ou pour une
+    // iframe qui ne démarre pas. Les boucles synchrones, elles, sont arrêtées à
+    // 3 s par la garde de loop-protect.ts : ce délai-ci reste plus long pour que
+    // son message, plus précis, s'affiche.
     const timeout = setTimeout(() => {
       finish({
         ok: false,
@@ -91,62 +105,5 @@ export function runJs(code: string): Promise<JsRunResult> {
     }, 4000);
 
     window.addEventListener("message", onMessage);
-
-    const srcdoc = `<!doctype html>
-<html>
-  <body>
-    <script>
-      (function () {
-        "use strict";
-        const logs = [];
-        // Bornes anti-emballement : un code malicieux/buggé ne peut pas faire
-        // exploser la mémoire ou la taille du message avant le timeout parent.
-        const MAX_LOGS = 1000;
-        const MAX_LINE = 2000;
-        const formatArg = ${formatArg.toString()};
-        const append = (...args) => {
-          if (logs.length >= MAX_LOGS) return;
-          let line = args.map(formatArg).join(" ");
-          if (line.length > MAX_LINE) line = line.slice(0, MAX_LINE) + "… (tronqué)";
-          logs.push(line);
-        };
-        const fakeConsole = { log: append, info: append, warn: append, error: append, debug: append };
-        // localStorage polyfill — opaque-origin iframes (sandbox without allow-same-origin)
-        // don't have a real Storage API. We expose an in-memory shim so chapters that teach
-        // localStorage usage still work; it doesn't persist between runs, which is fine.
-        const __store = {};
-        const fakeStorage = {
-          getItem(key) { return Object.prototype.hasOwnProperty.call(__store, key) ? __store[key] : null; },
-          setItem(key, value) { __store[String(key)] = String(value); },
-          removeItem(key) { delete __store[key]; },
-          clear() { for (const k of Object.keys(__store)) delete __store[k]; },
-          key(i) { return Object.keys(__store)[i] ?? null; },
-          get length() { return Object.keys(__store).length; },
-        };
-        let lastValue;
-        let error = null;
-        try {
-          const fn = new Function("console", "localStorage", '"use strict"; return (function(){\\n' + ${JSON.stringify(
-            protegerBoucles(code)
-          )} + '\\n})();');
-          lastValue = fn(fakeConsole, fakeStorage);
-        } catch (err) {
-          error = err instanceof Error ? err.name + ": " + err.message : String(err);
-        }
-        // Delay the result post by 300ms so short async work (setTimeout, Promise
-        // chains, async functions) has time to flush logs before we serialize.
-        // The parent has a 3s deadline so we stay well within budget.
-        setTimeout(function () {
-          parent.postMessage({
-            type: "sandbox:result",
-            payload: { ok: !error, logs, error, lastValue }
-          }, ${JSON.stringify(parentOrigin)});
-        }, 300);
-      })();
-    </script>
-  </body>
-</html>`;
-
-    iframe.srcdoc = srcdoc;
   });
 }

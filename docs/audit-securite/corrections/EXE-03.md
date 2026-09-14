@@ -37,9 +37,17 @@ Vérifié : la route sert le document (HTTP 200) avec sa CSP dédiée ; le scrip
 
 À ce stade la CSP du site est **encore inchangée** : tant que le JavaScript et l'aperçu HTML restent en `srcdoc`, elle doit garder `'unsafe-inline'` / `'unsafe-eval'`. C'est l'objet des étapes suivantes.
 
+## Câblage — étape 1b : sandbox JavaScript (fait)
+
+[lib/sandbox/run-js.ts](../../../lib/sandbox/run-js.ts) charge désormais une iframe cachée par **`src`** vers `/bac-a-sable/js` (origine dédiée), attend sa poignée de main puis lui **poste** le code de l'apprenant — au lieu de le figer dans un `srcdoc` inline qui héritait de la CSP du site.
+
+- Nouveau document servi [lib/sandbox/js-runner-document.ts](../../../lib/sandbox/js-runner-document.ts) (console factice, polyfill `localStorage`, bornes anti-emballement, flush 300 ms), couvert par [js-runner-document.test.ts](../../../lib/sandbox/js-runner-document.test.ts). Route [app/bac-a-sable/js/route.ts](../../../app/bac-a-sable/js/route.ts).
+- Les en-têtes des trois documents du bac à sable sont désormais posés par un builder commun [lib/sandbox/sandbox-response.ts](../../../lib/sandbox/sandbox-response.ts).
+- **Preuve cross-origin** : [e2e/securite-boucles.spec.ts](../../../e2e/securite-boucles.spec.ts) 3/3 (témoin exécuté et validé ; boucle JS interrompue, onglet vivant ; boucle SQL interrompue). Sortie : [annexes/EXE-03-sandbox-js-origine-dediee.txt](annexes/EXE-03-sandbox-js-origine-dediee.txt).
+
 ## Reste à faire (câblage et CSP — chantier à fort impact)
 
-1. **Câbler les deux exécuteurs restants** sur l'origine dédiée : le JavaScript (`run-js.ts`) et l'aperçu HTML, chacun via un document servi sur l'origine dédiée (comme `preview-document.ts`) au lieu d'un `srcdoc` inline.
+1. **Câbler l'aperçu HTML** sur l'origine dédiée, via un document servi au lieu d'un `srcdoc` inline (les scripts en ligne de l'apprenant héritent aujourd'hui de la CSP du site, ce qui impose `'unsafe-inline'`).
 2. **Passer l'application à une CSP à nonce** posée par `proxy.ts` (`'strict-dynamic'`, sans `'unsafe-inline'` ni `'unsafe-eval'`). Conséquence : la page d'accueil, aujourd'hui pré-rendue, devient dynamique.
 3. **Mettre à jour** `lib/security/csp.ts`, `csp.test.ts` et le garde-fou `csp-srcdoc-script.spec.ts`, puis relancer la suite contre un build de production (`E2E_PROD=1`), seul endroit où la CSP est réellement émise.
 

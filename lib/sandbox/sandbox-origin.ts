@@ -42,5 +42,11 @@ export function sandboxOriginFor(appOrigin: string): string {
   return url.origin;
 }
 
-/** Le chemin servant le document du bac à sable sur l'origine dédiée. */
+/** Chemin du document d'aperçu React sur l'origine dédiée. */
 export const SANDBOX_PATH = "/bac-a-sable";
+
+/** Chemin du document d'exécution JavaScript (headless) sur l'origine dédiée. */
+export const SANDBOX_JS_PATH = "/bac-a-sable/js";
+
+/** Chemin du document d'aperçu HTML sur l'origine dédiée. */
+export const SANDBOX_HTML_PATH = "/bac-a-sable/html";
