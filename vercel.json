@@ -2,6 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm prisma generate && pnpm prisma migrate deploy && pnpm build",
+  "buildCommand": "pnpm prisma generate && node scripts/migrer-si-production.mjs && pnpm build",
   "regions": ["cdg1"]
 }

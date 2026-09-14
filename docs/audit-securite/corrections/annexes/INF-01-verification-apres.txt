@@ -1,0 +1,13 @@
+# INF-01 - demonstration apres correctif, 2026-09-14
+# pnpm vitest run lib/vercel-build.test.ts
+
+
+ RUN  v4.1.9 <depot>
+
+[migrations] VERCEL_ENV absent sur Vercel : impossible de savoir si ce déploiement est la production. Active l'exposition des variables système dans les réglages du projet Vercel.
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  11:01:10
+   Duration  473ms (transform 25ms, setup 0ms, import 47ms, tests 184ms, environment 0ms)
+
