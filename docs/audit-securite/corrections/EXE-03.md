@@ -27,9 +27,19 @@ Vérifié : la route sert le document (HTTP 200) avec sa CSP dédiée ; le scrip
 
 **Non vérifiable dans le navigateur intégré** : la poignée de main réelle. Le panneau navigateur de l'atelier bloque les iframes vers le serveur de dev (`ERR_BLOCKED_BY_CLIENT`), quelle que soit l'origine. La preuve cross-origin viendra de Playwright, une fois `ReactPreview` câblé sur l'origine dédiée (voir ci-dessous), test qui charge un vrai Chromium sans cette restriction.
 
+## Câblage — étape 1 : `ReactPreview` (fait)
+
+[components/lesson/ReactPreview.tsx](../../../components/lesson/ReactPreview.tsx) charge désormais l'iframe d'aperçu par **`src`** vers l'origine dédiée (`sandboxOriginFor(origin) + /bac-a-sable`), et non plus par `srcDoc`. Le document exécuté (`preview-document.ts`) porte donc sa propre CSP (posée par la route) au lieu d'hériter de celle du site.
+
+- `buildPreviewSrcdoc` (l'ancien document `srcdoc`) est **supprimé** : plus aucun appelant. Ses garde-fous d'exécution sont désormais couverts sur le document vivant par [preview-document.test.ts](../../../lib/sandbox/preview-document.test.ts). `react-preview.ts` se réduit au protocole de messages partagé.
+- **Preuve cross-origin** : [e2e/react-preview.spec.ts](../../../e2e/react-preview.spec.ts) tourne sous un vrai Chromium. Nouveau test « l'aperçu est chargé depuis une origine distincte de l'application » : l'app est sur `localhost:3000`, l'aperçu sur `127.0.0.1:3000/bac-a-sable`. Ce test aurait été impossible avec un `srcdoc` (pas d'origine propre). Sortie : [annexes/EXE-03-apercu-react-origine-dediee.txt](annexes/EXE-03-apercu-react-origine-dediee.txt).
+- Vérifié : `tsc` OK, `eslint` sans erreur, tests unitaires sandbox 23/23, `react-preview.spec.ts` 6/6.
+
+À ce stade la CSP du site est **encore inchangée** : tant que le JavaScript et l'aperçu HTML restent en `srcdoc`, elle doit garder `'unsafe-inline'` / `'unsafe-eval'`. C'est l'objet des étapes suivantes.
+
 ## Reste à faire (câblage et CSP — chantier à fort impact)
 
-1. **Câbler les trois exécuteurs** sur l'origine dédiée : `ReactPreview` (iframe `src` au lieu de `srcDoc`), puis le JavaScript (`run-js.ts`) et l'aperçu HTML. `react-preview.spec.ts` devient alors la preuve cross-origin.
+1. **Câbler les deux exécuteurs restants** sur l'origine dédiée : le JavaScript (`run-js.ts`) et l'aperçu HTML, chacun via un document servi sur l'origine dédiée (comme `preview-document.ts`) au lieu d'un `srcdoc` inline.
 2. **Passer l'application à une CSP à nonce** posée par `proxy.ts` (`'strict-dynamic'`, sans `'unsafe-inline'` ni `'unsafe-eval'`). Conséquence : la page d'accueil, aujourd'hui pré-rendue, devient dynamique.
 3. **Mettre à jour** `lib/security/csp.ts`, `csp.test.ts` et le garde-fou `csp-srcdoc-script.spec.ts`, puis relancer la suite contre un build de production (`E2E_PROD=1`), seul endroit où la CSP est réellement émise.
 

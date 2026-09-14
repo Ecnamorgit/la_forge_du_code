@@ -85,6 +85,34 @@ test.describe("apercu React", () => {
   // spec se connectait pour son compte.
   test.use({ storageState: STORAGE_STATE });
 
+  /**
+   * Le point du constat EXE-03 : l'aperçu ne s'exécute plus dans un `srcdoc`
+   * (qui hérite de la CSP du site), mais est chargé par `src` depuis une origine
+   * DÉDIÉE. C'est ce qui permet à l'application de porter une CSP stricte tandis
+   * que la CSP permissive reste confinée à cette seule origine. En local,
+   * l'origine dédiée est `127.0.0.1` quand l'app est sur `localhost` (et
+   * réciproquement) : même serveur, origine distincte.
+   *
+   * Ce test aurait été impossible tant que l'aperçu vivait dans un `srcdoc` :
+   * un `srcdoc` n'a pas d'origine propre, il emprunte celle du parent.
+   */
+  test("l'aperçu est chargé depuis une origine distincte de l'application", async ({ page }) => {
+    await allerAChapitre7EtRevenirEtape1(page);
+
+    const iframe = page.locator('iframe[title="Aperçu du composant React"]');
+    await expect(iframe).toHaveCount(1);
+    const src = await iframe.getAttribute("src");
+    expect(src, "l'aperçu doit être chargé par src, plus par srcDoc").not.toBeNull();
+
+    const origineApercu = new URL(src!).origin;
+    const origineApp = new URL(page.url()).origin;
+    expect(new URL(src!).pathname).toBe("/bac-a-sable");
+    expect(
+      origineApercu,
+      `l'aperçu (${origineApercu}) doit être servi depuis une autre origine que l'app (${origineApp})`
+    ).not.toBe(origineApp);
+  });
+
   test("monte le composant et reagit au clic", async ({ page }) => {
     await allerAChapitre7EtRevenirEtape1(page);
 
