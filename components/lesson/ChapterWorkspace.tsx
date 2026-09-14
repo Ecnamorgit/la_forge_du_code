@@ -13,6 +13,7 @@ import {
 } from "@/lib/audio";
 import { runJs } from "@/lib/sandbox/run-js";
 import { protegerScriptsHtml } from "@/lib/sandbox/loop-protect";
+import { SANDBOX_HTML_PATH, sandboxOriginFor } from "@/lib/sandbox/sandbox-origin";
 import { runSql, type SqlRunOptions } from "@/lib/sandbox/run-sql";
 import type { SqlQueryResult } from "@/data/courses/html/types";
 import {
@@ -86,6 +87,8 @@ export default function ChapterWorkspace({
   // validation reste par ailleurs purement statique, comme pour les autres
   // cursus — l'aperçu affiche, il ne juge pas.
   const isReact = language === "react";
+  // HTML/CSS : le seul cursus dont la sortie est un aperçu rendu (iframe).
+  const isHtml = !isJs && !isSql && !isReact;
   const [code, setCode] = useState(step.startCode);
   const [sqlView, setSqlView] = useState<SqlQueryResult | null>(null);
   const [feedback, setFeedback] = useState<{
@@ -111,6 +114,50 @@ export default function ChapterWorkspace({
   const detectTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const latestCodeRef = useRef<string>(step.startCode);
 
+  // Aperçu HTML servi depuis l'origine DÉDIÉE (constat EXE-03) : l'iframe est
+  // chargée par `src` et reçoit le HTML par message, au lieu d'un `srcdoc` qui
+  // hériterait de la CSP du site. `src` résolu après le montage
+  // (`sandboxOriginFor` a besoin de `window.location.origin`, et un écart
+  // serveur/client provoquerait un décalage d'hydratation sur l'attribut).
+  const htmlPretRef = useRef(false);
+  const htmlEnAttenteRef = useRef<string | null>(null);
+  const [htmlSandboxSrc, setHtmlSandboxSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isHtml) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture ponctuelle de l'origine au montage
+    setHtmlSandboxSrc(sandboxOriginFor(window.location.origin) + SANDBOX_HTML_PATH);
+  }, [isHtml]);
+
+  /** Poste le HTML à la coquille, ou le met en file tant qu'elle n'est pas prête. */
+  const posterHtml = useCallback((html: string) => {
+    const fenetre = iframeRef.current?.contentWindow;
+    if (htmlPretRef.current && fenetre) {
+      // Coquille à origine opaque : "*" est la seule cible ; elle vérifie
+      // `event.source === parent`. Le HTML n'est pas un secret.
+      fenetre.postMessage({ type: "html:render", html }, "*");
+    } else {
+      htmlEnAttenteRef.current = html;
+    }
+  }, []);
+
+  // Poignée de main de la coquille HTML : à `html:ready`, on vide la file.
+  useEffect(() => {
+    if (!isHtml) return;
+    const onMessage = (event: MessageEvent) => {
+      if (event.source !== iframeRef.current?.contentWindow) return;
+      if ((event.data as { type?: string } | null)?.type !== "html:ready") return;
+      htmlPretRef.current = true;
+      const enFile = htmlEnAttenteRef.current;
+      if (enFile !== null) {
+        htmlEnAttenteRef.current = null;
+        posterHtml(enFile);
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [isHtml, posterHtml]);
+
   useEffect(() => {
     return () => clearTimeout(detectTimerRef.current);
   }, []);
@@ -127,10 +174,10 @@ export default function ChapterWorkspace({
   }, []);
 
   useEffect(() => {
-    if (!isJs && !isReact && iframeRef.current) {
-      iframeRef.current.srcdoc = protegerScriptsHtml(step.startCode);
+    if (isHtml) {
+      posterHtml(protegerScriptsHtml(step.startCode));
     }
-  }, [isJs, isReact, step.startCode]);
+  }, [isHtml, step.startCode, posterHtml]);
 
   const handleCodeChange = useCallback(
     (newCode: string) => {
@@ -192,11 +239,10 @@ export default function ChapterWorkspace({
         sql: { result: run.result, verify: run.verify, error: run.error },
       });
     } else {
-      if (iframeRef.current) {
-        // Scripts en ligne de l'apprenant : boucles interrompues au lieu de
-        // figer l'onglet (constat EXE-02).
-        iframeRef.current.srcdoc = protegerScriptsHtml(code);
-      }
+      // Scripts en ligne de l'apprenant : boucles interrompues au lieu de
+      // figer l'onglet (constat EXE-02). Envoyés à la coquille servie sur
+      // l'origine dédiée (constat EXE-03), plus posés en `srcdoc`.
+      posterHtml(protegerScriptsHtml(code));
       result = validate(code);
     }
 
@@ -218,7 +264,7 @@ export default function ChapterWorkspace({
     playBreach();
     setEnemyState((prev) => ({ type: "fly", trigger: prev.trigger + 1 }));
     setShakeTrigger((p) => p + 1);
-  }, [code, isJs, isSql, isReact, sqlConfig, language, onDeploy, onStepSuccess, validate]);
+  }, [code, isJs, isSql, isReact, sqlConfig, language, onDeploy, onStepSuccess, validate, posterHtml]);
 
   const spectreTaunt =
     feedback.type === "err" ? getSpectreTaunt(failCount) : null;
@@ -424,14 +470,17 @@ export default function ChapterWorkspace({
           className={mobilePanel === "editor" ? "hidden lg:flex" : "flex"}
         />
       ) : (
-        <iframe
-          ref={iframeRef}
-          className={`flex-1 min-h-0 border-none bg-white ${
-            mobilePanel === "editor" ? "hidden lg:block" : "block"
-          }`}
-          sandbox="allow-scripts"
-          title="Apercu"
-        />
+        htmlSandboxSrc !== null && (
+          <iframe
+            ref={iframeRef}
+            src={htmlSandboxSrc}
+            className={`flex-1 min-h-0 border-none bg-white ${
+              mobilePanel === "editor" ? "hidden lg:block" : "block"
+            }`}
+            sandbox="allow-scripts"
+            title="Apercu"
+          />
+        )
       )}
     </section>
   );
