@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 
-import { csp } from "./lib/security/csp";
-
-const isProd = process.env.NODE_ENV === "production";
-
+// La CSP n'est PLUS posée ici : elle est à nonce (unique par requête), donc
+// générée par `proxy.ts` (constat EXE-03). Ne restent ici que les en-têtes de
+// sécurité à valeur fixe.
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
@@ -16,8 +15,6 @@ const securityHeaders = [
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
   },
-  // CSP is prod-only to avoid breaking the dev server (HMR uses eval + ws:).
-  ...(isProd ? [{ key: "Content-Security-Policy", value: csp }] : []),
 ];
 
 const nextConfig: NextConfig = {

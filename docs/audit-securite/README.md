@@ -64,7 +64,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | SRV-01 | Moyenne | Limitation de débit en mémoire si Upstash absent ou en panne | `2faa3bb` (vitest) | [fiche](corrections/SRV-01.md) | Corrigé (Redis à relier dans Vercel) |
 | SRV-03 | Moyenne | Sessions JWT de 30 jours non révoquées | `b17f3df` (e2e) | [fiche](corrections/SRV-03.md) | Corrigé |
 | SRV-04 | Moyenne | Aucune RLS sur les tables Supabase | [démonstration RLS](corrections/annexes/SRV-04-demonstration-rls.txt) | [fiche](corrections/SRV-04.md) | Corrigé (Security Advisor Supabase à vérifier) |
-| EXE-03 | Moyenne | CSP avec 'unsafe-inline' et 'unsafe-eval' | | | Ouvert |
+| EXE-03 | Moyenne | CSP avec 'unsafe-inline' et 'unsafe-eval' imposée par le bac à sable | `csp-stricte` (build prod) | [fiche](corrections/EXE-03.md) | Corrigé (sous-domaine bac-a-sable à créer) |
 | BCK-01 | Moyenne | Restauration des sauvegardes jamais testée | | | Ouvert |
 | EXE-02 | Faible | Boucle infinie : onglet figé, délai inopérant | `a410813` (e2e) | [fiche](corrections/EXE-02.md) | Corrigé |
 | EXE-04 | Faible | Indices injectés via dangerouslySetInnerHTML | `14029ac` (e2e) | [fiche](corrections/EXE-04.md) | Corrigé |
@@ -77,8 +77,6 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | SUP-01 | Faible | Pas de security.txt | `5d866fd` (e2e) | [fiche](corrections/SUP-01.md) | Corrigé (adresse à créer chez OVH) |
 | INF-01 | Moyenne | Préversions Vercel branchées sur la base de production, qui y appliquaient les migrations (découvert pendant l'audit) | `96109fb` (vitest) | [fiche](corrections/INF-01.md) | Corrigé (base de préversion séparée recommandée) |
 | DEP-02 | Faible | Avis restants sur des dépendances d'outillage (CLI Prisma, plugin de build Sentry, dompurify de Monaco) | [`pnpm audit` avant](corrections/annexes/DEP-02-pnpm-audit-avant.md) | [fiche](corrections/DEP-02.md) | Corrigé (1 avis accepté) |
-
-| EXE-03 | Moyenne | CSP avec 'unsafe-inline' et 'unsafe-eval' imposée par le bac à sable | fondation posée | [fiche](corrections/EXE-03.md) | En cours (câblage + CSP à nonce à venir) |
 
 Les points d'information (EXE-05, EXE-06, SRV-11) sont détaillés dans le rapport.
 

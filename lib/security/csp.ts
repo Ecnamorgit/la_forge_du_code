@@ -1,77 +1,112 @@
 /**
- * Content-Security-Policy de l'application.
+ * Content-Security-Policy de l'application, à nonce (constat EXE-03).
  *
- * Extraite de `next.config.ts` pour devenir importable : la politique est un
- * contrat dont l'aperçu React et le sandbox JavaScript dépendent pour exister,
- * et rien ne le gardait. `csp.test.ts` s'en charge désormais.
+ * Historique : le code des apprenants s'exécutait dans des `srcdoc`, qui
+ * héritent de la CSP du parent ; `script-src` devait donc porter
+ * `'unsafe-inline'` et `'unsafe-eval'` pour TOUT le site. Désormais les trois
+ * exécuteurs (React, JavaScript, HTML) sont servis depuis une origine dédiée
+ * (`/bac-a-sable*`, `lib/sandbox/sandbox-response.ts`), qui porte seule sa CSP
+ * permissive. L'application peut donc passer à un `script-src` **sans**
+ * `'unsafe-inline'` ni `'unsafe-eval'` : nonce + `'strict-dynamic'`.
  *
- * Réglée pour les besoins d'exécution de cette app :
- * - Monaco est auto-hébergé depuis /public/monaco (CF-16), donc tout charge
- *   depuis 'self'. Son tokenizer tourne dans des workers blob:.
- * - Next injecte des scripts inline de bootstrap/hydratation et Tailwind des
- *   styles inline, d'où 'unsafe-inline'.
+ * La politique est **par requête** (le nonce est unique à chaque requête) :
+ * elle est posée par `proxy.ts`, qui génère le nonce, et Next l'applique à ses
+ * scripts d'amorçage/hydratation. Conséquence : les pages sont rendues
+ * dynamiquement (cf. `app/layout.tsx`, `force-dynamic`).
  *
- * Cf. docs/BRIEF_CSP_GARDE_FOU.md avant toute modification de script-src, et
- * le ticket CF-15 de docs/ROADMAP.md pour ce qui a été mesuré le 2026-08-06 :
- * Monaco n'a PAS besoin d''unsafe-eval' (une version antérieure de ce
- * commentaire l'affirmait à tort) — seuls les `srcdoc` en dépendent.
+ * `csp.test.ts` verrouille les invariants de sécurité de `script-src`.
  */
+
+/** Options de construction de la politique. */
+export interface CspOptions {
+  /** Nonce unique de la requête, injecté dans `script-src`. */
+  nonce: string;
+  /**
+   * En développement, React utilise `eval` pour ses messages de débogage :
+   * `'unsafe-eval'` est alors requis. Jamais en production.
+   */
+  isDev?: boolean;
+}
 
 /**
- * Tokens de `script-src` sans lesquels des fonctionnalités entières cessent de
- * marcher. Chaque entrée est vérifiée par `csp.test.ts`.
- *
- * - `'self'`         : l'iframe d'aperçu charge /react-runtime/runtime.js depuis
- *                      l'origine du parent, par URL absolue (dans un document
- *                      srcdoc la base est `about:srcdoc`, une URL relative ne
- *                      résout rien).
- * - `'unsafe-inline'`: les scripts inline de Next (bootstrap, hydratation), et
- *                      le <script> inline du srcdoc — tout le programme de
- *                      l'iframe. Sans lui, Monaco ne charge meme plus.
- * - `'unsafe-eval'`  : `new Function` dans le srcdoc ET dans
- *                      lib/sandbox/run-js.ts. **Monaco n'en a pas besoin** —
- *                      mesure du 2026-08-06, cf. CF-15 dans docs/ROADMAP.md.
+ * Origines des documents du bac à sable (constat EXE-03), à autoriser dans
+ * `frame-src` : ils sont servis depuis une AUTRE origine que l'application.
+ * - Production : le sous-domaine dédié.
+ * - Local : `localhost` et `127.0.0.1` (l'app est sur l'un, le bac à sable sur
+ *   l'autre, même serveur de dev).
  */
-export const SCRIPT_SRC_REQUIS = [
-  "'self'",
-  "'unsafe-inline'",
-  "'unsafe-eval'",
+export const SANDBOX_FRAME_SRCS = [
+  "https://bac-a-sable.laforgeducode.fr",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
 ] as const;
+
+/**
+ * Jetons de `script-src` sans lesquels des fonctionnalités entières cessent de
+ * marcher, vérifiés par `csp.test.ts` :
+ * - `'nonce-…'`         : les scripts d'amorçage/hydratation de Next, marqués
+ *                         par Next avec ce nonce.
+ * - `'strict-dynamic'`  : les scripts chargés PAR un script de confiance (le
+ *                         loader Monaco, injecté par le bundle nonce) héritent
+ *                         de sa confiance, sans nonce propre.
+ * - `'wasm-unsafe-eval'`: sql.js (WebAssembly) instancié dans un Worker de
+ *                         l'app (constat EXE-02). N'autorise que la WASM, pas
+ *                         `eval`.
+ * - `'self'`            : repli pour les navigateurs sans `'strict-dynamic'`
+ *                         (CSP 2), ignoré par les navigateurs CSP 3.
+ *
+ * Ce qui doit en être ABSENT en production : `'unsafe-inline'` et
+ * `'unsafe-eval'` — le cœur du constat EXE-03.
+ */
+export function scriptSrc({ nonce, isDev = false }: CspOptions): string {
+  return [
+    "script-src",
+    "'self'",
+    `'nonce-${nonce}'`,
+    "'strict-dynamic'",
+    "'wasm-unsafe-eval'",
+    ...(isDev ? ["'unsafe-eval'"] : []),
+  ].join(" ");
+}
 
 /** Les directives, dans l'ordre d'émission. */
-export const CSP_DIRECTIVES = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "frame-ancestors 'none'",
-  "img-src 'self' data: blob:",
-  "font-src 'self' data:",
-  "style-src 'self' 'unsafe-inline'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-  "connect-src 'self'",
-  "worker-src 'self' blob:",
-  "child-src 'self' blob:",
-  "frame-src 'self' blob:",
-  "form-action 'self'",
-  "upgrade-insecure-requests",
-] as const;
+export function cspDirectives(options: CspOptions): string[] {
+  return [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    // Les styles restent en `'unsafe-inline'` : le risque XSS par style est
+    // marginal, et de nombreux composants posent des styles en ligne. Le
+    // constat EXE-03 vise `script-src`, pas `style-src`.
+    "style-src 'self' 'unsafe-inline'",
+    scriptSrc(options),
+    "connect-src 'self'",
+    "worker-src 'self' blob:",
+    "child-src 'self' blob:",
+    // Les aperçus (React, JS, HTML) sont encadrés depuis l'origine dédiée.
+    `frame-src 'self' ${SANDBOX_FRAME_SRCS.join(" ")}`,
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+  ];
+}
 
-/** La valeur de l'en-tête `Content-Security-Policy`. */
-export const csp = CSP_DIRECTIVES.join("; ");
+/** La valeur de l'en-tête `Content-Security-Policy` pour une requête. */
+export function buildCsp(options: CspOptions): string {
+  return cspDirectives(options).join("; ");
+}
 
 /**
  * Les tokens d'une directive, sans son nom. Tableau vide si elle est absente.
  *
  * Nécessaire parce que plusieurs directives partagent des tokens :
- * `'unsafe-inline'` est dans `script-src` ET dans `style-src`. Chercher un
- * token dans la chaîne entière laisserait passer son retrait de `script-src`.
+ * `'unsafe-inline'` est dans `style-src` ; chercher un token dans la chaîne
+ * entière laisserait passer sa présence dans `script-src`.
  */
-export function tokensDeDirective(nom: string): string[] {
-  const directive = CSP_DIRECTIVES.find(
-    (d) => d === nom || d.startsWith(`${nom} `)
-  );
-
+export function tokensDeDirective(directives: string[], nom: string): string[] {
+  const directive = directives.find((d) => d === nom || d.startsWith(`${nom} `));
   if (directive === undefined) return [];
-
   return directive.split(/\s+/).slice(1);
 }

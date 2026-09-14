@@ -1,0 +1,37 @@
+Constat EXE-03 — étape finale : CSP à nonce, vérifiée contre un build de PRODUCTION.
+
+La CSP n'est émise qu'en production (proxy.ts). Mesures faites contre un vrai
+build (`pnpm build && pnpm start`), base de test locale, jamais la production.
+
+=== En-tête CSP de l'APPLICATION (http://localhost:3000/) ===
+content-security-policy: default-src 'self'; base-uri 'self'; object-src 'none';
+  frame-ancestors 'none'; img-src 'self' data: blob:; font-src 'self' data:;
+  style-src 'self' 'unsafe-inline';
+  script-src 'self' 'nonce-<unique par requête>' 'strict-dynamic' 'wasm-unsafe-eval';
+  connect-src 'self'; worker-src 'self' blob:; child-src 'self' blob:;
+  frame-src 'self' https://bac-a-sable.laforgeducode.fr http://localhost:3000 http://127.0.0.1:3000;
+  form-action 'self'; upgrade-insecure-requests
+
+  -> script-src N'A PLUS 'unsafe-inline' ni 'unsafe-eval'. C'est le correctif.
+     Le nonce change à chaque requête (rendu dynamique, force-dynamic).
+
+=== En-tête CSP du BAC À SABLE (http://localhost:3000/bac-a-sable/html) ===
+content-security-policy: default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'; …;
+  frame-ancestors https://laforgeducode.fr https://www.laforgeducode.fr http://localhost:3000 http://127.0.0.1:3000
+
+  -> la CSP permissive est CONFINÉE à l'origine dédiée, encadrée par la seule app.
+
+=== Suite e2e sous la CSP de production (E2E_PROD, --reporter=list) ===
+  csp-stricte.spec        : script-src à nonce + strict-dynamic, sans unsafe-*, page hydratée sans violation CSP
+  monaco.spec             : Monaco se charge en local (strict-dynamic laisse le loader injecté par le bundle nonce)
+  react-preview.spec  6/6 : aperçu React cross-origin sous CSP réelle
+  html-parcours.spec  3/3 : aperçu HTML cross-origin + parcours complet jouable
+  securite-boucles    3/3 : sandbox JS + SQL (WebAssembly via 'wasm-unsafe-eval'), onglet vivant
+  smoke.spec         7/7 : accueil, connexion, route protégée, codex public, aperçus
+
+  22 tests passés sous la CSP stricte de production, 0 violation CSP.
+
+Note : « Refused to execute .../_vercel/insights/script.js (MIME type) » observé
+en local n'est PAS une violation CSP (la CSP l'autorise, il atteint la vérif
+MIME) : le script d'analytics Vercel est absent hors Vercel. Aucun effet en prod.

@@ -1,6 +1,6 @@
 # EXE-03 - CSP permissive imposée à tout le site par le bac à sable
 
-**Gravité** : Moyenne (défense en profondeur) · **Statut** : En cours — fondation posée, câblage et CSP à nonce à venir · **Date** : 2026-09-14
+**Gravité** : Moyenne (défense en profondeur) · **Statut** : Corrigé (sous-domaine `bac-a-sable` à créer pour la production) · **Date** : 2026-09-14
 
 ## Constat
 
@@ -54,15 +54,28 @@ Vérifié : la route sert le document (HTTP 200) avec sa CSP dédiée ; le scrip
 
 **Les trois exécuteurs sont désormais servis depuis l'origine dédiée.** Plus aucun `srcdoc` du site n'exécute de `new Function` ni de script en ligne d'apprenant. Le prérequis du durcissement CSP est levé.
 
-## Reste à faire (CSP — chantier à fort impact, point d'étape avec Joan avant de lancer)
+## Étape 2 : CSP à nonce (fait)
 
-1. **Passer l'application à une CSP à nonce** posée par `proxy.ts` (`'strict-dynamic'`, sans `'unsafe-inline'` ni `'unsafe-eval'`). Conséquence : la page d'accueil, aujourd'hui pré-rendue, devient dynamique.
-2. **Mettre à jour** `lib/security/csp.ts`, `csp.test.ts` (qui affirme aujourd'hui la PRÉSENCE de `'unsafe-*'` : il faudra le retourner) et le garde-fou `csp-srcdoc-script.spec.ts`, puis relancer la suite contre un build de production (`E2E_PROD=1`), seul endroit où la CSP est réellement émise.
+L'application émet désormais une **CSP à nonce** posée par [proxy.ts](../../../proxy.ts) : `script-src 'self' 'nonce-<unique>' 'strict-dynamic' 'wasm-unsafe-eval'`, **sans** `'unsafe-inline'` ni `'unsafe-eval'` (en production ; en dev, `'unsafe-eval'` reste requis par React). Une faille XSS ailleurs sur le site est désormais bloquée par la CSP — le gain visé par le constat.
 
-## Action hors code
+- [lib/security/csp.ts](../../../lib/security/csp.ts) : builder `buildCsp({ nonce, isDev })` ; `frame-src` autorise l'origine dédiée du bac à sable (`bac-a-sable.laforgeducode.fr` + `localhost`/`127.0.0.1` en local). [csp.test.ts](../../../lib/security/csp.test.ts) retourné : il affirme maintenant l'**absence** de `'unsafe-*'` dans `script-src`.
+- `next.config.ts` : la CSP fixe y est retirée (la CSP est à nonce, donc par requête). Les autres en-têtes de sécurité restent.
+- [app/layout.tsx](../../../app/layout.tsx) : `export const dynamic = "force-dynamic"` — le nonce, unique par requête, impose le rendu dynamique (une page pré-rendue n'en aurait pas). Coût assumé : plus d'optimisation statique.
+- Garde-fou e2e : `csp-srcdoc-script.spec.ts` (qui prouvait l'ancienne approche `srcdoc`) est remplacé par [csp-stricte.spec.ts](../../../e2e/csp-stricte.spec.ts) : sous la CSP de prod, `script-src` est à nonce + `strict-dynamic` sans `unsafe-*`, et la page hydrate sans violation.
+- `strict-dynamic` : Monaco (loader injecté par le bundle nonce) et les chunks de Next restent chargés ; `'wasm-unsafe-eval'` garde sql.js (WebAssembly dans un Worker de l'app).
 
-Créer le sous-domaine `bac-a-sable.laforgeducode.fr` : domaine à ajouter dans Vercel, et enregistrement CNAME chez OVH vers `cname.vercel-dns.com.`
+### Vérification contre un build de PRODUCTION
 
-## Risque résiduel (tant que le chantier n'est pas terminé)
+La CSP n'est émise qu'en production. Vérifiée contre `pnpm build && pnpm start` (base locale, jamais la prod) : `next build` OK ; en-tête CSP réel confirmé strict sur l'app et permissif confiné au bac à sable ; **22 tests e2e passés sous la CSP stricte, 0 violation CSP** — `csp-stricte`, `monaco` (Monaco charge), `react-preview` 6/6, `html-parcours` 3/3, `securite-boucles` 3/3 (dont SQL/WASM), `smoke` 7/7. Sortie : [annexes/EXE-03-csp-nonce-build-prod.txt](annexes/EXE-03-csp-nonce-build-prod.txt).
 
-La CSP de l'application garde `'unsafe-inline'` et `'unsafe-eval'` jusqu'à l'étape 2. La fondation seule ne change donc pas encore la posture du site ; elle lève le prérequis qui bloquait CF-15.
+`vitest` 1509/1509 ; `tsc` et `eslint` sans erreur.
+
+## Action hors code (production)
+
+Créer le sous-domaine `bac-a-sable.laforgeducode.fr` : domaine à ajouter dans Vercel, et enregistrement CNAME chez OVH vers `cname.vercel-dns.com.`. **Tant qu'il n'existe pas, les aperçus ne fonctionneront pas en production** (l'origine dédiée ne résoudrait pas) — mais le reste du site tourne normalement sous la CSP stricte. En local, tout est prouvé via `127.0.0.1`.
+
+## Risque résiduel
+
+- **`style-src` garde `'unsafe-inline'`.** Le constat visait `script-src` (exécution de code) ; le risque XSS par style est marginal et de nombreux composants posent des styles en ligne. Durcir `style-src` par nonce est un chantier distinct, non retenu ici.
+- **La CSP du bac à sable reste permissive**, mais confinée à son origine dédiée et encadrée par la seule application (`frame-ancestors`). C'est le compromis assumé : l'exécution de code arbitraire a besoin de `'unsafe-eval'`, isolée là où elle ne met pas le site en danger.
+- **En dev**, `'unsafe-eval'` reste dans `script-src` (React l'utilise pour le débogage) et la CSP n'est de toute façon pas émise (`proxy.ts`, garde `CSP_ACTIVE`) : la posture stricte ne vaut qu'en production, où elle est prouvée.
