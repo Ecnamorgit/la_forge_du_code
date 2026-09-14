@@ -22,6 +22,10 @@ model User {
   // App-specific fields
   username     String    @unique
   password     String? // hashed (credentials provider); null for OAuth-only users
+  // Version de session : incrémentée à chaque réinitialisation de mot de passe
+  // pour révoquer les sessions JWT émises avant (constat SRV-03). Le jeton porte
+  // la version au moment de la connexion ; une divergence invalide la session.
+  sessionVersion Int      @default(0)
   joinedAt     DateTime  @default(now())
   totalXp      Int       @default(0)
   streak       Int       @default(1)

@@ -1,0 +1,21 @@
+# SRV-03 - demonstration sur le code non corrige (guard neutralise, migration seule), 2026-09-14
+# RESEND_API_KEY="" npx playwright test e2e/securite-session.spec.ts, base PostgreSQL locale
+
+Running 1 test using 1 worker
+[1/1] [chromium] › e2e\securite-session.spec.ts:68:5 › une session cesse de fonctionner quand le mot de passe est réinitialisé
+  1) [chromium] › e2e\securite-session.spec.ts:68:5 › une session cesse de fonctionner quand le mot de passe est réinitialisé › après révocation, la session est refusée 
+    Error: expect(received).toBe(expected) // Object.is equality
+    Expected: 401
+    Received: 200
+      77 |
+      78 |   await test.step("après révocation, la session est refusée", async () => {
+    > 79 |     expect.soft(await statutMe(page)).toBe(401);
+         |                                       ^
+      80 |   });
+      81 | });
+      82 |
+        at e2e\securite-session.spec.ts:79:39
+        at e2e\securite-session.spec.ts:78:3
+    Error Context: test-results\securite-session-une-sessi-aa9be-t-de-passe-est-réinitialisé-chromium\error-context.md
+  1 failed
+    [chromium] › e2e\securite-session.spec.ts:68:5 › une session cesse de fonctionner quand le mot de passe est réinitialisé 
