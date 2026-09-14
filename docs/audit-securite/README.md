@@ -75,7 +75,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | SRV-09 | Faible | Pas de contrôle Origin ; suppression de compte sans réauthentification | `c42b65c` (e2e) | [fiche](corrections/SRV-09.md) | Corrigé |
 | SRV-10 | Faible | Page chapitre protégée par le seul proxy | `74ec0e9` (vitest) | [fiche](corrections/SRV-10.md) | Corrigé |
 | SUP-01 | Faible | Pas de security.txt | `5d866fd` (e2e) | [fiche](corrections/SUP-01.md) | Corrigé (adresse à créer chez OVH) |
-| DEP-02 | Faible | Avis restants sur des dépendances d'outillage (CLI Prisma, plugin de build Sentry, dompurify de Monaco) | [DEP-01, avis restants](corrections/annexes/DEP-01-pnpm-audit-apres.md) | | Ouvert |
+| DEP-02 | Faible | Avis restants sur des dépendances d'outillage (CLI Prisma, plugin de build Sentry, dompurify de Monaco) | [`pnpm audit` avant](corrections/annexes/DEP-02-pnpm-audit-avant.md) | [fiche](corrections/DEP-02.md) | Corrigé (1 avis accepté) |
 
 Les points d'information (EXE-05, EXE-06, SRV-11) sont détaillés dans le rapport.
 
