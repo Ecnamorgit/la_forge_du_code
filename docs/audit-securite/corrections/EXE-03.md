@@ -58,7 +58,7 @@ Vérifié : la route sert le document (HTTP 200) avec sa CSP dédiée ; le scrip
 
 L'application émet désormais une **CSP à nonce** posée par [proxy.ts](../../../proxy.ts) : `script-src 'self' 'nonce-<unique>' 'strict-dynamic' 'wasm-unsafe-eval'`, **sans** `'unsafe-inline'` ni `'unsafe-eval'` (en production ; en dev, `'unsafe-eval'` reste requis par React). Une faille XSS ailleurs sur le site est désormais bloquée par la CSP — le gain visé par le constat.
 
-- [lib/security/csp.ts](../../../lib/security/csp.ts) : builder `buildCsp({ nonce, isDev })` ; `frame-src` autorise l'origine dédiée du bac à sable (`bac-a-sable.laforgeducode.fr` + `localhost`/`127.0.0.1` en local). [csp.test.ts](../../../lib/security/csp.test.ts) retourné : il affirme maintenant l'**absence** de `'unsafe-*'` dans `script-src`.
+- [lib/security/csp.ts](../../../lib/security/csp.ts) : builder `buildCsp({ nonce, isDev, sandboxOrigin })` ; `frame-src` n'autorise que **l'origine du bac à sable de la requête**, dérivée par `sandboxOriginFor` (voir « Correction après mise en production » ci-dessous). [csp.test.ts](../../../lib/security/csp.test.ts) retourné : il affirme maintenant l'**absence** de `'unsafe-*'` dans `script-src`.
 - `next.config.ts` : la CSP fixe y est retirée (la CSP est à nonce, donc par requête). Les autres en-têtes de sécurité restent.
 - [app/layout.tsx](../../../app/layout.tsx) : `export const dynamic = "force-dynamic"` — le nonce, unique par requête, impose le rendu dynamique (une page pré-rendue n'en aurait pas). Coût assumé : plus d'optimisation statique.
 - Garde-fou e2e : `csp-srcdoc-script.spec.ts` (qui prouvait l'ancienne approche `srcdoc`) est remplacé par [csp-stricte.spec.ts](../../../e2e/csp-stricte.spec.ts) : sous la CSP de prod, `script-src` est à nonce + `strict-dynamic` sans `unsafe-*`, et la page hydrate sans violation.
@@ -70,9 +70,25 @@ La CSP n'est émise qu'en production. Vérifiée contre `pnpm build && pnpm star
 
 `vitest` 1509/1509 ; `tsc` et `eslint` sans erreur.
 
-## Action hors code (production)
+## Mise en production (2026-09-14)
 
-Créer le sous-domaine `bac-a-sable.laforgeducode.fr` : domaine à ajouter dans Vercel, et enregistrement CNAME chez OVH vers `cname.vercel-dns.com.`. **Tant qu'il n'existe pas, les aperçus ne fonctionneront pas en production** (l'origine dédiée ne résoudrait pas) — mais le reste du site tourne normalement sous la CSP stricte. En local, tout est prouvé via `127.0.0.1`.
+Sous-domaine `bac-a-sable.laforgeducode.fr` créé (domaine Vercel + CNAME OVH `cname.vercel-dns.com.`), puis déploiement de `main` (`96d0437`). Vérifié sur le site en ligne, de l'extérieur et dans un vrai navigateur :
+
+| Contrôle | Résultat |
+|---|---|
+| `script-src` de `www.laforgeducode.fr` | `'self' 'nonce-…' 'strict-dynamic' 'wasm-unsafe-eval'` — sans `'unsafe-inline'` ni `'unsafe-eval'` |
+| `/bac-a-sable`, `/bac-a-sable/js`, `/bac-a-sable/html` sur l'origine dédiée | `200`, CSP permissive confinée |
+| Aperçu HTML du chapitre 1 | iframe `src=https://bac-a-sable.laforgeducode.fr/bac-a-sable/html` (`sandbox="allow-scripts"`), rendu du HTML saisi, validateur actif, **0 violation CSP** en console |
+
+Le déploiement lui-même a demandé une procédure particulière (dépôt privé sur un compte Vercel Hobby) : voir `docs/DEPLOYMENT.md`, section 4.
+
+### Correction après mise en production : origines de développement dans la CSP livrée
+
+Le relevé en ligne a montré un défaut : `frame-src` de la production listait aussi `http://localhost:3000` et `http://127.0.0.1:3000`, et le `frame-ancestors` du bac à sable acceptait ces mêmes origines — des listes codées en dur, communes à tous les environnements (`csp.ts`, `sandbox-response.ts`). Sans danger réel (un attaquant ne contrôle pas le port 3000 de la machine du visiteur), mais une politique livrée ne doit contenir que ce dont la production a besoin.
+
+Correction : les deux origines sont désormais **dérivées de la requête**, dans les deux sens, par [lib/sandbox/sandbox-origin.ts](../../../lib/sandbox/sandbox-origin.ts) — `originDeLaRequete` (en-têtes `x-forwarded-host` / `x-forwarded-proto` / `host`, comme `lib/same-origin.ts`), `sandboxOriginFor` pour le `frame-src` de l'app (`proxy.ts`), et son inverse `appOriginsForSandbox` pour le `frame-ancestors` du bac à sable (`sandbox-response.ts`). En production : le seul sous-domaine dédié, et l'app (nu + `www.`) ; en local et en CI (build de prod sur `localhost`) : le seul autre hôte local. Un simple `NODE_ENV` n'aurait pas convenu : la CI exerce la CSP de production sur `localhost`.
+
+Verrouillé par `csp.test.ts` (aucune origine de développement dans la politique de production), `sandbox-origin.test.ts`, `sandbox-response.test.ts`, et `csp-stricte.spec.ts` (e2e : `frame-src` et `frame-ancestors` valent **exactement** les origines dérivées).
 
 ## Risque résiduel
 

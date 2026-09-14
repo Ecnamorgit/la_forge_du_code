@@ -7,6 +7,6 @@ import { reponseBacASable } from "@/lib/sandbox/sandbox-response";
  * de l'apprenant, qu'elle rend dans une iframe imbriquée — au lieu d'un `srcdoc`
  * qui hériterait de la CSP de l'application.
  */
-export function GET(): Response {
-  return reponseBacASable(buildHtmlPreviewDocument());
+export function GET(req: Request): Response {
+  return reponseBacASable(buildHtmlPreviewDocument(), req);
 }

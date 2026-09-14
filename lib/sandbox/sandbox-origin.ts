@@ -42,6 +42,58 @@ export function sandboxOriginFor(appOrigin: string): string {
   return url.origin;
 }
 
+/**
+ * Inverse de `sandboxOriginFor` : les origines de l'application autorisées à
+ * encadrer un document du bac à sable servi depuis `sandboxOrigin`. Sert au
+ * `frame-ancestors` de ces documents.
+ *
+ * - Local : l'autre hôte local (127.0.0.1 <-> localhost), même port.
+ * - Production : le domaine nu et sa forme `www.` (le site redirige l'un vers
+ *   l'autre ; les deux doivent pouvoir encadrer).
+ *
+ * Tableau vide si l'origine est illisible : l'appelant émet alors `'none'`.
+ */
+export function appOriginsForSandbox(sandboxOrigin: string): string[] {
+  let url: URL;
+  try {
+    url = new URL(sandboxOrigin);
+  } catch {
+    return [];
+  }
+
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") {
+    return [sandboxOriginFor(url.origin)];
+  }
+
+  const nu = url.hostname.replace(/^bac-a-sable\./, "");
+  const sansWww = new URL(url.origin);
+  sansWww.hostname = nu;
+  const avecWww = new URL(url.origin);
+  avecWww.hostname = `www.${nu}`;
+  return [sansWww.origin, avecWww.origin];
+}
+
+/**
+ * Origine publique d'une requête. Derrière un proxy (Vercel), `req.url` peut
+ * différer de l'adresse vue par le navigateur : on lit d'abord
+ * `x-forwarded-host` / `x-forwarded-proto`, comme Next pour ses server actions
+ * et `lib/same-origin.ts`, puis `host`, et enfin l'URL de la requête.
+ */
+export function originDeLaRequete(req: { headers: Headers; url: string }): string {
+  const premier = (valeur: string | null) => valeur?.split(",")[0]?.trim() || null;
+  const host = premier(req.headers.get("x-forwarded-host")) ?? premier(req.headers.get("host"));
+  let depuisUrl: URL | null = null;
+  try {
+    depuisUrl = new URL(req.url);
+  } catch {
+    depuisUrl = null;
+  }
+  if (!host) return depuisUrl?.origin ?? "";
+  const proto =
+    premier(req.headers.get("x-forwarded-proto")) ?? depuisUrl?.protocol.replace(/:$/, "") ?? "https";
+  return `${proto}://${host}`;
+}
+
 /** Chemin du document d'aperçu React sur l'origine dédiée. */
 export const SANDBOX_PATH = "/bac-a-sable";
 

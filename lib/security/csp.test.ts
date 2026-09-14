@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 import { buildCsp, cspDirectives, scriptSrc, tokensDeDirective } from "./csp";
 
 const NONCE = "abc123==";
+const SANDBOX = "https://bac-a-sable.laforgeducode.fr";
+/** Options d'une requête de production. */
+const PROD = { nonce: NONCE, sandboxOrigin: SANDBOX };
 
 /**
  * Message affiché à qui casse ce test. Le constat EXE-03 a permis de retirer
@@ -17,7 +20,7 @@ const POURQUOI =
   "ni 'unsafe-eval'. Voir docs/audit-securite/corrections/EXE-03.md.";
 
 describe("CSP — script-src (production)", () => {
-  const script = () => tokensDeDirective(cspDirectives({ nonce: NONCE }), "script-src");
+  const script = () => tokensDeDirective(cspDirectives(PROD), "script-src");
 
   it("porte le nonce de la requête", () => {
     expect(script(), POURQUOI).toContain(`'nonce-${NONCE}'`);
@@ -43,41 +46,56 @@ describe("CSP — script-src (production)", () => {
 
 describe("CSP — script-src (développement)", () => {
   it("ajoute 'unsafe-eval' en dev (React l'utilise pour le débogage)", () => {
-    const dev = tokensDeDirective(cspDirectives({ nonce: NONCE, isDev: true }), "script-src");
+    const dev = tokensDeDirective(cspDirectives({ ...PROD, isDev: true }), "script-src");
     expect(dev).toContain("'unsafe-eval'");
     // mais jamais 'unsafe-inline', même en dev.
     expect(dev).not.toContain("'unsafe-inline'");
   });
 
   it("scriptSrc n'ajoute 'unsafe-eval' que si isDev", () => {
-    expect(scriptSrc({ nonce: NONCE })).not.toContain("'unsafe-eval'");
-    expect(scriptSrc({ nonce: NONCE, isDev: true })).toContain("'unsafe-eval'");
+    expect(scriptSrc(PROD)).not.toContain("'unsafe-eval'");
+    expect(scriptSrc({ ...PROD, isDev: true })).toContain("'unsafe-eval'");
   });
 });
 
 describe("CSP — encadrement des aperçus", () => {
-  it("frame-src autorise l'origine dédiée du bac à sable", () => {
-    const frame = tokensDeDirective(cspDirectives({ nonce: NONCE }), "frame-src");
-    expect(frame).toContain("https://bac-a-sable.laforgeducode.fr");
-    expect(frame).toContain("http://127.0.0.1:3000");
+  it("frame-src n'autorise que 'self' et l'origine du bac à sable de la requête", () => {
+    const frame = tokensDeDirective(cspDirectives(PROD), "frame-src");
+    expect(frame).toEqual(["'self'", SANDBOX]);
+  });
+
+  it("en production, aucune origine de développement ne fuit dans frame-src", () => {
+    // Relevé sur le site en ligne après le déploiement du 2026-09-14 :
+    // localhost:3000 et 127.0.0.1:3000 étaient livrés dans la CSP de production.
+    const csp = buildCsp(PROD);
+    expect(csp).not.toContain("localhost");
+    expect(csp).not.toContain("127.0.0.1");
+  });
+
+  it("en local, frame-src porte l'autre hôte local, pas le sous-domaine", () => {
+    const frame = tokensDeDirective(
+      cspDirectives({ nonce: NONCE, sandboxOrigin: "http://127.0.0.1:3000" }),
+      "frame-src"
+    );
+    expect(frame).toEqual(["'self'", "http://127.0.0.1:3000"]);
   });
 
   it("l'application elle-même ne peut pas être encadrée", () => {
-    const anc = tokensDeDirective(cspDirectives({ nonce: NONCE }), "frame-ancestors");
+    const anc = tokensDeDirective(cspDirectives(PROD), "frame-ancestors");
     expect(anc).toEqual(["'none'"]);
   });
 });
 
 describe("buildCsp", () => {
   it("émet une chaîne avec le nonce interpolé", () => {
-    const csp = buildCsp({ nonce: NONCE });
+    const csp = buildCsp(PROD);
     expect(csp).toContain(`'nonce-${NONCE}'`);
     expect(csp).toContain("script-src");
   });
 });
 
 describe("tokensDeDirective", () => {
-  const directives = cspDirectives({ nonce: NONCE });
+  const directives = cspDirectives(PROD);
 
   it("isole les tokens d'une directive sans son nom", () => {
     expect(tokensDeDirective(directives, "object-src")).toEqual(["'none'"]);

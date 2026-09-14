@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 import { authConfig } from "@/auth.config";
 import { PROTECTED_PREFIXES, isPublicRoute } from "@/lib/public-routes";
+import { originDeLaRequete, sandboxOriginFor } from "@/lib/sandbox/sandbox-origin";
 import { buildCsp } from "@/lib/security/csp";
 
 const { auth } = NextAuth(authConfig);
@@ -31,9 +32,13 @@ export default auth((req) => {
   // permissive : on ne doit pas la remplacer par la CSP stricte de l'app.
   const estBacASable = pathname === "/bac-a-sable" || pathname.startsWith("/bac-a-sable/");
 
-  // Nonce + CSP à nonce, seulement en production et hors bac à sable.
+  // Nonce + CSP à nonce, seulement en production et hors bac à sable. La seule
+  // origine autorisée dans `frame-src` est celle du bac à sable de CETTE
+  // requête (sous-domaine dédié en production, autre hôte local en CI).
   const nonce = CSP_ACTIVE && !estBacASable ? genererNonce() : null;
-  const csp = nonce ? buildCsp({ nonce }) : null;
+  const csp = nonce
+    ? buildCsp({ nonce, sandboxOrigin: sandboxOriginFor(originDeLaRequete(req)) })
+    : null;
 
   const isProtected =
     PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`)) &&

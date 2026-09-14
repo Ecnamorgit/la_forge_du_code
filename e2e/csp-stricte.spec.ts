@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { sandboxOriginFor } from "../lib/sandbox/sandbox-origin";
+
 /**
  * Garde-fou du durcissement CSP (constat EXE-03). Remplace l'ancien
  * `csp-srcdoc-script.spec.ts` : le code des apprenants ne s'exécute plus dans un
@@ -53,7 +55,31 @@ test("sous CSP de production, script-src est à nonce et sans unsafe-*", async (
 
   // L'aperçu du bac à sable est encadré depuis l'origine dédiée : frame-src doit
   // l'autoriser, sinon les iframes d'exécution seraient bloquées en production.
-  expect(csp, "frame-src absente.").toContain("frame-src");
+  // Et SEULEMENT elle : les deux origines sont dérivées de la requête, dans les
+  // deux sens. Relevé en production le 2026-09-14 : localhost:3000 et
+  // 127.0.0.1:3000 étaient livrés dans la CSP du site en ligne (listes codées
+  // en dur) — ce test verrouille la correction.
+  const app = new URL(page.url()).origin;
+  const bacASable = sandboxOriginFor(app);
+  const frameSrc = csp!
+    .split(";")
+    .map((d) => d.trim())
+    .find((d) => d.startsWith("frame-src "));
+  expect(frameSrc, "frame-src doit valoir exactement 'self' + l'origine du bac à sable.").toBe(
+    `frame-src 'self' ${bacASable}`
+  );
+
+  // Réciproque : le document du bac à sable n'accepte d'être encadré QUE par
+  // l'application qui l'a demandé (frame-ancestors dérivé de sa propre origine).
+  const doc = await page.request.get(`${bacASable}/bac-a-sable/html`);
+  const cspBac = doc.headers()["content-security-policy"] ?? "";
+  const ancetres = cspBac
+    .split(";")
+    .map((d) => d.trim())
+    .find((d) => d.startsWith("frame-ancestors "));
+  expect(ancetres, "frame-ancestors du bac à sable doit valoir exactement l'origine de l'app.").toBe(
+    `frame-ancestors ${app}`
+  );
 
   // Preuve comportementale : la page a hydraté (un bouton client réagit) sous la
   // CSP stricte, et aucune violation CSP n'a été journalisée pendant le chargement.

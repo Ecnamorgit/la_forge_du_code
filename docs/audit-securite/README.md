@@ -64,7 +64,7 @@ Statuts : **Ouvert** (relevé par l'audit), **Démontré** (un test prouve la fa
 | SRV-01 | Moyenne | Limitation de débit en mémoire si Upstash absent ou en panne | `2faa3bb` (vitest) | [fiche](corrections/SRV-01.md) | Corrigé (Redis à relier dans Vercel) |
 | SRV-03 | Moyenne | Sessions JWT de 30 jours non révoquées | `b17f3df` (e2e) | [fiche](corrections/SRV-03.md) | Corrigé |
 | SRV-04 | Moyenne | Aucune RLS sur les tables Supabase | [démonstration RLS](corrections/annexes/SRV-04-demonstration-rls.txt) | [fiche](corrections/SRV-04.md) | Corrigé (Security Advisor Supabase à vérifier) |
-| EXE-03 | Moyenne | CSP avec 'unsafe-inline' et 'unsafe-eval' imposée par le bac à sable | `csp-stricte` (build prod) | [fiche](corrections/EXE-03.md) | Corrigé (sous-domaine bac-a-sable à créer) |
+| EXE-03 | Moyenne | CSP avec 'unsafe-inline' et 'unsafe-eval' imposée par le bac à sable | `csp-stricte` (build prod) | [fiche](corrections/EXE-03.md) | Corrigé (vérifié en production le 2026-09-14) |
 | BCK-01 | Moyenne | Restauration des sauvegardes jamais testée | | | Ouvert |
 | EXE-02 | Faible | Boucle infinie : onglet figé, délai inopérant | `a410813` (e2e) | [fiche](corrections/EXE-02.md) | Corrigé |
 | EXE-04 | Faible | Indices injectés via dangerouslySetInnerHTML | `14029ac` (e2e) | [fiche](corrections/EXE-04.md) | Corrigé |
