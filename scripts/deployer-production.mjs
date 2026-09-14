@@ -47,7 +47,10 @@ try {
   // `git archive` n'emporte que les fichiers suivis : ni .git, ni .env, ni node_modules.
   const archive = join(copie, "source.tar");
   execSync(`git archive --format=tar --output="${archive}" ${REF}`);
-  execSync(`tar -xf "${archive}" -C "${copie}"`);
+  // Extraction avec un chemin RELATIF, depuis le dossier de la copie : le tar de
+  // Windows (bsdtar) lirait le `C:` d'un chemin absolu comme un hôte distant
+  // (« Cannot connect to C: resolve failed »).
+  execSync("tar -xf source.tar", { cwd: copie });
   rmSync(archive);
   mkdirSync(join(copie, ".vercel"));
   cpSync(LIEN, join(copie, LIEN));
@@ -60,5 +63,12 @@ try {
   });
   process.exitCode = res.status ?? 1;
 } finally {
-  rmSync(copie, { recursive: true, force: true });
+  // Sous Windows, le dossier peut rester verrouillé (EBUSY) un instant après la
+  // fin de la CLI : on réessaie, et un échec de nettoyage n'annule pas un
+  // déploiement réussi — on le signale seulement.
+  try {
+    rmSync(copie, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
+  } catch (err) {
+    console.warn(`Copie temporaire non supprimée (${err.code ?? err.message}) : ${copie}`);
+  }
 }
