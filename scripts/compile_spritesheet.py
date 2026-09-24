@@ -62,7 +62,7 @@ def clean_checkerboard(img, tolerance=30):
 
 def main():
     brain_dir = "C:/Users/joan7/.gemini/antigravity/brain/22e4e1e8-22d7-4994-8aba-a7a4b229f5e1"
-    dest_path = "c:/Users/joan7/Desktop/projet fil rouge/codeforge/public/sprites/mission-icons-v2.png"
+    dest_path = "C:/dev/formation/fil-rouge/codeforge/public/sprites/mission-icons-v2.png"
 
     # Strict order of course slugs
     course_order = [
