@@ -2,14 +2,14 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-2";
 
 /**
- * Chapitre 2 — les selecteurs et la couleur.
+ * Chapitre 2 — les sélecteurs et la couleur.
  *
- * Chaque etape a un cas passant tire du `hint` du cours, et un cas d'echec qui
- * rate sur la seule exigence de l'etape. Jamais de chaine vide comme cas
- * d'echec : elle echouerait de toute facon et ne prouverait rien.
+ * Chaque étape a un cas passant tiré du `hint` du cours, et un cas d'échec qui
+ * rate sur la seule exigence de l'étape. Jamais de chaîne vide comme cas
+ * d'échec : elle échouerait de toute façon et ne prouverait rien.
  */
 
-/** Enveloppe le CSS donne dans une page complete, comme le startCode du cours. */
+/** Enveloppe le CSS donné dans une page complète, comme le startCode du cours. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -35,7 +35,7 @@ describe("CSS chapitre 2 — etape 1 (selecteur de classe)", () => {
   });
 
   it("refuse une regle qui cible la balise au lieu de la classe", () => {
-    // Echec cible : il y a bien un color sur un <p>, mais pas sur .alert.
+    // Échec ciblé : il y a bien un color sur un <p>, mais pas sur .alert.
     expect(valider(page("p { color: red; }")).ok).toBe(false);
   });
 
@@ -44,8 +44,8 @@ describe("CSS chapitre 2 — etape 1 (selecteur de classe)", () => {
   });
 
   it("refuse background-color, qui n'est pas la propriete demandee", () => {
-    // L'etape demande la couleur du TEXTE. `background-color` contient le mot
-    // « color » : si la verification se contente d'un \b, elle l'accepte a tort.
+    // `background-color` contient « color » : une vérification par \b
+    // l'accepterait à tort.
     expect(valider(page(".alert { background-color: red; }")).ok).toBe(false);
   });
 });

@@ -17,7 +17,7 @@ describe("HTML chapitre 4 — etape 1 (liste non ordonnee)", () => {
   });
 
   it("refuse des li laisses hors de toute liste", () => {
-    // Echec cible : les items existent, le conteneur manque.
+    // Échec ciblé : les items existent, le conteneur manque.
     expect(valider("<li>A</li><li>B</li><li>C</li>").ok).toBe(false);
   });
 });
@@ -30,7 +30,7 @@ describe("HTML chapitre 4 — etape 2 (liste ordonnee)", () => {
   });
 
   it("refuse une ul la ou l'ordre compte", () => {
-    // Echec cible : l'etape porte sur la sequence, donc sur <ol>.
+    // Échec ciblé : l'étape porte sur la séquence, donc sur <ol>.
     expect(valider("<ul><li>A</li><li>B</li><li>C</li></ul>").ok).toBe(false);
   });
 
@@ -51,7 +51,7 @@ describe("HTML chapitre 4 — etape 3 (tableau)", () => {
   });
 
   it("refuse une ligne qui n'a qu'une cellule", () => {
-    // Echec cible : une grille suppose au moins deux colonnes partout.
+    // Échec ciblé : une grille suppose au moins deux colonnes partout.
     const code = `<table>
       <tr><td>Lia</td><td>5</td></tr>
       <tr><td>Max</td></tr>
@@ -76,7 +76,7 @@ describe("HTML chapitre 4 — etape 4 (en-tetes de tableau)", () => {
   });
 
   it("refuse des th poses hors du thead", () => {
-    // Echec cible : l'etape enseigne la zone d'en-tete, pas la balise seule.
+    // Échec ciblé : l'étape enseigne la zone d'en-tête, pas la balise seule.
     const code = `<table>
       <tr><th>Pilote</th><th>Niveau</th></tr>
       <tr><td>Lia</td><td>5</td></tr>

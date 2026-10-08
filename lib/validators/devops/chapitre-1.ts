@@ -4,7 +4,7 @@ import { stripLineComments, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "#");
 
 export const validators: Validator[] = [
-  // Step 1: npm run build + preview
+  // Étape 1 : npm run build puis preview
   (code) => {
     const c = strip(code);
     if (!/npm\s+run\s+build/.test(c)) {
@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     }
     return pass("Bundle pret.", ["o1a", "o1b"]);
   },
-  // Step 2: install Vercel CLI + deploy
+  // Étape 2 : CLI Vercel installée globalement, puis vercel login
   (code) => {
     const c = strip(code);
     if (!/npm\s+install\s+-g\s+vercel/.test(c)) {
@@ -26,10 +26,9 @@ export const validators: Validator[] = [
     }
     return pass("En ligne.", ["o2a", "o2b"]);
   },
-  // Step 3: .env with vars + gitignore entries + .env.example.
-  // NOTE: no comment-stripping here — in this step the `#` lines are section
-  // labels that are part of the expected answer. We key on `.env.local`, which
-  // only appears in a real .gitignore (never in the French instructions).
+  // Étape 3 : .env, .gitignore et .env.example. Les lignes `#` sont ici des
+  // libellés attendus dans la réponse, on ne les retire pas ; `.env.local`
+  // n'apparaît que dans un vrai .gitignore, jamais dans les consignes.
   (code) => {
     if (!/API_URL\s*=/.test(code) || !/DB_PASSWORD\s*=/.test(code)) {
       return fail("Cree un .env avec API_URL=... et DB_PASSWORD=...");
@@ -42,7 +41,7 @@ export const validators: Validator[] = [
     }
     return pass("Config securisee.", ["o3a", "o3b"]);
   },
-  // Step 4: Dockerfile (FROM, WORKDIR, COPY/RUN, EXPOSE, CMD)
+  // Étape 4 : Dockerfile (FROM, WORKDIR, COPY/RUN, EXPOSE, CMD)
   (code) => {
     const c = strip(code);
     const dockerfileOk =

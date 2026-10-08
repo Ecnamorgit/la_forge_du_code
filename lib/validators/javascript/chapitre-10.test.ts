@@ -3,7 +3,7 @@ import { validators } from "./chapitre-10";
 import type { ValidatorContext } from "@/data/courses/html/types";
 
 /**
- * JS chapitre 10 — localStorage : ecrire, serialiser, effacer, initialiser.
+ * JS chapitre 10 — localStorage : écrire, sérialiser, effacer, initialiser.
  */
 
 const ctx = (logs: string[], error: string | null = null): ValidatorContext => ({
@@ -23,7 +23,7 @@ console.log(localStorage.getItem("theme"));`;
   });
 
   it("refuse une valeur relue depuis une variable au lieu du stockage", () => {
-    // Echec cible : la sortie est bonne, rien n'a ete relu.
+    // Échec ciblé : la sortie est bonne, rien n'a été relu.
     const code = `const theme = "dark";
 localStorage.setItem("theme", theme);
 console.log(theme);`;
@@ -49,7 +49,7 @@ console.log(relu.niveau);`;
   });
 
   it("refuse un objet stocke sans serialisation", () => {
-    // Echec cible : localStorage ne stocke que des chaines.
+    // Échec ciblé : localStorage ne stocke que des chaînes.
     const code = `const pilote = { nom: "Luna", niveau: 8 };
 localStorage.setItem("pilote", pilote);
 console.log(pilote.nom);
@@ -76,7 +76,7 @@ console.log(localStorage.getItem("theme"));`;
   });
 
   it("refuse une valeur vide ecrite a la place d'une suppression", () => {
-    // Echec cible : ecraser n'est pas supprimer.
+    // Échec ciblé : écraser n'est pas supprimer.
     const code = `localStorage.setItem("theme", "");
 console.log(localStorage.getItem("theme"));`;
     expect(valider(code, ctx([""])).ok).toBe(false);

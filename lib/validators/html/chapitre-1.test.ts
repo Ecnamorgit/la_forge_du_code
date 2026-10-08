@@ -4,7 +4,7 @@ import { validators } from "./chapitre-1";
 /**
  * HTML chapitre 1 — la structure minimale d'un document.
  *
- * Ce chapitre a 3 etapes, pas 4 : c'est le seul du parcours dans ce cas.
+ * Ce chapitre a 3 étapes, pas 4 : c'est le seul du parcours dans ce cas.
  */
 
 describe("HTML chapitre 1 — etape 1 (doctype et enceinte html)", () => {
@@ -19,7 +19,7 @@ describe("HTML chapitre 1 — etape 1 (doctype et enceinte html)", () => {
   });
 
   it("refuse une balise html jamais fermee", () => {
-    // Echec cible : le doctype est la, l'enceinte n'est pas close.
+    // Échec ciblé : le doctype est là, l'enceinte n'est pas close.
     expect(valider("<!DOCTYPE html>\n<html>").ok).toBe(false);
   });
 });
@@ -34,7 +34,7 @@ describe("HTML chapitre 1 — etape 2 (head et titre)", () => {
   });
 
   it("refuse un title vide", () => {
-    // Echec cible : la balise existe mais ne nomme rien.
+    // Échec ciblé : la balise existe mais ne nomme rien.
     expect(
       valider("<!DOCTYPE html><html><head><title>   </title></head></html>").ok
     ).toBe(false);

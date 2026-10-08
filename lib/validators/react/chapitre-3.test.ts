@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-3";
 
 /**
- * React chapitre 3 — useEffect : montage, dependances, nettoyage, chargement.
+ * React chapitre 3 — useEffect : montage, dépendances, nettoyage, chargement.
  */
 
 const IMPORT = `import { useState, useEffect } from 'react';`;
@@ -22,7 +22,7 @@ function Station() {
   });
 
   it("refuse un effet sans tableau de dependances", () => {
-    // Echec cible : sans [], l'effet rejoue a chaque rendu.
+    // Échec ciblé : sans [], l'effet rejoue à chaque rendu.
     const code = `${IMPORT}
 function Station() {
   useEffect(() => {
@@ -61,7 +61,7 @@ function Compteur() {
   });
 
   it("refuse un effet qui ne declare pas count en dependance", () => {
-    // Echec cible : le titre ne se mettrait a jour qu'au montage.
+    // Échec ciblé : le titre ne se mettrait à jour qu'au montage.
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -102,7 +102,7 @@ function Horloge() {
   });
 
   it("refuse un intervalle jamais nettoye", () => {
-    // Echec cible : c'est exactement la fuite que l'etape enseigne a eviter.
+    // Échec ciblé : c'est exactement la fuite que l'étape enseigne à éviter.
     const code = `${IMPORT}
 function Horloge() {
   useEffect(() => {
@@ -143,7 +143,7 @@ function Flotte() {
   });
 
   it("refuse un fetch sans etat de chargement", () => {
-    // Echec cible : l'apprenant afficherait un ecran vide pendant l'attente.
+    // Échec ciblé : l'apprenant afficherait un écran vide pendant l'attente.
     const code = `${IMPORT}
 function Flotte() {
   const [data, setData] = useState([]);

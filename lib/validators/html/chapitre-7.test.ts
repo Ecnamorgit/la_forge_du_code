@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-7";
 
 /**
- * HTML chapitre 7 — metadonnees : encodage, description, partage, favicon.
+ * HTML chapitre 7 — métadonnées : encodage, description, partage, favicon.
  */
 
 describe("HTML chapitre 7 — etape 1 (langue, encodage, viewport)", () => {
@@ -26,7 +26,7 @@ describe("HTML chapitre 7 — etape 1 (langue, encodage, viewport)", () => {
   });
 
   it("refuse un viewport sans width=device-width", () => {
-    // Echec cible : la balise est la, mais elle ne rend pas la page responsive.
+    // Échec ciblé : la balise est là, mais elle ne rend pas la page responsive.
     const code = `<html lang="fr"><head>
       <meta charset="UTF-8">
       <meta name="viewport" content="initial-scale=1">
@@ -45,7 +45,7 @@ describe("HTML chapitre 7 — etape 2 (description)", () => {
   });
 
   it("refuse une description trop courte", () => {
-    // Echec cible : une meta presente mais inutile pour le referencement.
+    // Échec ciblé : une meta présente mais inutile pour le référencement.
     expect(valider('<meta name="description" content="Nebula">').ok).toBe(false);
   });
 
@@ -71,7 +71,7 @@ describe("HTML chapitre 7 — etape 3 (partage social)", () => {
   });
 
   it("refuse une og:title au contenu vide", () => {
-    // Echec cible : la balise existe mais ne transporte rien.
+    // Échec ciblé : la balise existe mais ne transporte rien.
     const code = `<meta property="og:title" content="">
       <meta property="og:description" content="Apprends le code en mission.">
       <meta property="og:image" content="https://codeforge.space/og.png">`;
@@ -91,7 +91,7 @@ describe("HTML chapitre 7 — etape 4 (favicon)", () => {
   });
 
   it("refuse un lien de feuille de style pris pour un favicon", () => {
-    // Echec cible : le rel n'est pas celui attendu.
+    // Échec ciblé : le rel n'est pas celui attendu.
     expect(valider('<link rel="stylesheet" href="/style.css">').ok).toBe(false);
   });
 });

@@ -2,14 +2,14 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-5";
 
 /**
- * Chapitre 5 — CSS Grid, et la fin du cursus.
+ * Chapitre 5 — CSS Grid.
  *
- * L'etape 2 compte les colonnes declarees, y compris a travers `repeat()` :
- * les tests couvrent la forme developpee et la forme compactee, ainsi que le
- * cas ou repeat() en produit trop peu.
+ * L'étape 2 compte les colonnes déclarées, y compris à travers `repeat()` : les
+ * tests couvrent la forme développée, la forme compactée, et un repeat() qui en
+ * produit trop peu.
  */
 
-/** Page complete avec le CSS donne, et un .grid a cartographier. */
+/** Page complète avec le CSS donné, et un .grid à cartographier. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -57,7 +57,7 @@ describe("CSS chapitre 5 — etape 2 (au moins trois colonnes)", () => {
   });
 
   it("refuse deux colonnes seulement", () => {
-    // Echec cible : la propriete est correcte, le compte ne l'est pas.
+    // Échec ciblé : la propriété est correcte, le compte ne l'est pas.
     expect(
       valider(page(".grid { display: grid; grid-template-columns: 1fr 1fr; }")).ok
     ).toBe(false);

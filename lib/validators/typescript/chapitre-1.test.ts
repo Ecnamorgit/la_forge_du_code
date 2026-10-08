@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * TypeScript chapitre 1 — etapes 2 a 4.
+ * TypeScript chapitre 1 — étapes 2 à 4.
  *
- * L'etape 1 est deja couverte par `lib/validators/all-chapter-1.test.ts`.
+ * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
  */
 
 describe("TypeScript — etape 2 (typer une fonction)", () => {
@@ -18,7 +18,7 @@ describe("TypeScript — etape 2 (typer une fonction)", () => {
   });
 
   it("refuse des parametres types sans type de retour", () => {
-    // Echec cible : l'etape demande les deux.
+    // Échec ciblé : l'étape demande les deux.
     const code = `function calculerXp(niveau: number, bonus: number) {
   return niveau * 100 + bonus;
 }`;
@@ -50,7 +50,7 @@ const lia: Pilote = { id: 1, nom: 'Lia', niveau: 5, actif: true };`;
   });
 
   it("refuse une constante non annotee", () => {
-    // Echec cible : l'interface existe, la constante ne s'y rattache pas.
+    // Échec ciblé : l'interface existe, la constante ne s'y rattache pas.
     const code = `${INTERFACE}
 const lia = { id: 1, nom: 'Lia', niveau: 5, actif: true };`;
     expect(valider(code).ok).toBe(false);
@@ -89,7 +89,7 @@ function afficher(statut: Statut) {
   });
 
   it("refuse un parametre type string au lieu de l'union", () => {
-    // Echec cible : c'est le typage du parametre qui donne sa valeur a l'union.
+    // Échec ciblé : c'est le typage du paramètre qui donne sa valeur à l'union.
     const code = `${UNION}
 function afficher(statut: string) {
   console.log(statut);

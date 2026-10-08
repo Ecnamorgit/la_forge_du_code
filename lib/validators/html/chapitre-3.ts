@@ -5,7 +5,7 @@ function findImg(code: string): RegExpMatchArray | null {
 }
 
 export const validators: Validator[] = [
-  // Step 1: <img> with src and alt
+  // Étape 1 : <img> avec src et alt
   (code) => {
     const img = findImg(code);
     if (!img) {
@@ -26,7 +26,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: width + height
+  // Étape 2 : width et height
   (code) => {
     const img = findImg(code);
     if (!img) {
@@ -44,7 +44,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: <a> wrapping <img>
+  // Étape 3 : <img> à l'intérieur d'un <a>
   (code) => {
     const wrapped = code.match(
       /<a\b[^>]*href\s*=\s*["'][^"']+["'][^>]*>[\s\S]*?<img\b[^>]*>[\s\S]*?<\/a>/i
@@ -61,7 +61,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Step 4: <figure> + <figcaption>
+  // Étape 4 : <figure> et <figcaption>
   (code) => {
     const figureMatch = code.match(/<figure\b[^>]*>([\s\S]*?)<\/figure>/i);
     if (!figureMatch) {

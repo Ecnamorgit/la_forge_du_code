@@ -25,7 +25,7 @@ console.log(document.body.innerHTML);`;
   });
 
   it("refuse un innerHTML ecrit directement, sans createElement", () => {
-    // Echec cible : le rendu est identique, la methode enseignee est absente.
+    // Échec ciblé : le rendu est identique, la méthode enseignée est absente.
     const code = `document.body.innerHTML = "<div>Centre de commande</div>";
 console.log(document.body.innerHTML);`;
     expect(valider(code, ctx(["<div>Centre de commande</div>"])).ok).toBe(false);
@@ -86,7 +86,7 @@ console.log(bloc.textContent);`;
   });
 
   it("refuse un texte change sans toucher a la classe", () => {
-    // Echec cible : l'etape porte sur la classe autant que sur le contenu.
+    // Échec ciblé : l'étape porte sur la classe autant que sur le contenu.
     const code = `const bloc = document.querySelector("div");
 bloc.textContent = "ALERTE";
 console.log(bloc.textContent);`;

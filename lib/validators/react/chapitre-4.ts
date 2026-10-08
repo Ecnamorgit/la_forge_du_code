@@ -4,7 +4,7 @@ import { stripLineComments, countMatches, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Step 1: BrowserRouter + two Route path/element
+  // Étape 1 : BrowserRouter et deux Route path/element
   (code) => {
     const c = strip(code);
     if (!/<BrowserRouter>/.test(c)) {
@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     }
     return pass("Routes actives.", ["o1a", "o1b"]);
   },
-  // Step 2: import Link + two <Link to=> in <nav>
+  // Étape 2 : import de Link et deux <Link to=...> dans une <nav>
   (code) => {
     const c = strip(code);
     if (!/import\s*\{[^}]*\bLink\b[^}]*\}\s*from\s*['"]react-router-dom['"]/.test(c)) {
@@ -26,17 +26,16 @@ export const validators: Validator[] = [
     }
     return pass("Navigation fluide.", ["o2a", "o2b"]);
   },
-  // Step 3: dynamic route :id + useParams
+  // Étape 3 : route dynamique :id et useParams
   (code) => {
     const c = strip(code);
-    // The <Route path="/vaisseaux/:id"> line lives in App (shown as guidance in
-    // a comment), so the verifiable signal here is reading the URL param.
+    // La <Route path="/vaisseaux/:id"> vit dans App (indiquée en commentaire
+    // dans le startCode) : le signal vérifiable ici est la lecture du paramètre.
     if (!/useParams\s*\(\s*\)/.test(c)) {
       return fail("Recupere les params de l'URL avec const { id } = useParams().");
     }
-    // On retire la destructuration avant de chercher l'affichage : elle s'ecrit
-    // elle-meme `{ id }`, donc la chercher telle quelle validerait un code qui
-    // lit le parametre sans jamais le rendre.
+    // On retire la déstructuration avant de chercher l'affichage : elle s'écrit
+    // elle-même `{ id }` et validerait un code qui ne rend jamais le paramètre.
     const sansDestructuration = c.replace(
       /(?:const|let|var)\s*\{\s*id\s*\}\s*=\s*useParams\s*\(\s*\)\s*;?/,
       ""
@@ -46,7 +45,7 @@ export const validators: Validator[] = [
     }
     return pass("URL decodee.", ["o3a", "o3b"]);
   },
-  // Step 4: useNavigate + navigate('/dashboard')
+  // Étape 4 : useNavigate et navigate('/dashboard')
   (code) => {
     const c = strip(code);
     if (!/useNavigate\s*\(\s*\)/.test(c)) {

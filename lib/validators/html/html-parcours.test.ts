@@ -14,18 +14,15 @@ import { VALIDATORS_BY_CHAPTER } from "./index";
 /**
  * Couverture complète du parcours HTML (8 chapitres, 31 étapes).
  *
- * Le cours est construit de façon cumulative : le `startCode` de l'étape N+1
- * EST la solution attendue de l'étape N. On exploite cette propriété :
- *   - chaque validateur doit REFUSER le `startCode` de sa propre étape
- *     (le travail n'est pas encore fait) ;
- *   - chaque validateur doit ACCEPTER la solution (= `startCode` suivant pour
- *     les étapes intermédiaires, une solution écrite à la main pour la dernière) ;
- *   - le `objList` renvoyé en cas de succès doit correspondre exactement aux
- *     `objectives` déclarés dans la donnée du chapitre (anti-désync).
+ * Le cours est cumulatif : le `startCode` de l'étape N+1 est la solution
+ * attendue de l'étape N. Chaque validateur doit donc refuser le `startCode` de
+ * sa propre étape, accepter le suivant (ou une solution écrite à la main pour
+ * la dernière étape), et renvoyer un `objList` identique aux `objectives`
+ * déclarés dans le chapitre.
  */
 
-// Solution complète de la DERNIÈRE étape de chaque chapitre (aucune étape
-// suivante d'où la dériver). Minimale mais valide vis-à-vis du validateur.
+// Solution de la dernière étape de chaque chapitre, qui n'a pas de
+// `startCode` suivant d'où la dériver.
 const LAST_STEP_SOLUTION: Record<string, string> = {
   "chapitre-1":
     "<!DOCTYPE html><html><head><title>T</title></head><body><h1>Hello World</h1></body></html>",

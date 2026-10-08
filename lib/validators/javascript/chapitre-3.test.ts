@@ -3,7 +3,7 @@ import { validators } from "./chapitre-3";
 import type { ValidatorContext } from "@/data/courses/html/types";
 
 /**
- * JS chapitre 3 — fonctions : declaration, parametres, arrow, seuils.
+ * JS chapitre 3 — fonctions : déclaration, paramètres, arrow, seuils.
  */
 
 const ctx = (logs: string[], error: string | null = null): ValidatorContext => ({
@@ -28,7 +28,7 @@ console.log(greet("Cadet"));`;
   });
 
   it("refuse une fonction qui affiche au lieu de retourner", () => {
-    // Echec cible : l'etape enseigne le return, pas le console.log interne.
+    // Échec ciblé : l'étape enseigne le return, pas le console.log interne.
     const code = `function greet(nom) { console.log("Bonjour, " + nom); }
 greet("Cadet");`;
     expect(valider(code, ctx(["Bonjour, Cadet"])).ok).toBe(false);
@@ -58,8 +58,7 @@ console.log(addXp(120, 50));`;
   });
 
   it("refuse une fonction qui logue au lieu de retourner", () => {
-    // Echec cible : la sortie est correcte, mais la fonction ne rend rien —
-    // c'est precisement ce que le message du validateur annonce refuser.
+    // Échec ciblé : la sortie est correcte, mais la fonction ne renvoie rien.
     const code = `function addXp(base, bonus) { console.log(base + bonus); }
 addXp(120, 50);`;
     expect(valider(code, ctx(["170"])).ok).toBe(false);
@@ -94,7 +93,7 @@ console.log(double(7));`;
   });
 
   it("refuse un appel avec une autre valeur", () => {
-    // Echec cible : l'arrow est correcte, l'appel demande ne l'est pas.
+    // Échec ciblé : l'arrow est correcte, l'appel demandé ne l'est pas.
     const code = `const double = (n) => n * 2;
 console.log(double(5));`;
     expect(valider(code, ctx(["10"])).ok).toBe(false);
@@ -118,7 +117,7 @@ console.log(status(7));`;
   });
 
   it("refuse un rang retourne sans condition", () => {
-    // Echec cible : la sortie est bonne mais le parametre est ignore.
+    // Échec ciblé : la sortie est bonne mais le paramètre est ignoré.
     const code = `function status(level) { return "Pilote"; }
 console.log(status(7));`;
     expect(valider(code, ctx(["Pilote"])).ok).toBe(false);

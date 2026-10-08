@@ -2,16 +2,15 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasPropertyWithValue, ruleBody } from "./_utils";
 
 /**
- * Un decalage est-il pose ? `(?<![-\w])` et non `\b` : dans `padding-top` ou
- * `margin-left`, le tiret est un non-mot, donc `\btop` matcherait a l'interieur
- * et un simple padding compterait comme un decalage de positionnement.
+ * Un décalage est-il posé ? `(?<![-\w])` plutôt que `\b` : sinon le `top` de
+ * `padding-top` compterait comme un décalage de positionnement.
  */
 function hasOffset(body: string): boolean {
   return /(?<![-\w])(top|right|bottom|left)\s*:\s*[^;\s][^;]*/i.test(body);
 }
 
 export const validators: Validator[] = [
-  // Step 1: .badge { position: relative; + top/left }
+  // Étape 1 : .badge { position: relative } avec un décalage
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -24,7 +23,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Positionnement fin.", objList: ["o1a", "o1b"] };
   },
-  // Step 2: .card has position: relative AND .ribbon has position: absolute
+  // Étape 2 : .card en position relative, .ribbon en absolute avec un décalage
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -40,7 +39,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Enfant verrouille.", objList: ["o2a", "o2b"] };
   },
-  // Step 3: .topbar with position: fixed + top: 0
+  // Étape 3 : .topbar { position: fixed; top: 0 }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -52,7 +51,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Barre verrouillee.", objList: ["o3a", "o3b"] };
   },
-  // Step 4: .section-title with position: sticky + top defined
+  // Étape 4 : .section-title { position: sticky } avec un top
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };

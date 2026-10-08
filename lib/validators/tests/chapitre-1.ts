@@ -4,7 +4,7 @@ import { stripLineComments, countMatches, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Step 1: describe + it + expect(additionner(2,3)).toBe(5)
+  // Étape 1 : describe, it et expect(additionner(2, 3)).toBe(5)
   (code) => {
     const c = strip(code);
     if (!/describe\s*\(/.test(c) || !/\bit\s*\(/.test(c)) {
@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     }
     return pass("Test au vert.", ["o1a", "o1b"]);
   },
-  // Step 2: two tests including empty-array case + toEqual
+  // Étape 2 : deux tests dont le cas du tableau vide, avec toEqual
   (code) => {
     const c = strip(code);
     if (countMatches(c, /\bit\s*\(/) < 2 || !/filtrerActifs\s*\(\s*\[\s*\]\s*\)/.test(c)) {
@@ -26,7 +26,7 @@ export const validators: Validator[] = [
     }
     return pass("Robustesse prouvee.", ["o2a", "o2b"]);
   },
-  // Step 3: render + getByText + fireEvent.click
+  // Étape 3 : render, getByText et fireEvent.click
   (code) => {
     const c = strip(code);
     if (!/render\s*\(\s*<Compteur/.test(c) || !/getByText\s*\(/.test(c)) {
@@ -37,7 +37,7 @@ export const validators: Validator[] = [
     }
     return pass("Interaction verifiee.", ["o3a", "o3b"]);
   },
-  // Step 4: Playwright goto + click + toHaveURL
+  // Étape 4 : Playwright, avec goto, click et toHaveURL
   (code) => {
     const c = strip(code);
     if (!/page\.goto\s*\(/.test(c)) {

@@ -3,7 +3,7 @@ import { validators } from "./chapitre-6";
 import type { ValidatorContext } from "@/data/courses/html/types";
 
 /**
- * JS chapitre 6 — methodes de tableau : map, filter, reduce, find.
+ * JS chapitre 6 — méthodes de tableau : map, filter, reduce, find.
  */
 
 const ctx = (logs: string[], error: string | null = null): ValidatorContext => ({
@@ -23,7 +23,7 @@ console.log(xp.map((v) => v * 2));`;
   });
 
   it("refuse une boucle for a la place de map", () => {
-    // Echec cible : le resultat est identique, la methode enseignee est absente.
+    // Échec ciblé : le résultat est identique, la méthode enseignée est absente.
     const code = `const xp = [50, 120, 80, 200, 30];
 const doubles = [];
 for (let i = 0; i < xp.length; i++) { doubles.push(xp[i] * 2); }
@@ -49,7 +49,7 @@ console.log(elites);`;
   });
 
   it("refuse un filtre qui laisse passer un niveau trop bas", () => {
-    // Echec cible : le seuil est mal pose, Io (niveau 3) reste dans la sortie.
+    // Échec ciblé : le seuil est mal posé, Io (niveau 3) reste dans la sortie.
     const code = `const elites = equipage.filter((m) => m.niveau >= 5);
 console.log(elites);`;
     expect(valider(code, ctx(["[ Luna, Mars, Phobos, Io ]"])).ok).toBe(false);
@@ -97,7 +97,7 @@ console.log(vaisseau.id);`;
   });
 
   it("refuse un filter la ou un seul element est attendu", () => {
-    // Echec cible : filter renvoie un tableau, find renvoie l'element.
+    // Échec ciblé : filter renvoie un tableau, find renvoie l'élément.
     const code = `const vaisseau = ships.filter((s) => s.statut === "maintenance");
 console.log(vaisseau[0].id);`;
     expect(valider(code, ctx(["NEB-02"])).ok).toBe(false);

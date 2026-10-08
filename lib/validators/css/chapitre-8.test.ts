@@ -5,7 +5,7 @@ import { validators } from "./chapitre-8";
  * Chapitre 8 — responsive : largeurs fluides, media queries, clamp().
  */
 
-/** Page complete avec le CSS donne. */
+/** Page complète avec le CSS donné. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -36,7 +36,7 @@ describe("CSS chapitre 8 — etape 1 (largeur fluide)", () => {
   });
 
   it("refuse une largeur figee a 800px laissee en dur", () => {
-    // Echec cible : max-width est la, mais le width fige annule la fluidite.
+    // Échec ciblé : max-width est là, mais le width figé annule la fluidité.
     expect(valider(page(".container { max-width: 800px; width: 800px; }")).ok).toBe(false);
   });
 
@@ -89,7 +89,7 @@ describe("CSS chapitre 8 — etape 4 (typographie fluide au clamp)", () => {
   });
 
   it("refuse clamp() sans unite relative au viewport", () => {
-    // Echec cible : la fonction est la, mais rien ne varie avec l'ecran.
+    // Échec ciblé : la fonction est là, mais rien ne varie avec l'écran.
     expect(valider(page("h1 { font-size: clamp(24px, 32px, 48px); }")).ok).toBe(false);
   });
 

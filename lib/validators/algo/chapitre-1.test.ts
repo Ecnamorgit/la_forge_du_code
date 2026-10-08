@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * Algorithmique chapitre 1 — etapes 2 a 4.
+ * Algorithmique chapitre 1 — étapes 2 à 4.
  *
- * L'etape 1 est deja couverte par `lib/validators/all-chapter-1.test.ts`.
+ * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
  */
 
 describe("Algo — etape 2 (recherche dichotomique)", () => {
@@ -35,7 +35,7 @@ describe("Algo — etape 2 (recherche dichotomique)", () => {
   });
 
   it("refuse une dichotomie qui ne signale pas l'absence", () => {
-    // Echec cible : la boucle et le milieu sont la, le retour -1 manque.
+    // Échec ciblé : la boucle et le milieu sont là, le retour -1 manque.
     const code = `function rechercher(tab, cible) {
   let debut = 0, fin = tab.length - 1;
   while (debut <= fin) {
@@ -76,7 +76,7 @@ describe("Algo — etape 3 (tri a bulles)", () => {
   });
 
   it("refuse un echange par variable temporaire", () => {
-    // Echec cible : l'etape enseigne le destructuring, pas le tri en general.
+    // Échec ciblé : l'étape enseigne la déstructuration, pas le tri en général.
     const code = `function trier(a) {
   for (let i = 0; i < a.length; i++) {
     for (let j = 0; j < a.length - 1; j++) {
@@ -116,7 +116,7 @@ describe("Algo — etape 4 (Fibonacci, deux versions)", () => {
   });
 
   it("refuse une version iterative sans boucle", () => {
-    // Echec cible : la fonction existe mais n'itere pas.
+    // Échec ciblé : la fonction existe mais n'itère pas.
     const sansBoucle = `function fiboIteratif(n) { return n <= 1 ? n : null; }`;
     expect(valider(`${RECURSIF}\n${sansBoucle}`).ok).toBe(false);
   });

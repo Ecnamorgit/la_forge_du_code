@@ -6,7 +6,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Step 1: setItem + getItem, log 'dark'
+  // Étape 1 : setItem puis getItem, affiche 'dark'
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -23,7 +23,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Mémoire opérationnelle.", objList: ["o1a", "o1b"] };
   },
-  // Step 2: JSON.stringify + JSON.parse, log "Luna" and "8"
+  // Étape 2 : JSON.stringify et JSON.parse, affiche "Luna" et "8"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -43,7 +43,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Objet persiste.", objList: ["o2a", "o2b"] };
   },
-  // Step 3: removeItem + getItem returns null, log 'null'
+  // Étape 3 : removeItem, puis getItem renvoie null (affiche 'null')
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -60,7 +60,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Clé effacee.", objList: ["o3a", "o3b"] };
   },
-  // Step 4: define loadOrInit fn, log 80
+  // Étape 4 : fonction loadOrInit, affiche 80
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);

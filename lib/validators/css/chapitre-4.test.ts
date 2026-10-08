@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-4";
 
 /**
- * Chapitre 4 — Flexbox : activer le conteneur, puis repartir et aligner.
+ * Chapitre 4 — Flexbox : activer le conteneur, puis répartir et aligner.
  */
 
-/** Page complete avec le CSS donne, et un .container a mettre en flex. */
+/** Page complète avec le CSS donné, et un .container à mettre en flex. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -32,7 +32,7 @@ describe("CSS chapitre 4 — etape 1 (activer flex)", () => {
   });
 
   it("refuse display: block, qui n'active pas Flexbox", () => {
-    // Echec cible : la propriete est la, mais pas la valeur qui active flex.
+    // Échec ciblé : la propriété est là, mais pas la valeur qui active flex.
     expect(valider(page(".container { display: block; }")).ok).toBe(false);
   });
 

@@ -16,13 +16,13 @@ function findFormInner(code: string): string | null {
 }
 
 export const validators: Validator[] = [
-  // Step 1: <form> + <input type="text"> + <label for=...>
+  // Étape 1 : <form>, <input type="text"> et <label for=...>
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {
       return { ok: false, msg: "Encadre les champs dans une balise <form>." };
     }
-    // type="text" or default <input> (no type attribute) both count as text.
+    // Un <input> sans attribut type est un champ texte.
     const hasTextInput =
       hasInputOfType(inner, "text") ||
       /<input\b(?![^>]*\btype\s*=)[^>]*>/i.test(inner);
@@ -58,7 +58,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: <input type="email"> + <input type="password">
+  // Étape 2 : <input type="email"> et <input type="password">
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {
@@ -82,7 +82,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: <textarea> + <button type="submit">
+  // Étape 3 : <textarea> et <button type="submit">
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {
@@ -109,7 +109,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Step 4: <select> with >= 2 <option>
+  // Étape 4 : <select> avec au moins 2 <option>
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {

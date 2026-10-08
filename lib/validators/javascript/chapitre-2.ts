@@ -6,7 +6,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Step 1: arithmetic — log 56
+  // Étape 1 : calcul arithmétique, affiche 56
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -27,7 +27,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: comparison → false
+  // Étape 2 : comparaison qui affiche false
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -48,7 +48,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: if/else → "ALERTE"
+  // Étape 3 : if/else qui affiche "ALERTE"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -60,8 +60,8 @@ export const validators: Validator[] = [
     if (!/\belse\b/.test(stripped)) {
       return { ok: false, msg: "Ajoute une branche else." };
     }
-    // Require the condition to actually compare `niveauBouclier` —
-    // prevents `if (true) { console.log("ALERTE") }` from passing.
+    // La condition doit vraiment comparer `niveauBouclier` : `if (true)` ne
+    // suffit pas.
     const conditionRe =
       /\bif\s*\(\s*[^)]*\bniveauBouclier\b[^)]*(?:<=?|>=?|===|!==)[^)]*\)|\bif\s*\(\s*[^)]*(?:<=?|>=?|===|!==)[^)]*\bniveauBouclier\b[^)]*\)/;
     if (!conditionRe.test(stripped)) {
@@ -76,7 +76,7 @@ export const validators: Validator[] = [
         msg: 'La console doit afficher "ALERTE" (le bouclier est a 25).',
       };
     }
-    // Also reject runs that log both "ALERTE" AND "OK" (both branches hit, or hardcoded).
+    // "OK" en plus de "ALERTE" trahit une sortie codée en dur.
     if (logsInclude(ctx.logs, "OK")) {
       return {
         ok: false,
@@ -89,7 +89,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Step 4: else if → "OK"
+  // Étape 4 : else if qui affiche "OK"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);

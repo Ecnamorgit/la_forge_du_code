@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent } from "./_utils";
 
 export const validators: Validator[] = [
-  // Step 1: :root has --color-primary: <some color>
+  // Étape 1 : --color-primary défini dans :root
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -11,7 +11,8 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Variable en place.", objList: ["o1a", "o1b"] };
   },
-  // Step 2: var(--color-primary) used >= 3 times, AND no more raw #00b8d4 in non-:root rules
+  // Étape 2 : var(--color-primary) utilisé au moins 3 fois, et plus aucun
+  // #00b8d4 en dur hors de :root
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -19,14 +20,14 @@ export const validators: Validator[] = [
     if (usages < 3) {
       return { ok: false, msg: `Utilise var(--color-primary) au moins 3 fois (actuellement ${usages}).` };
     }
-    // Strip :root block then check no #00b8d4 remains
     const withoutRoot = css.replace(/:root\s*\{[^}]*\}/gi, "");
     if (/#00b8d4\b/i.test(withoutRoot)) {
       return { ok: false, msg: "Il reste un #00b8d4 en dur quelque part. Remplace-le par var(--color-primary)." };
     }
     return { ok: true, msg: "Couleur centralisée.", objList: ["o2a", "o2b"] };
   },
-  // Step 3: --space-md (or --space-*) defined + var() used for padding or border-radius
+  // Étape 3 : une variable --space-* ou --radius*, utilisée via var() pour
+  // padding ou border-radius
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -38,7 +39,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Système coherent.", objList: ["o3a", "o3b"] };
   },
-  // Step 4: [data-theme="..."] block redefining a custom property
+  // Étape 4 : un bloc [data-theme="..."] qui redéfinit une propriété personnalisée
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };

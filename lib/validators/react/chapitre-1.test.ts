@@ -3,8 +3,6 @@ import { validators } from "./chapitre-1";
 
 /**
  * React chapitre 1 — composant, props, condition, composition.
- *
- * Les chapitres 5 a 8 avaient deja leurs tests ; 1 a 4 n'en avaient aucun.
  */
 
 describe("React chapitre 1 — etape 1 (premier composant)", () => {
@@ -23,7 +21,7 @@ describe("React chapitre 1 — etape 1 (premier composant)", () => {
   });
 
   it("refuse un nom de composant en minuscule", () => {
-    // Echec cible : React distingue les composants par leur majuscule.
+    // Échec ciblé : React distingue les composants par leur majuscule.
     const code = `function radar() {
   return <div>Scan en cours</div>;
 }`;
@@ -63,7 +61,7 @@ describe("React chapitre 1 — etape 2 (props)", () => {
   });
 
   it("refuse une valeur ecrite en dur au lieu de la prop", () => {
-    // Echec cible : le parametre existe mais n'est jamais affiche.
+    // Échec ciblé : le paramètre existe mais n'est jamais affiché.
     const code = `function Radar(props) {
   return <div>Scan de la Lune</div>;
 }`;
@@ -96,7 +94,7 @@ describe("React chapitre 1 — etape 3 (affichage conditionnel)", () => {
   });
 
   it("refuse une condition qui n'affiche pas le span attendu", () => {
-    // Echec cible : la logique est la, le rendu ne l'est pas.
+    // Échec ciblé : la logique est là, le rendu ne l'est pas.
     const code = `function Radar(props) {
   return <div>{props.menace ? <b>ALERTE</b> : null}</div>;
 }`;
@@ -127,7 +125,7 @@ describe("React chapitre 1 — etape 4 (composition)", () => {
   });
 
   it("refuse deux Radar sur la meme cible", () => {
-    // Echec cible : l'etape demande deux cibles nommees, Lune et Mars.
+    // Échec ciblé : l'étape demande deux cibles nommées, Lune et Mars.
     const code = `function TableauDeBord() {
   return (
     <div>

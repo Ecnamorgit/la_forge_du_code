@@ -4,7 +4,7 @@ import { stripLineComments, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Step 1: import useState + [count, setCount] = useState(0) displayed
+  // Étape 1 : import de useState, [count, setCount] = useState(0) affiché
   (code) => {
     const c = strip(code);
     if (!/import\s*\{[^}]*\buseState\b[^}]*\}\s*from\s*['"]react['"]/.test(c)) {
@@ -18,7 +18,7 @@ export const validators: Validator[] = [
     }
     return pass("Memoire activee.", ["o1a", "o1b"]);
   },
-  // Step 2: <button> onClick increments via setCount
+  // Étape 2 : <button> dont le onClick incrémente via setCount
   (code) => {
     const c = strip(code);
     if (!/<button[^>]*onClick\s*=/i.test(c)) {
@@ -29,7 +29,7 @@ export const validators: Validator[] = [
     }
     return pass("Rendu reactif.", ["o2a", "o2b"]);
   },
-  // Step 3: object state + spread update
+  // Étape 3 : état objet mis à jour par spread
   (code) => {
     const c = strip(code);
     if (!/useState\s*\(\s*\{[^}]*nom[^}]*xp[^}]*\}\s*\)/.test(c)) {
@@ -40,7 +40,7 @@ export const validators: Validator[] = [
     }
     return pass("Immutabilite respectee.", ["o3a", "o3b"]);
   },
-  // Step 4: state lifting — parent owns state, passes value + setter to child
+  // Étape 4 : état remonté, le parent passe la valeur et le setter à l'enfant
   (code) => {
     const c = strip(code);
     if (!/\[\s*alerte\s*,\s*setAlerte\s*\]\s*=\s*useState/.test(c)) {

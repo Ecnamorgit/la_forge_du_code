@@ -29,7 +29,7 @@ console.log(flotte);`;
   });
 
   it("refuse un tableau declare mais jamais affiche", () => {
-    // Echec cible : sans sortie, rien ne prouve que le tableau existe.
+    // Échec ciblé : sans sortie, rien ne prouve que le tableau existe.
     expect(valider(CODE, ctx([])).ok).toBe(false);
   });
 
@@ -49,7 +49,7 @@ console.log(flotte.length);`;
   });
 
   it("refuse un ajout par index, sans push", () => {
-    // Echec cible : la longueur est bonne, la methode enseignee est absente.
+    // Échec ciblé : la longueur est bonne, la méthode enseignée est absente.
     const code = `const flotte = ["Aigle", "Faucon", "Corbeau"];
 flotte[3] = "Vautour";
 console.log(flotte.length);`;
@@ -83,7 +83,7 @@ for (let i = 0; i < flotte.length; i++) {
   });
 
   it("refuse quatre console.log ecrits a la main, sans boucle", () => {
-    // Echec cible : la sortie est identique, la boucle manque.
+    // Échec ciblé : la sortie est identique, la boucle manque.
     const code = `console.log("Aigle");
 console.log("Faucon");
 console.log("Corbeau");

@@ -6,13 +6,11 @@ function runtimeError(error: string | null): string | null {
 }
 
 /**
- * Async chapter — the sandbox runs sync and returns when the IIFE returns.
- * Our chapters use small setTimeout delays (10-50ms), and the sandbox has a
- * 3s timeout, so this works in practice. We accept up to ~200ms of total
- * async work per step.
+ * Chapitre asynchrone : le bac à sable attend 300 ms après l'exécution avant de
+ * renvoyer les logs, ce qui couvre les délais des exercices (10 à 50 ms).
  */
 export const validators: Validator[] = [
-  // Step 1: new Promise + .then logs 'OK'
+  // Étape 1 : new Promise et .then, affiche 'OK'
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -32,7 +30,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Promesse tenue.", objList: ["o1a", "o1b"] };
   },
-  // Step 2: async function + await logs 'Mission lunaire'
+  // Étape 2 : fonction async et await, affiche 'Mission lunaire'
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -49,7 +47,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Flux synchronise.", objList: ["o2a", "o2b"] };
   },
-  // Step 3: try/catch with await, log contains 'timeout'
+  // Étape 3 : try/catch avec await, log contenant 'timeout'
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -66,7 +64,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Erreur interceptee.", objList: ["o3a", "o3b"] };
   },
-  // Step 4: Promise.all returning [1,2,3]
+  // Étape 4 : Promise.all qui renvoie [1, 2, 3]
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -75,7 +73,6 @@ export const validators: Validator[] = [
     if (!/Promise\.all\s*\(/.test(stripped)) {
       return { ok: false, msg: "Utilise Promise.all([...])." };
     }
-    // logs should include the array printed — should contain "1", "2", "3"
     const all = ctx.logs.join(" ");
     if (!/1/.test(all) || !/2/.test(all) || !/3/.test(all)) {
       return {

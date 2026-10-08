@@ -2,9 +2,8 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasProperty, hasPropertyWithValue, ruleBody } from "./_utils";
 
 /**
- * Top-level tokenizer: splits on whitespace, but treats any parenthesized
- * group (calc(...), repeat(...), minmax(...), var(...)) as a single token.
- * Handles nested parens correctly.
+ * Découpe sur les espaces de premier niveau : un groupe parenthésé (calc(...),
+ * repeat(...), minmax(...), var(...)) reste un seul jeton, même imbriqué.
  */
 function topLevelTokens(value: string): string[] {
   const tokens: string[] = [];
@@ -31,9 +30,9 @@ function topLevelTokens(value: string): string[] {
 }
 
 /**
- * Count grid tracks. Each `repeat(N, T1 T2 ...)` contributes N * (track count of args).
- * Each `calc(...)`, `minmax(...)`, `var(...)`, `<length>`, `<percentage>`, `auto`, `min-content`, `max-content`, `1fr`, etc.
- * counts as a single track.
+ * Compte les pistes d'une grille. `repeat(N, ...)` vaut N fois le nombre de
+ * pistes de ses arguments ; tout autre jeton (`1fr`, `auto`, `minmax(...)`...)
+ * compte pour une piste.
  */
 function countGridTracks(value: string): number {
   let count = 0;
@@ -51,7 +50,7 @@ function countGridTracks(value: string): number {
 }
 
 export const validators: Validator[] = [
-  // Step 1: .grid { display: grid }
+  // Étape 1 : .grid { display: grid }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -69,7 +68,7 @@ export const validators: Validator[] = [
       objList: ["o1a"],
     };
   },
-  // Step 2: grid-template-columns with >= 3 tracks
+  // Étape 2 : grid-template-columns avec au moins 3 pistes
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -100,7 +99,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: gap on .grid
+  // Étape 3 : gap (ou row-gap / column-gap) sur .grid
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -122,7 +121,7 @@ export const validators: Validator[] = [
       objList: ["o3a"],
     };
   },
-  // Step 4: grid-template-rows on .grid
+  // Étape 4 : grid-template-rows sur .grid
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {

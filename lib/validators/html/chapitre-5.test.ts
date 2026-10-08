@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-5";
 
 /**
- * HTML chapitre 5 — formulaires : champs, types, envoi, menu deroulant.
+ * HTML chapitre 5 — formulaires : champs, types, envoi, menu déroulant.
  */
 
-/** Enveloppe le contenu donne dans un <form>. */
+/** Enveloppe le contenu donné dans un <form>. */
 function form(inner: string): string {
   return `<form action="/envoyer" method="post">${inner}</form>`;
 }
@@ -24,7 +24,7 @@ describe("HTML chapitre 5 — etape 1 (champ etiquete)", () => {
   });
 
   it("refuse un label qui pointe vers un id inexistant", () => {
-    // Echec cible : l'association est le sujet de l'etape, pas les deux balises.
+    // Échec ciblé : l'association est le sujet de l'étape, pas les deux balises.
     const code = form('<label for="pilote">Nom</label><input type="text" id="nom">');
     expect(valider(code).ok).toBe(false);
   });
@@ -45,7 +45,7 @@ describe("HTML chapitre 5 — etape 2 (types specialises)", () => {
   });
 
   it("refuse un email saisi dans un champ texte", () => {
-    // Echec cible : c'est le type qui apporte validation et clavier adapte.
+    // Échec ciblé : c'est le type qui apporte validation et clavier adapté.
     const code = form('<input type="text" id="e"><input type="password" id="p">');
     expect(valider(code).ok).toBe(false);
   });
@@ -66,7 +66,7 @@ describe("HTML chapitre 5 — etape 3 (zone de texte et envoi)", () => {
   });
 
   it("refuse un bouton sans type submit", () => {
-    // Echec cible : sans type=submit, le bouton n'envoie pas le formulaire.
+    // Échec ciblé : l'étape exige un type="submit" explicite.
     const code = form('<textarea id="rapport"></textarea><button>Transmettre</button>');
     expect(valider(code).ok).toBe(false);
   });
@@ -90,7 +90,7 @@ describe("HTML chapitre 5 — etape 4 (menu deroulant)", () => {
   });
 
   it("refuse un select a une seule option", () => {
-    // Echec cible : un menu d'un seul choix n'en est pas un.
+    // Échec ciblé : un menu d'un seul choix n'en est pas un.
     const code = form('<select id="secteur"><option>Alpha</option></select>');
     expect(valider(code).ok).toBe(false);
   });

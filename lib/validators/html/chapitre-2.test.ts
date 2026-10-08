@@ -19,7 +19,7 @@ describe("HTML chapitre 2 — etape 1 (lien externe)", () => {
   });
 
   it("refuse un lien interne, qui n'est pas une passerelle externe", () => {
-    // Echec cible : le href existe mais ne sort pas du site.
+    // Échec ciblé : le href existe mais ne sort pas du site.
     expect(valider('<a href="/missions" target="_blank">Missions</a>').ok).toBe(false);
   });
 
@@ -40,7 +40,7 @@ describe("HTML chapitre 2 — etape 2 (deux reperes)", () => {
   });
 
   it("refuse deux sections portant le meme id", () => {
-    // Echec cible : un id doit etre unique pour servir d'ancre.
+    // Échec ciblé : un id doit être unique pour servir d'ancre.
     expect(
       valider('<section id="missions">A</section><section id="missions">B</section>').ok
     ).toBe(false);
@@ -62,7 +62,7 @@ describe("HTML chapitre 2 — etape 3 (liens internes)", () => {
   });
 
   it("refuse une ancre qui ne correspond a aucun id", () => {
-    // Echec cible : le lien existe mais ne mene nulle part.
+    // Échec ciblé : le lien existe mais ne mène nulle part.
     const code = `<a href="#missions">M</a><a href="#equipage">E</a>${CIBLES}`;
     expect(valider(code).ok).toBe(false);
   });
@@ -95,7 +95,7 @@ describe("HTML chapitre 2 — etape 4 (barre de navigation)", () => {
   });
 
   it("refuse trois liens laisses hors d'une nav", () => {
-    // Echec cible : c'est le regroupement semantique qu'enseigne l'etape.
+    // Échec ciblé : c'est le regroupement sémantique qu'enseigne l'étape.
     const code = `<div>
       <a href="https://developer.mozilla.org">MDN</a>
       <a href="#missions">Missions</a>

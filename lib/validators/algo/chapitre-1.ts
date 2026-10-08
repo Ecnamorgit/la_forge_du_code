@@ -4,7 +4,7 @@ import { stripLineComments, countMatches, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Step 1: the answers are written AS comments, so we read the RAW code here.
+  // Étape 1 : les réponses s'écrivent en commentaires, on lit donc le code brut.
   (code) => {
     const hasConstant = /O\s*\(\s*1\s*\)/i.test(code);
     const hasLinear = /O\s*\(\s*n\s*\)/i.test(code);
@@ -14,7 +14,7 @@ export const validators: Validator[] = [
     }
     return pass("Complexite comprise.", ["o1a", "o1b"]);
   },
-  // Step 2: binary search — while loop + midpoint + not-found return
+  // Étape 2 : recherche dichotomique (while, milieu, return -1 si absent)
   (code) => {
     const c = strip(code);
     if (!/while\s*\(/.test(c)) {
@@ -25,20 +25,20 @@ export const validators: Validator[] = [
     }
     return pass("Log n atteint.", ["o2a", "o2b"]);
   },
-  // Step 3: bubble sort — two nested loops + destructuring swap
+  // Étape 3 : tri à bulles (deux boucles for imbriquées, échange par déstructuration)
   (code) => {
     const c = strip(code);
     if (countMatches(c, /for\s*\(/) < 2) {
       return fail("Le tri a bulles a besoin de DEUX boucles for imbriquees.");
     }
-    // Destructuring swap, e.g. [a[j], a[j + 1]] = [a[j + 1], a[j]]. The signature
-    // is a closing bracket, '=', opening bracket (tolerant of nested indexing).
+    // Échange par déstructuration, ex. [a[j], a[j + 1]] = [a[j + 1], a[j]] : on
+    // cherche `] = [`, ce qui tolère les index imbriqués.
     if (!/\]\s*=\s*\[/.test(c)) {
       return fail("Echange deux elements avec le destructuring : [a[j], a[j+1]] = [a[j+1], a[j]].");
     }
     return pass("Donnees ordonnees.", ["o3a", "o3b"]);
   },
-  // Step 4: fibonacci recursive + iterative
+  // Étape 4 : Fibonacci récursif et itératif
   (code) => {
     const c = strip(code);
     const recursive =

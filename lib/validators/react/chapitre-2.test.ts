@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-2";
 
 /**
- * React chapitre 2 — useState : compteur, evenement, objet, remontee d'etat.
+ * React chapitre 2 — useState : compteur, événement, objet, remontée d'état.
  */
 
 const IMPORT = `import { useState } from 'react';`;
@@ -28,7 +28,7 @@ function Compteur() {
   });
 
   it("refuse un etat declare mais jamais affiche", () => {
-    // Echec cible : sans rendu, l'apprenant ne voit pas l'etat vivre.
+    // Échec ciblé : sans rendu, l'apprenant ne voit pas l'état vivre.
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -69,7 +69,7 @@ function Compteur() {
   });
 
   it("refuse un onClick qui ne met pas l'etat a jour", () => {
-    // Echec cible : le gestionnaire existe mais n'appelle pas le setter.
+    // Échec ciblé : le gestionnaire existe mais n'appelle pas le setter.
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -92,7 +92,7 @@ function Profil() {
   });
 
   it("refuse une mutation directe de l'objet d'etat", () => {
-    // Echec cible : sans nouvelle reference, React ne redessine pas.
+    // Échec ciblé : sans nouvelle référence, React ne redessine pas.
     const code = `${IMPORT}
 function Profil() {
   const [profil, setProfil] = useState({ nom: 'Lia', xp: 0 });
@@ -124,7 +124,7 @@ function TableauDeBord() {
   });
 
   it("refuse un parent qui ne passe que la valeur", () => {
-    // Echec cible : sans le setter, l'enfant ne peut rien remonter.
+    // Échec ciblé : sans le setter, l'enfant ne peut rien remonter.
     const code = `${IMPORT}
 function TableauDeBord() {
   const [alerte, setAlerte] = useState(false);

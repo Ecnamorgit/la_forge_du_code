@@ -6,7 +6,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Step 1: array with >= 3 elements logged
+  // Étape 1 : un tableau d'au moins 3 éléments, affiché
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -18,7 +18,6 @@ export const validators: Validator[] = [
     if (ctx.logs.length === 0) {
       return { ok: false, msg: "Logue le tableau avec console.log." };
     }
-    // Try to read a JSON-array log line.
     const arrayLog = ctx.logs.find((l) => /^\s*\[/.test(l));
     if (!arrayLog) {
       return {
@@ -46,7 +45,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: push + log length = 4
+  // Étape 2 : push, puis affiche la nouvelle longueur (4)
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -67,7 +66,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: for loop, 4 distinct log lines
+  // Étape 3 : boucle for, au moins 4 lignes affichées
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -88,7 +87,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Step 4: for loop summing to 860
+  // Étape 4 : boucle for dont la somme affichée vaut 860
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);

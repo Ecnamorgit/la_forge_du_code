@@ -5,7 +5,7 @@ import { validators } from "./chapitre-10";
  * Chapitre 10 — variables CSS et design system.
  */
 
-/** Page complete avec le CSS donne. */
+/** Page complète avec le CSS donné. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -29,7 +29,7 @@ describe("CSS chapitre 10 — etape 1 (declarer une variable)", () => {
   });
 
   it("refuse une variable declaree ailleurs que dans :root", () => {
-    // Echec cible : la variable existe, mais pas la ou l'etape la demande.
+    // Échec ciblé : la variable existe, mais pas là où l'étape la demande.
     expect(valider(page(".btn { --color-primary: #00b8d4; }")).ok).toBe(false);
   });
 
@@ -57,7 +57,7 @@ describe("CSS chapitre 10 — etape 2 (centraliser la couleur)", () => {
   });
 
   it("refuse un #00b8d4 laisse en dur hors de :root", () => {
-    // Echec cible : le compte d'usages est bon, la centralisation ne l'est pas.
+    // Échec ciblé : le compte d'usages est bon, la centralisation ne l'est pas.
     const css = `:root { --color-primary: #00b8d4; }
       .btn { color: var(--color-primary); }
       .card { border-color: var(--color-primary); }
@@ -98,7 +98,7 @@ describe("CSS chapitre 10 — etape 4 (theme alternatif)", () => {
   });
 
   it("refuse un bloc [data-theme] qui ne redefinit aucune variable", () => {
-    // Echec cible : le selecteur est bon, il ne rethematise rien.
+    // Échec ciblé : le sélecteur est bon, il ne rethématise rien.
     const css = `:root { --color-primary: #00b8d4; }
       [data-theme="clair"] { background: white; }`;
     expect(valider(page(css)).ok).toBe(false);

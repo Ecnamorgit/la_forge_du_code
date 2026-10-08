@@ -5,7 +5,7 @@ import { validators } from "./chapitre-9";
  * Chapitre 9 — transitions, transforms et animations.
  */
 
-/** Page complete avec le CSS donne. */
+/** Page complète avec le CSS donné. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -32,7 +32,7 @@ describe("CSS chapitre 9 — etape 1 (transition avec duree)", () => {
   });
 
   it("refuse une transition sans duree", () => {
-    // Echec cible : la propriete est la, la duree manque.
+    // Échec ciblé : la propriété est là, la durée manque.
     expect(valider(page(".btn { transition: all; }")).ok).toBe(false);
   });
 
@@ -79,7 +79,7 @@ describe("CSS chapitre 9 — etape 4 (rotation infinie)", () => {
   const KEYFRAMES = `@keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
 
   it("accepte le mot-cle infinite dans la propriete raccourcie animation", () => {
-    // C'est la forme qu'enseigne le cours et que tout le monde ecrit.
+    // Forme enseignée par le cours.
     const css = `${KEYFRAMES}
       .icon { animation: rotation 2s linear infinite; }`;
     expect(valider(page(css)).ok).toBe(true);
@@ -92,7 +92,7 @@ describe("CSS chapitre 9 — etape 4 (rotation infinie)", () => {
   });
 
   it("refuse une animation qui ne tourne qu'une fois", () => {
-    // Echec cible : tout est correct sauf le caractere infini.
+    // Échec ciblé : tout est correct sauf le caractère infini.
     const css = `${KEYFRAMES}
       .icon { animation: rotation 2s linear; }`;
     expect(valider(page(css)).ok).toBe(false);

@@ -4,7 +4,7 @@ import { stripLineComments, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "#");
 
 export const validators: Validator[] = [
-  // Step 1: git init + git add + git commit -m
+  // Étape 1 : git init, git add et git commit -m
   (code) => {
     const c = strip(code);
     if (!/git\s+init/.test(c)) {
@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     }
     return pass("Depot initialise.", ["o1a", "o1b"]);
   },
-  // Step 2: git status + git log --oneline
+  // Étape 2 : git status et git log --oneline
   (code) => {
     const c = strip(code);
     if (!/git\s+status/.test(c)) {
@@ -26,12 +26,11 @@ export const validators: Validator[] = [
     }
     return pass("Etat decrypte.", ["o2a", "o2b"]);
   },
-  // Step 3: create+switch branch + merge into main
+  // Étape 3 : créer une branche et y basculer, puis la fusionner
   (code) => {
     const c = strip(code);
-    // `[ \t]+` et non `\s+` devant l'argument : `\s` traverse le saut de ligne,
-    // donc `git checkout -b` sans nom de branche serait valide par le premier
-    // mot de la commande suivante.
+    // `[ \t]+` plutôt que `\s+` devant l'argument : `\s` traverse le saut de
+    // ligne, et `git checkout -b` sans nom serait validé par la commande suivante.
     if (!/git\s+(checkout\s+-b|switch\s+-c)[ \t]+\S+/.test(c)) {
       return fail("Cree et bascule sur une branche : git checkout -b feature/radar.");
     }
@@ -40,11 +39,11 @@ export const validators: Validator[] = [
     }
     return pass("Fusion reussie.", ["o3a", "o3b"]);
   },
-  // Step 4: remote add origin + push -u origin main
+  // Étape 4 : git remote add origin et git push -u origin main
   (code) => {
     const c = strip(code);
-    // Meme raison qu'a l'etape 3 : sans `[ \t]+`, un `git remote add origin`
-    // sans URL serait valide par la ligne suivante.
+    // Même raison qu'à l'étape 3 : sans `[ \t]+`, un `git remote add origin`
+    // sans URL serait validé par la ligne suivante.
     if (!/git\s+remote\s+add\s+origin[ \t]+\S+/.test(c)) {
       return fail("Ajoute le remote : git remote add origin <url>.");
     }

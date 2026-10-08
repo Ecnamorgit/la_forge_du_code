@@ -4,7 +4,7 @@ import { stripLineComments, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Step 1: annotate pilote:string, niveau:number, actif:boolean
+  // Étape 1 : annoter pilote: string, niveau: number, actif: boolean
   (code) => {
     const c = strip(code);
     const ok =
@@ -19,7 +19,7 @@ export const validators: Validator[] = [
     }
     return pass("Blindage installe.", ["o1a", "o1b"]);
   },
-  // Step 2: type the function params + return
+  // Étape 2 : typer les paramètres et le retour de la fonction
   (code) => {
     const c = strip(code);
     if (!/calculerXp\s*\(\s*niveau\s*:\s*number\s*,\s*bonus\s*:\s*number\s*\)/.test(c)) {
@@ -30,7 +30,7 @@ export const validators: Validator[] = [
     }
     return pass("Contrat signe.", ["o2a", "o2b"]);
   },
-  // Step 3: interface Pilote + const lia: Pilote
+  // Étape 3 : interface Pilote et const lia: Pilote
   (code) => {
     const c = strip(code);
     const hasInterface =
@@ -45,7 +45,7 @@ export const validators: Validator[] = [
     }
     return pass("Structure figee.", ["o3a", "o3b"]);
   },
-  // Step 4: union of 3 literals + typed function param
+  // Étape 4 : union de 3 littéraux et paramètre typé
   (code) => {
     const c = strip(code);
     if (

@@ -4,11 +4,11 @@ import { validators } from "./chapitre-6";
 /**
  * Chapitre 6 — le positionnement : relative, absolute, fixed, sticky.
  *
- * Chaque etape exige un couple (valeur de position + decalage) : les cas
- * d'echec isolent l'un ou l'autre, jamais les deux a la fois.
+ * Chaque étape exige un couple (valeur de position + décalage) : les cas
+ * d'échec isolent l'un ou l'autre, jamais les deux à la fois.
  */
 
-/** Page complete avec le CSS donne. */
+/** Page complète avec le CSS donné. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -35,7 +35,7 @@ describe("CSS chapitre 6 — etape 1 (position relative avec decalage)", () => {
   });
 
   it("refuse position: relative sans aucun decalage", () => {
-    // Echec cible : sans offset, `relative` ne deplace rien.
+    // Échec ciblé : sans décalage, `relative` ne déplace rien.
     expect(valider(page(".badge { position: relative; }")).ok).toBe(false);
   });
 
@@ -44,8 +44,8 @@ describe("CSS chapitre 6 — etape 1 (position relative avec decalage)", () => {
   });
 
   it("refuse padding-top, qui n'est pas un decalage de positionnement", () => {
-    // `padding-top` contient « top » precede d'un tiret : une verification par
-    // \b le compterait comme un offset alors qu'il ne deplace pas l'element.
+    // `padding-top` contient « top » précédé d'un tiret : une vérification par
+    // \b le compterait comme un décalage.
     expect(valider(page(".badge { position: relative; padding-top: 4px; }")).ok).toBe(
       false
     );

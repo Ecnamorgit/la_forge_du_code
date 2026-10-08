@@ -4,7 +4,7 @@ import { stripLineComments, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Step 1: insertOne with nested vaisseau object + await
+  // Étape 1 : insertOne avec un objet vaisseau imbriqué, et await
   (code) => {
     const c = strip(code);
     if (!/vaisseau\s*:\s*\{[^}]*nom[^}]*classe/.test(c)) {
@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     }
     return pass("Document stocke.", ["o1a", "o1b"]);
   },
-  // Step 2: find $gte + projection + limit 10
+  // Étape 2 : find avec $gte, projection et limit(10)
   (code) => {
     const c = strip(code);
     if (!/\$gte\s*:\s*5/.test(c)) {
@@ -26,7 +26,7 @@ export const validators: Validator[] = [
     }
     return pass("Documents extraits.", ["o2a", "o2b"]);
   },
-  // Step 3: updateOne + $set on two fields
+  // Étape 3 : updateOne avec $set sur deux champs
   (code) => {
     const c = strip(code);
     if (!/\.updateOne\s*\(/.test(c)) {
@@ -40,7 +40,7 @@ export const validators: Validator[] = [
     }
     return pass("Document actualise.", ["o3a", "o3b"]);
   },
-  // Step 4: aggregate pipeline + $group + $sum: 1
+  // Étape 4 : pipeline aggregate avec $group et $sum: 1
   (code) => {
     const c = strip(code);
     if (!/\.aggregate\s*\(\s*\[/.test(c)) {

@@ -2,13 +2,13 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * Chapitre 1 — brancher une feuille de style et poser les premieres regles.
+ * Chapitre 1 — brancher une feuille de style et poser les premières règles.
  *
- * Chaque etape a un cas passant tire du `hint` du cours, et un cas d'echec qui
- * rate sur la seule exigence de l'etape.
+ * Chaque étape a un cas passant tiré du `hint` du cours, et un cas d'échec qui
+ * rate sur la seule exigence de l'étape.
  */
 
-/** Page complete avec le CSS donne dans un <style> place dans le <head>. */
+/** Page complète avec le CSS donné dans un <style> placé dans le <head>. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -33,7 +33,7 @@ describe("CSS chapitre 1 — etape 1 (<style> dans le <head>)", () => {
   });
 
   it("refuse un <style> place hors du <head>", () => {
-    // Echec cible : la balise existe, mais pas la ou l'etape la demande.
+    // Échec ciblé : la balise existe, mais pas là où l'étape la demande.
     const code = `<!DOCTYPE html>
 <html>
   <head><title>Console</title></head>

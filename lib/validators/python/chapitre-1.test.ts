@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * Python chapitre 1 — etapes 2 a 4.
+ * Python chapitre 1 — étapes 2 à 4.
  *
- * L'etape 1 est deja couverte par `lib/validators/all-chapter-1.test.ts`.
+ * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
  */
 
 describe("Python — etape 2 (fonction et appel)", () => {
@@ -28,9 +28,8 @@ print(calculer_xp(5))`;
   });
 
   it("refuse une fonction definie mais jamais appelee", () => {
-    // Echec cible : l'enonce demande de l'appeler ET d'afficher le resultat.
-    // La definition contient elle-meme « calculer_xp( » : une recherche naive
-    // de ce motif est satisfaite par la seule declaration.
+    // Échec ciblé : la déclaration contient déjà « calculer_xp( » ; une
+    // recherche naïve de ce motif la prendrait pour un appel.
     const code = `def calculer_xp(niveau, bonus):
     return niveau * 100 + bonus
 
@@ -77,7 +76,7 @@ for cle, valeur in pilote.items():
   });
 
   it("refuse un dictionnaire jamais enrichi d'un badge", () => {
-    // Echec cible : lecture et iteration presentes, ajout de cle absent.
+    // Échec ciblé : lecture et itération présentes, ajout de clé absent.
     const code = `pilote = {'nom': 'Lia', 'niveau': 5}
 print(pilote['niveau'])
 for cle, valeur in pilote.items():

@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-7";
 
 /**
- * Chapitre 7 — pseudo-classes et pseudo-elements.
+ * Chapitre 7 — pseudo-classes et pseudo-éléments.
  */
 
-/** Page complete avec le CSS donne. */
+/** Page complète avec le CSS donné. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -32,7 +32,7 @@ describe("CSS chapitre 7 — etape 1 (survol du bouton)", () => {
   });
 
   it("refuse une regle .btn:hover vide", () => {
-    // Echec cible : le selecteur est bon, il ne declare rien.
+    // Échec ciblé : le sélecteur est bon, il ne déclare rien.
     expect(valider(page(".btn:hover { }")).ok).toBe(false);
   });
 
@@ -53,7 +53,7 @@ describe("CSS chapitre 7 — etape 2 (focus visible sur le champ)", () => {
   });
 
   it("refuse un focus sans retour visuel identifiable", () => {
-    // Echec cible : la regle existe mais ne signale rien a l'oeil.
+    // Échec ciblé : la règle existe mais ne signale rien à l'œil.
     expect(valider(page(".field:focus { color: white; }")).ok).toBe(false);
   });
 });
@@ -70,8 +70,8 @@ describe("CSS chapitre 7 — etape 3 (pseudo-element avant la citation)", () => 
   });
 
   it("refuse justify-content, qui n'est pas la propriete content", () => {
-    // `justify-content` contient « content » precede d'un tiret : une
-    // verification par \b l'accepterait, et le pseudo-element resterait vide.
+    // `justify-content` contient « content » précédé d'un tiret : une
+    // vérification par \b l'accepterait, et le pseudo-élément resterait vide.
     expect(valider(page(".quote::before { justify-content: center; }")).ok).toBe(false);
   });
 });

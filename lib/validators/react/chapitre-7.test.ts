@@ -335,9 +335,8 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
 });
 
 /**
- * Garde-fou repris des chapitres 5 et 6 : un `hint` que son propre validateur
- * refuserait est un defaut grave — le Cadet suivrait l'indice affiche et
- * resterait bloque.
+ * Un `hint` refusé par son propre validateur bloquerait l'apprenant qui suit
+ * l'indice affiché.
  */
 describe("react/chapitre-7 — chaque hint passe son propre validateur", () => {
   it("valide les quatre hints", () => {

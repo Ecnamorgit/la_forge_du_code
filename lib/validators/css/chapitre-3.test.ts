@@ -2,14 +2,13 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-3";
 
 /**
- * Chapitre 3 — le modele de boite : dimensions, padding, margin, border.
+ * Chapitre 3 — le modèle de boîte : dimensions, padding, margin, border.
  *
- * Les etapes 2 et 3 acceptent la propriete courte comme les quatre variantes
- * directionnelles ; les tests couvrent les deux formes, sans quoi une
- * regression sur les variantes passerait inapercue.
+ * Les étapes 2 et 3 acceptent la propriété courte comme les quatre variantes
+ * directionnelles ; les tests couvrent les deux formes.
  */
 
-/** Page complete avec le CSS donne, et un element .module a styler. */
+/** Page complète avec le CSS donné, et un élément .module à styler. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -33,7 +32,7 @@ describe("CSS chapitre 3 — etape 1 (dimensions)", () => {
   });
 
   it("refuse width seul", () => {
-    // Echec cible : l'etape demande les deux dimensions.
+    // Échec ciblé : l'étape demande les deux dimensions.
     expect(valider(page(".module { width: 200px; }")).ok).toBe(false);
   });
 

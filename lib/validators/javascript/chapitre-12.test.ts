@@ -4,7 +4,7 @@ import { validators } from "./chapitre-12";
 /**
  * JS chapitre 12 — CRUD complet sur une API REST.
  *
- * Validateurs STATIQUES, comme au chapitre 11 : l'hote est fictif.
+ * Validateurs statiques, comme au chapitre 11 : l'hôte est fictif.
  */
 
 describe("JS chapitre 12 — etape 1 (lire la flotte)", () => {
@@ -19,7 +19,7 @@ if (response.ok) {
   });
 
   it("refuse un GET explicite avec des options", () => {
-    // Echec cible : l'etape enseigne que GET est le comportement par defaut.
+    // Échec ciblé : l'étape enseigne que GET est le comportement par défaut.
     const code = `const response = await fetch('https://api.codeforge.space/vaisseaux', { method: 'GET' });
 if (response.ok) {
   console.log(await response.json());
@@ -47,7 +47,7 @@ describe("JS chapitre 12 — etape 2 (creer)", () => {
   });
 
   it("refuse un body non serialise", () => {
-    // Echec cible : un objet brut en body ne part pas en JSON.
+    // Échec ciblé : un objet brut en body ne part pas en JSON.
     const code = `await fetch('https://api.codeforge.space/vaisseaux', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -78,7 +78,7 @@ describe("JS chapitre 12 — etape 3 (mettre a jour)", () => {
   });
 
   it("refuse un PUT sur la collection au lieu de la ressource", () => {
-    // Echec cible : sans l'id dans l'URL, on ne sait pas quoi remplacer.
+    // Échec ciblé : sans l'id dans l'URL, on ne sait pas quoi remplacer.
     const code = `await fetch('https://api.codeforge.space/vaisseaux', {
   method: 'PUT',
   body: JSON.stringify({ nom: 'Phoenix II', classe: 'combat' }),

@@ -1,10 +1,9 @@
 /**
- * Helpers to inspect CSS inside a <style>...</style> block.
- * Pragmatic regex-based — good enough for an initiation curriculum,
- * not a full parser.
+ * Inspection du CSS d'un bloc <style> par expressions régulières (pas un vrai
+ * parseur CSS).
  */
 
-/** Strip /* ... *\/ comments so they can't be used to fool property checks. */
+/** Retire les commentaires CSS, qui pourraient sinon tromper les vérifications. */
 export function stripCssComments(css: string): string {
   return css.replace(/\/\*[\s\S]*?\*\//g, "");
 }
@@ -14,7 +13,7 @@ export function extractStyleContent(code: string): string | null {
   return match ? stripCssComments(match[1]) : null;
 }
 
-/** Returns the body of a CSS rule for the given selector, or null. */
+/** Corps de la première règle CSS du sélecteur donné, ou null. */
 export function ruleBody(css: string, selector: string): string | null {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const re = new RegExp(
@@ -26,18 +25,15 @@ export function ruleBody(css: string, selector: string): string | null {
 }
 
 /**
- * Regex matching a property name at the start of a declaration.
- *
- * `\b` is not enough: in `background-color`, the `-` before `color` is a
- * non-word character, so `\bcolor` matches inside it. A step asking for
- * `h1 { color }` would then accept `h1 { background-color: red }` — a wrong
- * answer marked correct. The lookbehind rejects a preceding `-` or word char.
+ * Motif d'un nom de propriété en début de déclaration. `\b` ne suffit pas :
+ * dans `background-color`, le `-` est un non-mot, donc `\bcolor` y trouverait
+ * `color`. Le lookbehind refuse un `-` ou un caractère de mot devant.
  */
 function propertyRegex(property: string, suffix = ""): RegExp {
   return new RegExp(`(?<![-\\w])${property}\\s*:${suffix}`, "i");
 }
 
-/** Check if a given selector exists and its body contains a property name. */
+/** Vrai si une règle `selector` existe et déclare `property`. */
 export function hasProperty(
   css: string,
   selector: string,
@@ -48,7 +44,7 @@ export function hasProperty(
   return propertyRegex(property).test(body);
 }
 
-/** Property + value (any non-empty value). */
+/** Comme `hasProperty`, en testant aussi la valeur déclarée avec `valueRegex`. */
 export function hasPropertyWithValue(
   css: string,
   selector: string,
