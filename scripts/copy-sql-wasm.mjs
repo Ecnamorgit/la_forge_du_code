@@ -1,12 +1,10 @@
-// Copie les fichiers WebAssembly de sql.js dans public/sql, la ou le moteur SQL
-// les reclame (lib/sandbox/run-sql.ts). Execute via predev / prebuild, a cote
-// de copy-monaco.mjs. La sortie n'est pas versionnee (cf. .gitignore) : elle
-// suit toujours la version de sql.js installee.
+// Copie les fichiers WebAssembly de sql.js dans public/sql, où le moteur SQL
+// les réclame (lib/sandbox/run-sql.ts). Exécuté via predev / prebuild ; la
+// sortie n'est pas versionnée et suit la version de sql.js installée.
 //
-// Les deux variantes sont copiees. Le bundler du navigateur choisit
-// `sql-wasm-browser.js` (condition « browser » des exports de sql.js), qui
-// reclame `sql-wasm-browser.wasm` ; `sql-wasm.wasm` sert la variante par
-// defaut. N'heberger que le second a casse le cursus SQL (constat EXE-07).
+// Le bundler du navigateur choisit la variante « browser » de sql.js, qui
+// réclame `sql-wasm-browser.wasm` ; `sql-wasm.wasm` sert la variante par
+// défaut. Les deux sont donc copiées (audit EXE-07).
 import { copyFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";

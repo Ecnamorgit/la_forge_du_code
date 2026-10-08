@@ -1,19 +1,19 @@
 # Estimation de Tarification et Modèle de Rentabilité — Nebula Command
 
-Ce document présente une étude financière complète pour la plateforme **Nebula Command**. Il détaille les coûts d'infrastructure (charges), la stratégie de tarification (produits) et les projections de rentabilité selon différents scénarios d'acquisition.
+Ce document présente une estimation financière pour la plateforme **Nebula Command**. Il détaille les coûts d'infrastructure (charges), la stratégie de tarification (produits) et les projections de rentabilité selon différents scénarios d'acquisition.
 
 ---
 
-## 💸 1. Coûts d'Infrastructure Mensuels (Charges)
+## 1. Coûts d'Infrastructure Mensuels (Charges)
 
-L'architecture serverless du site (Next.js + Prisma + Supabase + Redis + Resend) permet de démarrer avec des coûts fixes extrêmement bas, évoluant de manière proportionnelle à l'audience.
+L'architecture serverless du site (Next.js + Prisma + Supabase + Redis + Resend) permet de démarrer avec des coûts fixes très bas, évoluant de manière proportionnelle à l'audience.
 
 ### Phase 1 : Démarrage (0 à 1 000 utilisateurs actifs)
 *   **Hébergement (Vercel) :** Plan Gratuit (Hobby) — `0 €`
 *   **Base de données (Supabase / Neon) :** Plan Gratuit — `0 €`
 *   **Emails (Resend) :** Plan Gratuit (jusqu'à 3 000 emails/mois) — `0 €`
 *   **Rate-limiting (Upstash Redis) :** Plan Gratuit (10 000 requêtes/jour) — `0 €`
-*   **Total Frais Fixes :** **`0 € / mois`** (Parfait pour la phase de test et de validation).
+*   **Total Frais Fixes :** **`0 € / mois`** (adapté à la phase de test et de validation).
 
 ### Phase 2 : Croissance (1 000 à 10 000 utilisateurs actifs)
 *   **Hébergement (Vercel Pro) :** Bande passante accrue, builds rapides — `20 $` (~18 €)
@@ -25,7 +25,7 @@ L'architecture serverless du site (Next.js + Prisma + Supabase + Redis + Resend)
 
 ---
 
-## 🎯 2. Stratégie de Tarification (Prix Mensuel)
+## 2. Stratégie de Tarification (Prix Mensuel)
 
 Pour s'insérer sur le marché tout en restant compétitif face à des abonnements à 30-40 €/mois (Codecademy), nous recommandons un **modèle Freemium** avec un abonnement premium mensuel ou annuel.
 
@@ -44,7 +44,7 @@ Pour s'insérer sur le marché tout en restant compétitif face à des abonnemen
 
 ---
 
-## 📈 3. Projections de Rentabilité (Scénarios)
+## 3. Projections de Rentabilité (Scénarios)
 
 Le taux de conversion moyen constaté sur les plateformes SaaS éducatives (du gratuit vers le payant) se situe entre **3 % et 5 %**.
 
@@ -71,8 +71,8 @@ Le taux de conversion moyen constaté sur les plateformes SaaS éducatives (du g
 
 ---
 
-## 💡 4. Conclusion sur le Modèle Économique
+## 4. Conclusion sur le Modèle Économique
 
-Le projet CodeForge/Nebula Command présente un **excellent ratio coût/rentabilité**. Grâce aux technos serverless, vous ne payez l'infrastructure que si vous gagnez déjà de l'argent. 
+Le projet La Forge du Code / Nebula Command présente un ratio coût/rentabilité favorable : avec des services serverless, les coûts d'infrastructure n'augmentent qu'avec l'audience.
 
-Avec un abonnement très attractif à **`9,99 € / mois`** (ou moins de **`7 €`** avec engagement annuel), le produit est très facile à vendre à des étudiants ou des développeurs juniors en reconversion professionnelle, tout en assurant un revenu récurrent solide dès la première centaine d'abonnés.
+Avec un abonnement à **`9,99 € / mois`** (ou moins de **`7 €`** avec engagement annuel), le produit vise les étudiants et les développeurs juniors en reconversion professionnelle. D'après le scénario B, une centaine d'abonnés suffit à dégager un revenu récurrent d'environ 1 000 € par mois.

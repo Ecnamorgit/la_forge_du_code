@@ -4,16 +4,12 @@ import { prisma } from "@/lib/db";
 
 /**
  * Révocation des sessions JWT après une réinitialisation de mot de passe
- * (constat SRV-03 de l'audit de sécurité du 2026-09-12).
+ * (audit SRV-03). Les JWT signés ne sont pas stockés : sans ce mécanisme, une
+ * session volée resterait valable jusqu'à son expiration.
  *
- * Les sessions sont des JWT signés, non stockés : rien ne les invalidait. Une
- * session volée restait valable jusqu'à son expiration, même après que la
- * victime avait réinitialisé son mot de passe.
- *
- * Le compte porte une `sessionVersion`. Le jeton emmène la version qui avait
- * cours à la connexion ; la réinitialisation du mot de passe l'incrémente. À
- * chaque vérification côté serveur (`auth()`), on compare : une divergence
- * signifie que le mot de passe a changé depuis, et la session est refusée.
+ * Le compte porte une `sessionVersion`, que le jeton reprend à la connexion et
+ * que la réinitialisation incrémente. À chaque `auth()`, une divergence fait
+ * refuser la session.
  */
 
 /** Incrémente la version de session : révoque tous les jetons déjà émis. */
@@ -25,11 +21,9 @@ export async function revoquerSessions(userId: string): Promise<void> {
 }
 
 /**
- * La version portée par le jeton est-elle encore celle du compte ?
- *
- * En cas d'erreur de base (indisponibilité passagère), on répond `true` :
- * déconnecter tout le monde à la moindre panne serait pire que le risque
- * couvert. La révocation est alors seulement différée, le temps de la panne.
+ * Vrai si la version portée par le jeton est encore celle du compte. En cas
+ * d'erreur de base, on répond `true` pour ne pas déconnecter tout le monde à
+ * la moindre panne : la révocation est seulement différée.
  */
 export async function sessionEstValide(userId: string, versionJeton: unknown): Promise<boolean> {
   if (typeof versionJeton !== "number") return false;

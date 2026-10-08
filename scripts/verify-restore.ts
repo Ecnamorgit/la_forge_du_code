@@ -1,24 +1,19 @@
 /**
- * Verifie qu'une base restauree est reellement exploitable (CF-19).
- *
- * Le runbook de `docs/DEPLOYMENT.md` demande de « verifier que l'app demarre et
- * que les comptes/progression sont presents ». C'etait une phrase ; ceci en
- * fait une commande, pour qu'un test de restauration soit reproductible plutot
- * que laisse a l'appreciation du moment.
+ * Vérifie qu'une base restaurée est exploitable (CF-19, runbook de
+ * `docs/DEPLOYMENT.md`).
  *
  * Usage :
  *   npx tsx scripts/verify-restore.ts "postgresql://user:pass@hote:5432/base"
  *
- * L'URL est un ARGUMENT OBLIGATOIRE, jamais lue depuis .env : ce script
- * s'execute contre une base jetable, et prendre par defaut le DATABASE_URL de
- * l'environnement reviendrait a viser la production.
+ * L'URL est obligatoire et jamais lue depuis .env : le DATABASE_URL de
+ * l'environnement viserait la production.
  *
- * Sortie : un tableau des volumes par table, puis un verdict.
- * Code de sortie 0 si la base est exploitable, 1 sinon.
+ * Affiche le volume de chaque table puis un verdict ; code de sortie 0 si la
+ * base est exploitable, 1 sinon.
  */
 import { Client } from "pg";
 
-/** Tables dont la presence conditionne le fonctionnement de l'application. */
+/** Tables dont la présence conditionne le fonctionnement de l'application. */
 const TABLES_ATTENDUES = [
   "User",
   "OneTimeToken",
@@ -31,12 +26,8 @@ const TABLES_ATTENDUES = [
 ] as const;
 
 /**
- * Tables qui doivent contenir au moins une ligne pour qu'on parle d'une
- * restauration reussie plutot que d'un schema vide.
- *
- * Volontairement limite a `User` : une base restauree peut legitimement n'avoir
- * ni badge ni progression (compte neuf), mais une base sans aucun compte n'est
- * pas une restauration — c'est une migration a blanc.
+ * Tables qui doivent contenir au moins une ligne. Seulement `User` : une base
+ * restaurée peut n'avoir ni badge ni progression, mais pas zéro compte.
  */
 const TABLES_NON_VIDES = ["User"] as const;
 
@@ -69,7 +60,7 @@ async function main(): Promise<void> {
   try {
     for (const table of TABLES_ATTENDUES) {
       try {
-        // Nom de table entre guillemets : le schema Prisma les cree en CamelCase.
+        // Guillemets requis : Prisma nomme les tables avec des majuscules.
         const r = await client.query(`SELECT COUNT(*)::int AS n FROM "${table}"`);
         const lignes = r.rows[0].n as number;
         volumes.push({ table, lignes });

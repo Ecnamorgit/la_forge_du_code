@@ -37,7 +37,7 @@ const CASES: Case[] = [
     pass:
       "CREATE TABLE pilotes (id INTEGER PRIMARY KEY, nom VARCHAR(50) NOT NULL, niveau INTEGER DEFAULT 1); " +
       "INSERT INTO pilotes (id, nom, niveau) VALUES (1, 'Lia', 5);",
-    // SQL is validated on real execution; supply the read-back the engine produces.
+    // SQL est validé sur une vraie exécution : on fournit l'état relu par le moteur.
     passCtx: {
       logs: [],
       error: null,

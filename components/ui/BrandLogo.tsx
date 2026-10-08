@@ -5,17 +5,13 @@ import PixelLogo from "./PixelLogo";
 type BrandLogoProps = {
   size?: number;
   className?: string;
-  /** Kept for call-site compatibility (was forwarded to next/image). */
+  /** Ignoré, conservé pour la compatibilité des appels existants. */
   priority?: boolean;
-  /** Main-menu extra: missed laser bolts escape and cross the screen. */
+  /** Menu principal : les tirs laser ratés s'échappent et traversent l'écran. */
   fx?: boolean;
 };
 
-/**
- * Brand logo — the Coalition Nebula fleet crest in true 2D pixel art
- * (see PixelLogo): spinning gold-bordered écusson (orange star over the
- * cyan `</>`) orbited by a human fighter chasing an alien saucer.
- */
+/** Logo de la marque : l'écusson de la flotte Coalition Nebula (voir PixelLogo). */
 export default function BrandLogo({
   size = 40,
   className = "",

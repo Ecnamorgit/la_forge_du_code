@@ -1,18 +1,14 @@
-// Déploie `main` en production sur Vercel, depuis une copie SANS dossier .git.
+// Déploie `main` en production sur Vercel, depuis une copie sans dossier .git.
 //
-// Pourquoi : le dépôt est privé et le projet est sur un compte Vercel Hobby.
-// Ce plan bloque tout déploiement dont l'auteur du commit n'est pas le compte
-// GitHub relié à Vercel — y compris `vercel --prod` lancé depuis le dépôt, car
-// la CLI joint les métadonnées git locales (état `BLOCKED`, que la CLI affiche
-// seulement comme `UNKNOWN`). Sans .git, aucune métadonnée, donc rien à
-// bloquer : le build tourne chez Vercel avec `vercel.json` et les variables du
-// projet, exactement comme un déploiement déclenché par git.
+// Sur le plan Hobby, un dépôt privé ne peut être déployé que si l'auteur du
+// commit est le compte GitHub relié à Vercel, y compris avec `vercel --prod`
+// lancé depuis le dépôt, car la CLI joint les métadonnées git locales. Sans
+// .git, le build tourne chez Vercel avec `vercel.json` et les variables du
+// projet.
 //
-// Préalables, une seule fois :  npx vercel login   (compte pluriface)
-//                                npx vercel link    (lie ce dossier au projet)
-// Usage :                        node scripts/deployer-production.mjs
-//
-// Cf. docs/DEPLOYMENT.md, section 4.
+// Préalables, une seule fois : `npx vercel login` (compte pluriface) puis
+// `npx vercel link`. Usage : node scripts/deployer-production.mjs
+// (cf. docs/DEPLOYMENT.md, section 4).
 
 import { execSync, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";

@@ -1,7 +1,7 @@
 /**
- * Arc narratif du cursus HTML — reconstruction de la base lunaire Selene.
- * Bible : docs/conception_storytelling.md. Tailles imposées par la spec
- * (intro 3-4, outro 2-3, finale 5-7) et vérifiées par html-arc.test.ts.
+ * Arc narratif du cursus HTML : reconstruction de la base lunaire Selene
+ * (docs/conception_storytelling.md). Nombre de scènes par cinématique (intro
+ * 3-4, outro 2-3, finale 5-7) vérifié par lib/cinematics/html-arc.test.ts.
  */
 
 import { cinematicId, type CourseCinematics } from "@/lib/cinematics/types";

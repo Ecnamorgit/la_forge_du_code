@@ -33,15 +33,6 @@ test("le codex est public et rend le lore", async ({ page }) => {
   await expect(page.getByRole("heading", { name: /spectre/i })).toBeVisible();
 });
 
-// Mis a jour par le chantier react-runtime (RT1-RT6) : le cursus React est
-// passe de "pas d'apercu, juste une etiquette d'analyse statique" a un vrai
-// apercu monte en direct dans une iframe a origine opaque. L'assertion
-// d'origine (`/Analyse statique/i`) verifiait la DECISION PRECEDENTE, delibe-
-// rement remplacee par ce chantier ; la garder aurait fait echouer ce test
-// pour la mauvaise raison (une regression de copie qui n'existe pas), en
-// masquant la vraie question posee ici : le cursus React n'affiche plus la
-// fausse iframe HTML qui rendait le JSX en desordre, et affiche desormais la
-// vraie.
 test("le cursus React a un vrai apercu en direct, plus l'ancienne etiquette d'analyse statique", async ({
   page,
 }) => {
@@ -53,13 +44,10 @@ test("le cursus React a un vrai apercu en direct, plus l'ancienne etiquette d'an
 
   await page.goto("/learn/react/chapitre-7");
 
-  // L'onglet de l'editeur ne doit plus mentir en annoncant du HTML.
+  // L'onglet de l'éditeur annonce du JSX, pas du HTML.
   await expect(page.getByText("App.jsx", { exact: true })).toBeVisible();
   await expect(page.getByText("index.html", { exact: true })).toHaveCount(0);
 
-  // Le panneau annonce ce qu'il fait vraiment : un vrai apercu, plus l'ancienne
-  // etiquette d'analyse statique ni l'iframe HTML generique qui rendait le
-  // JSX en desordre.
   await expect(page.getByText(/Aperçu du composant/i).first()).toBeVisible();
   await expect(page.getByText(/Analyse statique/i)).toHaveCount(0);
   await expect(page.locator('iframe[title="Apercu"]')).toHaveCount(0);

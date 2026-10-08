@@ -1,27 +1,20 @@
 /**
  * Garde d'environnement de la suite e2e.
  *
- * `e2e/global-setup.ts` fait un `DELETE FROM "User"` puis un `INSERT` contre
- * `process.env.DATABASE_URL`. Or le `.env` de ce dépôt pointe sur la base
- * Supabase du site EN PRODUCTION (docs/DEPLOYMENT.md) : sans garde, un simple
- * `pnpm test:e2e` écrit en production.
+ * `e2e/global-setup.ts` fait un `DELETE FROM "User"` puis un `INSERT` sur
+ * `process.env.DATABASE_URL`, alors que le `.env` du dépôt pointe sur la base
+ * Supabase de production (docs/DEPLOYMENT.md). La politique est donc fermée
+ * par défaut : on n'accepte que ce dont on est sûr.
  *
- * La politique est volontairement fermée par défaut : on n'accepte que ce dont
- * on est sûr. Refuser une base de test légitime coûte une variable
- * d'environnement à corriger ; laisser passer une base de production coûte des
- * comptes réels.
- *
- * Ce module est pur (aucun accès réseau, aucun accès disque) et testé sous
- * vitest — un garde-fou non testé n'est qu'une intention.
+ * Module pur (ni réseau ni disque), testé sous vitest.
  */
 
 /** Hôtes considérés comme locaux : la machine du développeur ou le service CI. */
 const HOTES_LOCAUX = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0"]);
 
 /**
- * Fragments d'hôte d'hébergeurs gérés. Refusés SANS EXCEPTION, y compris avec
- * l'échappatoire ci-dessous : aucune base de test ne devrait vivre là, et
- * c'est exactement la forme qu'a l'URL de production de ce projet.
+ * Fragments d'hôte d'hébergeurs gérés, refusés même avec la variable
+ * d'échappement : l'URL de production de ce projet a cette forme.
  */
 const HOTES_INTERDITS = [
   "supabase",
@@ -81,8 +74,8 @@ function baseDeDonnees(u: URL): string {
 /**
  * Lève si `raw` ne désigne pas manifestement une base de test.
  *
- * @param raw   la valeur de DATABASE_URL
- * @param env   l'environnement, pour l'échappatoire (injecté : fonction pure)
+ * @param raw valeur de DATABASE_URL
+ * @param env environnement, pour l'échappatoire (injecté : fonction pure)
  */
 export function assertTestDatabaseUrl(
   raw: string | undefined,
@@ -98,8 +91,7 @@ export function assertTestDatabaseUrl(
   try {
     url = new URL(raw);
   } catch {
-    // Illisible = indécidable = refusée. On ne devine pas sur une URL qui sert
-    // à effacer des lignes.
+    // URL illisible : cible indécidable, donc refusée.
     throw new UnsafeE2eDatabaseError(
       `DATABASE_URL n'est pas une URL analysable.\n\n${aide(raw)}`
     );
@@ -111,13 +103,9 @@ export function assertTestDatabaseUrl(
     );
   }
 
-  // `pg` laisse un paramètre de requête « host » (ou « hostaddr ») ÉCRASER le
-  // nom d'hôte de l'URL — pg-connection-string : « Only set the host if there
-  // is no equivalent query param ». Une URL d'apparence locale peut donc se
-  // connecter ailleurs :
-  //   postgresql://u:p@localhost:5432/codeforge_test?host=db.xxx.supabase.co
-  // On ne tente pas de démêler quel hôte gagne : une cible indécidable est
-  // refusée, comme une URL illisible.
+  // `pg` (pg-connection-string) laisse un paramètre « host » ou « hostaddr »
+  // écraser l'hôte de l'URL : `localhost:5432/codeforge_test?host=db.xxx.supabase.co`
+  // se connecte ailleurs. Cible indécidable, donc refusée.
   for (const cle of ["host", "hostaddr"]) {
     if (url.searchParams.has(cle)) {
       throw new UnsafeE2eDatabaseError(
@@ -152,7 +140,7 @@ export function assertTestDatabaseUrl(
   );
 }
 
-// --- L'application testée --------------------------------------------------
+// Application testée
 
 /**
  * Variable d'échappement pour tester une application réellement distante.
@@ -183,18 +171,14 @@ function aideApp(url: string): string {
 }
 
 /**
- * Lève si l'application visée par la suite n'est pas celle que l'on contrôle.
+ * Lève si l'application visée par la suite n'est pas locale. Complète
+ * `assertTestDatabaseUrl`, qui ne voit que la base ensemencée par
+ * `global-setup`, pas celle à laquelle l'application parle. Un serveur local
+ * déjà lancé et réutilisé par `reuseExistingServer` n'est pas détecté.
  *
- * Complète `assertTestDatabaseUrl`, qui ne voit que la base ensemencée par
- * `global-setup` — jamais celle à laquelle l'application parle réellement.
- * Sans cette seconde garde, une `E2E_BASE_URL` distante (ou un serveur de
- * développement déjà lancé sur le `.env` de production, réutilisé par
- * `reuseExistingServer`) laisse la première garde inspirer une confiance
- * qu'elle ne couvre pas.
- *
- * @param raw l'URL de base visée ; vide ou absente = l'application locale
- *            démarrée par Playwright, donc sûre
- * @param env l'environnement, pour l'échappatoire (injecté : fonction pure)
+ * @param raw URL de base visée ; vide ou absente pour l'application locale
+ *            démarrée par Playwright
+ * @param env environnement, pour l'échappatoire (injecté : fonction pure)
  */
 export function assertLocalAppUnderTest(
   raw: string | undefined,

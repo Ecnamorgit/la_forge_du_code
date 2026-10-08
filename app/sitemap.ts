@@ -3,14 +3,8 @@ import type { MetadataRoute } from "next";
 import { INDEXABLE_ROUTES } from "@/lib/public-routes";
 
 /**
- * Sitemap des pages publiques.
- *
- * La liste vient de `lib/public-routes.ts` pour qu'elle ne puisse pas dériver
- * de l'allowlist du middleware : une page déclarée ici mais protégée là-bas
- * ferait explorer un crawler contre une redirection vers /login.
- *
- * `changeFrequency` et `priority` sont des indications, pas des ordres — les
- * moteurs s'en servent peu. Ce qui compte est la présence des URL.
+ * Pages publiques, tirées de `lib/public-routes.ts` comme les règles du proxy,
+ * pour ne jamais lister une page qui redirige vers /login.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.APP_URL ?? "http://localhost:3000";

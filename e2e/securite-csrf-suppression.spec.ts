@@ -5,17 +5,12 @@ import bcrypt from "bcryptjs";
 import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
- * Constat SRV-09 de l'audit de sécurité du 2026-09-12 : les API qui modifient
- * des données ne vérifiaient pas l'origine de la requête, et la suppression
- * de compte ne redemandait pas le mot de passe.
+ * Contrôle de l'origine sur les API qui modifient des données, et mot de passe
+ * exigé pour supprimer le compte (audit SRV-09).
  *
- * - Origine : aujourd'hui, seul le cookie SameSite=Lax protège. Or SameSite
- *   raisonne par site : un sous-domaine (comme le futur bac à sable, constat
- *   EXE-03) enverrait des requêtes authentifiées. La requête est simulée ici
- *   avec un en-tête Origin étranger et la session du compte, ce que ferait un
- *   navigateur depuis ce sous-domaine.
- * - Suppression : une session volée, ou un ordinateur resté connecté,
- *   suffisait à effacer définitivement le compte.
+ * SameSite=Lax raisonne par site : un sous-domaine, comme celui du bac à
+ * sable, enverrait des requêtes authentifiées. On le simule avec un en-tête
+ * Origin étranger et la session du compte.
  *
  * Compte dédié, recréé à chaque exécution : le test le supprime.
  */
@@ -28,7 +23,7 @@ const CIBLE = {
 };
 
 async function recreerCible(): Promise<void> {
-  // AVANT toute connexion : on efface puis recrée une ligne de User.
+  // Avant toute connexion : on efface puis recrée une ligne de User.
   assertTestDatabaseUrl(process.env.DATABASE_URL);
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();

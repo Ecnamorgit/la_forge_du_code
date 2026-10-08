@@ -70,8 +70,7 @@ export default function StarWarsCrawl({
         </div>
       )}
 
-      {/* Toujours visible, dès la première seconde : un skip caché transforme
-          la curiosité en agacement. */}
+      {/* Bouton visible dès la première seconde. */}
       <div className="z-30 mt-2 flex items-center gap-4">
         <button
           onClick={onSkip ?? onComplete}

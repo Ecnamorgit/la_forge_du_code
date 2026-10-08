@@ -1,20 +1,15 @@
 /**
- * Document du bac à sable React servi depuis une origine dédiée (constat
- * EXE-03), par opposition à `buildPreviewSrcdoc` qui vit dans un `srcdoc`.
+ * Document d'aperçu React servi depuis l'origine dédiée du bac à sable (audit
+ * EXE-03).
  *
- * Différence essentielle, et cause du blocage relevé au ticket CF-15 (« servi
- * comme page autonome, le document n'envoie jamais preview:ready ») :
- * `buildPreviewSrcdoc` fige l'origine du parent à la construction et poste tout
- * vers elle. Un document autonome ne connaît pas cette origine — la figer
- * ferait poster la poignée de main vers sa propre origine, et le navigateur la
- * jetterait. Ici le document **apprend** l'origine du parent : il poste
- * `preview:ready` à `"*"` (une poignée de main ne porte aucun secret), puis
- * capture `event.origin` du premier message reçu du parent et n'adresse plus
- * qu'à elle. Chaque message entrant est en outre filtré par
- * `event.source === parent`.
+ * Il ne connaît pas l'origine du parent : la figer ferait poster la poignée de
+ * main vers sa propre origine, et le navigateur la jetterait. Il l'apprend
+ * donc : `preview:ready` est posté à `"*"` (aucun secret), puis l'origine du
+ * premier `preview:render` reçu de `parent` est retenue et seule visée
+ * ensuite. Tout message entrant est filtré par `event.source === parent`.
  *
- * Le runtime React est chargé par URL relative : il est servi par la même
- * application sur l'origine dédiée (`/react-runtime/runtime.js`).
+ * Le runtime React est chargé par URL relative : la même application le sert
+ * sur l'origine dédiée.
  */
 
 import { PREVIEW_MOUNT_NAME_RE } from "./react-preview";

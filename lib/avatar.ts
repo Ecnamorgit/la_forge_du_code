@@ -1,8 +1,8 @@
 /**
- * Avatar customization options, stored on the User row (species, uniformColor,
- * role). Species and uniform colour are purely cosmetic. The role also drives
- * the course recommendations (onboarding result + /learn page) via
- * ROLE_RECOMMENDED_COURSES below — no chapter is ever locked by it.
+ * Options de l'avatar, stockées sur la ligne User (species, uniformColor,
+ * role). Espèce et couleur sont cosmétiques ; le rôle oriente aussi les
+ * recommandations de cursus (ROLE_RECOMMENDED_COURSES) sans jamais verrouiller
+ * de chapitre.
  */
 
 export type SpeciesId =
@@ -41,14 +41,13 @@ export interface SpeciesDef {
 export interface UniformColorDef {
   id: UniformColorId;
   label: string;
-  /** Used for border + glow accents around the avatar. */
+  /** Bordure et halo autour de l'avatar. */
   hex: string;
-  /** Lower-opacity version for backgrounds. */
+  /** Version moins opaque, pour les fonds. */
   glow: string;
   /**
-   * Vrai quand la couleur se mérite au lieu d'être offerte à la création de
-   * l'avatar. Elle vit dans le catalogue lib/unlocks.ts (axe "uniform") et ne
-   * s'obtient que par `setCosmetics`, jamais par l'écran /avatar.
+   * Vrai pour une couleur méritée (catalogue lib/unlocks.ts, axe "uniform"),
+   * qui n'est pas proposée à la création de l'avatar.
    */
   unlockable?: boolean;
 }
@@ -107,8 +106,8 @@ export const UNIFORM_COLORS: UniformColorDef[] = [
   { id: "purple", label: "Violet", hex: "#b067ff", glow: "rgba(176,103,255,0.35)" },
   { id: "gold", label: "Or", hex: "#ffc844", glow: "rgba(255,200,68,0.35)" },
 
-  // Méritées : teintes choisies pour rester lisibles sur le fond sombre de
-  // l'application (luminosité proche des cinq offertes, jamais un ton mat).
+  // Méritées : teintes lisibles sur le fond sombre, de luminosité proche des
+  // cinq offertes.
   {
     id: "rouge-spectre",
     label: "Rouge Spectre",
@@ -139,11 +138,7 @@ export const UNIFORM_COLORS: UniformColorDef[] = [
   },
 ];
 
-/**
- * Les seules couleurs proposées à la création de l'avatar. Les couleurs
- * méritées en sont exclues : sans cette liste, l'écran /avatar les offrirait
- * gratuitement et le déblocage ne vaudrait plus rien.
- */
+/** Couleurs proposées à la création de l'avatar, sans les couleurs méritées. */
 export const BASE_UNIFORM_COLORS: UniformColorDef[] = UNIFORM_COLORS.filter(
   (c) => !c.unlockable
 );
@@ -180,9 +175,8 @@ export const ROLES: RoleDef[] = [
 ];
 
 /**
- * Course slugs recommended per role. Single source of truth used by the
- * onboarding result screen and the /learn page. Display names come from
- * lib/courses-catalog.ts (getCourseInfo).
+ * Cursus recommandés par rôle, pour l'écran de fin d'onboarding et la page
+ * /learn. Les noms affichés viennent de lib/courses-catalog.ts (getCourseInfo).
  */
 export const ROLE_RECOMMENDED_COURSES: Record<RoleId, string[]> = {
   pilote: ["html", "css", "javascript", "react"],
@@ -191,7 +185,7 @@ export const ROLE_RECOMMENDED_COURSES: Record<RoleId, string[]> = {
   explorateur: ["git", "python", "html", "javascript"],
 };
 
-/** Lookup helpers. Return undefined for unknown ids. */
+/** Recherche par id ; undefined si l'id est inconnu. */
 export function getSpecies(id: string | null | undefined): SpeciesDef | undefined {
   return id ? SPECIES.find((s) => s.id === id) : undefined;
 }
@@ -204,7 +198,7 @@ export function getRole(id: string | null | undefined): RoleDef | undefined {
   return id ? ROLES.find((r) => r.id === id) : undefined;
 }
 
-/** Type guards for runtime validation (used on the server side). */
+/** Gardes de type pour la validation à l'exécution. */
 export function isSpeciesId(v: unknown): v is SpeciesId {
   return typeof v === "string" && SPECIES.some((s) => s.id === v);
 }
@@ -212,10 +206,8 @@ export function isUniformColorId(v: unknown): v is UniformColorId {
   return typeof v === "string" && UNIFORM_COLORS.some((c) => c.id === v);
 }
 /**
- * Variante stricte pour la route /api/me/avatar : elle refuse les couleurs qui
- * se méritent. `isUniformColorId` reconnaît TOUTES les couleurs (il sert à
- * l'affichage, qui doit savoir rendre une couleur débloquée) ; l'accepter à
- * l'entrée de l'avatar donnerait les quatre déblocables à qui les demande.
+ * Vrai pour une couleur offerte. `setAvatar` s'en sert pour exiger la
+ * possession des couleurs méritées, que `isUniformColorId` accepte aussi.
  */
 export function isBaseUniformColorId(v: unknown): v is UniformColorId {
   return typeof v === "string" && BASE_UNIFORM_COLORS.some((c) => c.id === v);

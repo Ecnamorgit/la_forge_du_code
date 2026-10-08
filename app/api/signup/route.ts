@@ -26,10 +26,7 @@ const signupSchema = z.object({
     .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre"),
 });
 
-/**
- * Même réponse que l'adresse soit libre ou déjà inscrite (constat SRV-05) :
- * la page affiche « vérifie ta boîte mail » dans les deux cas.
- */
+/** Même réponse que l'adresse soit libre ou déjà inscrite (audit SRV-05). */
 function reponseInscription(mail: { ok: boolean; error?: string }) {
   return NextResponse.json({
     ok: true,
@@ -42,10 +39,10 @@ export async function POST(request: Request) {
   const refus = crossOriginRefusal(request);
   if (refus) return refus;
 
-  // Throttle account creation per IP to curb spam / mass signups.
+  // Limite par IP contre les inscriptions en masse.
   const limit = await rateLimit(`signup:${getClientIp(request)}`, {
     limit: 5,
-    windowMs: 60 * 60 * 1000, // 5 accounts / hour / IP
+    windowMs: 60 * 60 * 1000,
   });
   if (!limit.ok) return tooManyRequests(limit.retryAfter);
 
@@ -68,19 +65,18 @@ export async function POST(request: Request) {
   const { email, username, password } = parsed.data;
   const emailLower = email.toLowerCase();
 
-  // Adresse déjà inscrite (constat SRV-05) : on ne le dit pas à l'écran. Le
-  // titulaire reçoit un e-mail « tu as déjà un compte », et la réponse est
-  // celle d'une inscription réussie. Le hachage est calculé quand même, pour
-  // que le temps de réponse ne trahisse pas la différence.
+  // Adresse déjà inscrite : le titulaire reçoit un e-mail « tu as déjà un
+  // compte » et la réponse est celle d'une inscription réussie. Le hachage est
+  // calculé quand même pour que le temps de réponse ne trahisse rien.
   const dejaInscrit = await prisma.user.findUnique({
     where: { email: emailLower },
     select: { id: true },
   });
   if (dejaInscrit) {
     await bcrypt.hash(password, 12);
-    // Au plus 3 avis par adresse et par jour : l'inscription ne doit pas
-    // servir à inonder la boîte d'un tiers. Au-delà, on n'envoie plus, sans le
-    // dire. La clé est une empreinte : l'adresse n'apparaît pas dans le limiteur.
+    // Au plus 3 avis par adresse et par jour, pour ne pas inonder la boîte
+    // d'un tiers. La clé est une empreinte : l'adresse n'apparaît pas dans le
+    // limiteur.
     const empreinte = crypto.createHash("sha256").update(emailLower).digest("hex");
     const avis = await rateLimit(`signup-exists:${empreinte}`, {
       limit: 3,
@@ -92,7 +88,7 @@ export async function POST(request: Request) {
   }
 
   // Les pseudos sont publics (classement) : dire qu'un pseudo est pris ne
-  // révèle rien, et l'utilisateur doit pouvoir en choisir un autre.
+  // révèle rien.
   const pseudoPris = await prisma.user.findUnique({
     where: { username },
     select: { id: true },
@@ -104,8 +100,8 @@ export async function POST(request: Request) {
     );
   }
 
-  // Cost 12: the 2026-recommended bcrypt work factor (also taught in the
-  // Security course). Slower than 10 but materially harder to brute-force.
+  // Coût 12, valeur recommandée en 2026 (aussi enseignée dans le cours de
+  // sécurité).
   const hashed = await bcrypt.hash(password, 12);
 
   const user = await prisma.user.create({
@@ -114,11 +110,9 @@ export async function POST(request: Request) {
       username,
       password: hashed,
       name: username,
-      // Pas de `lastVisit` ici : le champ signifie « dernier jour ACTIF », et
-      // s'inscrire n'est pas travailler. Le semer au jour de l'inscription
-      // ferait afficher 2 jours de liaison à qui valide sa première étape le
-      // lendemain, et « liaison rompue » à qui la valide deux jours plus tard.
-      // Le défaut `""` du schéma est le bon : jamais actif.
+      // Pas de `lastVisit` : le champ désigne le dernier jour actif, et
+      // s'inscrire n'en est pas un. Le semer fausserait la liaison affichée
+      // après la première étape.
     },
     select: { id: true, email: true },
   });
@@ -126,7 +120,7 @@ export async function POST(request: Request) {
   const token = await createToken({ userId: user.id, kind: "email_verify" });
   const mailRes = await sendVerificationEmail({ to: user.email, token });
 
-  // Comptage minimal, sans identifiant : ne doit jamais faire échouer l'inscription.
+  // Comptage anonyme, qui ne doit pas faire échouer l'inscription.
   await prisma.trackEvent.create({ data: { name: "inscription" } }).catch(() => {});
 
   return reponseInscription(mailRes);

@@ -10,7 +10,7 @@ function getAudio(): AudioContext {
 
 const SOUND_PREF_KEY = "nebula-sound-enabled-v1";
 
-/** True iff the user hasn't muted sound. Default: enabled. */
+/** Vrai si l'utilisateur n'a pas coupé le son (activé par défaut). */
 export function isSoundEnabled(): boolean {
   if (typeof window === "undefined") return true;
   return localStorage.getItem(SOUND_PREF_KEY) !== "false";
@@ -19,7 +19,7 @@ export function isSoundEnabled(): boolean {
 export function setSoundEnabled(enabled: boolean): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(SOUND_PREF_KEY, enabled ? "true" : "false");
-  // Other tabs / components that subscribe to changes get notified.
+  // Prévient les composants de l'onglet abonnés au changement.
   window.dispatchEvent(new CustomEvent("nebula:sound-changed", { detail: enabled }));
 }
 
@@ -28,7 +28,7 @@ export function unlockAudio(): void {
   getAudio();
 }
 
-/** Micro bip SF de déploiement — joué à chaque balise fermée en temps réel */
+/** Bip court de déploiement (balise fermée, scène suivante). */
 export function playDeployBip(): void {
   if (!isSoundEnabled()) return;
   try {
@@ -49,12 +49,12 @@ export function playDeployBip(): void {
   }
 }
 
-/** System online — jingle de validation d'étape (montée SF) */
+/** « Système en ligne » : jingle de validation d'étape. */
 export function playSystemOnline(): void {
   if (!isSoundEnabled()) return;
   try {
     const ctx = getAudio();
-    // Rising sci-fi arpeggio: E5 → G#5 → B5 → E6
+    // Arpège montant : E5, G#5, B5, E6.
     const notes = [659.25, 830.61, 987.77, 1318.5];
     const times = [0, 0.1, 0.2, 0.32];
     const gains = [0.2, 0.18, 0.16, 0.25];
@@ -72,7 +72,7 @@ export function playSystemOnline(): void {
       osc.start(t);
       osc.stop(t + 0.25);
     });
-    // Shimmer pad at end
+    // Nappe scintillante finale.
     [1318.5, 1567.98, 1975.53].forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const g = ctx.createGain();
@@ -92,12 +92,12 @@ export function playSystemOnline(): void {
   }
 }
 
-/** Brèche détectée — alarm buzz descendant */
+/** « Brèche détectée » : alarme descendante. */
 export function playBreach(): void {
   if (!isSoundEnabled()) return;
   try {
     const ctx = getAudio();
-    // Two-tone alarm
+    // Alarme à deux tons.
     [0, 0.08].forEach((delay) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -117,7 +117,7 @@ export function playBreach(): void {
   }
 }
 
-/** Fanfare finale de chapitre — victoire SF épique */
+/** Fanfare de fin de chapitre. */
 export function playFanfare(): void {
   if (!isSoundEnabled()) return;
   try {
@@ -138,7 +138,7 @@ export function playFanfare(): void {
       o.start(t);
       o.stop(t + 0.26);
     });
-    // Final chord shimmer
+    // Accord final scintillant.
     [1319, 1568, 1976, 2637].forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const g = ctx.createGain();

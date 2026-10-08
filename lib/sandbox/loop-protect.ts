@@ -2,25 +2,20 @@ import { parse } from "acorn";
 import { simple } from "acorn-walk";
 
 /**
- * Protection des boucles du code de l'apprenant (constat EXE-02 de l'audit de
- * sécurité du 2026-09-12).
+ * Protection des boucles du code de l'apprenant (audit EXE-02).
  *
- * Le JavaScript de l'apprenant s'exécute dans une iframe `srcdoc` sandboxée
- * qui, dans Chromium, partage le fil d'exécution de la page : une boucle sans
- * fin fige l'onglet entier, et aucun délai posé par la page ne peut s'en
- * remettre (cf. loop-guard.ts). On ne peut pas non plus passer par un Web
- * Worker : plusieurs chapitres manipulent le DOM.
+ * Dans Chromium, l'iframe sandboxée qui exécute ce code peut partager le fil
+ * d'exécution de la page : une boucle sans fin fige alors l'onglet entier, et
+ * aucun délai posé par la page ne s'en remet. Un Web Worker n'est pas une
+ * option : plusieurs chapitres manipulent le DOM.
  *
- * On instrumente donc le code avant de l'exécuter, comme le font CodePen ou
- * JSBin : chaque corps de boucle commence par un appel à une garde. La garde
- * mesure la durée du traitement synchrone en cours ; au-delà du délai, elle
- * lève une erreur, et la boucle s'arrête au lieu de figer l'onglet.
+ * On instrumente donc le code avant de l'exécuter, comme CodePen ou JSBin :
+ * chaque corps de boucle commence par un appel à une garde, qui lève une
+ * erreur quand le traitement synchrone en cours dépasse le délai.
  *
- * La durée est remise à zéro par une microtâche, qui ne s'exécute qu'une fois
- * le traitement synchrone terminé. Une boucle sans fin ne rend jamais la main,
- * donc la microtâche ne passe jamais et la garde finit par lever. Un rendu
- * React déclenché bien plus tard repart de zéro : il n'est pas interrompu à
- * tort.
+ * La durée est remise à zéro par une microtâche, qui ne passe qu'une fois le
+ * traitement synchrone terminé : une boucle sans fin finit donc par lever, et
+ * un rendu React déclenché plus tard repart de zéro.
  */
 
 /** Délai au-delà duquel un traitement synchrone qui boucle est interrompu. */

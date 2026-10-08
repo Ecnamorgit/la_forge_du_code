@@ -1,10 +1,8 @@
 /**
- * Per-step SQL setup for the SQL cursus. Each step runs against a fresh
- * in-memory database (see lib/sandbox/run-sql.ts):
- *  - `seed`   : tables/data created BEFORE the student's SQL (so a SELECT step
- *               has something to query; the CREATE step starts from empty).
- *  - `verify` : a read-back query run AFTER the student's SQL, used to validate
- *               steps whose effect isn't a visible result set (INSERT/UPDATE/DELETE).
+ * Préparation SQL de chaque étape du cursus SQL, exécutée sur une base en
+ * mémoire neuve. `seed` crée tables et données avant le SQL de l'apprenant ;
+ * `verify` relit l'état ensuite, pour valider les étapes sans résultat visible
+ * (INSERT, UPDATE, DELETE).
  */
 
 import type { SqlRunOptions } from "./run-sql";
@@ -20,16 +18,16 @@ const PILOTES_VAISSEAUX_SEED =
   "CREATE TABLE vaisseaux (id INTEGER PRIMARY KEY, modele VARCHAR(50), pilote_id INTEGER);" +
   "INSERT INTO vaisseaux (id, modele, pilote_id) VALUES (1,'Falcon',1),(2,'Comet',1),(3,'Nova',3);";
 
-/** Indexed by chapter slug, one entry per step (same order as the steps). */
+/** Par slug de chapitre, une entrée par étape, dans l'ordre des étapes. */
 const SQL_STEP_CONFIG: Record<string, SqlRunOptions[]> = {
   "chapitre-1": [
-    // Step 1 — CREATE TABLE + INSERT (empty DB; read back the new table).
+    // Étape 1 : CREATE TABLE + INSERT sur une base vide, puis relecture.
     { verify: "SELECT id, nom, niveau FROM pilotes ORDER BY id" },
-    // Step 2 — SELECT on a pre-populated table.
+    // Étape 2 : SELECT sur une table préremplie.
     { seed: PILOTES_SEED },
-    // Step 3 — UPDATE + DELETE (read back the resulting state).
+    // Étape 3 : UPDATE + DELETE, puis relecture.
     { seed: PILOTES_SEED, verify: "SELECT id, niveau FROM pilotes ORDER BY id" },
-    // Step 4 — INNER JOIN across two related tables.
+    // Étape 4 : INNER JOIN entre deux tables liées.
     { seed: PILOTES_VAISSEAUX_SEED },
   ],
 };

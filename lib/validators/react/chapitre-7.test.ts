@@ -68,7 +68,7 @@ function Reacteur() {
 }`;
     const r = etape1!(code);
     expect(r.ok).toBe(false);
-    expect(r.msg).toMatch(/jamais appele/);
+    expect(r.msg).toMatch(/jamais appelé/);
   });
 });
 
@@ -314,7 +314,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
 }`;
     const r = etape4!(code);
     expect(r.ok).toBe(false);
-    expect(r.msg).toMatch(/preceder|premiere ligne/);
+    expect(r.msg).toMatch(/précéder|première ligne/);
   });
 
   it("accepte un ternaire comme comportement conditionnel", () => {
@@ -335,9 +335,8 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
 });
 
 /**
- * Garde-fou repris des chapitres 5 et 6 : un `hint` que son propre validateur
- * refuserait est un defaut grave — le Cadet suivrait l'indice affiche et
- * resterait bloque.
+ * Un `hint` refusé par son propre validateur bloquerait l'apprenant qui suit
+ * l'indice affiché.
  */
 describe("react/chapitre-7 — chaque hint passe son propre validateur", () => {
   it("valide les quatre hints", () => {

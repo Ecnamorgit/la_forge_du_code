@@ -120,7 +120,7 @@ Tous les consommateurs d'un contexte se re-rendent quand sa \`value\` change. Un
       previewMount: "Alerte",
       narrator:
         "Cadet, quand plusieurs actions modifient le même état selon des règles précises, useState eparpille tes règles en autant de handlers. useReducer les rassemble au même endroit : une fonction qui prend l'état et une action, et renvoie le nouvel état. Fais que tes composants n'envoient que des intentions.",
-      hint: "function reducteur(état, action) {\n  switch (action.type) {\n    case 'monter':\n      return { niveau: état.niveau + 1 };\n    case 'descendre':\n      return { niveau: état.niveau - 1 };\n    default:\n      return état;\n  }\n}\n\nfunction Alerte() {\n  const [état, dispatch] = useReducer(reducteur, { niveau: 0 });\n  return (\n    <div>\n      Niveau : {état.niveau}\n      <button onClick={() => dispatch({ type: 'monter' })}>Monter</button>\n      <button onClick={() => dispatch({ type: 'descendre' })}>Descendre</button>\n    </div>\n  );\n}",
+      hint: "function reducteur(etat, action) {\n  switch (action.type) {\n    case 'monter':\n      return { niveau: etat.niveau + 1 };\n    case 'descendre':\n      return { niveau: etat.niveau - 1 };\n    default:\n      return etat;\n  }\n}\n\nfunction Alerte() {\n  const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });\n  return (\n    <div>\n      Niveau : {etat.niveau}\n      <button onClick={() => dispatch({ type: 'monter' })}>Monter</button>\n      <button onClick={() => dispatch({ type: 'descendre' })}>Descendre</button>\n    </div>\n  );\n}",
       briefing: {
         title: "useReducer : centraliser les transitions",
         content: `
@@ -181,7 +181,7 @@ Pour un booléen isole, \`useState\` reste plus lisible.
       previewMount: "App",
       narrator:
         "Voici la combinaison qui fait tenir les vraies applications : le reducteur tient l'état et ses règles, le contexte le diffuse. N'importe quel descendant peut alors lire l'état et déclencher une transition, sans qu'aucun etage intermédiaire ne transporte quoi que ce soit. Termine la manoeuvre, Cadet.",
-      hint: "const ContexteAlerte = createContext(null);\n\nfunction reducteur(état, action) {\n  switch (action.type) {\n    case 'monter':\n      return { niveau: état.niveau + 1 };\n    default:\n      return état;\n  }\n}\n\nfunction Console() {\n  const { état, dispatch } = useContext(ContexteAlerte);\n  return (\n    <button onClick={() => dispatch({ type: 'monter' })}>\n      Alerte {état.niveau}\n    </button>\n  );\n}\n\nfunction App() {\n  const [état, dispatch] = useReducer(reducteur, { niveau: 0 });\n  return (\n    <ContexteAlerte.Provider value={{ etat, dispatch }}>\n      <Console />\n    </ContexteAlerte.Provider>\n  );\n}",
+      hint: "const ContexteAlerte = createContext(null);\n\nfunction reducteur(etat, action) {\n  switch (action.type) {\n    case 'monter':\n      return { niveau: etat.niveau + 1 };\n    default:\n      return etat;\n  }\n}\n\nfunction Console() {\n  const { etat, dispatch } = useContext(ContexteAlerte);\n  return (\n    <button onClick={() => dispatch({ type: 'monter' })}>\n      Alerte {etat.niveau}\n    </button>\n  );\n}\n\nfunction App() {\n  const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });\n  return (\n    <ContexteAlerte.Provider value={{ etat, dispatch }}>\n      <Console />\n    </ContexteAlerte.Provider>\n  );\n}",
       briefing: {
         title: "Contexte plus reducteur",
         content: `

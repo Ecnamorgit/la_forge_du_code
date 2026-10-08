@@ -4,8 +4,8 @@ interface XPBarProps {
   /** XP totale du chapitre en cours. */
   maxXp: number;
   /**
-   * Niveau du COMPTE (levelFromXp(totalXp)), pas du chapitre : échelle
-   * distincte de `xp`/`maxXp` ci-dessus, à fournir par l'appelant.
+   * Niveau du compte (levelFromXp(totalXp)), pas du chapitre : échelle
+   * distincte de `xp` et `maxXp`.
    */
   accountLevel: number;
 }

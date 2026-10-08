@@ -3,13 +3,10 @@ import { describe, it, expect } from "vitest";
 import { parseEnv } from "./env";
 
 /**
- * Constat SRV-01 de l'audit de sécurité du 2026-09-12 : rien n'empêchait de
- * déployer sur Vercel sans Redis, alors que la limitation de débit n'y a de
- * sens que partagée entre les instances serverless.
- *
- * L'exigence porte sur Vercel (`VERCEL=1`), pas sur toute production : un
- * `next start` sur une seule instance (CI, serveur unique) compte juste en
- * mémoire, et n'a pas besoin de Redis.
+ * Audit SRV-01 : sur Vercel, la limitation de débit n'a de sens que partagée
+ * entre les instances serverless. L'exigence porte sur Vercel (`VERCEL=1`) et
+ * non sur toute production : un `next start` sur une seule instance compte
+ * juste en mémoire.
  */
 
 const PRODUCTION = {

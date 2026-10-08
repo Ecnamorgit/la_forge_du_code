@@ -2,17 +2,16 @@ import type { Validator } from "@/data/courses/html/types";
 import { logsContain, logsInclude, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
-  return error ? `Erreur d'execution : ${error}` : null;
+  return error ? `Erreur d'exécution : ${error}` : null;
 }
 
 export const validators: Validator[] = [
-  // Step 1: object with >= 3 properties, logged
+  // Étape 1 : un objet d'au moins 3 propriétés, affiché
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
-    // Target the actual pilote object literal.
     const objMatch = stripped.match(
       /\b(?:const|let|var)\s+pilote\s*=\s*\{([\s\S]*?)\}\s*;?/
     );
@@ -41,7 +40,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: read .name + modify .level
+  // Étape 2 : lecture de .name et modification de .level
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -68,7 +67,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: .toUpperCase + .length
+  // Étape 3 : .toUpperCase() et .length
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -98,13 +97,13 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Step 4: method greet() returning "Salut <name>"
+  // Étape 4 : méthode greet() qui renvoie "Salut <name>"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
-    // Accept either `pilote.greet = function()...` or method shorthand `greet() { ... }`
+    // Forme raccourcie `greet() {}`, ou `greet` affectée à une fonction.
     if (
       !/\bgreet\s*\(\s*\)\s*\{/.test(stripped) &&
       !/\bgreet\s*[:=]\s*function/.test(stripped) &&
@@ -112,7 +111,7 @@ export const validators: Validator[] = [
     ) {
       return {
         ok: false,
-        msg: "Ajoute une méthode greet a pilote.",
+        msg: "Ajoute une méthode greet à pilote.",
       };
     }
     if (!/\bthis\.name\b/.test(stripped)) {
@@ -129,7 +128,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Objet intelligent. Cursus JS termine !",
+      msg: "Objet intelligent.",
       objList: ["o4a", "o4b"],
       final: true,
     };

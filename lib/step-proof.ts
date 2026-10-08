@@ -2,17 +2,14 @@ import { getValidators } from "@/lib/validators";
 import { isRuntimeChapter } from "@/lib/validators/runtime";
 
 /**
- * Preuve de réussite d'une étape, vérifiée par le serveur (constat EXE-01 de
- * l'audit de sécurité du 2026-09-12).
+ * Preuve de réussite d'une étape, vérifiée par le serveur (audit EXE-01). Le
+ * navigateur envoie le code qui vient de passer le validateur et le serveur
+ * rejoue ce validateur : il faut soumettre une solution, pas seulement
+ * déclarer l'étape.
  *
- * Le navigateur envoie le code qui vient de passer le validateur ; le serveur
- * rejoue ce même validateur. Une étape ne se déclare donc plus : il faut
- * soumettre une solution qui la valide, comme le fait l'apprenant.
- *
- * Exception : les chapitres jugés sur une exécution (`RUNTIME_CHAPTERS`). Les
- * revalider demanderait d'exécuter le code de l'apprenant sur le serveur, ce
- * que l'architecture exclut. Leur réussite reste déclarée : risque résiduel
- * documenté dans docs/audit-securite/corrections/EXE-01.md.
+ * Exception : les chapitres jugés sur une exécution (`RUNTIME_CHAPTERS`), qu'il
+ * faudrait exécuter côté serveur. Leur réussite reste déclarée ; risque
+ * résiduel décrit dans docs/audit-securite/corrections/EXE-01.md.
  */
 
 /** Taille maximale du code soumis : borne le coût des expressions régulières des validateurs. */

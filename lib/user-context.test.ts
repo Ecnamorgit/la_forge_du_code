@@ -30,10 +30,8 @@ describe("decideUserMode", () => {
     });
   });
 
-  // Le cœur du Correctif B : un utilisateur déjà authentifié dont la session
-  // expire (JWT expiré, refetch au focus) ne doit JAMAIS retomber en mode
-  // essai. Il doit être redirigé vers /login, pas basculé silencieusement
-  // vers le stockage local.
+  // Un utilisateur déjà authentifié dont la session expire (JWT expiré,
+  // relecture au focus) est redirigé vers /login, jamais basculé en essai.
   it("expiration en cours d'usage : redirige, ne bascule jamais en essai", () => {
     const decision = decideUserMode("unauthenticated", { everAuthenticated: true });
     expect(decision).toEqual({
@@ -69,7 +67,7 @@ describe("decideUserMode", () => {
     expect(decision.sessionExpired).toBe(false);
   });
 
-  // Parcours complet simulant le scénario du bug : connecté -> expiration.
+  // Parcours complet : connecté, puis session expirée.
   it("séquence session expirée : loading -> authenticated -> unauthenticated redirige", () => {
     let state: UserModeState = { everAuthenticated: false };
     state = decideUserMode("loading", state);

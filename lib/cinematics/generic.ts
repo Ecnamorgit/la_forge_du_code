@@ -1,7 +1,6 @@
 /**
- * Cinématiques génériques de repli, utilisées tant qu'un cursus n'a pas son
- * arc écrit (data/courses/<slug>/cinematics.ts). Choix déterministe par index
- * de chapitre — même patron que SPECTRE_TAUNTS (narrative-feedback).
+ * Cinématiques génériques, utilisées tant qu'un cursus n'a pas d'arc écrit
+ * (`data/courses/<slug>/cinematics.ts`).
  */
 
 import { COURSES_CATALOG } from "@/lib/courses-catalog";
@@ -42,8 +41,8 @@ export function genericIntro(course: string): Cinematic {
 }
 
 /**
- * Paires de scènes d'outro génériques. La rotation est indexée sur le numéro
- * du chapitre pour rester déterministe et éviter la répétition immédiate.
+ * Paires de scènes d'outro, choisies par rang de chapitre : le choix est
+ * déterministe et deux chapitres consécutifs ne se répètent pas.
  */
 const GENERIC_OUTROS: ReadonlyArray<readonly [string, string]> = [
   [
@@ -71,8 +70,7 @@ export function genericChapterOutro(course: string, chapterSlug: string): Cinema
     GENERIC_OUTROS[chapterRank(chapterSlug) % GENERIC_OUTROS.length];
   const scenes: CinematicScene[] = [
     { id: 0, speaker: "system", narration: systemLine, visual: "station", fx: "victory" },
-    // `helpLine` porte déjà ses guillemets (cf. GENERIC_OUTROS) : ne pas
-    // l'encadrer une seconde fois, sous peine de rendre «« … »».
+    // `helpLine` porte déjà ses guillemets : ne pas l'encadrer à nouveau.
     { id: 1, speaker: "help", narration: helpLine, visual: "briefing" },
   ];
   return { id: cinematicId(course, { kind: "chapter", chapter: chapterSlug }), scenes };

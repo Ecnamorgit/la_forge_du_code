@@ -1,17 +1,16 @@
 "use client";
 
 /**
- * Animated enemy sprite from enemy-sprites.png
- * Sheet: 2816x1536, 4 cols x 3 rows → frame = 704x512
- * Row 1 = Alien-Swifter (used for error feedback)
+ * Ennemi animé tiré de enemy-sprites.png (planche 2816x1536, 4 colonnes x 3
+ * lignes, cases de 704x512). Seule la première ligne (Alien-Swifter) sert.
  *
- * On error: enemy flies across from right to left.
- * On success: enemy appears then "explodes" (scale + fade).
+ * En cas d'erreur, l'ennemi traverse de droite à gauche ; en cas de succès,
+ * il apparaît puis explose (zoom et fondu).
  */
 
 interface EnemySpriteProps {
   type: "fly" | "explode" | "none";
-  trigger: number; // increment to restart animation
+  trigger: number; // à incrémenter pour relancer l'animation
 }
 
 export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
@@ -30,8 +29,8 @@ export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
           width: displaySize,
           height: displaySize * (512 / 704),
           backgroundImage: "url(/sprites/enemy-sprites.png)",
-          // Only pin the row (Y); the `sprite-enemy-anim` keyframes drive X.
-          backgroundPositionY: "0px", // row 1
+          // Seule la ligne (Y) est fixée ; les keyframes `sprite-enemy-anim` pilotent X.
+          backgroundPositionY: "0px",
           backgroundSize: `${2816 * scale}px ${1536 * scale}px`,
           imageRendering: "pixelated",
         }}
@@ -39,7 +38,7 @@ export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
     );
   }
 
-  // explode
+  // Explosion
   return (
     <div
       key={trigger}
@@ -48,8 +47,7 @@ export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
         width: displaySize,
         height: displaySize * (512 / 704),
         backgroundImage: "url(/sprites/enemy-sprites.png)",
-        // Only pin the row (Y); the `sprite-enemy-anim` keyframes drive X.
-        backgroundPositionY: "0px", // row 1
+        backgroundPositionY: "0px",
         backgroundSize: `${2816 * scale}px ${1536 * scale}px`,
         imageRendering: "pixelated",
       }}

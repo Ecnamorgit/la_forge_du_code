@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-4";
 
 /**
- * React chapitre 4 — react-router : routes, liens, parametres, navigation.
+ * React chapitre 4 — react-router : routes, liens, paramètres, navigation.
  */
 
 describe("React chapitre 4 — etape 1 (declarer les routes)", () => {
@@ -36,7 +36,7 @@ describe("React chapitre 4 — etape 1 (declarer les routes)", () => {
   });
 
   it("refuse des routes hors de BrowserRouter", () => {
-    // Echec cible : sans le routeur, aucune route ne se resout.
+    // Échec ciblé : sans le routeur, aucune route ne se résout.
     const code = `function App() {
   return (
     <Routes>
@@ -66,7 +66,7 @@ function Menu() {
   });
 
   it("refuse des ancres <a href> a la place des Link", () => {
-    // Echec cible : une ancre recharge la page et casse la SPA.
+    // Échec ciblé : une ancre recharge la page et casse la SPA.
     const code = `import { Link } from 'react-router-dom';
 function Menu() {
   return (
@@ -106,7 +106,7 @@ function Vaisseau() {
   });
 
   it("refuse un id lu mais jamais affiche", () => {
-    // Echec cible : rien ne prouve que le parametre a ete compris.
+    // Échec ciblé : rien ne prouve que le paramètre a été compris.
     const code = `import { useParams } from 'react-router-dom';
 function Vaisseau() {
   const { id } = useParams();
@@ -145,7 +145,7 @@ function Connexion() {
   });
 
   it("refuse une redirection vers une autre destination", () => {
-    // Echec cible : l'etape nomme explicitement /dashboard.
+    // Échec ciblé : l'étape nomme explicitement /dashboard.
     const code = `import { useNavigate } from 'react-router-dom';
 function Connexion() {
   const navigate = useNavigate();

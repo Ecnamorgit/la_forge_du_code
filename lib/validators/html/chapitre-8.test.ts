@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-8";
 
 /**
- * HTML chapitre 8 — media : video, audio, images responsives.
+ * HTML chapitre 8 — médias : vidéo, audio, images responsives.
  */
 
 describe("HTML chapitre 8 — etape 1 (video)", () => {
@@ -13,7 +13,7 @@ describe("HTML chapitre 8 — etape 1 (video)", () => {
   });
 
   it("refuse une video sans controls", () => {
-    // Echec cible : sans controles, l'utilisateur ne peut ni lancer ni couper.
+    // Échec ciblé : sans contrôles, l'utilisateur ne peut ni lancer ni couper.
     expect(valider('<video src="/vol.mp4"></video>').ok).toBe(false);
   });
 
@@ -48,7 +48,7 @@ describe("HTML chapitre 8 — etape 3 (image responsive)", () => {
   });
 
   it("refuse un srcset sans sizes", () => {
-    // Echec cible : sans sizes, le navigateur ne sait pas quoi choisir.
+    // Échec ciblé : sans sizes, le navigateur ne sait pas quoi choisir.
     const code = '<img src="/r.png" alt="Radar" srcset="/r-480.png 480w, /r-960.png 960w">';
     expect(valider(code).ok).toBe(false);
   });
@@ -71,7 +71,7 @@ describe("HTML chapitre 8 — etape 4 (element picture)", () => {
   });
 
   it("refuse un picture sans image de repli", () => {
-    // Echec cible : sans <img>, rien ne s'affiche sur un navigateur ancien.
+    // Échec ciblé : sans <img>, rien ne s'affiche sur un navigateur ancien.
     const code = `<picture>
       <source srcset="/r.avif" type="image/avif">
       <source srcset="/r.webp" type="image/webp">

@@ -38,7 +38,7 @@ describe("getClientIp", () => {
     const ip = getClientIp(
       reqWith({ "x-forwarded-for": "spoof, 203.0.113.7, 10.0.0.1" })
     );
-    // 2 hops de confiance à droite → on remonte à l'IP client réelle.
+    // Deux proxys de confiance à droite : on remonte à l'IP client réelle.
     expect(ip).toBe("203.0.113.7");
   });
 

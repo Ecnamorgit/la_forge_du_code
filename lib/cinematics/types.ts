@@ -1,7 +1,6 @@
 /**
- * Types des mini-cinématiques narratives (intro de cursus, outro de chapitre,
- * finale). Logique pure, aucune dépendance DOM — même contrainte que
- * lib/intro.ts pour rester testable en node.
+ * Types des mini-cinématiques narratives : intro de cursus, outro de chapitre
+ * et finale.
  */
 
 import type { CharacterId } from "@/lib/characters";
@@ -19,7 +18,7 @@ export interface CinematicScene {
   /** Index stable dans la cinématique. */
   id: number;
   speaker: CinematicSpeaker;
-  /** Vrai texte (lisible par lecteur d'écran). */
+  /** Texte de la scène, lisible par les lecteurs d'écran. */
   narration: string;
   visual: CinematicVisual;
   fx?: CinematicFx;

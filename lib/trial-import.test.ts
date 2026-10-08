@@ -64,17 +64,12 @@ describe("filterTrialSteps", () => {
     expect(filterTrialSteps(mixed)).toEqual([valid]);
   });
 
-  // Pins de régression pour les cas adverses envisagés à la revue mais non
-  // encore couverts : le comportement est déjà correct aujourd'hui, ces tests
-  // ne font que l'épingler.
+  // Entrées hostiles : ces tests épinglent le comportement attendu.
 
   it("rejette une charge utile en forme de pollution de prototype", () => {
-    // Les champs valides sont glissés sous "__proto__" plutôt qu'en
-    // propriétés propres de l'entrée. JSON.parse crée "__proto__" comme une
-    // simple clé de données (pas comme le setter de prototype), donc
-    // l'entrée n'a réellement aucune propriété propre course/chapter/
-    // stepIndex : elle doit être rejetée, et le prototype global ne doit pas
-    // être touché.
+    // Champs valides glissés sous "__proto__" : JSON.parse en fait une simple
+    // clé de données, l'entrée n'a donc pas de propriétés propres utiles. Elle
+    // doit être rejetée sans toucher au prototype global.
     const polluted = JSON.parse(
       `{"__proto__": {"course": "${TRIAL_COURSE}", "chapter": "${TRIAL_CHAPTERS[0]}", "stepIndex": 0}}`
     );

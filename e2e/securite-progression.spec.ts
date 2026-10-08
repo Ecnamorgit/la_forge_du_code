@@ -5,20 +5,14 @@ import bcrypt from "bcryptjs";
 import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
- * Constat EXE-01 de l'audit de sécurité du 2026-09-12 : la progression ne doit
- * pas se déclarer.
+ * POST /api/me/step n'accorde une étape que sur une vraie solution (audit
+ * EXE-01). Le test appelle l'API directement, comme le ferait un script.
  *
- * Avant le correctif, POST /api/me/step accordait n'importe quelle étape sur
- * simple déclaration du navigateur : un compte pouvait prendre XP, badges et
- * tête du classement par une boucle d'appels, sans jamais écrire de code. Ce
- * test appelle l'API directement, comme le ferait un script.
+ * Assertions « soft » : chaque tentative est rapportée même si une précédente
+ * échoue. Les étapes s'enchaînent sur la même progression.
  *
- * Un seul test, découpé en étapes aux assertions « soft » : chaque tentative
- * de triche est vérifiée et rapportée, même quand une précédente échoue. Les
- * étapes s'enchaînent sur la même progression, dans l'ordre d'un script.
- *
- * Compte dédié, recréé à chaque exécution : la progression qu'il accumule ne
- * doit pas fausser les specs qui partagent E2E_USER.
+ * Compte dédié, recréé à chaque exécution, pour ne pas fausser les specs qui
+ * partagent E2E_USER.
  */
 
 const TRICHEUR = {
@@ -36,7 +30,7 @@ const CH1 = [
 ];
 
 async function recreerTricheur(): Promise<void> {
-  // AVANT toute connexion : on efface puis recrée une ligne de User.
+  // Avant toute connexion : on efface puis recrée une ligne de User.
   assertTestDatabaseUrl(process.env.DATABASE_URL);
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();

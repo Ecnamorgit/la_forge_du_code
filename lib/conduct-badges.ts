@@ -1,11 +1,10 @@
 /**
- * Badges de conduite — ils prouvent COMMENT le cadet travaille, là où les 48
- * badges de lib/badges-catalog.ts prouvent CE QU'IL SAIT.
+ * Badges de conduite : ils récompensent la façon de travailler, là où ceux de
+ * lib/badges-catalog.ts récompensent les chapitres terminés.
  *
- * Catalogue volontairement séparé de BADGES : là-bas, la position dans le
- * tableau est l'index de frame dans /sprites/badges.png (8x6 = 48). Y ajouter
- * des entrées casserait la correspondance et exigerait une planche neuve.
- * Ici, icône emoji jusqu'à ce qu'une planche dédiée existe.
+ * Catalogue séparé de BADGES, dont la position fixe l'index de frame dans
+ * /sprites/badges.png (8×6 = 48) : y ajouter des entrées exigerait une
+ * nouvelle planche. Icônes emoji en attendant une planche dédiée.
  */
 
 import type { CompletionRecord } from "./quests";
@@ -45,8 +44,8 @@ export interface ConductContext {
   /** Toutes les complétions du cadet, horodatées. */
   completions: CompletionRecord[];
   /**
-   * Vrai à l'instant précis où la machine à états signale une rupture d'une
-   * série d'au moins 7 jours (LiaisonTransition.earnedReturn).
+   * Vrai au moment où la liaison signale la rupture d'une série d'au moins
+   * 7 jours (LiaisonTransition.earnedReturn).
    */
   justReturned: boolean;
 }
@@ -63,7 +62,7 @@ function maxStepsInOneDay(completions: CompletionRecord[]): number {
   return max;
 }
 
-/** Une étape a-t-elle été validée entre 00 h et 05 h UTC ? */
+/** Vrai si une étape a été validée entre 0 h et 5 h UTC. */
 function hasNightStep(completions: CompletionRecord[]): boolean {
   return completions.some((c) => {
     const heure = Number(c.completedAt.slice(11, 13));

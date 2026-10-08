@@ -1,33 +1,21 @@
 /**
- * Sandbox JavaScript exécuté dans une iframe cachée à origine opaque
- * (`sandbox="allow-scripts"`).
- *
- * L'iframe est chargée par `src` depuis une **origine dédiée**
- * (`/bac-a-sable/js`, constat EXE-03), et non plus par un `srcdoc` : un `srcdoc`
- * hérite de la CSP du parent, ce qui forçait l'application à garder
- * `'unsafe-eval'`. Le code de l'apprenant n'est plus figé dans le HTML : il est
- * posté au document une fois sa poignée de main reçue.
- *
- * Cela empêche le code de l'apprenant d'accéder au window, au sessionStorage,
- * au localStorage, aux cookies et aux autres ressources de même origine de
- * l'application.
- *
- * L'iframe partage le fil d'exécution de la page : le délai ci-dessous ne peut
- * rien contre une boucle synchrone sans fin. Les boucles sont donc instrumentées
- * avant l'envoi (lib/sandbox/loop-protect.ts, constat EXE-02).
+ * Exécution du JavaScript de l'apprenant dans une iframe cachée, sandboxée
+ * (`allow-scripts` seul, donc origine opaque) : le code n'accède ni au
+ * `window`, ni aux stockages, ni aux cookies de l'application. L'iframe charge
+ * `/bac-a-sable/js` et reçoit le code par message après sa poignée de main.
  */
 
 import { protegerBoucles } from "./loop-protect";
 import { SANDBOX_JS_PATH, sandboxOriginFor } from "./sandbox-origin";
 
 export interface JsRunResult {
-  /** True iff the code executed without throwing. */
+  /** Vrai si le code s'est exécuté sans lever d'erreur. */
   ok: boolean;
-  /** Lines captured from console.log/info/warn/error, in order. */
+  /** Lignes capturées de la console, dans l'ordre. */
   logs: string[];
-  /** Error message (string form), or null if execution succeeded. */
+  /** Message d'erreur, ou null si l'exécution a réussi. */
   error: string | null;
-  /** Value of the last expression in the code, when retrievable. */
+  /** Valeur renvoyée par le code (`return` de premier niveau). */
   lastValue: unknown;
 }
 
@@ -43,12 +31,12 @@ export function runJs(code: string): Promise<JsRunResult> {
       return;
     }
 
-    // Boucles instrumentées AVANT l'envoi : une fois posté, le code partage le
-    // fil du parent et une boucle synchrone gèlerait l'onglet (constat EXE-02).
+    // Avant l'envoi : l'iframe peut partager le fil de la page, et le délai
+    // ci-dessous ne peut rien contre une boucle synchrone (audit EXE-02).
     const codeProtege = protegerBoucles(code);
 
-    // Origine DÉDIÉE : le document d'exécution y porte sa propre CSP permissive,
-    // au lieu d'hériter de celle (stricte) de l'application.
+    // Origine dédiée : le document y porte sa propre CSP permissive au lieu
+    // d'hériter de celle, stricte, de l'application (audit EXE-03).
     const sandboxSrc = sandboxOriginFor(window.location.origin) + SANDBOX_JS_PATH;
 
     const iframe = document.createElement("iframe");
@@ -70,14 +58,12 @@ export function runJs(code: string): Promise<JsRunResult> {
 
     const onMessage = (event: MessageEvent) => {
       if (event.source !== iframe.contentWindow) return;
-      // Iframe sandbox sans allow-same-origin → origine littérale "null".
+      // Iframe sandboxée sans allow-same-origin : origine littérale "null".
       if (event.origin !== "null") return;
       const data = event.data as { type?: string; payload?: JsRunResult };
 
-      // Poignée de main : le document est prêt, on lui poste le code. L'iframe
-      // est à origine opaque, "*" est la seule cible possible ; la charge utile
-      // est le code de l'apprenant lui-même, pas un secret, et le document
-      // vérifie `event.source === parent`.
+      // Origine opaque : "*" est la seule cible possible. La charge utile n'est
+      // pas un secret, et le document vérifie `event.source === parent`.
       if (data?.type === "sandbox:ready") {
         iframe.contentWindow?.postMessage(
           { type: "sandbox:run", code: codeProtege },
@@ -90,10 +76,9 @@ export function runJs(code: string): Promise<JsRunResult> {
       finish(data.payload);
     };
 
-    // Filet pour le code asynchrone qui ne rend jamais sa réponse — ou pour une
-    // iframe qui ne démarre pas. Les boucles synchrones, elles, sont arrêtées à
-    // 3 s par la garde de loop-protect.ts : ce délai-ci reste plus long pour que
-    // son message, plus précis, s'affiche.
+    // Filet pour un code asynchrone qui ne répond jamais ou une iframe qui ne
+    // démarre pas. Plus long que la garde de loop-protect.ts (3 s), pour laisser
+    // s'afficher son message, plus précis.
     const timeout = setTimeout(() => {
       finish({
         ok: false,

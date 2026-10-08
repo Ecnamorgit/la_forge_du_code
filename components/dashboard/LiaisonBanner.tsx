@@ -29,10 +29,9 @@ export default function LiaisonBanner({ liaison }: { liaison: LiaisonPublic }) {
     return () => clearInterval(id);
   }, []);
 
-  // La série ne rompt jamais silencieusement : si valider une étape maintenant
-  // ne la sauverait plus (relais épuisés), on le dit — le chiffre affiché
-  // n'est déjà plus qu'un souvenir. Sinon, tant que rien n'est validé
-  // aujourd'hui, le chiffre est celui d'hier : on le signale sans alarmer.
+  // Une rupture est toujours annoncée : si valider une étape maintenant ne
+  // sauverait plus la série (relais épuisés), le statut est « rompue ». Tant
+  // que rien n'est validé aujourd'hui, le chiffre affiché est celui d'hier.
   const perilStatut: "rompue" | "en-attente" | "acquise" = liaison.wouldBreakToday
     ? "rompue"
     : liaison.activeToday

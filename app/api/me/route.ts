@@ -19,7 +19,7 @@ export async function GET() {
 
   const state = await getUserState(session.user.id);
   if (!state) {
-    // JWT references a user that no longer exists in the DB → force a re-login.
+    // Le jeton désigne un compte supprimé : on force une reconnexion.
     return NextResponse.json(
       { error: "Compte introuvable. Reconnecte-toi." },
       { status: 401 }
@@ -32,10 +32,8 @@ export async function GET() {
 const deleteSchema = z.object({ password: z.string().min(1).max(128) });
 
 /**
- * RGPD — suppression définitive du compte de l'utilisateur connecté.
- *
- * Le mot de passe est redemandé (constat SRV-09) : une session volée, ou un
- * ordinateur resté connecté, ne suffit plus à effacer le compte.
+ * Suppression définitive du compte (RGPD). Le mot de passe est redemandé pour
+ * qu'une session volée ne suffise pas à effacer le compte (audit SRV-09).
  */
 export async function DELETE(req: Request) {
   const refus = crossOriginRefusal(req);

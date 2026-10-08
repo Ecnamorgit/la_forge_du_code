@@ -20,7 +20,7 @@ interface ReactPreviewProps {
   code: string;
   /** Nom du composant à monter. Absent = chapitre sans aperçu. */
   mount?: string;
-  /** Incrémenté par le parent à chaque clic sur DÉPLOYER. 0 = jamais déployé. */
+  /** Incrémenté par le parent à chaque déploiement ; 0 tant que rien n'est déployé. */
   deployNonce: number;
   className?: string;
 }
@@ -34,16 +34,11 @@ type Etat =
 /**
  * Aperçu exécuté du composant de l'apprenant.
  *
- * Une note sur ce qui n'est PAS ici : il n'y a pas de chien de garde côté
- * parent. La conception initiale en prévoyait un — poster le code, et remplacer
- * l'iframe si aucun accusé n'arrivait. Vérifié au navigateur le 2026-07-30 :
- * **ça ne peut pas fonctionner.** Une iframe `srcdoc` à origine opaque partage
- * le thread principal du parent dans Chromium, donc une boucle synchrone dans
- * le composant gèle l'onglet entier et le `setTimeout` du parent ne s'exécute
- * jamais. L'onglet est resté figé 58 secondes.
- *
- * Puisqu'aucune récupération n'est possible après l'envoi, on refuse d'envoyer :
- * voir `lib/sandbox/loop-guard.ts`.
+ * Pas de chien de garde côté parent : dans Chromium, l'iframe peut partager le
+ * thread principal de la page, si bien qu'une boucle synchrone gèle tout
+ * l'onglet et qu'aucun minuteur du parent ne s'exécute. Aucune récupération
+ * n'étant possible après l'envoi, le code suspect n'est pas envoyé (voir
+ * `lib/sandbox/loop-guard.ts`).
  */
 export default function ReactPreview({
   code,
@@ -54,14 +49,13 @@ export default function ReactPreview({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [etat, setEtat] = useState<Etat>({ phase: "attente" });
 
-  // La disponibilité de l'iframe vit dans un ref, PAS dans un état : en
-  // dépendance de l'effet de déploiement, elle faisait monter le composant deux
-  // fois quand un déploiement précédait la poignée de main.
+  // Disponibilité de l'iframe dans un ref et non un état : en dépendance de
+  // l'effet de déploiement, elle ferait monter le composant deux fois quand
+  // un déploiement précède la poignée de main.
   const pretRef = useRef(false);
 
-  // Dernier code transformé, gardé en file tant que l'iframe n'a pas dit
-  // `ready` : un postMessage envoyé trop tôt n'est jamais remis, il serait
-  // perdu en silence.
+  // Dernier code transformé, gardé en file tant que l'iframe n'a pas envoyé
+  // `ready` : un postMessage envoyé trop tôt est perdu sans erreur.
   const enAttenteRef = useRef<{ js: string; mount: string } | null>(null);
   const fileRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -73,10 +67,9 @@ export default function ReactPreview({
   }, []);
 
   /**
-   * Surveille un déploiement mis en file. Sans ça, une iframe dont le script ne
-   * démarre jamais laisserait la charge utile en attente indéfiniment, et le
-   * filet initial ne rattrape que l'état de départ — l'apprenant resterait
-   * devant un cadre blanc muet.
+   * Surveille un déploiement mis en file : si le script de l'iframe ne démarre
+   * jamais, l'apprenant resterait devant un cadre blanc (le filet initial ne
+   * couvre que l'état de départ).
    */
   const demarrerAttenteFile = useCallback(() => {
     arreterAttenteFile();
@@ -92,9 +85,9 @@ export default function ReactPreview({
   const envoyer = useCallback((payload: { js: string; mount: string }) => {
     const fenetre = iframeRef.current?.contentWindow;
     if (!fenetre) return false;
-    // L'iframe est à origine opaque : "*" est la seule cible possible pour
-    // postMessage. Acceptable, la charge utile est le code de l'apprenant
-    // lui-même et non un secret ; l'iframe vérifie `event.source === parent`.
+    // Iframe à origine opaque : "*" est la seule cible possible. La charge
+    // utile (le code de l'apprenant) n'est pas un secret, et l'iframe vérifie
+    // `event.source === parent`.
     fenetre.postMessage({ type: "preview:render", ...payload }, "*");
     return true;
   }, []);
@@ -135,8 +128,7 @@ export default function ReactPreview({
   }, [envoyerOuMettreEnFile, arreterAttenteFile]);
 
   // Filet initial : si `ready` n'arrive jamais alors que rien n'a encore été
-  // déployé, l'aperçu se déclare indisponible et la leçon continue. L'aperçu
-  // n'est jamais un chemin critique.
+  // déployé, l'aperçu se déclare indisponible et la leçon continue.
   useEffect(() => {
     const t = setTimeout(() => {
       if (!pretRef.current) {
@@ -149,15 +141,14 @@ export default function ReactPreview({
   // Aucun minuteur ne doit survivre au démontage du composant.
   useEffect(() => arreterAttenteFile, [arreterAttenteFile]);
 
-  // Le code courant, lu au moment du déploiement. Un ref plutôt qu'une
-  // dépendance de l'effet de déploiement : mettre `code` dans ses deps
-  // remonterait l'aperçu à chaque frappe au clavier.
+  // Code courant lu au déploiement, via un ref : mettre `code` dans les deps
+  // de l'effet de déploiement remonterait l'aperçu à chaque frappe.
   const codeRef = useRef(code);
   useEffect(() => {
     codeRef.current = code;
   }, [code]);
 
-  // Transformation + envoi à chaque déploiement.
+  // Transformation et envoi à chaque déploiement.
   useEffect(() => {
     if (deployNonce === 0 || !mount) return;
 
@@ -175,8 +166,8 @@ export default function ReactPreview({
     void (async () => {
       const source = codeRef.current;
 
-      // Garde-fou AVANT toute transformation : une fois le code envoyé, une
-      // boucle infinie gèle l'onglet et plus rien ne peut la rattraper.
+      // Garde-fou avant toute transformation : une boucle infinie déjà
+      // envoyée ne peut plus être rattrapée.
       const boucle = detecterBoucleInfinie(source);
       if (boucle) {
         setEtat({ phase: "erreur", kind: "boucle", message: messageBoucleInfinie(boucle) });
@@ -193,7 +184,7 @@ export default function ReactPreview({
 
       setEtat({ phase: "rendu" });
       // Les boucles que le filtre littéral ci-dessus laisse passer sont
-      // interrompues à l'exécution, au lieu de figer l'onglet (constat EXE-02).
+      // interrompues à l'exécution, au lieu de figer l'onglet (audit EXE-02).
       const payload = { js: protegerBoucles(r.js), mount };
       if (pretRef.current) {
         envoyerOuMettreEnFile(payload);
@@ -208,12 +199,10 @@ export default function ReactPreview({
     };
   }, [deployNonce, mount, envoyerOuMettreEnFile, demarrerAttenteFile]);
 
-  // URL du document du bac à sable, sur son origine DÉDIÉE (constat EXE-03) :
-  // l'iframe le charge par `src` et non `srcDoc`, pour que son exécution porte
-  // sa propre CSP permissive au lieu d'hériter de celle du site. Résolue après
-  // le montage : `sandboxOriginFor` a besoin de `window.location.origin`, et un
-  // repli "" côté serveur puis la vraie valeur côté client provoquerait un
-  // écart d'hydratation sur l'attribut `src`.
+  // Document du bac à sable sur son origine dédiée (audit EXE-03), chargé par
+  // `src` : un `srcDoc` hériterait de la CSP du site. Résolu après le montage,
+  // car `sandboxOriginFor` a besoin de `window.location.origin` ; le calculer
+  // au rendu créerait un écart d'hydratation sur `src`.
   const [sandboxSrc, setSandboxSrc] = useState<string | null>(null);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture ponctuelle de l'origine au montage

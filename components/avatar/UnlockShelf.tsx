@@ -21,15 +21,10 @@ interface UnlockShelfProps {
 }
 
 /**
- * Un rayon d'objets déblocables pour un axe donné. Deux règles, non
- * négociables :
- *
- *  - les objets non obtenus restent visibles, grisés, avec leur condition et
- *    la distance restante — un rayon qu'on voit est une feuille de route, un
- *    rayon caché n'existe pas ;
- *  - un objet OBTENU ne redevient jamais verrouillé. C'est `ctx.owned`
- *    (`UserState.unlocks`) qui le garantit : trois conditions du catalogue
- *    dépendent du streak, qui retombe à 1 à la rupture.
+ * Rayon d'objets déblocables pour un axe. Les objets non obtenus restent
+ * visibles, grisés, avec leur condition et la distance restante. Un objet
+ * obtenu ne redevient jamais verrouillé : `ctx.owned` (`UserState.unlocks`)
+ * le garantit même quand le streak retombe.
  */
 export default function UnlockShelf({ axis, ctx, selected, onSelect }: UnlockShelfProps) {
   const objets = evaluateUnlocks(ctx).filter((u) => u.def.axis === axis);
@@ -79,9 +74,8 @@ interface EmblemShelfProps {
 
 /**
  * L'axe emblème n'est pas dans le catalogue des déblocables : il se choisit
- * parmi les badges obtenus (cursus + conduite). Même règle que les autres
- * rayons : les badges non obtenus restent visibles, grisés, avec leur
- * condition (la description du badge en tient lieu).
+ * parmi les badges obtenus. Les badges non obtenus restent visibles, grisés,
+ * avec leur description en guise de condition.
  */
 export function EmblemShelf({ badges, selected, onSelect }: EmblemShelfProps) {
   return (

@@ -4,9 +4,9 @@ import { validators } from "./chapitre-11";
 /**
  * JS chapitre 11 — fetch.
  *
- * Contrairement aux chapitres 1 a 10, ces validateurs sont STATIQUES : l'hote
- * d'API est fictif et ne resout jamais dans le sandbox, donc c'est le code
- * ecrit qui est inspecte, pas sa sortie. Aucun contexte a fournir.
+ * Contrairement aux chapitres 1 à 10, ces validateurs sont statiques : l'hôte
+ * d'API est fictif et ne résout jamais dans le bac à sable, c'est donc le code
+ * écrit qui est inspecté, pas sa sortie. Aucun contexte à fournir.
  */
 
 describe("JS chapitre 11 — etape 1 (premier appel)", () => {
@@ -23,7 +23,7 @@ describe("JS chapitre 11 — etape 1 (premier appel)", () => {
   });
 
   it("refuse un appel vers une autre URL", () => {
-    // Echec cible : l'etape nomme explicitement l'endpoint.
+    // Échec ciblé : l'étape nomme explicitement l'endpoint.
     const code = `fetch('https://api.codeforge.space/status')
   .then((r) => console.log(r));`;
     expect(valider(code).ok).toBe(false);
@@ -47,7 +47,7 @@ describe("JS chapitre 11 — etape 2 (decoder le JSON)", () => {
   });
 
   it("refuse un json() sans second then pour l'exploiter", () => {
-    // Echec cible : les donnees sont decodees puis perdues.
+    // Échec ciblé : les données sont décodées puis perdues.
     const code = `fetch('https://api.codeforge.space/vaisseau')
   .then((response) => response.json());`;
     expect(valider(code).ok).toBe(false);
@@ -67,7 +67,7 @@ describe("JS chapitre 11 — etape 3 (passer a async/await)", () => {
   });
 
   it("refuse un await sur le fetch seul", () => {
-    // Echec cible : json() renvoie aussi une promesse, souvent oubliee.
+    // Échec ciblé : json() renvoie aussi une promesse, souvent oubliée.
     const code = `async function charger() {
   const response = await fetch('https://api.codeforge.space/vaisseau');
   const data = response.json();
@@ -105,7 +105,7 @@ describe("JS chapitre 11 — etape 4 (gerer la panne)", () => {
   });
 
   it("refuse un try/catch qui ne verifie pas response.ok", () => {
-    // Echec cible : fetch ne rejette pas sur un 404, seul .ok le revele.
+    // Échec ciblé : fetch ne rejette pas sur un 404, seul .ok le révèle.
     const code = `async function charger() {
   try {
     const response = await fetch('https://api.codeforge.space/vaisseau');

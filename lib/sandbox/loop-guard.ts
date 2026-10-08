@@ -1,31 +1,21 @@
 /**
  * Détection, avant envoi, des boucles qui ne se terminent visiblement jamais.
  *
- * Pourquoi ce garde-fou existe, et pourquoi il est volontairement naïf.
+ * Dans Chromium, l'iframe sandboxée de l'aperçu peut partager le fil
+ * d'exécution du parent : une boucle synchrone fige alors l'onglet entier et
+ * aucun délai posé côté parent ne se déclenche. On refuse donc d'envoyer ces
+ * formes plutôt que d'essayer de récupérer après coup.
  *
- * L'aperçu React montait à l'origine un chien de garde côté parent : on postait
- * le code, et si aucun accusé n'arrivait dans le délai imparti, on remplaçait
- * l'iframe. **Ça ne peut pas marcher.** Vérifié au navigateur le 2026-07-30 :
- * une iframe `srcdoc` à origine opaque partage le thread principal du parent
- * dans Chromium, donc une boucle synchrone dans le composant de l'apprenant gèle
- * l'onglet ENTIER — le `setTimeout` du parent ne s'exécute jamais. L'onglet est
- * resté figé 58 secondes avant d'être tué. Deux revues de code successives
- * avaient validé la logique du chien de garde ; seule l'exécution l'a démentie.
- *
- * On ne peut donc pas récupérer après coup : il faut refuser d'envoyer.
- *
- * Ce détecteur est un filet pédagogique, pas une sécurité. Il attrape les
- * formes littérales qu'un apprenant écrit par accident — `while (true)`,
- * `for (;;)` — et se contourne trivialement (`let x = true; while (x) {}`).
- * C'est assumé : le sandbox exécute déjà du code arbitraire, l'apprenant ne se
- * piège que lui-même, et un vrai correctif demanderait de servir l'aperçu
- * depuis une autre origine pour obtenir un processus séparé.
+ * C'est un filet pédagogique, pas une sécurité : il attrape les formes
+ * littérales (`while (true)`, `for (;;)`) et se contourne trivialement
+ * (`let x = true; while (x) {}`). Les autres boucles sont interrompues à
+ * l'exécution par `loop-protect.ts` (audit EXE-02).
  */
 
 const STRIP_STRINGS = /(['"`])(?:\\.|(?!\1)[^\\])*\1/g;
 /**
- * Les commentaires sont retirés eux aussi : sans ça, un apprenant qui écrit
- * `// evite le while (true)` verrait son déploiement refusé pour du texte.
+ * Retirés aussi : un commentaire `// évite le while (true)` ne doit pas faire
+ * refuser le déploiement.
  */
 const STRIP_COMMENTS = /\/\*[\s\S]*?\*\/|\/\/[^\n]*/g;
 
@@ -39,9 +29,8 @@ const MOTIFS: readonly { re: RegExp; forme: string }[] = [
 ];
 
 /**
- * Renvoie la forme littérale détectée, ou null. Les chaînes de caractères sont
- * retirées avant analyse : un `console.log("while (true)")` n'est pas une
- * boucle, et refuser de déployer pour ça serait pire que le problème.
+ * Renvoie la forme littérale détectée, ou null. Les chaînes sont retirées
+ * avant analyse : `console.log("while (true)")` n'est pas une boucle.
  */
 export function detecterBoucleInfinie(code: string): string | null {
   const nettoye = code.replace(STRIP_COMMENTS, " ").replace(STRIP_STRINGS, '""');
@@ -52,12 +41,9 @@ export function detecterBoucleInfinie(code: string): string | null {
 }
 
 /**
- * Message affiché à l'apprenant quand une boucle est refusée.
- *
- * Formulé au conditionnel : `while (true) { … break; }` est une forme
- * parfaitement légitime que ce détecteur refuse quand même, faute de savoir
- * lire un `break`. Affirmer « ne se termine jamais » serait faux dans ce cas,
- * et l'apprenant se demanderait ce qu'on lui reproche.
+ * Message affiché à l'apprenant quand une boucle est refusée. Formulé au
+ * conditionnel : `while (true) { … break; }` est légitime mais refusé quand
+ * même, le détecteur ne sachant pas lire un `break`.
  */
 export function messageBoucleInfinie(forme: string): string {
   return (

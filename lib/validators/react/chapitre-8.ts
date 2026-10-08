@@ -13,30 +13,20 @@ import {
 
 const strip = (code: string) => stripLineComments(code, "//");
 
-/** Un `<X.Provider ...>` est-il present ? */
+/** Un `<X.Provider ...>` est-il présent ? */
 const providerRe = /<\s*[A-Za-z_$][\w$]*\s*\.\s*Provider\b/;
 
-/** Meme motif, mais capture le nom (dote) de la balise pour la reperer. */
+/** Même motif, en capturant le nom pointé de la balise. */
 const providerTagNameRe = /<\s*([A-Za-z_$][\w$]*\s*\.\s*Provider)\b/;
 
 /**
- * Extrait le contenu de l'attribut `value={...}` du premier `<X.Provider>` —
- * SCOPE a la balise du Provider elle-meme, via `findJsxTagAttrs` (qui isole
- * les attributs d'UNE balise en equilibrant `{ }`) puis `extractAttrValue`.
+ * Contenu de l'attribut `value={...}` du premier `<X.Provider>`, cherché dans
+ * les attributs de cette balise seulement : un `<input value={x} />` plus loin
+ * ne doit pas compter. Renvoie null sans Provider ou sans `value` sur sa balise.
  *
- * Avant cette version, la recherche de `value={` portait sur TOUT le texte
- * apres le Provider : un Provider sans value suivi, plus loin, d'un
- * `<input value={x} />` quelconque (reliquat du chapitre 6, par exemple)
- * faisait passer cette fonction pour un Provider correctement alimente.
- *
- * `findJsxTagAttrs` attend un nom de balise litteral ; un nom dote comme
- * `ContexteFlotte.Provider` y est insere tel quel dans une regex, ou le `.`
- * agit comme "un caractere quelconque" plutot que le point litteral — sans
- * consequence ici puisqu'on lui passe le nom REELLEMENT trouve a cet endroit
- * du code (le seul caractere qui puisse s'y trouver EST ce point).
- *
- * Renvoie null s'il n'y a pas de Provider, ou pas d'attribut `value` sur SA
- * balise.
+ * Le nom pointé (`ContexteFlotte.Provider`) est inséré tel quel dans la regex
+ * de `findJsxTagAttrs`, où `.` vaut n'importe quel caractère : sans effet ici,
+ * puisque c'est le nom trouvé à cet endroit même.
  */
 function providerValueBody(code: string): string | null {
   const m = providerTagNameRe.exec(code);
@@ -50,21 +40,13 @@ function providerValueBody(code: string): string | null {
 }
 
 /**
- * Nom de la fonction qui ENGLOBE la position `pos` dans `code` — le
- * composant ou hook dont le corps contient cet appel (ex: l'appel a
- * `useContext` ou le `dispatch(...)` qu'on veut verifier).
+ * Nom de la fonction (composant ou hook) dont le corps contient la position
+ * `pos`, pour limiter une vérification au bon composant : dans un fichier à
+ * plusieurs composants, le comportement de l'un ne doit pas en valider un autre.
  *
- * Necessaire pour scoper une verification ("cette valeur est-elle affichee ?",
- * "dispatch est-il appele ICI ?") au bon composant plutot qu'a tout le
- * fichier : un fichier a plusieurs composants (un Provider ou un AUTRE
- * consommateur ailleurs) ne doit pas laisser le comportement d'un composant
- * en valider un autre.
- *
- * Cherche toutes les declarations `function nom(...) {` et
- * `const nom = (...) => {}` / `const nom = function (...) {}`, retient celles
- * dont le corps (accolades equilibrees via `matchClosing`) contient `pos`, et
- * renvoie la plus imbriquee (la plus petite plage) — au cas ou une fonction
- * en definirait une autre localement.
+ * Parmi les déclarations `function nom(...) {}`, `const nom = (...) => {}` et
+ * `const nom = function (...) {}` qui contiennent `pos`, renvoie la plus
+ * imbriquée.
  */
 function enclosingFunctionName(code: string, pos: number): string | null {
   const declRe =
@@ -84,7 +66,7 @@ function enclosingFunctionName(code: string, pos: number): string | null {
   return best ? best.name : null;
 }
 
-/** Noms destructures depuis `useContext(...)`, ou [] si pas de destructuration. */
+/** Noms déstructurés depuis `useContext(...)`, ou [] sans déstructuration. */
 function contextDestructuredNames(code: string): string[] {
   const m = /(?:const|let|var)\s*\{([^}]*)\}\s*=\s*useContext\s*\(/.exec(code);
   if (!m) return [];
@@ -94,15 +76,15 @@ function contextDestructuredNames(code: string): string[] {
     .filter(Boolean);
 }
 
-/** Nom de variable simple affectee depuis `useContext(...)`, ou null. */
+/** Nom de la variable affectée depuis `useContext(...)`, ou null. */
 function contextVarName(code: string): string | null {
   const m = /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*useContext\s*\(/.exec(code);
   return m ? m[1]! : null;
 }
 
 /**
- * Compte les branches d'action distinctes d'un reducteur : `case 'x':` ou
- * `action.type === 'x'`. Le cas `default` n'est pas compte comme une action.
+ * Compte les branches d'action distinctes d'un réducteur : `case 'x':` ou
+ * `action.type === 'x'`. `default` ne compte pas comme une action.
  */
 function countActionBranches(body: string): number {
   const cases = new Set<string>();
@@ -117,22 +99,13 @@ function countActionBranches(body: string): number {
 }
 
 /**
- * Le reducteur a-t-il un repli qui RETOURNE reellement quelque chose pour
- * une action inconnue ?
+ * Le réducteur retourne-t-il quelque chose pour une action inconnue ?
  *
- * - Reducteur a `switch` : il faut un `default:` dont la branche — le texte
- *   entre `default:` et le `case` suivant (ou la fin du switch) — contient un
- *   `return`. `default: break;` est present textuellement mais ne retourne
- *   rien : rejete, contrairement a l'ancienne verification qui se contentait
- *   de chercher le MOT `default` n'importe ou dans le corps.
- * - Reducteur a base de `if` (pas de `switch`) : on exige que le DERNIER
- *   `return` du corps ne soit suivi que de delimiteurs fermants / `;` —
- *   c'est-a-dire qu'il termine effectivement la fonction. Contrairement a
- *   l'ancienne regex ancree `return\s+etat\s*;?\s*\}?\s*$`, ceci accepte
- *   `return { ...etat };` (qui contient des accolades qu'un `$` ne tolere
- *   pas) et un commentaire de fin de ligne apres le `;` (que
- *   `stripLineComments` ne retire pas, lui, ne retirant que les lignes
- *   ENTIEREMENT commentees).
+ * Avec un `switch`, le texte qui suit `default:` (jusqu'au `case` suivant) doit
+ * contenir un `return` : `default: break;` ne suffit pas. Sans `switch`, le
+ * dernier `return` du corps ne doit être suivi que de `;`, d'accolades
+ * fermantes ou d'un commentaire de fin de ligne, que `stripLineComments` ne
+ * retire pas.
  */
 function hasFallbackReturn(reducerBody: string): boolean {
   if (/\bswitch\s*\(/.test(reducerBody)) {
@@ -157,13 +130,13 @@ function hasFallbackReturn(reducerBody: string): boolean {
 }
 
 export const validators: Validator[] = [
-  // Etape 1 : creer le contexte et le diffuser via un Provider.
+  // Étape 1 : créer le contexte et le diffuser via un Provider.
   (code) => {
     const c = strip(code);
 
     if (!/\bcreateContext\s*\(/.test(c)) {
       return fail(
-        "Cree le contexte au niveau du module : const ContexteFlotte = createContext(null);",
+        "Crée le contexte au niveau du module : const ContexteFlotte = createContext(null);",
         "structure"
       );
     }
@@ -184,7 +157,7 @@ export const validators: Validator[] = [
     return pass("Diffusion active.", ["o1a", "o1b"]);
   },
 
-  // Etape 2 : consommer le contexte dans un descendant, sans prop.
+  // Étape 2 : consommer le contexte dans un descendant, sans prop.
   (code) => {
     const c = strip(code);
 
@@ -196,23 +169,18 @@ export const validators: Validator[] = [
       );
     }
     if (call.body.trim().length === 0) {
-      return fail("Passe l'objet contexte a useContext, par exemple useContext(ContexteFlotte).");
+      return fail("Passe l'objet contexte à useContext, par exemple useContext(ContexteFlotte).");
     }
 
-    // o2b : la valeur lue doit reellement etre affichee, sinon l'etape ne
-    // demontre rien. On accepte la destructuration comme l'acces par variable.
-    //
-    // On scope cette verification au corps du COMPOSANT qui appelle
-    // useContext, pas a tout le fichier : sans ca, un `{ amiral: 'Vesper' }`
-    // porte par le Provider (qui contient litteralement `amiral`) ou l'objet
-    // rendu par un AUTRE composant suffit a faire passer un composant dont la
-    // valeur lue n'est jamais affichee.
+    // o2b : la valeur lue doit être affichée, par déstructuration ou via une
+    // variable. La recherche se limite au composant qui appelle useContext : le
+    // `{ amiral: 'Vesper' }` du Provider ou le rendu d'un autre composant ne
+    // doivent pas compter.
     const compName = enclosingFunctionName(c, call.start);
     const scope = (compName !== null ? findNamedFunctionBody(c, compName) : null) ?? c;
 
-    // On retire d'abord la ligne de declaration : sans ca, le motif `{ amiral }`
-    // de la destructuration elle-meme compterait comme une interpolation JSX, et
-    // un composant qui lit le contexte sans jamais l'afficher passerait.
+    // Sans retirer la déclaration, le `{ amiral }` de la déstructuration
+    // compterait comme une interpolation JSX.
     const withoutDecl = scope.replace(
       /(?:const|let|var)\s*(?:\{[^}]*\}|[A-Za-z_$][\w$]*)\s*=\s*useContext\s*\([^)]*\)\s*;?/g,
       ""
@@ -232,10 +200,10 @@ export const validators: Validator[] = [
       );
     }
 
-    return pass("Signal recu.", ["o2a", "o2b"]);
+    return pass("Signal reçu.", ["o2a", "o2b"]);
   },
 
-  // Etape 3 : un reducteur a deux actions, branche par useReducer.
+  // Étape 3 : un réducteur à deux actions, branché par useReducer.
   (code) => {
     const c = strip(code);
 
@@ -247,8 +215,8 @@ export const validators: Validator[] = [
       );
     }
 
-    // On resout le reducteur par SON nom, celui passe en premier argument —
-    // plutot que de chercher n'importe quel switch du fichier.
+    // Le réducteur est résolu par son nom (premier argument de useReducer), pas
+    // par le premier switch venu.
     const reducerName = call.body.split(",")[0]!.trim();
     const reducerBody = /^[A-Za-z_$][\w$]*$/.test(reducerName)
       ? findNamedFunctionBody(c, reducerName)
@@ -256,7 +224,7 @@ export const validators: Validator[] = [
 
     if (reducerBody === null) {
       return fail(
-        "Declare une fonction reducteur(etat, action) et passe-la en premier argument de useReducer.",
+        "Déclare une fonction reducteur(etat, action) et passe-la en premier argument de useReducer.",
         "structure"
       );
     }
@@ -264,14 +232,14 @@ export const validators: Validator[] = [
     const branches = countActionBranches(reducerBody);
     if (branches < 2) {
       return fail(
-        `Ton reducteur ne gere que ${branches} action. Ajoute les deux transitions demandees : monter et descendre.`,
+        `Ton reducteur ne gère que ${branches} action. Ajoute les deux transitions demandées : monter et descendre.`,
         "logic"
       );
     }
 
     if (!hasFallbackReturn(reducerBody)) {
       return fail(
-        "Ajoute un cas default qui retourne l'etat inchange, sinon une action inconnue effacerait ton etat.",
+        "Ajoute un cas default qui retourne l'état inchangé, sinon une action inconnue effacerait ton état.",
         "logic"
       );
     }
@@ -282,16 +250,16 @@ export const validators: Validator[] = [
       );
     }
 
-    return pass("Reducteur en ligne.", ["o3a", "o3b"]);
+    return pass("Réducteur en ligne.", ["o3a", "o3b"]);
   },
 
-  // Etape 4 : diffuser etat ET dispatch, et agir depuis le consommateur.
+  // Étape 4 : diffuser etat et dispatch, et agir depuis le consommateur.
   (code) => {
     const c = strip(code);
 
     if (!findBareCallBody(c, "useReducer")) {
       return fail(
-        "Garde useReducer au sommet : c'est lui qui tient l'etat a diffuser.",
+        "Garde useReducer au sommet : c'est lui qui tient l'état à diffuser.",
         "structure"
       );
     }
@@ -299,7 +267,7 @@ export const validators: Validator[] = [
     const value = providerValueBody(c);
     if (value === null) {
       return fail(
-        "Diffuse l'etat via un Provider : <ContexteAlerte.Provider value={{ etat, dispatch }}>.",
+        "Diffuse l'état via un Provider : <ContexteAlerte.Provider value={{ etat, dispatch }}>.",
         "structure"
       );
     }
@@ -318,20 +286,17 @@ export const validators: Validator[] = [
       );
     }
 
-    // On scope la verification "dispatch est-il declenche ?" au COMPOSANT qui
-    // consomme le contexte (celui qui appelle useContext), pas a tout le
-    // fichier : un `dispatch(` appele depuis un AUTRE composant (par exemple
-    // App, ou dispatch est deja en scope local sans passer par le contexte)
-    // ne demontre rien sur le canal qu'on est en train de verifier.
+    // Seul le composant consommateur compte : un `dispatch(` appelé ailleurs
+    // (dans App, où dispatch est en portée locale) ne passe pas par le contexte.
     const consumerName = enclosingFunctionName(c, call.start);
     const consumerBody = (consumerName !== null ? findNamedFunctionBody(c, consumerName) : null) ?? c;
 
     if (!/\bdispatch\s*\(\s*\{/.test(consumerBody)) {
       return fail(
-        "Declenche une transition depuis Console : onClick={() => dispatch({ type: 'monter' })}."
+        "Déclenche une transition depuis Console : onClick={() => dispatch({ type: 'monter' })}."
       );
     }
 
-    return pass("Reseau complet.", ["o4a", "o4b"], true);
+    return pass("Réseau complet.", ["o4a", "o4b"], true);
   },
 ];

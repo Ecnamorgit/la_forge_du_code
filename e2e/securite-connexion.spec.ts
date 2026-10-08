@@ -5,17 +5,11 @@ import bcrypt from "bcryptjs";
 import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
- * Constat SRV-07 de l'audit de sécurité du 2026-09-12 : aucune limite de
- * tentatives de connexion par compte.
+ * Limite de tentatives de connexion par compte (audit SRV-07), que la limite
+ * par IP ne remplace pas face à un attaquant aux IP multiples.
  *
- * La connexion était limitée à 10 essais par 5 minutes et par adresse IP. Un
- * attaquant qui dispose de nombreuses IP (proxys, réseau de machines) essayait
- * donc des mots de passe sur UN compte sans jamais atteindre la limite.
- *
- * Les IP sont simulées avec l'en-tête X-Forwarded-For. En local, sans proxy
- * devant le serveur, c'est le client qui le fournit ; en production, Vercel le
- * pose lui-même avec la vraie adresse. La simulation représente donc un
- * attaquant aux IP multiples, pas une faille de l'en-tête.
+ * Les IP sont simulées par X-Forwarded-For : en local, sans proxy, le client
+ * le fournit ; en production, Vercel le pose avec la vraie adresse.
  *
  * Compte dédié, recréé à chaque test.
  */
@@ -28,7 +22,7 @@ const CIBLE = {
 };
 
 async function recreerCible(): Promise<void> {
-  // AVANT toute connexion : on efface puis recrée une ligne de User.
+  // Avant toute connexion : on efface puis recrée une ligne de User.
   assertTestDatabaseUrl(process.env.DATABASE_URL);
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();

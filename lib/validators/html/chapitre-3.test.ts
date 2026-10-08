@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-3";
 
 /**
- * HTML chapitre 3 — images : source, dimensions, lien, legende.
+ * HTML chapitre 3 — images : source, dimensions, lien, légende.
  */
 
 describe("HTML chapitre 3 — etape 1 (image accessible)", () => {
@@ -13,7 +13,7 @@ describe("HTML chapitre 3 — etape 1 (image accessible)", () => {
   });
 
   it("refuse une image sans alt", () => {
-    // Echec cible : l'alt est le sujet de l'etape, pas un detail.
+    // Échec ciblé : l'alt est le sujet de l'étape, pas un détail.
     expect(valider('<img src="/radar.png">').ok).toBe(false);
   });
 
@@ -40,7 +40,7 @@ describe("HTML chapitre 3 — etape 2 (dimensions)", () => {
   });
 
   it("refuse une dimension non numerique", () => {
-    // Echec cible : l'attribut HTML attend un nombre de pixels, pas une unite.
+    // Échec ciblé : l'attribut HTML attend un nombre de pixels, pas une unité.
     expect(
       valider('<img src="/radar.png" alt="Radar" width="auto" height="360">').ok
     ).toBe(false);
@@ -57,7 +57,7 @@ describe("HTML chapitre 3 — etape 3 (image cliquable)", () => {
   });
 
   it("refuse une image posee a cote du lien", () => {
-    // Echec cible : c'est l'imbrication qui rend l'image cliquable.
+    // Échec ciblé : c'est l'imbrication qui rend l'image cliquable.
     expect(
       valider('<a href="/mission">Mission</a><img src="/radar.png" alt="Radar">').ok
     ).toBe(false);
@@ -88,7 +88,7 @@ describe("HTML chapitre 3 — etape 4 (figure et legende)", () => {
   });
 
   it("refuse une image laissee hors de la figure", () => {
-    // Echec cible : la legende doit etre rattachee a l'image.
+    // Échec ciblé : la légende doit être rattachée à l'image.
     const code = `<img src="/radar.png" alt="Radar">
     <figure><figcaption>Balayage du secteur 7</figcaption></figure>`;
     expect(valider(code).ok).toBe(false);

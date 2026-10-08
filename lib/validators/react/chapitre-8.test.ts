@@ -399,8 +399,8 @@ function App() {
 });
 
 /**
- * Garde-fou repris des chapitres 5, 6 et 7 : un `hint` que son propre
- * validateur refuserait laisserait le Cadet bloque en suivant l'indice.
+ * Un `hint` refusé par son propre validateur bloquerait l'apprenant qui suit
+ * l'indice affiché.
  */
 describe("react/chapitre-8 — chaque hint passe son propre validateur", () => {
   it("valide les quatre hints", () => {

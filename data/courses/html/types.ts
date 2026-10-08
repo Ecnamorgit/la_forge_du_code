@@ -4,9 +4,10 @@ export interface StepObjective {
 }
 
 /**
- * Narrative tone of a failure, used to pick an in-universe error header.
- * "structure" = broken markup/structure, "logic" = faulty logic / loops,
- * "syntax" = syntax error. Omitted = generic. See lib/narrative-feedback.ts.
+ * Ton narratif d'un échec, qui choisit l'en-tête d'erreur affiché :
+ * "structure" pour un balisage cassé, "logic" pour une logique ou une boucle
+ * fautive, "syntax" pour une erreur de syntaxe. Absent : générique
+ * (lib/narrative-feedback.ts).
  */
 export type ErrorTone = "structure" | "logic" | "syntax" | "generic";
 
@@ -16,7 +17,7 @@ export interface ValidationResult {
   obj?: string;
   objList?: string[];
   final?: boolean;
-  /** Optional narrative tone for failures (ignored on success). */
+  /** Ton narratif de l'échec, ignoré en cas de succès. */
   tone?: ErrorTone;
 }
 
@@ -38,21 +39,19 @@ export interface Step {
   /** Ids de fiches de référence pertinentes pour cette étape (optionnel). */
   docRefs?: string[];
   /**
-   * Nom du composant a monter dans l'apercu React (cursus react uniquement).
-   * Explicite par etape : il n'y a pas de regle deductible — selon l'etape
-   * c'est le composant de l'exercice, ou le parent qui porte un Provider.
-   * Absent sur les cursus sans apercu et sur les chapitres exemptes
-   * (cf. lib/sandbox/preview-exemptions.ts).
+   * Composant à monter dans l'aperçu React (cursus React uniquement) : celui
+   * de l'exercice, ou le parent qui porte un Provider. Absent sans aperçu et
+   * sur les chapitres exemptés (lib/sandbox/preview-exemptions.ts).
    */
   previewMount?: string;
   bannerIcon: string;
-  /** Optional frame index in /sprites/banner-icons.png. Falls back to bannerIcon emoji. */
+  /** Case dans /sprites/banner-icons.png ; à défaut, le logo est affiché. */
   bannerFrame?: number;
   bannerTtl: string;
   bannerSub: string;
   bannerXp: string;
   missionIcon: string;
-  /** Optional frame index in /sprites/mission-icons.png. Falls back to missionIcon emoji. */
+  /** Case dans la planche des icônes de mission. */
   missionFrame?: number;
   missionTag: string;
   missionTtl: string;
@@ -75,19 +74,19 @@ export interface SqlQueryResult {
 }
 
 export interface ValidatorContext {
-  /** Output captured from console.log/info/warn/error. */
+  /** Sortie capturée de console.log/info/warn/error. */
   logs: string[];
-  /** Runtime error string, or null if execution succeeded. */
+  /** Erreur d'exécution, ou null en cas de succès. */
   error: string | null;
-  /** Last expression value of the executed code. */
+  /** Valeur de la dernière expression exécutée. */
   lastValue: unknown;
-  /** Real SQL execution result, provided only for the SQL cursus. */
+  /** Résultat de l'exécution SQL réelle, fourni pour le seul cursus SQL. */
   sql?: {
-    /** Last result set produced by the student's SQL (null if none). */
+    /** Dernier jeu de résultats produit par le SQL de l'apprenant, ou null. */
     result: SqlQueryResult | null;
-    /** State read back via the step's verify query, when configured. */
+    /** État relu par la requête `verify` de l'étape, si elle existe. */
     verify: SqlQueryResult | null;
-    /** Execution error message, or null on success. */
+    /** Message d'erreur d'exécution, ou null en cas de succès. */
     error: string | null;
   };
 }

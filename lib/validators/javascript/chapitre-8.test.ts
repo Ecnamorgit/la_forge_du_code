@@ -3,7 +3,7 @@ import { validators } from "./chapitre-8";
 import type { ValidatorContext } from "@/data/courses/html/types";
 
 /**
- * JS chapitre 8 — evenements : clic, delegation, saisie, soumission.
+ * JS chapitre 8 — événements : clic, délégation, saisie, soumission.
  */
 
 const ctx = (logs: string[], error: string | null = null): ValidatorContext => ({
@@ -25,7 +25,7 @@ bouton.click();`;
   });
 
   it("refuse un seul declenchement", () => {
-    // Echec cible : l'etape demande de prouver que le listener rejoue.
+    // Échec ciblé : l'étape demande de prouver que le listener rejoue.
     expect(valider(CODE, ctx(["PEW"])).ok).toBe(false);
   });
 
@@ -73,7 +73,7 @@ champ.dispatchEvent(new Event("input"));`;
   });
 
   it("refuse un listener click a la place d'input", () => {
-    // Echec cible : ce n'est pas le meme evenement, ni le meme moment.
+    // Échec ciblé : ce n'est pas le même événement, ni le même moment.
     const code = `const champ = document.querySelector("input");
 champ.addEventListener("click", () => console.log("Salut Luna"));
 champ.click();`;
@@ -102,7 +102,7 @@ form.dispatchEvent(new Event("submit"));`;
   });
 
   it("refuse un submit sans preventDefault", () => {
-    // Echec cible : sans lui, la page se recharge et le JS ne sert a rien.
+    // Échec ciblé : sans lui, la page se recharge et le JS ne sert à rien.
     const code = `const form = document.querySelector("form");
 form.addEventListener("submit", () => console.log("Code : secret"));
 form.dispatchEvent(new Event("submit"));`;

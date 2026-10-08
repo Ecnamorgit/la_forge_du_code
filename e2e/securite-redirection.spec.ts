@@ -3,16 +3,11 @@ import { test, expect } from "@playwright/test";
 import { STORAGE_STATE } from "./global-setup";
 
 /**
- * Constat SRV-06 de l'audit de sécurité du 2026-09-12 : redirection ouverte
- * sur /avatar.
- *
- * Après l'enregistrement de l'avatar, la page renvoyait vers son paramètre
- * `from` sans le filtrer : un lien piégé `/avatar?from=https://piege.invalid/`
- * envoyait l'utilisateur sur un site tiers, juste après une action de
- * confiance (hameçonnage).
+ * Après l'enregistrement de l'avatar, le paramètre `from` ne doit pas faire
+ * quitter le site (audit SRV-06, redirection ouverte).
  *
  * Le domaine `.invalid` ne résout jamais (RFC 2606) : `page.route` répond à sa
- * place, pour constater la sortie du site sans aucune requête vers l'extérieur.
+ * place, sans requête vers l'extérieur.
  */
 
 test.use({ storageState: STORAGE_STATE });

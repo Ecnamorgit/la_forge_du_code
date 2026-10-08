@@ -3,9 +3,9 @@ import { getBadge } from "@/lib/badges-catalog";
 import { sanitizeShareName, parseShareXp } from "@/lib/share";
 
 /**
- * Public OG image for the shareable success card (growth loop). Validates the
- * badge against the catalog and sanitizes query params so the route can't be
- * used as an open text-to-image generator. No personal data beyond a pseudo.
+ * Image OG publique de la carte de réussite partageable. Le badge est vérifié
+ * dans le catalogue et les paramètres sont nettoyés, pour que la route ne serve
+ * pas de générateur d'images libre. Aucune donnée personnelle hormis le pseudo.
  */
 
 export const dynamic = "force-dynamic";

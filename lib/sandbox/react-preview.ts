@@ -1,16 +1,8 @@
 /**
- * Aperçu React : protocole de messages entre le parent et l'iframe, et
- * constantes partagées.
- *
- * Le document exécuté dans l'iframe ne vit plus ici : il est servi depuis une
- * origine dédiée (`lib/sandbox/preview-document.ts`, constat EXE-03), pour que
- * son exécution porte sa propre CSP permissive au lieu d'hériter de celle du
- * site. Ce module ne garde que ce qui est commun aux deux côtés : le contrôle
- * des messages entrants (`parsePreviewMessage`) et la validation du nom de
- * composant (`PREVIEW_MOUNT_NAME_RE`, injectée dans le document servi pour que
- * les deux expressions ne puissent pas diverger).
- *
- * Les fonctions exportées sont pures pour rester testables en node.
+ * Aperçu React, côté parent : contrôle des messages de l'iframe et validation
+ * du nom de composant. `PREVIEW_MOUNT_NAME_RE` est injectée telle quelle dans
+ * le document servi (`preview-document.ts`) pour que les deux côtés ne
+ * divergent pas.
  */
 
 export type PreviewErrorKind = "transform" | "mount" | "runtime" | "boucle";
@@ -20,19 +12,15 @@ export type PreviewMessage =
   | { type: "error"; kind: PreviewErrorKind; message: string };
 
 /**
- * `previewMount` est interpole dans un corps de `new Function`. On le valide
- * non par crainte d'une injection — le sandbox execute deja du code arbitraire,
- * un nom malveillant n'ajoute rien — mais pour qu'une coquille dans les donnees
- * du cours produise un message clair au lieu d'une erreur de syntaxe opaque.
+ * `previewMount` est interpolé dans un corps de `new Function`. Le bac à sable
+ * exécutant déjà du code arbitraire, la validation sert surtout à signaler
+ * clairement une coquille dans les données du cours.
  */
 export const PREVIEW_MOUNT_NAME_RE = /^[A-Za-z_$][\w$]*$/;
 
 /**
- * Genres d'erreur que l'iframe a le droit d'émettre.
- *
- * `"transform"` et `"boucle"` en sont volontairement absents : ils naissent
- * dans le parent, avant tout envoi. Les accepter ici élargirait la surface du
- * protocole entrant d'un genre que rien ne poste jamais.
+ * Genres d'erreur que l'iframe peut émettre. `"transform"` et `"boucle"` sont
+ * produits par le parent avant l'envoi : rien ne justifie de les accepter.
  */
 const INBOUND_ERROR_KINDS: readonly PreviewErrorKind[] = ["mount", "runtime"];
 

@@ -1,7 +1,7 @@
 /**
- * Logique pure de la cinématique d'intro (aucune dépendance DOM au niveau
- * module, pour rester testable en environnement node). Les helpers storage
- * sont gardés par `typeof window` et ne s'exécutent qu'au runtime navigateur.
+ * Logique pure de la cinématique d'intro, sans dépendance DOM au chargement
+ * pour rester testable sous node. Les accès au storage sont gardés par
+ * `typeof window`.
  */
 
 export const INTRO_STORAGE_KEY = "nc_intro_seen";
@@ -10,11 +10,11 @@ export const INTRO_STORAGE_KEY = "nc_intro_seen";
 export const INTRO_SCENE_DURATION_MS = 4500;
 
 export interface IntroScene {
-  /** Index stable ; sert aussi de numéro de frame quand l'art pixel arrive. */
+  /** Index stable, qui sert aussi de numéro de frame dans INTRO_CINEMATIC. */
   id: number;
   /** Narration affichée en texte réel (lisible par lecteur d'écran). */
   narration: string;
-  /** Variante visuelle du placeholder (composé d'assets existants). */
+  /** Variante visuelle de repli, composée d'images existantes. */
   visual: "logo" | "cadet" | "orbit" | "planet" | "invite";
 }
 
@@ -47,9 +47,8 @@ export const INTRO_SCENES: IntroScene[] = [
 ];
 
 /**
- * Persiste que l'intro a été vue ; no-op si le storage est indisponible.
- * Lu par `hasSeenIntro()` pour n'auto-jouer le crawl qu'une fois par
- * navigateur.
+ * Mémorise que l'intro a été vue, pour qu'elle ne se lance d'elle-même qu'une
+ * fois par navigateur ; sans effet si le storage est indisponible.
  */
 export function markIntroSeen(): void {
   if (typeof window === "undefined") return;

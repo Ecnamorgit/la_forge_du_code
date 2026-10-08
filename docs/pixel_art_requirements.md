@@ -1,24 +1,23 @@
 # Audit Complet des Assets Pixel Art — Nebula Command
 
-Ce document recense de manière exhaustive, page par page, tous les assets graphiques rétro-futuristes en pixel art nécessaires pour remplacer intégralement les emojis et visuels temporaires (IA) du site.
+Ce document recense de manière exhaustive, page par page, tous les assets graphiques rétro-futuristes en pixel art nécessaires pour remplacer intégralement les emojis et visuels temporaires du site.
 
 ---
 
-## 🎨 Direction Artistique Globale
+## Direction Artistique Globale
 - **Style** : Pixel Art rétro-futuriste (Inspiration 16-bit RPG / Console de commande spatiale).
 - **Palette de Couleur** : Palette exclusive Nebula (Cyan `#00f0ff`, Orange `#ff6b2c`, Vert `#00ff88`, Violet `#b067ff`, Or `#ffc844`, Fonds sombres `#03060d` à `#0a1628`).
 - **Règles d'export** : Format **PNG transparent**, sans anti-aliasing (bords nets), sans dégradés lisses. Une frame par case de grille pour les spritesheets (ordre gauche-droite, haut-bas).
 
 ---
 
-## 🗺️ Analyse Page par Page des Assets à Créer
+## Analyse Page par Page des Assets à Créer
 
 ### 1. Page d'Accueil (`/` — Landing)
 La vitrine doit immédiatement plonger le cadet dans l'ambiance spatiale.
 *   **Logo Principal (`BrandLogo.tsx`)** :
-    *   *Description* : Remplacer le visuel généré par IA (`Gemini_...-removebg-preview.png`) par un emblème militaire de flotte spatiale pixel art, épuré et lisible.
-    *   *Dimensions* : `64×64px` natif (exportable en `128×128px` pour le Hero et `32×32px` pour le favicon).
-    *   *Format* : PNG transparent.
+    *   *Description* : Un emblème militaire de flotte spatiale pixel art, épuré et lisible.
+    *   *État* : fait. Écusson de la flotte Coalition Nebula dessiné en bitmaps dans `components/ui/PixelLogo.tsx` (24×26 pixels, palette Nebula, agrandi sans lissage), rendu sur canvas et animé en rotation.
 *   **Planètes Décoratives de Fond (3 planètes)** :
     *   *Description* : Remplacer les sphères lisses et floues actuelles par de véritables planètes dessinées pixel par pixel.
         *   `planet-gas.png` : Géante gazeuse cyan et bleue avec anneaux fins.
@@ -83,25 +82,26 @@ Le hub central de contrôle.
 ---
 
 ### 4. Catalogue des Cours (`/learn`)
-*   **Spritesheet des Cours (`mission-icons.png`)** :
+*   **Spritesheet des Cours (`mission-icons-v2.png`)** :
     *   *Description* : Feuille unique regroupant les icônes de cours. Grille de 8 colonnes x 4 lignes.
     *   *Dimensions* : Canvas global de `256×128px` (frames individuelles de `32×32px`).
     *   *Ordre obligatoire des frames (0 à 13)* :
-        0. `html` : Antenne parabolique spatiale (📡).
-        1. `css` : Palette de peinture holographique (🎨).
-        2. `javascript` : Noyau énergétique instable (⚡).
-        3. `react` : Schéma d'orbitale atomique (⚛).
-        4. `typescript` : Bouclier de blindage renforcé (🛡️).
-        5. `git` : Croisement de chemins de navigation orbitale (🗂️).
-        6. `sql` : Conteneurs de données empilés dans la soute (🗃️).
-        7. `nodejs` : Console de commande système principale (🛸).
-        8. `tests` : Terminal affichant un feu vert de validation (✅).
-        9. `devops` : Rampe de lancement de fusées de transport (🚀).
-        10. `mongodb` : Cristal biologique vert stockant des données (🍃).
-        11. `security` : Barrière laser anti-intrusion (🛡️).
-        12. `python` : Serpent mécanique enroulé autour d'un câble (🐍).
-        13. `algo` : Matrice de processeur quantique (🧮).
+        0. `html` : Antenne parabolique spatiale.
+        1. `css` : Palette de peinture holographique.
+        2. `javascript` : Noyau énergétique instable.
+        3. `react` : Schéma d'orbitale atomique.
+        4. `typescript` : Bouclier de blindage renforcé.
+        5. `git` : Croisement de chemins de navigation orbitale.
+        6. `sql` : Conteneurs de données empilés dans la soute.
+        7. `nodejs` : Console de commande système principale.
+        8. `tests` : Terminal affichant un feu vert de validation.
+        9. `devops` : Rampe de lancement de fusées de transport.
+        10. `mongodb` : Cristal biologique vert stockant des données.
+        11. `security` : Barrière laser anti-intrusion.
+        12. `python` : Serpent mécanique enroulé autour d'un câble.
+        13. `algo` : Matrice de processeur quantique.
     *   *Format* : PNG transparent.
+    *   *État* : livrée (`public/sprites/mission-icons-v2.png`).
 
 ---
 
@@ -140,6 +140,7 @@ Le hub central de contrôle.
         *   Frame 14 : *Test / validation* (visée laser ciblant une cible verte).
         *   Frame 15 : *Trophée* (coupe spatiale sertie de gemmes).
     *   *Format* : PNG transparent.
+    *   *État* : livrée (`public/sprites/banner-icons.png`).
 *   **Sprites de Combat Spatial (Combat Visualizer)** :
     *   *Description* : Sprites animés pour illustrer la progression du code par le combat spatial (utilisés dans `EnemySprite.tsx`).
         *   *Vaisseau du Cadet (Joueur)* : Chasseur spatial élégant orienté vers la droite, avec animation de propulseur.
@@ -161,19 +162,20 @@ Le hub central de contrôle.
 
 ### 8. Profil & Succès (`/profil`)
 *   **Spritesheet des Badges (`badges.png`)** :
-    *   *Description* : Grille contenant les 44 badges déblocables correspondants aux chapitres. Grille de 8 colonnes x 6 lignes.
+    *   *Description* : Grille contenant les 48 badges déblocables correspondant aux chapitres (`lib/badges-catalog.ts`). Grille de 8 colonnes x 6 lignes.
     *   *Dimensions* : Canvas global de `512×384px` (frames individuelles de `64×64px`).
     *   *Design des Badges* : Chaque badge doit refléter le nom de son chapitre de manière métaphorique (ex : *HTML Architect* = un casque d'ingénieur doré devant un plan de station, *CSS Stylist* = une nébuleuse multicolore contenue dans un bocal).
     *   *Format* : PNG transparent.
+    *   *État* : livrée (`public/sprites/badges.png`).
 
 ---
 
-## 🚀 Synthèse et Spécifications des Spritesheets
+## Synthèse et Spécifications des Spritesheets
 
 | Nom du Fichier | Dimensions Canvas | Dimensions Frame | Nombre de Frames | Usage Principal |
 | :--- | :--- | :--- | :--- | :--- |
-| `mission-icons.png` | `256 × 128 px` | `32 × 32 px` | 14 active (32 max) | Icônes de cours / chapitres |
+| `mission-icons-v2.png` | `256 × 128 px` | `32 × 32 px` | 14 active (32 max) | Icônes de cours / chapitres |
 | `banner-icons.png` | `192 × 192 px` | `48 × 48 px` | 16 | Icônes de réussite de quêtes |
-| `badges.png` | `512 × 384 px` | `64 × 64 px` | 44 active (48 max) | Badges de profil débloqués |
+| `badges.png` | `512 × 384 px` | `64 × 64 px` | 48 | Badges de profil débloqués |
 | `enemy-sprites.png` | — | `64 × 48 px` | Multiples | Ennemis du visualiseur de combat |
 | `celestial-objects.png` | `2816 × 1536 px` | `704 × 512 px` | Multiples | Nœuds de niveaux sur la carte |

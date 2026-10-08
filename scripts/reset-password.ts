@@ -1,14 +1,12 @@
 /**
- * Admin one-off: reset a user's password directly in the DB (bypasses email).
- * Also marks the email verified so you can log in immediately.
+ * Réinitialise directement en base le mot de passe d'un utilisateur, sans
+ * passer par l'e-mail, marque son adresse comme vérifiée et déconnecte ses
+ * sessions ouvertes.
  *
- * Usage:
+ * Usage :
  *   npx tsx scripts/reset-password.ts <email> <newPassword>
  *
- * Example:
- *   npx tsx scripts/reset-password.ts pluriface@gmail.com MonNouveauMdp1
- *
- * Needs DATABASE_URL in .env (loaded via dotenv).
+ * Nécessite DATABASE_URL dans .env.
  */
 import "dotenv/config";
 import bcrypt from "bcryptjs";
@@ -31,12 +29,18 @@ async function main(): Promise<void> {
 
   const user = await prisma.user.update({
     where: { email: email.toLowerCase() },
-    data: { password: hashed, emailVerified: new Date() },
+    data: {
+      password: hashed,
+      emailVerified: new Date(),
+      // Révoque les sessions ouvertes, comme la route de réinitialisation
+      // (audit SRV-03).
+      sessionVersion: { increment: 1 },
+    },
     select: { email: true, username: true },
   });
 
   console.log(
-    `✓ Mot de passe reinitialise pour ${user.email} (${user.username}). Email marque verifie.`
+    `✓ Mot de passe réinitialisé pour ${user.email} (${user.username}). E-mail marqué vérifié, sessions révoquées.`
   );
 }
 

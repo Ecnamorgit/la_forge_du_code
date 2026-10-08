@@ -16,13 +16,13 @@ function findFormInner(code: string): string | null {
 }
 
 export const validators: Validator[] = [
-  // Step 1: <form> + <input type="text"> + <label for=...>
+  // Étape 1 : <form>, <input type="text"> et <label for=...>
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {
       return { ok: false, msg: "Encadre les champs dans une balise <form>." };
     }
-    // type="text" or default <input> (no type attribute) both count as text.
+    // Un <input> sans attribut type est un champ texte.
     const hasTextInput =
       hasInputOfType(inner, "text") ||
       /<input\b(?![^>]*\btype\s*=)[^>]*>/i.test(inner);
@@ -38,7 +38,7 @@ export const validators: Validator[] = [
     if (!labelMatch) {
       return {
         ok: false,
-        msg: 'Le champ a besoin d\'un <label for="..."> associe.',
+        msg: 'Le champ a besoin d\'un <label for="..."> associé.',
       };
     }
     const targetId = labelMatch[1];
@@ -54,11 +54,11 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Premier champ étiquete.",
+      msg: "Premier champ étiqueté.",
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: <input type="email"> + <input type="password">
+  // Étape 2 : <input type="email"> et <input type="password">
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {
@@ -78,11 +78,11 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Types specialises ajoutes.",
+      msg: "Types spécialisés ajoutés.",
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: <textarea> + <button type="submit">
+  // Étape 3 : <textarea> et <button type="submit">
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {
@@ -94,22 +94,28 @@ export const validators: Validator[] = [
         msg: "Ajoute une balise <textarea> dans le formulaire.",
       };
     }
-    const submit = inner.match(
-      /<button\b[^>]*type\s*=\s*["']submit["'][^>]*>[\s\S]*?<\/button>/i
-    );
-    if (!submit) {
+    // Un <button> sans attribut type soumet le formulaire (type par défaut) ;
+    // seuls type="button" et type="reset" ne l'envoient pas.
+    const boutons = inner.match(/<button\b[^>]*>[\s\S]*?<\/button>/gi) ?? [];
+    const envoie = boutons.some((b) => {
+      const type = b.match(/^<button\b[^>]*(?<![-\w])type\s*=\s*["']?([a-z]+)/i);
+      return !type || type[1].toLowerCase() === "submit";
+    });
+    if (!envoie) {
       return {
         ok: false,
-        msg: 'Ajoute un <button type="submit"> pour envoyer le formulaire.',
+        msg: boutons.length
+          ? 'Ce bouton n\'envoie pas le formulaire : utilise type="submit".'
+          : 'Ajoute un <button type="submit"> pour envoyer le formulaire.',
       };
     }
     return {
       ok: true,
-      msg: "Rapport pret a etre transmis.",
+      msg: "Rapport prêt à être transmis.",
       objList: ["o3a", "o3b"],
     };
   },
-  // Step 4: <select> with >= 2 <option>
+  // Étape 4 : <select> avec au moins 2 <option>
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {
@@ -129,7 +135,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Console operationnelle.",
+      msg: "Console opérationnelle.",
       objList: ["o4a", "o4b"],
       final: true,
     };

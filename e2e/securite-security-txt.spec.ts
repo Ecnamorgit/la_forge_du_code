@@ -1,13 +1,8 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Constat SUP-01 de l'audit de sécurité du 2026-09-12 : aucun moyen documenté
- * de signaler une faille.
- *
- * La RFC 9116 définit /.well-known/security.txt : un fichier public où un
- * chercheur trouve à qui écrire. Sans lui, une faille découverte est soit
- * gardée pour soi, soit publiée sans prévenir. Le fichier doit donner au
- * moins un `Contact` et une date d'expiration `Expires`.
+ * /.well-known/security.txt (RFC 9116, audit SUP-01) indique où signaler une
+ * faille : au moins un `Contact` et une date d'expiration `Expires`.
  */
 
 test("un chercheur trouve où signaler une faille", async ({ request }) => {

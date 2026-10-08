@@ -16,13 +16,11 @@ export async function POST(req: Request) {
   const refus = crossOriginRefusal(req);
   if (refus) return refus;
 
-  // On partage le bucket du login (`login:${ip}`) plutôt qu'un compteur dédié :
-  // cet endpoint accepte email+password et confirme un mot de passe correct pour
-  // un compte non vérifié. Un bucket séparé doublerait le budget de brute-force
-  // disponible pour un attaquant qui alterne entre les deux routes.
+  // Même compteur que la connexion : cette route confirme un mot de passe
+  // correct, et un compteur séparé doublerait le budget de force brute.
   const limit = await rateLimit(`login:${getClientIp(req)}`, {
     limit: 10,
-    windowMs: 5 * 60 * 1000, // 10 tentatives / 5 min / IP, partagé avec le login
+    windowMs: 5 * 60 * 1000,
   });
   if (!limit.ok) return NextResponse.json({ unverified: false });
 
@@ -40,9 +38,8 @@ export async function POST(req: Request) {
 
   const { email, password } = parsed.data;
 
-  // Même verrou par compte que la connexion (constat SRV-07) : sans lui, cette
-  // route permettrait de continuer à essayer des mots de passe sur un compte
-  // verrouillé. La comparaison factice garde un temps de réponse constant.
+  // Même verrou par compte que la connexion (audit SRV-07), sinon cette route
+  // permettrait d'essayer des mots de passe sur un compte verrouillé.
   if (await compteVerrouille(email)) {
     await bcrypt.compare(password, await hashFactice());
     return NextResponse.json({ unverified: false });
@@ -54,18 +51,17 @@ export async function POST(req: Request) {
   });
 
   if (!user || !user.password) {
-    // Compte inexistant : on effectue quand même un compare bcrypt (temps
-    // constant) avant de répondre, pour ne pas trahir l'existence de l'adresse.
+    // Comparaison factice : le temps de réponse ne trahit pas l'existence de
+    // l'adresse.
     await bcrypt.compare(password, await hashFactice());
     return NextResponse.json({ unverified: false });
   }
 
   const passOk = await bcrypt.compare(password, user.password);
   if (!passOk) {
-    // La page de connexion appelle cette route après chaque échec de
-    // connexion, déjà compté par `authorize` : on ne compte ici que le seul
-    // cas où la réponse apprend quelque chose (compte non vérifié), sinon une
-    // faute de frappe compterait double.
+    // La page de connexion appelle cette route après un échec déjà compté par
+    // `authorize` : on ne compte que le cas où la réponse apprend quelque chose
+    // (compte non vérifié).
     if (!user.emailVerified) await noterEchecConnexion(email);
     return NextResponse.json({ unverified: false });
   }

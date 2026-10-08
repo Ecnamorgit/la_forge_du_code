@@ -19,19 +19,14 @@ import CourseIcon from "@/components/ui/CourseIcon";
 import Sprite from "@/components/ui/Sprite";
 import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 
-// Single source of truth lives in lib/badges-catalog.ts (synced with
-// BADGE_BY_CHAPTER). Frame index in badges.png = position in this array.
+// L'index d'une vignette dans badges.png est sa position dans ce tableau.
 const ALL_BADGES = BADGES;
 
-// `state.badges` porte les DEUX familles depuis la boucle quotidienne : les 48
-// badges de cursus ci-dessus et les badges de conduite (lib/conduct-badges.ts),
-// logés dans la même table `UserBadge`. Le compteur de cette page rapporte les
-// badges de cursus à leur propre total : sans ce filtre, un cadet à 2 badges de
-// cursus et 3 de conduite lisait « 5/48 », et « 58/48 » en fin de parcours.
+// `state.badges` mêle badges de cursus et badges de conduite
+// (lib/conduct-badges.ts) : le compteur ne retient que les premiers, rapportés
+// à leur propre total.
 const CURSUS_BADGE_IDS = new Set(ALL_BADGES.map((b) => b.id));
 
-// All courses come from the catalog — single source of truth, so any new
-// course automatically shows up here with its chapters.
 const COURSES_LIST = COURSES_CATALOG.map((c) => ({
   slug: c.slug,
   title: c.title,
@@ -164,7 +159,7 @@ export default function ProfilPage() {
           ← Retour au pont
         </Link>
 
-        {/* Header card */}
+        {/* En-tête */}
         <section className="mb-10 rounded-sm border border-nebula-cyan/40 bg-nebula-bg-panel/85 p-8 backdrop-blur-md shadow-[0_0_40px_rgba(0,240,255,0.08)] animate-fade-down">
           <div className="flex flex-wrap items-center gap-8">
             <div className="relative shrink-0">
@@ -271,7 +266,7 @@ export default function ProfilPage() {
           </div>
         </section>
 
-        {/* Stats */}
+        {/* Statistiques */}
         <section className="mb-10 animate-fade-up">
           <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
             {"> "}Statistiques
@@ -288,7 +283,7 @@ export default function ProfilPage() {
           </div>
         </section>
 
-        {/* Courses progress */}
+        {/* Progression par cursus */}
         <section className="mb-10 animate-fade-up">
           <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
             {"> "}Progression des cursus
@@ -463,7 +458,7 @@ export default function ProfilPage() {
           </div>
         </section>
 
-        {/* Settings */}
+        {/* Paramètres */}
         <section className="mb-10 animate-fade-up">
           <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
             {"> "}Préférences
@@ -507,8 +502,7 @@ export default function ProfilPage() {
 
 function DangerZone() {
   const router = useRouter();
-  // Le mot de passe est redemandé avant la suppression (constat SRV-09) : une
-  // session restée ouverte ne suffit plus à effacer le compte.
+  // Le serveur exige le mot de passe pour supprimer le compte (audit SRV-09).
   const [confirming, setConfirming] = useState(false);
   const [password, setPassword] = useState("");
   const [deleting, setDeleting] = useState(false);

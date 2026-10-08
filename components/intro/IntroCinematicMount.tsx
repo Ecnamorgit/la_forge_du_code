@@ -10,13 +10,11 @@ import { useModalOverlay } from "@/lib/use-modal-overlay";
 export const REPLAY_INTRO_EVENT = "nebula:replay-intro";
 
 /**
- * Monte le crawl par-dessus la landing.
- *
- * Overlay, jamais redirection : la landing est rendue en HTML dessous, pour
- * que les crawlers et les previews de lien voient la vraie page.
- *
- * Auto-lecture une seule fois par navigateur (drapeau `nc_intro_seen`). Les
- * 5 scènes animées restent au premier login, côté dashboard.
+ * Monte le crawl par-dessus la landing. C'est un overlay et non une
+ * redirection : la landing reste rendue dessous pour les robots et les
+ * aperçus de lien. Lecture automatique une seule fois par navigateur
+ * (drapeau `nc_intro_seen`) ; les cinq scènes animées sont jouées au premier
+ * login, côté dashboard.
  */
 export default function IntroCinematicMount() {
   const [open, setOpen] = useState(false);
@@ -38,11 +36,9 @@ export default function IntroCinematicMount() {
     return () => window.removeEventListener(REPLAY_INTRO_EVENT, onReplay);
   }, []);
 
-  // Même contrat modal que la cinématique post-inscription (Échap, piège à
-  // Tab) : la landing reste rendue dessous pour les crawlers, mais ne doit
-  // pas être atteignable au clavier tant que le crawl est ouvert. Le focus
-  // initial va au bouton « Passer »/« Continuer » plutôt qu'au conteneur, car
-  // c'est le seul contrôle utile ici.
+  // Même contrat modal que la cinématique post-inscription : la landing
+  // dessous ne doit pas être atteignable au clavier. Le focus initial va au
+  // bouton « Passer »/« Continuer », seul contrôle utile ici.
   useModalOverlay(overlayRef, {
     open,
     onClose: handleClose,

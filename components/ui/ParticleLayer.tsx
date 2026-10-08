@@ -48,10 +48,7 @@ function spawnBurst(count: number): void {
   }
 }
 
-/**
- * Big celebratory burst for level-up moments. Wider spread, more particles,
- * larger shapes that float upward like fireworks.
- */
+/** Grande gerbe pour les montées de niveau : plus large, plus dense, formes plus grandes. */
 export function spawnLevelUpBurst(): void {
   const layer = document.getElementById("particles-layer");
   if (!layer) return;
@@ -82,7 +79,7 @@ export function spawnLevelUpBurst(): void {
   }
 }
 
-/** Cyan teleport particles — spawned on real-time tag detection */
+/** Particules cyan de téléportation, émises quand une balise est détectée en direct. */
 export function spawnTeleportParticles() {
   const layer = document.getElementById("particles-layer");
   if (!layer) return;

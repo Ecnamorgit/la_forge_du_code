@@ -1,8 +1,6 @@
 /**
- * Les exceptions au mur d'authentification.
- *
- * Un visiteur non connecté peut atteindre exactement ces chemins dans /learn.
- * Le reste est protégé par `proxy.ts`.
+ * Routes publiques et protégées. Dans /learn, un visiteur non connecté
+ * n'atteint que les chemins d'essai ; le reste est protégé par `proxy.ts`.
  */
 
 /** Cursus ouvert à l'essai. */
@@ -24,12 +22,8 @@ export const PUBLIC_TRIAL_ROUTES: readonly string[] = [
 ];
 
 /**
- * Égalité exacte, jamais `startsWith`.
- *
- * Avec un match par préfixe, "/learn/html/chapitre-1" ouvrirait aussi
- * "chapitre-10" le jour où HTML dépassera 9 chapitres — CSS en a déjà 10,
- * JavaScript 12. Le bug serait silencieux et n'apparaîtrait qu'à l'ajout
- * d'un chapitre, des mois plus tard.
+ * Égalité exacte, jamais `startsWith` : un match par préfixe ouvrirait aussi
+ * "chapitre-10" dès que le cursus HTML dépasserait neuf chapitres.
  */
 export function isPublicRoute(pathname: string): boolean {
   const normalized =
@@ -38,12 +32,9 @@ export function isPublicRoute(pathname: string): boolean {
 }
 
 /**
- * Préfixes derrière le mur d'authentification.
- *
- * Consommé par `proxy.ts` (qui redirige) ET par `app/robots.ts` (qui interdit
- * l'exploration). Une seule liste : sans ça, ajouter une section protégée
- * laisserait les crawlers y brûler leur budget d'exploration contre des
- * redirections vers /login, sans que rien ne le signale.
+ * Préfixes derrière le mur d'authentification, lus par `proxy.ts`
+ * (redirection) et `app/robots.ts` (exploration interdite). Une seule liste,
+ * pour qu'une nouvelle section protégée soit aussi exclue de l'exploration.
  */
 export const PROTECTED_PREFIXES: readonly string[] = [
   "/dashboard",
@@ -67,11 +58,9 @@ export const NON_INDEXABLE_PREFIXES: readonly string[] = [
 ];
 
 /**
- * Pages publiques à déclarer au sitemap.
- *
- * Le chapitre d'essai y figure via `PUBLIC_TRIAL_ROUTES` : c'est la brèche
- * volontaire dans `/learn`, et c'est aussi la page qui convertit — elle doit
- * être indexable même si son préfixe est protégé.
+ * Pages publiques déclarées au sitemap. Les pages d'essai y figurent via
+ * `PUBLIC_TRIAL_ROUTES` : seule ouverture dans `/learn`, ce sont aussi elles
+ * qui convertissent.
  */
 export const INDEXABLE_ROUTES: readonly string[] = [
   "/",

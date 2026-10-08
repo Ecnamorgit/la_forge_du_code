@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * Git chapitre 1 — etapes 2 a 4.
+ * Git chapitre 1 — étapes 2 à 4.
  *
- * L'etape 1 est deja couverte par `lib/validators/all-chapter-1.test.ts`.
+ * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
  */
 
 describe("Git — etape 2 (etat et historique)", () => {
@@ -15,7 +15,7 @@ describe("Git — etape 2 (etat et historique)", () => {
   });
 
   it("refuse git log sans --oneline", () => {
-    // Echec cible : l'etape enseigne l'historique compact.
+    // Échec ciblé : l'étape enseigne l'historique compact.
     expect(valider("git status\ngit log").ok).toBe(false);
   });
 
@@ -48,7 +48,7 @@ describe("Git — etape 3 (brancher puis fusionner)", () => {
   });
 
   it("refuse checkout -b sans nom de branche", () => {
-    // Le nom doit etre sur la MEME ligne : `\s+` traverserait le saut de ligne
+    // Le nom doit être sur la même ligne : `\s+` traverserait le saut de ligne
     // et prendrait la commande suivante pour le nom de la branche.
     expect(valider("git checkout -b\ngit merge feature/radar").ok).toBe(false);
   });

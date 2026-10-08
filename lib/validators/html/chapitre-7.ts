@@ -5,7 +5,7 @@ function stripHtmlComments(code: string): string {
 }
 
 export const validators: Validator[] = [
-  // Step 1: lang="fr" + charset UTF-8 + viewport
+  // Étape 1 : lang="fr", charset UTF-8 et viewport
   (code) => {
     const clean = stripHtmlComments(code);
     if (!/<html\b[^>]*\blang\s*=\s*["']fr["']/i.test(clean)) {
@@ -20,9 +20,9 @@ export const validators: Validator[] = [
         msg: 'Ajoute <meta name="viewport" content="width=device-width, initial-scale=1">.',
       };
     }
-    return { ok: true, msg: "Encodage stabilise.", objList: ["o1a", "o1b"] };
+    return { ok: true, msg: "Encodage stabilisé.", objList: ["o1a", "o1b"] };
   },
-  // Step 2: <meta name="description"> with non-empty content >= 30 chars
+  // Étape 2 : <meta name="description"> d'au moins 30 caractères
   (code) => {
     const clean = stripHtmlComments(code);
     const m = clean.match(
@@ -34,12 +34,12 @@ export const validators: Validator[] = [
     if (m[1].trim().length < 30) {
       return {
         ok: false,
-        msg: `La description doit faire au moins 30 caracteres (actuellement ${m[1].trim().length}).`,
+        msg: `La description doit faire au moins 30 caractères (actuellement ${m[1].trim().length}).`,
       };
     }
-    return { ok: true, msg: "Resume emis.", objList: ["o2a", "o2b"] };
+    return { ok: true, msg: "Résumé émis.", objList: ["o2a", "o2b"] };
   },
-  // Step 3: og:title + og:description + og:image
+  // Étape 3 : og:title, og:description et og:image
   (code) => {
     const clean = stripHtmlComments(code);
     const hasOg = (prop: string) =>
@@ -52,9 +52,9 @@ export const validators: Validator[] = [
       return { ok: false, msg: 'Ajoute <meta property="og:description" content="...">.' };
     if (!hasOg("image"))
       return { ok: false, msg: 'Ajoute <meta property="og:image" content="https://...">.' };
-    return { ok: true, msg: "Preview deployee.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Preview déployée.", objList: ["o3a", "o3b"] };
   },
-  // Step 4: favicon link
+  // Étape 4 : lien vers un favicon
   (code) => {
     const clean = stripHtmlComments(code);
     const m = clean.match(
@@ -64,7 +64,7 @@ export const validators: Validator[] = [
       return { ok: false, msg: 'Ajoute <link rel="icon" href="..."> dans le <head>.' };
     }
     if (m[1].trim().length === 0) {
-      return { ok: false, msg: "L'attribut href du favicon ne doit pas etre vide." };
+      return { ok: false, msg: "L'attribut href du favicon ne doit pas être vide." };
     }
     return { ok: true, msg: "Transpondeur complet.", objList: ["o4a", "o4b"], final: true };
   },

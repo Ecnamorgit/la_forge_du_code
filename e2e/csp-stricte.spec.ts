@@ -3,28 +3,18 @@ import { expect, test } from "@playwright/test";
 import { sandboxOriginFor } from "../lib/sandbox/sandbox-origin";
 
 /**
- * Garde-fou du durcissement CSP (constat EXE-03). Remplace l'ancien
- * `csp-srcdoc-script.spec.ts` : le code des apprenants ne s'exécute plus dans un
- * `srcdoc` héritant de la CSP du site, mais depuis une origine dédiée. La CSP de
- * l'application peut donc être stricte — à nonce et `'strict-dynamic'`, sans
- * `'unsafe-inline'` ni `'unsafe-eval'`.
+ * CSP stricte de l'application (audit EXE-03) : le code des apprenants
+ * s'exécute sur une origine dédiée, ce qui permet un script-src à nonce et
+ * `'strict-dynamic'`, sans `'unsafe-inline'` ni `'unsafe-eval'`.
  *
- * La CSP n'est émise qu'en production (`proxy.ts`, garde `CSP_ACTIVE`), donc ce
- * test n'a de valeur que lancé contre `pnpm build && pnpm start` (E2E_PROD=1,
- * ce que fait la CI). Contre `pnpm dev` il se saute.
- *
- * Deux niveaux de preuve, complémentaires du test unitaire `csp.test.ts` (qui
- * ne vérifie que le TEXTE de la politique) :
- *  1. l'en-tête réellement émis est bien la politique stricte ;
- *  2. la page hydrate sous cette politique, sans violation CSP — c'est la preuve
- *     que nonce + `'strict-dynamic'` n'ont pas cassé les scripts de Next.
+ * La CSP n'est émise qu'en production (`proxy.ts`, garde `CSP_ACTIVE`) : ce
+ * test se saute contre `pnpm dev` et ne sert qu'avec E2E_PROD=1, comme en CI.
+ * Là où `csp.test.ts` vérifie le texte de la politique, il vérifie l'en-tête
+ * réellement émis et l'hydratation de la page sans violation.
  */
 test("sous CSP de production, script-src est à nonce et sans unsafe-*", async ({ page }) => {
-  // On ne retient QUE les vraies violations CSP (« … violates the following
-  // Content Security Policy directive »). Un « Refused to execute … because its
-  // MIME type » n'en est pas une : c'est le nosniff, et en local le script
-  // d'analytics Vercel (/_vercel/insights/script.js) est absent — un artefact
-  // local sans rapport avec la CSP.
+  // Seules les vraies violations CSP comptent. Un refus pour type MIME vient
+  // de nosniff : en local, le script d'analytics Vercel est absent.
   const violations: string[] = [];
   page.on("console", (m) => {
     if (/content security policy/i.test(m.text())) violations.push(m.text());
@@ -53,12 +43,8 @@ test("sous CSP de production, script-src est à nonce et sans unsafe-*", async (
     "'unsafe-eval'"
   );
 
-  // L'aperçu du bac à sable est encadré depuis l'origine dédiée : frame-src doit
-  // l'autoriser, sinon les iframes d'exécution seraient bloquées en production.
-  // Et SEULEMENT elle : les deux origines sont dérivées de la requête, dans les
-  // deux sens. Relevé en production le 2026-09-14 : localhost:3000 et
-  // 127.0.0.1:3000 étaient livrés dans la CSP du site en ligne (listes codées
-  // en dur) — ce test verrouille la correction.
+  // frame-src autorise l'origine du bac à sable, et elle seule : les deux
+  // origines sont dérivées de la requête, sans liste codée en dur.
   const app = new URL(page.url()).origin;
   const bacASable = sandboxOriginFor(app);
   const frameSrc = csp!
@@ -69,8 +55,7 @@ test("sous CSP de production, script-src est à nonce et sans unsafe-*", async (
     `frame-src 'self' ${bacASable}`
   );
 
-  // Réciproque : le document du bac à sable n'accepte d'être encadré QUE par
-  // l'application qui l'a demandé (frame-ancestors dérivé de sa propre origine).
+  // Réciproquement, le bac à sable n'accepte d'être encadré que par l'app.
   const doc = await page.request.get(`${bacASable}/bac-a-sable/html`);
   const cspBac = doc.headers()["content-security-policy"] ?? "";
   const ancetres = cspBac
@@ -81,8 +66,7 @@ test("sous CSP de production, script-src est à nonce et sans unsafe-*", async (
     `frame-ancestors ${app}`
   );
 
-  // Preuve comportementale : la page a hydraté (un bouton client réagit) sous la
-  // CSP stricte, et aucune violation CSP n'a été journalisée pendant le chargement.
+  // La page hydrate sous la CSP stricte sans journaliser de violation.
   await expect(page.getByRole("link", { name: /connexion|se connecter/i }).first()).toBeVisible({
     timeout: 15_000,
   });

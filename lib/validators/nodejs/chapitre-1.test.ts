@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * Node.js chapitre 1 — etapes 2 a 4.
+ * Node.js chapitre 1 — étapes 2 à 4.
  *
- * L'etape 1 est deja couverte par `lib/validators/all-chapter-1.test.ts`.
+ * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
  */
 
 describe("Node.js — etape 2 (route GET /ping)", () => {
@@ -18,7 +18,7 @@ describe("Node.js — etape 2 (route GET /ping)", () => {
   });
 
   it("refuse une route /ping qui repond en texte brut", () => {
-    // Echec cible : la route existe, la reponse n'est pas celle demandee.
+    // Échec ciblé : la route existe, la réponse n'est pas celle demandée.
     const code = `app.get('/ping', (req, res) => {
   res.send('ok');
 });`;
@@ -52,7 +52,7 @@ app.post('/vaisseaux', (req, res) => {
   });
 
   it("refuse un POST qui repond 200 au lieu de 201", () => {
-    // Echec cible : creer une ressource se signale par un 201.
+    // Échec ciblé : créer une ressource se signale par un 201.
     const code = `app.use(express.json());
 app.post('/vaisseaux', (req, res) => {
   res.status(200).json(req.body);
@@ -74,7 +74,7 @@ describe("Node.js — etape 4 (route dynamique et 404)", () => {
   });
 
   it("refuse une route parametree sans cas d'absence", () => {
-    // Echec cible : c'est le 404 qui distingue une API correcte.
+    // Échec ciblé : c'est le 404 qui distingue une API correcte.
     const code = `app.get('/vaisseaux/:id', (req, res) => {
   res.json(trouver(req.params.id));
 });`;

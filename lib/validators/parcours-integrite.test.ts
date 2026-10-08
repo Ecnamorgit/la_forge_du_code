@@ -9,25 +9,14 @@ import { RUNTIME_CHAPTERS } from "./runtime";
  *
  * Les tests par chapitre vérifient qu'un validateur dit juste. Celui-ci vérifie
  * qu'il existe, qu'il est branché, et que l'étape qu'il garde n'est pas vide.
- * Aucun cas n'est écrit à la main : tout est dérivé des deux registres, donc un
- * chapitre ajouté demain est couvert sans qu'on touche à ce fichier.
- *
- * Cf. docs/superpowers/specs/2026-08-06-couverture-validateurs-design.md
+ * Tout est dérivé des deux registres : un nouveau chapitre est couvert sans
+ * toucher à ce fichier.
  */
 
 /**
- * Chapitres dont les validateurs jugent une EXÉCUTION, pas un texte : ils
- * lisent `ctx.logs` ou `ctx.sql`. Appelés sans contexte ils échouent pour
- * absence de contexte — pas parce que le startCode est incomplet. L'invariant b
- * serait vert sans rien prouver, on les en exclut.
- *
- * L'exclusion est nommée **chapitre par chapitre**, et non par cursus : les
- * chapitres 11 et 12 de `javascript` sont statiques (l'hôte d'API est fictif et
- * ne résout jamais dans le sandbox), donc l'invariant s'y applique. Un chapitre
- * ajouté demain est couvert par défaut ; s'il est runtime, l'invariant échouera
- * bruyamment et il faudra l'inscrire ici — c'est le bon sens de la faute.
- *
- * Leur couverture passe par des tests dédiés qui fournissent un contexte réel.
+ * Chapitres jugés sur une exécution (voir `runtime.ts`) : sans contexte, leurs
+ * validateurs échouent quel que soit le startCode, l'invariant ne prouverait
+ * rien. Des tests dédiés les couvrent avec un contexte réel.
  */
 const ETAPES_RUNTIME = RUNTIME_CHAPTERS;
 

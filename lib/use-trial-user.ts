@@ -17,7 +17,7 @@ import {
 import type { CompleteStepResponse, UseUserReturn } from "./use-user";
 import { DEFAULT_USER } from "./user-store";
 
-/** Chapitres jouables en essai, indexés par slug (source : TRIAL_CHAPTERS). */
+/** Données des chapitres d'essai par slug, à garder alignées sur TRIAL_CHAPTERS. */
 const TRIAL_CHAPTER_DATA: Record<string, typeof htmlCh1> = {
   [htmlCh1.slug]: htmlCh1,
   [htmlCh2.slug]: htmlCh2,
@@ -89,7 +89,7 @@ export function useTrialUser(): UseUserReturn {
     state: hydrated ? trialStateToUserState(trial) : DEFAULT_USER,
     hydrated,
     refresh: async () => {},
-    // Fire-and-forget côté appelant : sans compte, il n'y a rien à mémoriser.
+    // Sans compte, rien à mémoriser.
     markCourseVisited: async () => {},
     renameUser: rejectWithAccountRequired,
     reset: rejectWithAccountRequired,

@@ -2,11 +2,11 @@ import type { Validator } from "@/data/courses/html/types";
 import { logsContain, logsInclude, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
-  return error ? `Erreur d'execution : ${error}` : null;
+  return error ? `Erreur d'exécution : ${error}` : null;
 }
 
 export const validators: Validator[] = [
-  // Step 1: greet(name) → "Bonjour, <name>" with name="Cadet"
+  // Étape 1 : greet(name) renvoie "Bonjour, <name>", appelée avec "Cadet"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -33,7 +33,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: addXp(120, 50) → 170
+  // Étape 2 : addXp(120, 50) renvoie 170
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -59,22 +59,19 @@ export const validators: Validator[] = [
     ) {
       return { ok: false, msg: "La logique de addXp doit additionner les 2 valeurs." };
     }
-    // La fonction doit RETOURNER la somme : c'est l'appelant qui l'affiche.
-    //
-    // Deux formes de corps, deux exigences distinctes — les confondre laissait
-    // passer `function addXp(a, b) { console.log(a + b); }`, exactement ce que
-    // cette garde doit refuser : un corps entre accolades contient toujours un
-    // `+` dans cet exercice, donc la tolerance prevue pour l'arrow concise
-    // s'appliquait aussi a lui et neutralisait la verification du return.
+    // La fonction doit retourner la somme, l'appelant l'affiche. Chaque forme de
+    // corps a son exigence : un corps entre accolades contient toujours un `+`
+    // ici, il ne doit donc pas profiter de la tolérance de l'arrow concise, sinon
+    // `{ console.log(a + b); }` passerait.
     const corpsAccolades =
       stripped.match(/\bfunction\s+addXp\s*\([^)]*\)\s*\{([\s\S]*?)\}/) ||
       stripped.match(/\baddXp\s*=\s*(?:function\s*\([^)]*\)|\([^)]*\)\s*=>)\s*\{([\s\S]*?)\}/);
 
     const manqueLeRetour = corpsAccolades
-      ? // Corps entre accolades : le `return` doit etre ecrit.
+      ? // Corps entre accolades : le `return` doit être écrit.
         !/\breturn\b/.test(corpsAccolades[1])
-      : // Arrow concise (`=> base + bonus`) : le return est implicite, on
-        // verifie seulement que l'addition est bien la valeur de l'expression.
+      : // Arrow concise (`=> base + bonus`) : return implicite, l'addition doit
+        // être la valeur de l'expression.
         !/\+/.test(
           stripped.match(/\baddXp\s*=\s*\([^)]*\)\s*=>\s*([^;\n]+)/)?.[1] ?? ""
         );
@@ -97,7 +94,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: arrow function double(7) = 14
+  // Étape 3 : arrow function, double(7) affiche 14
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -121,7 +118,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Step 4: status(7) → "Pilote"
+  // Étape 4 : status(7) renvoie "Pilote"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -136,14 +133,14 @@ export const validators: Validator[] = [
     if (!/\bif\s*\(/.test(stripped)) {
       return { ok: false, msg: "Utilise au moins un if à l'intérieur." };
     }
-    // Require comparisons with the variable on the LEFT: `level < 5` and `level < 10`
-    // (or strict `<=`). Reject inverted forms like `5 < x` which trip up the logic.
+    // Seuils avec la variable à gauche (`level < 5`, `level < 10`, ou `<=`) ;
+    // les formes inversées comme `5 < x` sont refusées.
     const lhs5 = /\bif\s*\(\s*\w+\s*<=?\s*5\b/.test(stripped);
     const lhs10 = /\bif\s*\(\s*\w+\s*<=?\s*10\b/.test(stripped);
     if (!lhs5 || !lhs10) {
       return {
         ok: false,
-        msg: "Utilise des seuils progressifs avec le parametre à gauche (ex: if (level < 5) ... if (level < 10) ...).",
+        msg: "Utilise des seuils progressifs avec le paramètre à gauche (ex: if (level < 5) ... if (level < 10) ...).",
       };
     }
     if (!logsInclude(ctx.logs, "Pilote")) {
@@ -152,19 +149,17 @@ export const validators: Validator[] = [
         msg: 'La console doit afficher exactement "Pilote".',
       };
     }
-    // Reject runs that hardcoded the output (e.g. function ignores the arg).
-    // Heuristic: if "Pilote" appears literally in the code without going through any branch,
-    // the user likely wrote `return "Pilote"` unconditionally. We check that "Cadet" and
-    // "Capitaine" also appear as string literals — the canonical implementation has all 3.
+    // Contre une sortie codée en dur (`return "Pilote"` sans condition) : les
+    // trois rangs doivent figurer en littéraux, comme dans la solution du cours.
     if (!/['"`]Cadet['"`]/.test(stripped) || !/['"`]Capitaine['"`]/.test(stripped)) {
       return {
         ok: false,
-        msg: 'Les trois rangs "Cadet", "Pilote" et "Capitaine" doivent apparaitre dans la fonction.',
+        msg: 'Les trois rangs "Cadet", "Pilote" et "Capitaine" doivent apparaître dans la fonction.',
       };
     }
     return {
       ok: true,
-      msg: "Rang dynamique attribue.",
+      msg: "Rang dynamique attribué.",
       objList: ["o4a", "o4b"],
       final: true,
     };

@@ -3,7 +3,7 @@ import { validators } from "./chapitre-5";
 import type { ValidatorContext } from "@/data/courses/html/types";
 
 /**
- * JS chapitre 5 — objets, proprietes, methodes de chaine, this.
+ * JS chapitre 5 — objets, propriétés, méthodes de chaîne, this.
  */
 
 const ctx = (logs: string[], error: string | null = null): ValidatorContext => ({
@@ -31,7 +31,7 @@ console.log(pilote);`;
   });
 
   it("refuse un objet declare mais jamais affiche", () => {
-    // Echec cible : la declaration est bonne, la sortie manque.
+    // Échec ciblé : la déclaration est bonne, la sortie manque.
     expect(valider(CODE, ctx([])).ok).toBe(false);
   });
 
@@ -55,7 +55,7 @@ console.log(pilote);`;
   });
 
   it("refuse une lecture par crochets", () => {
-    // Echec cible : l'etape enseigne la notation point.
+    // Échec ciblé : l'étape enseigne la notation point.
     const code = `const pilote = { name: "Cadet", level: 5 };
 console.log(pilote["name"]);
 pilote.level = 8;
@@ -84,7 +84,7 @@ console.log(code.length);`;
   });
 
   it("refuse une majuscule ecrite en dur", () => {
-    // Echec cible : la sortie est bonne, la methode n'a pas ete employee.
+    // Échec ciblé : la sortie est bonne, la méthode n'a pas été employée.
     const code = `console.log("NEBULA-7");
 console.log("nebula-7".length);`;
     expect(valider(code, ctx(["NEBULA-7", "8"])).ok).toBe(false);
@@ -114,7 +114,7 @@ console.log(pilote.greet());`;
   });
 
   it("refuse une methode qui ignore this", () => {
-    // Echec cible : la sortie est bonne, mais le nom est fige.
+    // Échec ciblé : la sortie est bonne, mais le nom est figé.
     const code = `const pilote = {
   name: "Cadet",
   greet() { return "Salut Cadet"; }

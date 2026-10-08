@@ -3,19 +3,14 @@ import Link from "next/link";
 import BrandLogo from "@/components/ui/BrandLogo";
 
 /**
- * En-tête des pages publiques (landing, codex).
- *
- * La coque et le bloc de marque sont partagés ; chaque page passe ses propres
- * actions en `children`. Sans ce composant, un lien ajouté à la navigation
- * n'apparaîtrait que sur l'une des pages.
+ * En-tête des pages publiques (landing, codex). La coque et le bloc de marque
+ * sont partagés ; chaque page passe ses propres actions en `children`.
  */
 export default function PublicHeader({ children }: { children: React.ReactNode }) {
   return (
     <header className="relative z-50 flex h-16 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/80 px-4 backdrop-blur-md sm:px-6">
-      {/* Sous `sm`, la navigation (Codex · Se connecter · S'inscrire) occupe
-          presque toute la largeur : le nom écrit se tronquait en « LA FO… ».
-          On ne garde que le pictogramme ; le nom reste annoncé aux lecteurs
-          d'écran via aria-label, et le héros l'affiche en grand juste dessous. */}
+      {/* Sous `sm`, la navigation occupe presque toute la largeur : seul le
+          pictogramme est affiché, le nom reste annoncé via aria-label. */}
       <Link
         href="/"
         aria-label="La Forge du Code — accueil"

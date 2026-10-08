@@ -9,12 +9,9 @@ import { nullProgressLabel, nullProgressAriaLabel } from "./null-progress";
 const BANNED = [/\bnull\b/i, /\bglitch\b/i];
 
 /**
- * Textes narratifs éparpillés hors de lib/lore.ts, lib/intro.ts : ils ont
- * échappé une première fois à ce test (cf. revue de branche) car ils vivent
- * dans des modules de feedback/progression plutôt que dans les sources de
- * lore centrales. On échantillonne ici toutes les valeurs possibles des
- * fonctions concernées (pas seulement des constantes statiques) pour que le
- * même oubli soit détecté à l'avenir.
+ * Textes narratifs hors de lib/lore.ts et lib/intro.ts (retours d'erreur,
+ * progression). On échantillonne les valeurs des fonctions concernées, pas
+ * seulement des constantes.
  */
 function scatteredNarrativeText(): string {
   const taunts = SPECTRE_TAUNTS.join(" ");

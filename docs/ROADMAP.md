@@ -1,4 +1,4 @@
-# 🗺️ Roadmap « Production-Ready » — CodeForge / Nebula Command
+# Roadmap « Production-Ready » — La Forge du Code / Nebula Command
 
 > Feuille de route pour amener le projet à un état déployable, fiable et conforme.
 > Convention d'effort : **S** ≤ 2 h · **M** ½ j · **L** 1 j · **XL** 2 j+
@@ -22,6 +22,11 @@
 M1, M2, CF-17, CF-18 et CF-19 sont livrés. Il reste **CF-15**, bloqué par un
 prérequis, et la confirmation opérationnelle de CF-6.
 
+**Mise à jour du 2026-09-14** : CF-15 est résolu par le constat EXE-03 de l'audit
+de sécurité ([fiche EXE-03](audit-securite/corrections/EXE-03.md)). Le bac à
+sable est servi depuis une origine dédiée et l'application émet une CSP à nonce,
+sans `'unsafe-inline'` ni `'unsafe-eval'`.
+
 Les cases cochées ci-dessous l'ont été sur preuve dans le code. Celles qui
 restent vides sous un ticket par ailleurs livré désignent un fait que le dépôt
 ne peut pas établir — un déploiement réellement effectué, une restauration
@@ -30,12 +35,12 @@ des oublis : les laisser vides est l'information.
 
 | Reste à faire | Pourquoi |
 |---|---|
-| **CF-15** | Bloqué par un prérequis : sortir l'aperçu du `srcdoc`. Mesuré, pas supposé — voir le ticket. |
+| ~~CF-15~~ | Résolu le 2026-09-14 par EXE-03. |
 | CF-6 | Runbook écrit ; le déploiement à blanc reste à confirmer. |
 
 ---
 
-## 🔴 M1 — Blockers de mise en production
+## M1 — Blockers de mise en production
 
 ### CF-1 · Hasher les tokens à usage unique en base
 **P0 · M · Sécurité**
@@ -95,7 +100,7 @@ La CI ne vérifie ni `tsc --noEmit` ni `next build`.
 
 ---
 
-## 🟠 M2 — Fiabilité & observabilité
+## M2 — Fiabilité & observabilité
 
 ### CF-7 · Rate-limiter partagé (Redis/Upstash) — conditionnel
 **P1 · L · Sécurité/Scale**
@@ -153,7 +158,7 @@ Vérifier `app/error.tsx`, `app/not-found.tsx`, `global-error.tsx`.
 
 ---
 
-## 🟡 M3 — Polish, conformité & perf
+## M3 — Polish, conformité & perf
 
 ### CF-14 · Conformité RGPD opérationnelle
 **P1 · L · Conformité**
@@ -165,9 +170,11 @@ Vérifier `app/error.tsx`, `app/not-found.tsx`, `global-error.tsx`.
 - [x] Export des données perso disponible — `app/api/me/export`
 
 ### CF-15 · Durcir la CSP (retirer `unsafe-inline`/`unsafe-eval`)
-**P2 · L · Sécurité** — ⛔ **bloqué par un prérequis, pas par la difficulté**
+**P2 · L · Sécurité** — résolu le 2026-09-14 par le constat EXE-03 de l'audit
+de sécurité : voir la [fiche EXE-03](audit-securite/corrections/EXE-03.md).
 
-> **Lis `docs/BRIEF_CSP_GARDE_FOU.md` avant de toucher à `script-src`.**
+> Les mesures ci-dessous datent d'avant la correction ; elles sont conservées
+> comme historique du diagnostic.
 
 **Mesuré le 2026-08-06**, contre un vrai build de production, en retirant les
 tokens un à un et en observant la console. Ces trois faits remplacent ce que
@@ -179,7 +186,7 @@ tokens un à un et en observant la console. Ces trois faits remplacent ce que
 | `'unsafe-inline'` | **les scripts inline de Next** (bootstrap, hydratation) | sans lui : 7 scripts bloqués, Monaco ne charge plus, page morte |
 | `'unsafe-eval'` | **les `srcdoc` seuls** — sandbox JS et aperçu React | sans lui : `new Function` lève `EvalError` dans l'iframe |
 
-**Monaco n'a PAS besoin d'`unsafe-eval`.** Le commentaire de `next.config.ts`
+**Monaco n'a pas besoin d'`unsafe-eval`.** Le commentaire de `next.config.ts`
 l'affirmait ; c'est faux depuis l'auto-hébergement (CF-16). Vérifié : sous
 `script-src 'self' 'unsafe-inline'`, Monaco charge, tokenise et rend sans une
 seule violation.
@@ -206,7 +213,7 @@ ne détecte pas (`let x = true; while (x) {}`) : le parent devient **totalement
 injoignable**. L'observation du 2026-07-30 tient, et `loop-guard.ts` protège
 bien quelque chose de réel.
 
-**Que l'origine dédiée le corrige n'est PAS démontré.** La mesure a échoué avant
+**Que l'origine dédiée le corrige n'est pas démontré.** La mesure a échoué avant
 de pouvoir conclure : servi comme page autonome, le document d'aperçu n'envoie
 jamais sa poignée de main `preview:ready`.
 
@@ -215,7 +222,7 @@ jamais sa poignée de main `preview:ready`.
 la poignée de main échoue hors `srcdoc` est le point de départ, pas un détail
 d'intendance.
 
-> ⚠️ **Piège pour qui reprendra la sonde.** Une boucle synthétique bornée
+> **Piège pour qui reprendra la sonde.** Une boucle synthétique bornée
 > (`while (Date.now() - t < 3000) {}`) dans une iframe nue **ne reproduit pas**
 > le gel — ni en headless, ni en navigateur visible. Il faut le runtime React et
 > une boucle véritablement infinie. Trois autres méthodes de mesure ont donné
@@ -255,10 +262,12 @@ l'onglet, et le message promettant une interruption après 3 secondes ne
 s'affiche jamais.
 
 > **Ce n'est pas mesuré.** C'est une déduction par analogie de structure, pas une
-> observation — et la distinction a coûté assez cher aujourd'hui pour ne pas
-> l'effacer ici. La vérification est bon marché : même méthode que la sonde
+> observation. La vérification est bon marché : même méthode que la sonde
 > ci-dessus, avec un code de leçon qui boucle. **À faire avant toute conception**,
 > car un `run-js` réellement non protégé serait plus urgent que CF-15 lui-même.
+>
+> Vérifié depuis : `run-js` n'était pas protégé (constat EXE-02 de l'audit,
+> corrigé, voir la [fiche EXE-02](audit-securite/corrections/EXE-02.md)).
 
 #### Ce que le chantier apporterait en plus
 
@@ -286,13 +295,13 @@ s'affiche jamais.
   ce relâchement ne concerne plus l'application.
 
 **Acceptation**
-- [ ] **Vérifier si `run-js.ts` est réellement protégé** — son chien de garde est du type prouvé non fonctionnel ; à faire AVANT toute conception
-- [ ] Comprendre pourquoi le document d'aperçu n'envoie pas `preview:ready` hors `srcdoc` — **premier pas, non résolu**
-- [ ] Mesurer si une origine dédiée supprime le gel d'onglet — non démontré à ce jour
-- [ ] L'aperçu et le sandbox JS sont servis depuis une origine dédiée — **prérequis, ticket à créer**
-- [ ] La CSP de l'application passe aux nonces et perd `'unsafe-inline'`
-- [ ] La CSP de l'application perd `'unsafe-eval'`
-- [ ] L'aperçu React et le cursus JavaScript fonctionnent toujours, prouvé en e2e contre un build de production
+- [x] Vérifier si `run-js.ts` est réellement protégé — il ne l'était pas : EXE-02, corrigé
+- [x] Comprendre pourquoi le document d'aperçu n'envoie pas `preview:ready` hors `srcdoc` — origine du parent figée à la construction, voir EXE-03
+- [ ] Mesurer si une origine dédiée supprime le gel d'onglet — non démontré ; les boucles sans fin sont traitées par EXE-02
+- [x] L'aperçu React, l'aperçu HTML et le sandbox JS sont servis depuis une origine dédiée (`/bac-a-sable`) — EXE-03
+- [x] La CSP de l'application passe aux nonces et perd `'unsafe-inline'` — EXE-03
+- [x] La CSP de l'application perd `'unsafe-eval'` (en production) — EXE-03
+- [x] L'aperçu React et le cursus JavaScript fonctionnent toujours, prouvé en e2e contre un build de production — `csp-stricte`, `react-preview`, `securite-boucles`
 
 ### CF-16 · Auto-héberger Monaco (retirer la dépendance CDN)
 **P2 · M · Robustesse/Perf**
@@ -302,7 +311,7 @@ Monaco chargé depuis jsdelivr → dépendance externe + entrées CSP.
 - [x] Éditeur fonctionne sans le CDN — Monaco servi depuis `/public/monaco`, plus aucune entrée jsdelivr dans la CSP
 
 ### CF-17 · Budget perf & Core Web Vitals
-**P2 · M · Perf** — ✅ **mesuré et au vert le 2026-08-11**
+**P2 · M · Perf** — mesuré et au vert le 2026-08-11
 
 **Vérifié le 2026-08-06 :**
 
@@ -359,7 +368,7 @@ remonté à Sentry, déjà câblé (CF-10).
 - [ ] Relevé de terrain sur de vrais réseaux — *optionnel, hors du critère d'origine*
 
 ### CF-18 · Élargir la couverture de tests des validateurs
-**P2 · L · Tests** — ✅ **livré le 2026-08-06**
+**P2 · L · Tests** — livré le 2026-08-06
 
 Le critère d'origine (« ≥ 1 test par cursus ») était **déjà rempli** avant même
 qu'on y touche, par `all-chapter-1.test.ts`. Mais il ne testait que
@@ -395,7 +404,7 @@ s'ajoutera. Ce n'est plus urgent maintenant que la couverture existe, mais ça
 reste vrai pour les chapitres à venir.
 
 ### CF-19 · Backups DB + plan de restauration
-**P1 · S · Exploitation** — ✅ **livré et prouvé le 2026-08-11**
+**P1 · S · Exploitation** — livré et prouvé le 2026-08-11
 
 La procédure est écrite (`docs/DEPLOYMENT.md §7`) et la vérification est
 désormais une commande plutôt qu'une intention :
@@ -411,7 +420,8 @@ pointe pas sur la production.
 
 **Le plan gratuit Supabase n'inclut aucune sauvegarde** (constaté le 2026-08-06 :
 « Free Plan does not include project backups »). L'hébergeur ne couvre donc
-rien, et la couverture repose sur `.github/workflows/backup.yml` : `pg_dump`
+rien, et la couverture repose sur le workflow du dépôt privé
+`la_forge_du_code-sauvegardes` : `pg_dump`
 quotidien, chiffré AES256 avant de quitter le runner, artefact retenu 90 jours.
 Le workflow échoue si le dump fait moins de 10 Ko — une sauvegarde vide est le
 mode de panne classique et passerait sinon inaperçue.
@@ -433,7 +443,7 @@ production à un événement près — enregistré entre le relevé et le dump.
 `realtime` et `vault`. Ces rôles n'existent pas sur un Postgres nu. Aucune ne
 touche au schéma `public`, où vivent les données de l'application.
 
-> ⚠️ **Après un test de restauration, supprimer le `.dump` déchiffré.** C'est
+> **Après un test de restauration, supprimer le `.dump` déchiffré.** C'est
 > une copie en clair des emails et des hashs de mots de passe, posée sur une
 > machine de développement. Le chiffrement de l'artefact ne sert à rien si la
 > version déchiffrée traîne dans un dossier de téléchargements.

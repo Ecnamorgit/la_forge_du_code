@@ -21,11 +21,11 @@ export async function POST(req: Request) {
   const refus = crossOriginRefusal(req);
   if (refus) return refus;
 
-  // Throttle par IP : empêche de marteler des tokens au hasard, et borne le
-  // coût des bcrypt.hash déclenchés par cette route.
+  // Limite par IP : freine l'essai de jetons au hasard et borne le coût des
+  // bcrypt.hash.
   const limit = await rateLimit(`reset:${getClientIp(req)}`, {
     limit: 10,
-    windowMs: 15 * 60 * 1000, // 10 tentatives / 15 min / IP
+    windowMs: 15 * 60 * 1000,
   });
   if (!limit.ok) return tooManyRequests(limit.retryAfter);
 
@@ -54,11 +54,9 @@ export async function POST(req: Request) {
       where: { id: userId },
       data: {
         password: hashed,
-        // Resetting the password also confirms email ownership.
+        // Recevoir le lien prouve aussi la possession de l'adresse.
         emailVerified: new Date(),
-        // Révoque toutes les sessions émises avant ce changement (constat
-        // SRV-03) : une session volée cesse de fonctionner dès la
-        // réinitialisation.
+        // Révoque les sessions émises avant ce changement (audit SRV-03).
         sessionVersion: { increment: 1 },
       },
     });

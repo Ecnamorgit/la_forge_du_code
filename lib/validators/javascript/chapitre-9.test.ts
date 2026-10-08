@@ -23,7 +23,7 @@ p.then((v) => console.log(v));`;
   });
 
   it("refuse un setTimeout sans promesse", () => {
-    // Echec cible : le differe est la, l'objet Promise n'y est pas.
+    // Échec ciblé : le différé est là, l'objet Promise n'y est pas.
     const code = `setTimeout(() => console.log("OK"), 10);`;
     expect(valider(code, ctx(["OK"])).ok).toBe(false);
   });
@@ -49,7 +49,7 @@ lancer();`;
   });
 
   it("refuse un then a la place de await", () => {
-    // Echec cible : l'etape enseigne await, pas le chainage.
+    // Échec ciblé : l'étape enseigne await, pas le chaînage.
     const code = `Promise.resolve("Mission lunaire").then((m) => console.log(m));`;
     expect(valider(code, ctx(["Mission lunaire"])).ok).toBe(false);
   });
@@ -81,7 +81,7 @@ lancer();`;
   });
 
   it("refuse un try/catch sans await a l'interieur", () => {
-    // Echec cible : le bloc existe mais ne protege rien d'asynchrone.
+    // Échec ciblé : le bloc existe mais ne protège rien d'asynchrone.
     const code = `try {
   throw new Error("timeout");
 } catch (e) {

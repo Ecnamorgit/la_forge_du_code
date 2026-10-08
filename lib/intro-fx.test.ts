@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { INTRO_FX, type Fx } from "./intro-fx";
 import { INTRO_SCENES } from "./intro";
 
-/** Bornes [0,1] avec un epsilon nul : les coordonnées sont normalisées. */
+/** Vrai si la coordonnée normalisée est dans [0,1]. */
 function inUnit(v: number): boolean {
   return v >= 0 && v <= 1;
 }
@@ -39,7 +39,7 @@ describe("INTRO_FX", () => {
     for (const scene of Object.values(INTRO_FX)) {
       expect(scene.effects.length).toBeGreaterThan(0);
       expect(scene.camera.amount).toBeGreaterThan(0);
-      // Les dérives restent subtiles (< 10% de l'image).
+      // Les dérives restent subtiles (moins de 10 % de l'image).
       expect(scene.camera.amount).toBeLessThan(0.1);
     }
   });

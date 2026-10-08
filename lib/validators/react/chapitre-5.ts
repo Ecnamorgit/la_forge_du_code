@@ -3,18 +3,15 @@ import { stripLineComments, fail, pass, findCallBody, isFollowedByCall, hasEmpty
 
 const strip = (code: string) => stripLineComments(code, "//");
 
-// Regex de detection JSX partagees par les etapes 1 et 3 : un callback qui
-// retourne du JSX soit sous forme flechee directe (`v => <li>...`), soit
-// sous forme bloc avec return (`v => { ... return <li>...; }`).
+// Callback de .map() qui retourne du JSX, en flèche directe (`v => <li>...`)
+// ou en bloc avec return (`v => { ... return <li>...; }`).
 const arrowJsxRe = /=>\s*\(?\s*<[A-Za-z]/;
 const blockReturnJsxRe = /=>\s*\{[\s\S]*?return\s*\(?\s*<[A-Za-z]/;
 
 /**
- * Cherche, parmi TOUTES les occurrences de `.map(` du code, une dont le
- * callback retourne effectivement du JSX. Corrige le meme piege pour les
- * etapes 1 et 3 : un `.map()` ou un composant sans rapport avec le rendu
- * (une valeur derivee, un composant de debug ailleurs dans le fichier) ne
- * doit pas polluer la detection de la VRAIE transformation en JSX.
+ * Vrai si au moins un appel `.map(...)` du code a un callback qui retourne du
+ * JSX. Tous les appels sont examinés : un `.map()` sans rapport avec le rendu
+ * ne doit pas masquer le bon.
  */
 function findMapCallbackReturningJsx(code: string): boolean {
   let match = findCallBody(code, "map");
@@ -28,39 +25,37 @@ function findMapCallbackReturningJsx(code: string): boolean {
 }
 
 export const validators: Validator[] = [
-  // Step 1: flotte.map(...) whose callback returns JSX (arrow body or block + return)
+  // Étape 1 : flotte.map(...) dont le callback retourne du JSX
   (code) => {
     const c = strip(code);
     if (!findCallBody(c, "map")) {
-      return fail("Utilise .map() sur le tableau flotte pour generer la liste, au lieu de recopier chaque <li> a la main.");
+      return fail("Utilise .map() sur le tableau flotte pour générer la liste, au lieu de recopier chaque <li> à la main.");
     }
-    // On isole le(s) callback(s) de .map() plutot que de chercher une fleche
-    // JSX n'importe ou dans le fichier : un composant sans rapport qui
-    // retourne du JSX ailleurs (ex: const Debug = () => <span/>) ne doit pas
-    // faire passer un .map() qui, lui, ne retourne que du texte.
+    // Seuls les callbacks de .map() comptent : un composant sans rapport qui
+    // retourne du JSX (`const Debug = () => <span/>`) ne doit pas faire passer un
+    // .map() qui ne retourne que du texte.
     if (!findMapCallbackReturningJsx(c)) {
-      return fail("Le callback de .map() doit retourner un element JSX, par exemple v => <li>{v.nom}</li>.");
+      return fail("Le callback de .map() doit retourner un élément JSX, par exemple v => <li>{v.nom}</li>.");
     }
-    return pass("Flotte affichee dynamiquement.", ["o1a", "o1b"]);
+    return pass("Flotte affichée dynamiquement.", ["o1a", "o1b"]);
   },
-  // Step 2: key={...} present, and not the bare index/i as the key expression
+  // Étape 2 : une prop key={...} qui n'est pas simplement l'index
   (code) => {
     const c = strip(code);
     const keyMatches = [...c.matchAll(/key=\{([^}]*)\}/g)];
     if (keyMatches.length === 0) {
-      return fail("Ajoute une prop key={...} sur l'element racine retourne par map (ex: <li key={v.id}>).");
+      return fail("Ajoute une prop key={...} sur l'élément racine retourné par map (ex: <li key={v.id}>).");
     }
     const usesIndexOnly = keyMatches.some((m) => /^\s*(index|i|idx)\s*$/.test(m[1]));
     if (usesIndexOnly) {
       return fail(
-        "N'utilise pas l'index du tableau comme key (key={index} ou key={i}) : des que la flotte bouge, React perd le fil. Utilise un identifiant stable comme v.id."
+        "N'utilise pas l'index du tableau comme key (key={index} ou key={i}) : dès que la flotte bouge, React perd le fil. Utilise un identifiant stable comme v.id."
       );
     }
-    return pass("Chaque vaisseau garde une identite stable.", ["o2a", "o2b"]);
+    return pass("Chaque vaisseau garde une identité stable.", ["o2a", "o2b"]);
   },
-  // Step 3: .filter(...) must be CHAINED into .map( — pas juste "quelque
-  // part avant" dans le fichier : on verifie que .map( suit directement la
-  // parenthese fermante d'un des appels a .filter(.
+  // Étape 3 : .map() chaîné directement après un .filter(...), pas seulement
+  // présent plus loin dans le fichier.
   (code) => {
     const c = strip(code);
     let filterMatch = findCallBody(c, "filter");
@@ -76,34 +71,29 @@ export const validators: Validator[] = [
       filterMatch = findCallBody(c, "filter", filterMatch.end);
     }
     if (!isChained) {
-      return fail("Chaine .map() APRES .filter(), dans cet ordre : flotte.filter(v => ...).map(v => ...).");
+      return fail("Chaîne .map() APRÈS .filter(), dans cet ordre : flotte.filter(v => ...).map(v => ...).");
     }
-    return pass("Flotte filtree puis affichee.", ["o3a", "o3b"]);
+    return pass("Flotte filtrée puis affichée.", ["o3a", "o3b"]);
   },
-  // Step 4: a length test on the FILTERED collection (operationnels — voir
-  // startCode/objectifs de l'etape 4 dans data/courses/react/chapitre-5.ts)
-  // AND a distinct alternative JSX branch.
+  // Étape 4 : test de longueur sur la collection filtrée (`operationnels`) et
+  // branche JSX alternative.
   (code) => {
     const c = strip(code);
-    // "operationnels" est le nom impose par le startCode de cette etape
-    // (const operationnels = flotte.filter(...)) et par ses objectifs
-    // ("Tester operationnels.length === 0"). Tester .length sur N'IMPORTE
-    // QUELLE variable (ex: flotte, jamais vide dans cet exercice) validerait
-    // a tort un branchement qui ne peut jamais se declencher : precisement
-    // le bug que cette etape doit empecher.
+    // `operationnels` est le nom imposé par le startCode et les objectifs de
+    // l'étape. Accepter un test sur n'importe quelle variable (`flotte`, jamais
+    // vide ici) validerait une branche qui ne se déclenche jamais.
     const hasLengthTest = hasEmptyLengthCheck(c, "operationnels");
     if (!hasLengthTest) {
-      return fail("Teste la longueur du tableau (ex: operationnels.length === 0) pour detecter une liste vide.");
+      return fail("Teste la longueur du tableau (ex: operationnels.length === 0) pour détecter une liste vide.");
     }
-    // The empty-state branch must actually render a message, not just bail out
-    // (return null). Heuristic: a short JSX element (p/div/span/hN) that wraps
-    // some text, distinct from the <li> the .map() produces.
+    // La branche vide doit afficher un message, pas un simple `return null` :
+    // on cherche un élément court (p, div, span, hN) qui contient du texte.
     const hasMessageJsx = /<(p|div|span|h[1-6])\b[^>]*>[^<]*[A-Za-z][^<]*<\/\1>/.test(c);
     if (!hasMessageJsx) {
       return fail(
-        "Quand la liste est vide, affiche un message a la place (ex: <p>Aucun vaisseau operationnel.</p>), pas un return null silencieux."
+        "Quand la liste est vide, affiche un message à la place (ex: <p>Aucun vaisseau operationnel.</p>), pas un return null silencieux."
       );
     }
-    return pass("Flotte cartographiee, meme a zero unite.", ["o4a", "o4b"], true);
+    return pass("Flotte cartographiée, même à zéro unité.", ["o4a", "o4b"], true);
   },
 ];

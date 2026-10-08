@@ -3,11 +3,11 @@ import { validators } from "./chapitre-2";
 import type { ValidatorContext } from "@/data/courses/html/types";
 
 /**
- * JS chapitre 2 — operateurs et conditions.
+ * JS chapitre 2 — opérateurs et conditions.
  *
- * Ces validateurs jugent une EXECUTION : on leur fournit les `logs` que le
- * sandbox aurait produits. Un cas passant doit donc etre coherent — le code
- * soumis ET la sortie qu'il produirait reellement.
+ * Ces validateurs jugent une exécution : on leur fournit les `logs` que le bac
+ * à sable aurait produits. Un cas passant doit donc être cohérent, le code
+ * soumis comme la sortie qu'il produirait réellement.
  */
 
 const ctx = (logs: string[], error: string | null = null): ValidatorContext => ({
@@ -25,7 +25,7 @@ describe("JS chapitre 2 — etape 1 (arithmetique)", () => {
   });
 
   it("refuse un 56 ecrit en dur, sans operateur", () => {
-    // Echec cible : la sortie est bonne, le calcul n'a pas eu lieu.
+    // Échec ciblé : la sortie est bonne, le calcul n'a pas eu lieu.
     expect(valider('console.log("56")', ctx(["56"])).ok).toBe(false);
   });
 
@@ -37,7 +37,7 @@ describe("JS chapitre 2 — etape 1 (arithmetique)", () => {
   it("remonte une erreur d'execution", () => {
     const r = valider("console.log(x - 1)", ctx([], "ReferenceError: x is not defined"));
     expect(r.ok).toBe(false);
-    expect(r.msg).toMatch(/Erreur d'execution/);
+    expect(r.msg).toMatch(/Erreur d'exécution/);
   });
 
   it("refuse l'absence de contexte d'execution", () => {
@@ -57,7 +57,7 @@ describe("JS chapitre 2 — etape 2 (comparaison)", () => {
   });
 
   it("refuse une comparaison qui affiche true", () => {
-    // Echec cible : l'operateur est la, le resultat attendu est false.
+    // Échec ciblé : l'opérateur est là, le résultat attendu est false.
     expect(valider("console.log(20 > 10)", ctx(["true"])).ok).toBe(false);
   });
 });
@@ -77,7 +77,7 @@ if (niveauBouclier < 30) {
   });
 
   it("refuse une condition constante qui ignore le bouclier", () => {
-    // Echec cible : la sortie est bonne mais rien n'a ete teste.
+    // Échec ciblé : la sortie est bonne mais rien n'a été testé.
     const code = `if (true) { console.log("ALERTE"); } else { console.log("OK"); }`;
     expect(valider(code, ctx(["ALERTE"])).ok).toBe(false);
   });
@@ -89,7 +89,7 @@ if (niveauBouclier < 30) { console.log("ALERTE"); }`;
   });
 
   it("refuse une execution qui affiche les deux branches", () => {
-    // Echec cible : avec un bouclier a 25, seule ALERTE doit sortir.
+    // Échec ciblé : avec un bouclier à 25, seul ALERTE doit sortir.
     expect(valider(OK, ctx(["ALERTE", "OK"])).ok).toBe(false);
   });
 });
@@ -120,5 +120,22 @@ if (temperature > 50) { console.log("OK"); } else { console.log("FROID"); }`;
 
   it("refuse une sortie autre que OK", () => {
     expect(valider(OK, ctx(["CRITIQUE"])).ok).toBe(false);
+  });
+
+  it("refuse un else if sans branche else finale", () => {
+    const code = `const temperature = 72;
+if (temperature > 90) {
+  console.log("CRITIQUE");
+} else if (temperature > 50) {
+  console.log("OK");
+}`;
+    const r = valider(code, ctx(["OK"]));
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/else finale/);
+  });
+
+  it("accepte un else final collé à l'accolade", () => {
+    const code = OK.replace("} else {", "}else{");
+    expect(valider(code, ctx(["OK"])).ok).toBe(true);
   });
 });

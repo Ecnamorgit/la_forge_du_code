@@ -77,7 +77,7 @@ Mal indenter = erreur de syntaxe.
       placeholder: "# def calculer_xp(niveau, bonus):",
       narrator:
         "En Python, une fonction se déclare avec le mot-clé 'def'. Pas de parenthèses superflues, pas d'accolades. La logique reside dans l'indentation. Cree ta première fonction.",
-      hint: "def calculer_xp(niveau, bonus):\n    return niveau * 10 + bonus\n\nresultat = calculer_xp(5, 20)\nprint(résultat)",
+      hint: "def calculer_xp(niveau, bonus):\n    return niveau * 10 + bonus\n\nresultat = calculer_xp(5, 20)\nprint(resultat)",
       briefing: {
         title: "Fonctions en Python",
         content: `

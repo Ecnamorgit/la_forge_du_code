@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasProperty, ruleBody } from "./_utils";
 
 export const validators: Validator[] = [
-  // Step 1: .container uses max-width and NOT raw width: 800px
+  // Étape 1 : max-width sur .container, sans width: 800px en dur
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -10,38 +10,35 @@ export const validators: Validator[] = [
       return { ok: false, msg: "Utilise max-width sur .container." };
     }
     const body = ruleBody(css, ".container");
-    // `(?<![-\w])` et non `\b` : dans `max-width`, le tiret est un non-mot, donc
-    // `\bwidth` matcherait a l'interieur — et la solution du cours
-    // (`max-width: 800px; width: 100%`) serait refusee par sa propre etape.
+    // `(?<![-\w])` plutôt que `\b` : sinon le `max-width: 800px` de la solution
+    // du cours serait pris pour un width en dur.
     if (body && /(?<![-\w])width\s*:\s*800px\b/i.test(body)) {
       return { ok: false, msg: "Retire width: 800px en dur (max-width suffit, ou utilise width: 100%)." };
     }
-    return { ok: true, msg: "Fluidite active.", objList: ["o1a", "o1b"] };
+    return { ok: true, msg: "Fluidité active.", objList: ["o1a", "o1b"] };
   },
-  // Step 2: @media query exists redefining h1 font-size
+  // Étape 2 : une @media qui redéfinit le font-size de h1
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     if (!/@media\b/i.test(css)) {
       return { ok: false, msg: "Ajoute une règle @media (...) { ... }." };
     }
-    // Check that there's an @media block containing h1 with font-size
     if (!/@media\b[^{]+\{[\s\S]*?h1\s*\{[\s\S]*?font-size[\s\S]*?\}/i.test(css)) {
       return {
         ok: false,
-        msg: "Dans ta media query, redefinis font-size sur h1.",
+        msg: "Dans ta media query, redéfinis font-size sur h1.",
       };
     }
     return { ok: true, msg: "Typographie adaptative.", objList: ["o2a", "o2b"] };
   },
-  // Step 3: @media reducing .grid grid-template-columns to 1fr (or fewer cols)
+  // Étape 3 : une @media qui passe .grid à grid-template-columns: 1fr
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     if (!/@media\b[^{]*max-width|@media\b[^{]*min-width/i.test(css)) {
       return { ok: false, msg: "Ajoute une @media query avec max-width ou min-width." };
     }
-    // Check that inside an @media block, .grid is redefined with grid-template-columns of 1fr.
     const mediaBlocks = css.matchAll(/@media\b[^{]*\{([\s\S]*?)\}\s*\}/g);
     let ok = false;
     for (const blk of mediaBlocks) {
@@ -56,7 +53,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Disposition reconfigurée.", objList: ["o3a", "o3b"] };
   },
-  // Step 4: h1 uses clamp() with a vw unit
+  // Étape 4 : font-size de h1 en clamp() avec une unité vw
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };

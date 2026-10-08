@@ -2,11 +2,11 @@ import type { Validator } from "@/data/courses/html/types";
 import { logsContain, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
-  return error ? `Erreur d'execution : ${error}` : null;
+  return error ? `Erreur d'exécution : ${error}` : null;
 }
 
 export const validators: Validator[] = [
-  // Step 1: createElement + appendChild + log of innerHTML containing "Centre de commande"
+  // Étape 1 : createElement et appendChild, innerHTML affiché avec "Centre de commande"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -24,26 +24,26 @@ export const validators: Validator[] = [
         msg: "La console doit contenir 'Centre de commande' (par exemple via console.log(document.body.innerHTML)).",
       };
     }
-    return { ok: true, msg: "Élément injecte.", objList: ["o1a", "o1b"] };
+    return { ok: true, msg: "Élément injecté.", objList: ["o1a", "o1b"] };
   },
-  // Step 2: <ul> with 3 <li>, log "3"
+  // Étape 2 : un <ul> de 3 <li>, affiche "3"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/createElement\s*\(\s*['"`]ul['"`]/.test(stripped)) {
-      return { ok: false, msg: "Cree un <ul> via document.createElement('ul')." };
+      return { ok: false, msg: "Crée un <ul> via document.createElement('ul')." };
     }
     if (!/createElement\s*\(\s*['"`]li['"`]/.test(stripped)) {
-      return { ok: false, msg: "Cree les <li> via document.createElement('li')." };
+      return { ok: false, msg: "Crée les <li> via document.createElement('li')." };
     }
     if (!ctx.logs.some((l) => l.trim() === "3")) {
       return { ok: false, msg: "Affiche le nombre exact de <li> (3) via querySelectorAll('li').length." };
     }
-    return { ok: true, msg: "Missions listees.", objList: ["o2a", "o2b"] };
+    return { ok: true, msg: "Missions listées.", objList: ["o2a", "o2b"] };
   },
-  // Step 3: className change + log "ALERTE"
+  // Étape 3 : changement de classe, affiche "ALERTE"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -57,7 +57,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Statut mis à jour.", objList: ["o3a", "o3b"] };
   },
-  // Step 4: querySelectorAll + log A, B, C
+  // Étape 4 : querySelectorAll, affiche A, B et C
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -72,6 +72,6 @@ export const validators: Validator[] = [
     if (!hasA || !hasB || !hasC) {
       return { ok: false, msg: "La console doit logger 'A', 'B' et 'C' (une ligne par span)." };
     }
-    return { ok: true, msg: "DOM scanne.", objList: ["o4a", "o4b"], final: true };
+    return { ok: true, msg: "DOM scanné.", objList: ["o4a", "o4b"], final: true };
   },
 ];

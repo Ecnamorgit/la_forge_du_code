@@ -8,11 +8,11 @@ import {
 
 function runtimeError(error: string | null): string | null {
   if (!error) return null;
-  return `Erreur d'execution : ${error}`;
+  return `Erreur d'exécution : ${error}`;
 }
 
 export const validators: Validator[] = [
-  // Step 1: console.log("Bonjour, station Nebula")
+  // Étape 1 : console.log("Bonjour, station Nebula")
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -32,7 +32,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: let variable + console.log of it
+  // Étape 2 : une variable let, affichée avec console.log
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -49,7 +49,7 @@ export const validators: Validator[] = [
         msg: "La console ne reçoit rien — vérifie ton console.log.",
       };
     }
-    // Ensure the logged value isn't literally the word of a variable name (i.e. quoted)
+    // Le console.log doit recevoir la variable elle-même, pas une chaîne.
     const stripped = stripComments(code);
     const letMatch = stripped.match(/\blet\s+([a-zA-Z_$][\w$]*)\s*=/);
     if (!letMatch) {
@@ -71,7 +71,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: const + 3 types primitifs
+  // Étape 3 : const et 3 types primitifs affichés
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -102,22 +102,21 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Trois types confirmes.",
+      msg: "Trois types confirmés.",
       objList: ["o3a", "o3b"],
     };
   },
-  // Step 4: template literal interpolating >= 2 variables
+  // Étape 4 : template literal interpolant au moins 2 variables
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
-    // Template literal with at least 2 interpolations
     const tlMatch = stripped.match(/`[^`]*`/);
     if (!tlMatch) {
       return {
         ok: false,
-        msg: "Utilise un template literal entoure de backticks (`...`).",
+        msg: "Utilise un template literal entouré de backticks (`...`).",
       };
     }
     const interpolations = (tlMatch[0].match(/\$\{[^}]+\}/g) ?? []).length;
@@ -130,7 +129,7 @@ export const validators: Validator[] = [
     if (ctx.logs.length === 0) {
       return {
         ok: false,
-        msg: "Affiche le message compose avec console.log.",
+        msg: "Affiche le message composé avec console.log.",
       };
     }
     const hasExpectedContent = ctx.logs.some(
@@ -139,12 +138,12 @@ export const validators: Validator[] = [
     if (!hasExpectedContent) {
       return {
         ok: false,
-        msg: "Le message logue doit mentionner Cadet et SELENE.",
+        msg: "Le message logué doit mentionner Cadet et SELENE.",
       };
     }
     return {
       ok: true,
-      msg: "Message compose envoye.",
+      msg: "Message composé envoyé.",
       objList: ["o4a", "o4b"],
       final: true,
     };

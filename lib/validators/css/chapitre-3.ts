@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasProperty, hasPropertyWithValue } from "./_utils";
 
 export const validators: Validator[] = [
-  // Step 1: .module { width + height }
+  // Étape 1 : .module { width; height }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -22,11 +22,11 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Module dimensionne.",
+      msg: "Module dimensionné.",
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: padding on .module
+  // Étape 2 : padding (ou une variante directionnelle) sur .module
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -46,11 +46,11 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Padding applique.",
+      msg: "Padding appliqué.",
       objList: ["o2a"],
     };
   },
-  // Step 3: margin on .module
+  // Étape 3 : margin (ou une variante directionnelle) sur .module
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -70,11 +70,11 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Margin applique.",
+      msg: "Margin appliqué.",
       objList: ["o3a"],
     };
   },
-  // Step 4: border on .module
+  // Étape 4 : border sur .module
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -86,7 +86,7 @@ export const validators: Validator[] = [
         msg: "Ajoute une border sur .module.",
       };
     }
-    // Verify the border value isn't 'none' or empty
+    // `border: none` ne compte pas.
     if (hasPropertyWithValue(css, ".module", "border", /^\s*none\s*$/i)) {
       return {
         ok: false,
@@ -95,7 +95,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Module delimite.",
+      msg: "Module délimité.",
       objList: ["o4a", "o4b"],
       final: true,
     };

@@ -11,7 +11,7 @@ function tagInner(code: string, tag: string): string | null {
 }
 
 export const validators: Validator[] = [
-  // Step 1: external <a> with href + target="_blank"
+  // Étape 1 : un <a> externe avec href et target="_blank"
   (code) => {
     const clean = stripHtmlComments(code);
     const link = clean.match(
@@ -28,7 +28,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Passerelle externe ouverte.", objList: ["o1a", "o1b"] };
   },
-  // Step 2: two <section id="..."> with different ids
+  // Étape 2 : deux <section id="..."> aux id distincts
   (code) => {
     const clean = stripHtmlComments(code);
     const sections = [
@@ -37,17 +37,17 @@ export const validators: Validator[] = [
     if (sections.length < 2) {
       return {
         ok: false,
-        msg: `Cree au moins 2 balises <section> avec id (actuellement ${sections.length}).`,
+        msg: `Crée au moins 2 balises <section> avec id (actuellement ${sections.length}).`,
       };
     }
     const ids = sections.map((m) => m[1]);
     const unique = new Set(ids);
     if (unique.size < 2) {
-      return { ok: false, msg: "Les deux <section> doivent avoir des id differents." };
+      return { ok: false, msg: "Les deux <section> doivent avoir des id différents." };
     }
-    return { ok: true, msg: "Reperes etablis.", objList: ["o2a", "o2b"] };
+    return { ok: true, msg: "Repères établis.", objList: ["o2a", "o2b"] };
   },
-  // Step 3: at least 2 internal anchor links href="#..." pointing to existing ids
+  // Étape 3 : au moins 2 liens internes href="#..." vers des id existants
   (code) => {
     const clean = stripHtmlComments(code);
     const anchorLinks = [
@@ -67,13 +67,13 @@ export const validators: Validator[] = [
       if (!idSet.has(link[1])) {
         return {
           ok: false,
-          msg: `Le lien #${link[1]} ne correspond a aucun id present sur la page.`,
+          msg: `Le lien #${link[1]} ne correspond à aucun id présent sur la page.`,
         };
       }
     }
-    return { ok: true, msg: "Saut verifie.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Saut vérifié.", objList: ["o3a", "o3b"] };
   },
-  // Step 4: <nav> with >= 3 links, keeping external + 2 anchors
+  // Étape 4 : une <nav> d'au moins 3 liens, dont l'externe et 2 ancres
   (code) => {
     const clean = stripHtmlComments(code);
     const navInner = tagInner(clean, "nav");
@@ -95,6 +95,6 @@ export const validators: Validator[] = [
     if (anchorCount < 2) {
       return { ok: false, msg: "Garde au moins 2 liens internes (#missions, #contact) dans la <nav>." };
     }
-    return { ok: true, msg: "Navigation complete.", objList: ["o4a", "o4b"], final: true };
+    return { ok: true, msg: "Navigation complète.", objList: ["o4a", "o4b"], final: true };
   },
 ];

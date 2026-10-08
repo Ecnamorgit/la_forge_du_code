@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   try {
     await prisma.trackEvent.create({ data: { name } });
   } catch (err) {
-    // Le comptage ne doit jamais dégrader l'expérience.
+    // Un échec de comptage n'est pas remonté au client.
     logger.warn("track_write_failed", {
       message: err instanceof Error ? err.message : String(err),
     });

@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasProperty } from "./_utils";
 
 export const validators: Validator[] = [
-  // Step 1: <style> in <head>
+  // Étape 1 : <style> dans le <head>
   (code) => {
     const headMatch = code.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i);
     if (!headMatch) {
@@ -20,7 +20,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: h1 { color: ... }
+  // Étape 2 : h1 { color: ... }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -34,11 +34,11 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Titre illumine.",
+      msg: "Titre illuminé.",
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: body { background-color: ... }
+  // Étape 3 : body { background-color: ... }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -52,11 +52,11 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Fond spatial active.",
+      msg: "Fond spatial activé.",
       objList: ["o3a", "o3b"],
     };
   },
-  // Step 4: font-size on some element
+  // Étape 4 : p { font-size: ... }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -70,7 +70,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Texte amplifie.",
+      msg: "Texte amplifié.",
       objList: ["o4a", "o4b"],
       final: true,
     };

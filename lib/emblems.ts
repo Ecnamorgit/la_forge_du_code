@@ -1,17 +1,9 @@
 /**
- * Les emblèmes — l'axe de personnalisation qui puise dans les DEUX catalogues
- * de badges.
- *
- * L'armurerie propose les 48 badges de cursus (`lib/badges-catalog.ts`) et les
- * 12 badges de conduite (`lib/conduct-badges.ts`), et `setCosmetics` accepte
- * n'importe quel badge réellement obtenu. Toute surface qui affiche l'emblème
- * porté doit donc savoir résoudre les deux familles : un cadet qui choisit
- * « Sprinteur » ou « Veilleur » voyait sa pastille disparaître de la carte de
- * cadet, sans erreur ni message, parce que la résolution ne regardait que le
- * catalogue des badges de cursus.
- *
- * Ce module est la seule liste : l'armurerie et la carte de cadet la
- * consomment toutes les deux, plutôt que d'en tenir chacune une version.
+ * Emblèmes : axe de personnalisation qui puise dans les deux catalogues de
+ * badges, de cursus (`lib/badges-catalog.ts`) et de conduite
+ * (`lib/conduct-badges.ts`). `setCosmetics` accepte tout badge obtenu, donc
+ * toute surface qui affiche l'emblème doit résoudre les deux familles. Liste
+ * unique, partagée par l'armurerie et la carte de cadet.
  */
 
 import { BADGES, badgeFrameById } from "./badges-catalog";
@@ -19,15 +11,14 @@ import { CONDUCT_BADGES } from "./conduct-badges";
 
 export interface EmblemOption {
   id: string;
-  /** Icône emoji — le repli quand aucune frame de sprite n'existe. */
+  /** Icône emoji, en repli quand aucune frame de sprite n'existe. */
   icon: string;
   label: string;
   /** Sert de « condition » affichée sous le badge, obtenu ou non. */
   description: string;
   /**
-   * Frame dans /sprites/badges.png, ou null pour les badges de conduite.
-   * `badges.png` est une planche 8×6 dont la position EST l'index : les
-   * badges de conduite n'y figurent pas et se rendent en emoji.
+   * Frame dans /sprites/badges.png, ou null pour les badges de conduite,
+   * absents de la planche et rendus en emoji.
    */
   frame: number | null;
 }
@@ -51,7 +42,7 @@ export const EMBLEM_OPTIONS: EmblemOption[] = [
 
 const BY_ID = new Map(EMBLEM_OPTIONS.map((o) => [o.id, o]));
 
-/** L'emblème correspondant à un id, cursus ou conduite. Null si inconnu. */
+/** Emblème correspondant à un id, cursus ou conduite ; null si inconnu. */
 export function getEmblem(id: string | null): EmblemOption | null {
   if (!id) return null;
   return BY_ID.get(id) ?? null;

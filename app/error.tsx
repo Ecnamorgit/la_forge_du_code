@@ -1,9 +1,6 @@
 "use client";
 
-/**
- * Frontière d'erreur des routes (App Router). Affichée si un segment lève une
- * erreur au rendu. Message générique — aucune stacktrace exposée à l'utilisateur.
- */
+/** Frontière d'erreur des routes : message générique, sans trace de pile. */
 export default function Error({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-nebula-bg-darkest px-6 text-center text-nebula-text">
@@ -14,7 +11,7 @@ export default function Error({ reset }: { error: Error & { digest?: string }; r
         Une erreur est survenue
       </h1>
       <p className="max-w-md text-sm text-nebula-text-secondary">
-        Le vaisseau a renconté une turbulence inattendue. Réessaie — si le
+        Le vaisseau a rencontré une turbulence inattendue. Réessaie — si le
         problème persiste, reviens un peu plus tard.
       </p>
       <button

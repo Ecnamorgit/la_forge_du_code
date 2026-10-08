@@ -22,7 +22,7 @@ describe("JS chapitre 1 — étape 1 (console.log)", () => {
   it("remonte une erreur d'exécution", () => {
     const r = v("console.log(y)", ctx([], "ReferenceError: y is not defined"));
     expect(r.ok).toBe(false);
-    expect(r.msg).toMatch(/Erreur d'execution/);
+    expect(r.msg).toMatch(/Erreur d'exécution/);
   });
 
   it("exige le texte exact dans la console", () => {

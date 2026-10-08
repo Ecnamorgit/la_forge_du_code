@@ -1,8 +1,15 @@
 # Rapport technique — Moteur pédagogique (validateurs)
 
-**Projet :** CodeForge / Nebula Command
+**Projet :** La Forge du Code / Nebula Command
 **Périmètre :** validation des exercices, calcul de la progression et de l'XP
 **Date :** 2026-06-17
+
+> **Mise à jour (septembre 2026).** Ce rapport décrit l'état du 2026-06-17. Depuis :
+>
+> - chaque étape du parcours est couverte par des tests de validateurs (ticket CF-18, voir [RAPPORT_VALIDATEURS.md](RAPPORT_VALIDATEURS.md)) ;
+> - le serveur rejoue le validateur avant d'accorder une étape, et vérifie l'ordre de progression ([EXE-01](audit-securite/corrections/EXE-01.md)) ;
+> - le cursus SQL exécute les requêtes avec sql.js dans le navigateur ([EXE-07](audit-securite/corrections/EXE-07.md)) ;
+> - les aperçus ne passent plus par `srcdoc` : ils sont servis depuis l'origine dédiée du bac à sable ([EXE-03](audit-securite/corrections/EXE-03.md)).
 
 ---
 
@@ -124,7 +131,7 @@ L'XP d'un chapitre est la somme sur les étapes complétées ; l'XP **maximale**
 **Forces**
 
 - Architecture **parallèle et prévisible** (contenu ↔ validateur, même chemin, même ordre).
-- Validateurs = **fonctions pures**, donc testables unitairement (cible idéale pour les premiers tests automatisés).
+- Validateurs = **fonctions pures**, donc testables unitairement (toutes les étapes sont couvertes, voir [RAPPORT_VALIDATEURS.md](RAPPORT_VALIDATEURS.md)).
 - Messages d'erreur **pédagogiques et progressifs**.
 - Séparation nette **exécuté vs statique** qui minimise la surface d'exécution.
 
@@ -132,7 +139,6 @@ L'XP d'un chapitre est la somme sur les étapes complétées ; l'XP **maximale**
 
 - La validation statique repose sur des **regex**, contournables par un apprenant déterminé (limite pédagogique, pas de sécurité).
 - **Couverture inégale** : 4 cursus réellement étoffés (JS, CSS, HTML, React), 10 cursus à 1 chapitre — donc peu de validateurs pour ces derniers.
-- **Aucun test automatisé** ne couvre encore les validateurs, alors qu'ils s'y prêtent parfaitement (entrée = code, sortie = verdict).
 
 ---
 

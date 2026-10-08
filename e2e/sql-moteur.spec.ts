@@ -3,15 +3,9 @@ import { test, expect } from "@playwright/test";
 import { STORAGE_STATE } from "./global-setup";
 
 /**
- * Constat EXE-07, découvert le 2026-09-14 en préparant la démonstration
- * d'EXE-02 : le moteur SQL ne se charge pas dans le navigateur.
- *
- * sql.js 1.14 déclare une variante « browser » dans ses `exports`. Le bundler
- * du site la choisit, et elle réclame `sql-wasm-browser.wasm` ; or seul
- * `sql-wasm.wasm` était hébergé dans public/sql. Le chargement échoue (404),
- * aucune requête ne s'exécute, et le cursus SQL est inutilisable, en local
- * comme en production. Les tests unitaires tournent sous Node, qui prend la
- * variante par défaut : ils ne pouvaient pas le voir.
+ * Le moteur SQL se charge dans le navigateur (audit EXE-07). Le bundler prend
+ * la variante « browser » de sql.js, qui réclame `sql-wasm-browser.wasm` ; les
+ * tests unitaires, sous Node, utilisent la variante par défaut.
  */
 
 test.use({ storageState: STORAGE_STATE });

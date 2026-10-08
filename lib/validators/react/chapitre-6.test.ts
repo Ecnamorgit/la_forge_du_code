@@ -55,7 +55,7 @@ describe("React chapitre 6 — etape 1 (input controle, piege Spectre)", () => {
     `;
     const r = v(code);
     expect(r.ok).toBe(false);
-    expect(r.msg).toMatch(/setter|etat|set/i);
+    expect(r.msg).toMatch(/setter|état|set/i);
   });
 
   it("echoue si value est absent (input non controle)", () => {
@@ -294,7 +294,7 @@ describe("React chapitre 6 — etape 4 (disabled derive de l'etat)", () => {
     `;
     const r = v(code);
     expect(r.ok).toBe(false);
-    expect(r.msg).toMatch(/fige|etat/i);
+    expect(r.msg).toMatch(/figé|état/i);
   });
 
   it("echoue si disabled est absent", () => {

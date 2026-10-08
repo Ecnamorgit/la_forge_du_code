@@ -1,7 +1,6 @@
 # Rapport — questions ouvertes sur les validateurs
 
 **Chantier :** CF-18, couverture de tests des validateurs
-**Spec :** `docs/superpowers/specs/2026-08-06-couverture-validateurs-design.md`
 
 Ce document liste les **arbitrages pédagogiques** rencontrés en écrivant les
 tests — les cas où un validateur refuse une réponse défendable, ou en accepte
@@ -27,17 +26,17 @@ huit chapitres HTML, 141 pour JavaScript 2 à 12.
 
 | Gravité | Défaut | Effet |
 |---|---|---|
-| 🔴 | `css/chapitre-9` : `/\bnfinite\b/` ne matchait jamais `infinite` | Étape finale du cursus CSS infranchissable |
-| 🔴 | `css/chapitre-8` : `\bwidth` matchait dans `max-width` | La solution imprimée dans l'indice était refusée |
-| 🟠 | `css/_utils` : `\bcolor` matchait dans `background-color` | Colorer le fond validait « colore le texte » |
-| 🟠 | `python` : le motif d'appel était satisfait par la déclaration | Définir sans appeler validait l'étape |
-| 🟠 | `git` : `\s+` traversait le saut de ligne (2 endroits) | Commande sans argument validée par la ligne suivante |
-| 🟠 | `react/chapitre-4` : le motif d'affichage était satisfait par la déclaration | Lire l'id de l'URL sans jamais le rendre validait l'étape |
-| 🟠 | `javascript/chapitre-3` : la tolérance prévue pour l'arrow concise s'appliquait aussi aux corps entre accolades | Une fonction qui `console.log` au lieu de `return` validait l'étape |
-| 🟡 | `css/chapitre-6` : `\b(top\|right\|bottom\|left)` (2 endroits) | `padding-left` comptait comme un décalage |
-| 🟡 | `css/chapitre-7` : `\bcontent` | `justify-content` satisfaisait l'exigence de `content` |
+| Critique | `css/chapitre-9` : `/\bnfinite\b/` ne matchait jamais `infinite` | Étape finale du cursus CSS infranchissable |
+| Critique | `css/chapitre-8` : `\bwidth` matchait dans `max-width` | La solution imprimée dans l'indice était refusée |
+| Majeur | `css/_utils` : `\bcolor` matchait dans `background-color` | Colorer le fond validait « colore le texte » |
+| Majeur | `python` : le motif d'appel était satisfait par la déclaration | Définir sans appeler validait l'étape |
+| Majeur | `git` : `\s+` traversait le saut de ligne (2 endroits) | Commande sans argument validée par la ligne suivante |
+| Majeur | `react/chapitre-4` : le motif d'affichage était satisfait par la déclaration | Lire l'id de l'URL sans jamais le rendre validait l'étape |
+| Majeur | `javascript/chapitre-3` : la tolérance prévue pour l'arrow concise s'appliquait aussi aux corps entre accolades | Une fonction qui `console.log` au lieu de `return` validait l'étape |
+| Mineur | `css/chapitre-6` : `\b(top\|right\|bottom\|left)` (2 endroits) | `padding-left` comptait comme un décalage |
+| Mineur | `css/chapitre-7` : `\bcontent` | `justify-content` satisfaisait l'exigence de `content` |
 
-**Trois familles, et rien d'autre.**
+**Trois familles de défauts.**
 
 *Six sur dix* — `\b` matche après un tiret, donc un motif `\bsuffixe` se
 déclenche à l'intérieur d'un mot plus long. C'est le piège structurel de la

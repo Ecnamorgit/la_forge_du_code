@@ -2,9 +2,7 @@ import { test, expect } from "@playwright/test";
 
 import { STORAGE_STATE } from "./global-setup";
 
-// Session partagée écrite par global-setup : `auth.ts` limite les connexions à
-// 10 par 5 minutes et par IP, et la suite dépassait ce seuil quand chaque spec
-// se connectait pour son compte.
+// Session partagée écrite par global-setup (limite de connexions par IP).
 test.use({ storageState: STORAGE_STATE });
 
 test("le panneau de doc s'ouvre depuis un chip et se ferme avec Échap", async ({
@@ -20,7 +18,6 @@ test("le panneau de doc s'ouvre depuis un chip et se ferme avec Échap", async (
   await expect(panel).toHaveAttribute("aria-hidden", "false");
   await expect(panel.getByText("La déclaration <!DOCTYPE html>")).toBeVisible();
 
-  // Échap ferme.
   await page.keyboard.press("Escape");
   await expect(panel).toHaveAttribute("aria-hidden", "true");
 

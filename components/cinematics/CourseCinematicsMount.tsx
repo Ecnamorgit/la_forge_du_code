@@ -17,10 +17,9 @@ interface CourseCinematicsMountProps {
 }
 
 /**
- * Monte les cinématiques de la page cursus : auto-joue l'intro à la première
- * visite (jamais rejouée automatiquement — règle de la spec §5), et offre
- * « Revoir le briefing » en permanence + « Revoir la finale » une fois le
- * cursus terminé (la finale vue prouve la complétion).
+ * Cinématiques de la page cursus. L'intro se joue automatiquement à la
+ * première visite seulement ; « Revoir le briefing » est toujours proposé et
+ * « Revoir la finale » apparaît une fois la finale vue (cursus terminé).
  */
 export default function CourseCinematicsMount({
   course,
@@ -34,7 +33,7 @@ export default function CourseCinematicsMount({
   const introId = cinematicId(course, { kind: "intro" });
   const finaleId = cinematicId(course, { kind: "finale" });
 
-  // Auto-play de l'intro, une seule décision par montage, jamais si déjà vue.
+  // Lecture automatique de l'intro : une seule décision par montage.
   useEffect(() => {
     if (!loaded || autoChecked) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- decision d'auto-lecture ponctuelle au montage

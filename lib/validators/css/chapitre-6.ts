@@ -2,16 +2,15 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasPropertyWithValue, ruleBody } from "./_utils";
 
 /**
- * Un decalage est-il pose ? `(?<![-\w])` et non `\b` : dans `padding-top` ou
- * `margin-left`, le tiret est un non-mot, donc `\btop` matcherait a l'interieur
- * et un simple padding compterait comme un decalage de positionnement.
+ * Un décalage est-il posé ? `(?<![-\w])` plutôt que `\b` : sinon le `top` de
+ * `padding-top` compterait comme un décalage de positionnement.
  */
 function hasOffset(body: string): boolean {
   return /(?<![-\w])(top|right|bottom|left)\s*:\s*[^;\s][^;]*/i.test(body);
 }
 
 export const validators: Validator[] = [
-  // Step 1: .badge { position: relative; + top/left }
+  // Étape 1 : .badge { position: relative } avec un décalage
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -24,12 +23,12 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Positionnement fin.", objList: ["o1a", "o1b"] };
   },
-  // Step 2: .card has position: relative AND .ribbon has position: absolute
+  // Étape 2 : .card en position relative, .ribbon en absolute avec un décalage
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     if (!hasPropertyWithValue(css, ".card", "position", /\brelative\b/i)) {
-      return { ok: false, msg: "Donne position: relative a .card pour ancrer son enfant." };
+      return { ok: false, msg: "Donne position: relative à .card pour ancrer son enfant." };
     }
     if (!hasPropertyWithValue(css, ".ribbon", "position", /\babsolute\b/i)) {
       return { ok: false, msg: "Définis position: absolute sur .ribbon." };
@@ -38,9 +37,9 @@ export const validators: Validator[] = [
     if (!body || !hasOffset(body)) {
       return { ok: false, msg: "Ajoute top/right/bottom/left sur .ribbon pour l'ancrer dans un coin." };
     }
-    return { ok: true, msg: "Enfant verrouille.", objList: ["o2a", "o2b"] };
+    return { ok: true, msg: "Enfant verrouillé.", objList: ["o2a", "o2b"] };
   },
-  // Step 3: .topbar with position: fixed + top: 0
+  // Étape 3 : .topbar { position: fixed; top: 0 }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -50,9 +49,9 @@ export const validators: Validator[] = [
     if (!hasPropertyWithValue(css, ".topbar", "top", /^\s*0(px)?\s*$/i)) {
       return { ok: false, msg: "Ancre la barre avec top: 0." };
     }
-    return { ok: true, msg: "Barre verrouillee.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Barre verrouillée.", objList: ["o3a", "o3b"] };
   },
-  // Step 4: .section-title with position: sticky + top defined
+  // Étape 4 : .section-title { position: sticky } avec un top ou un bottom
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -60,9 +59,9 @@ export const validators: Validator[] = [
       return { ok: false, msg: "Définis position: sticky sur .section-title." };
     }
     const body = ruleBody(css, ".section-title");
-    if (!body || !/(?<![-\w])top\s*:\s*[^;]/i.test(body)) {
+    if (!body || !/(?<![-\w])(?:top|bottom)\s*:\s*[^;]/i.test(body)) {
       return { ok: false, msg: "Sticky exige un top (ou bottom) défini. Ajoute top: 0 par exemple." };
     }
-    return { ok: true, msg: "Positionnement maîtrise.", objList: ["o4a", "o4b"], final: true };
+    return { ok: true, msg: "Positionnement maîtrisé.", objList: ["o4a", "o4b"], final: true };
   },
 ];

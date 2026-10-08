@@ -1,17 +1,10 @@
 /**
- * Ordre de progression, appliqué par le serveur (constat EXE-01 de l'audit de
- * sécurité du 2026-09-12).
- *
- * Le serveur applique exactement les deux règles de l'interface, ni plus ni
- * moins :
- * - dans un chapitre, l'étape n n'est proposée qu'une fois l'étape n-1 réussie
- *   (« Suivant » reste désactivé, l'étape affichée est la première non faite) ;
- * - sur la carte, un chapitre n'est déverrouillé qu'une fois le précédent
- *   terminé (`LevelNode`, via `isChapterComplete` : nombre d'étapes faites
- *   supérieur ou égal à `totalSteps`).
- *
- * Plus stricte, la règle bloquerait un apprenant honnête ; plus lâche, un
- * script sauterait tout le parcours.
+ * Ordre de progression appliqué par le serveur (audit EXE-01). Il reprend les
+ * deux règles de l'interface : dans un chapitre, l'étape n n'est proposée
+ * qu'après la réussite de l'étape n-1 ; sur la carte, un chapitre n'est
+ * déverrouillé qu'une fois le précédent terminé (`LevelNode`, via
+ * `isChapterComplete`). Plus stricte, la règle bloquerait un apprenant
+ * honnête ; plus lâche, un script sauterait tout le parcours.
  */
 
 export interface ChapterSteps {

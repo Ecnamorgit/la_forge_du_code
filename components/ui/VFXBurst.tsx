@@ -1,10 +1,6 @@
 "use client";
 
-/**
- * VFX burst on quest banner success.
- * Uses a CSS-only cyan explosion since we don't have a VFX sprite sheet.
- * Multiple expanding rings + particle scatter.
- */
+/** Effet de réussite de la bannière de quête : anneaux cyan en expansion, en CSS pur. */
 
 interface VFXBurstProps {
   trigger: number;
@@ -18,7 +14,7 @@ export default function VFXBurst({ trigger }: VFXBurstProps) {
       key={trigger}
       className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[398] pointer-events-none"
     >
-      {/* Expanding rings */}
+      {/* Anneaux en expansion */}
       {[0, 1, 2].map((i) => (
         <div
           key={i}

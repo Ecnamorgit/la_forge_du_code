@@ -11,22 +11,12 @@ import {
 
 const strip = (code: string) => stripLineComments(code, "//");
 
-// ---------------------------------------------------------------------------
-// findJsxTagAttrs / extractAttrValue / findBareCallBody / findNamedFunctionBody
-// vivent desormais dans _static-utils.ts (generiques, reutilisees par les
-// chapitres suivants sur les hooks/le contexte). Voir leurs doc-comments
-// la-bas pour le detail de leurs heuristiques et limites.
-// ---------------------------------------------------------------------------
-
 /**
- * Resout la valeur d'une prop handler JSX (onChange, onSubmit...) vers le
- * code a inspecter : si c'est un identifiant nu (`handleSubmit`) ou une
- * fleche qui delegue directement a un nom (`(e) => handleSubmit(e)`), suit
- * la definition de la fonction nommee correspondante via
- * `findNamedFunctionBody`. Sinon (fleche avec un corps propre), renvoie la
- * valeur telle quelle. Si le nom resolu n'est pas une fonction nommee
- * trouvable (ex: un setter comme `setNom`), retombe sur la valeur d'origine
- * plutot que d'echouer.
+ * Renvoie le code à inspecter pour une prop handler JSX (onChange, onSubmit...).
+ * Un identifiant nu (`handleSubmit`) ou une flèche qui délègue à un nom
+ * (`(e) => handleSubmit(e)`) mène au corps de la fonction nommée ; sinon, ou si
+ * ce nom n'est pas une fonction trouvable (un setter comme `setNom`), la valeur
+ * est renvoyée telle quelle.
  */
 function resolveHandlerSource(code: string, attrValue: string): string {
   const identMatch = /^\s*([A-Za-z_$][\w$]*)\s*$/.exec(attrValue);
@@ -40,65 +30,52 @@ function resolveHandlerSource(code: string, attrValue: string): string {
 }
 
 export const validators: Validator[] = [
-  // Step 1 (piege Spectre): <input value={...} onChange={...}> avec un
-  // setter appele DANS le handler onChange (pas juste "value= et onChange=
-  // presents quelque part dans le fichier").
+  // Étape 1 : <input value={...} onChange={...}> dont le handler appelle un
+  // setter (pas seulement value= et onChange= présents dans le fichier).
   (code) => {
     const c = strip(code);
     const tag = findJsxTagAttrs(c, "input");
     if (!tag || !/\bvalue\s*=\s*\{/.test(tag.body)) {
       return fail(
-        "Garde l'input controle par React : value={nom} doit rester branche sur l'etat."
+        "Garde l'input contrôlé par React : value={nom} doit rester branché sur l'état."
       );
     }
     const onChangeValue = extractAttrValue(tag.body, "onChange");
     if (onChangeValue === null) {
       return fail(
-        "Le Spectre a coupe l'ecoute du clavier : ajoute onChange={(e) => setNom(e.target.value)} sur l'input."
+        "Le Spectre a coupé l'écoute du clavier : ajoute onChange={(e) => setNom(e.target.value)} sur l'input."
       );
     }
-    // onChange peut etre une fleche inline OU un identifiant qui delegue a un
-    // handler nomme (ex: onChange={handleChange}) — c'est justement le motif
-    // enseigne par l'etape 2 suivante. On suit cette indirection avant de
-    // chercher l'appel au setter, sinon la forme la plus idiomatique du
-    // controlled input est rejetee a tort.
+    // onChange peut aussi désigner un handler nommé (`onChange={handleChange}`),
+    // la forme enseignée à l'étape 2 : on suit cette indirection avant de
+    // chercher l'appel au setter.
     const handlerSource = resolveHandlerSource(c, onChangeValue);
     if (!/\bset[A-Z]\w*\s*\(/.test(handlerSource)) {
       return fail(
-        "Ton onChange existe mais ne met a jour aucun etat : appelle le setter (ex: setNom(e.target.value)) a l'interieur."
+        "Ton onChange existe mais ne met à jour aucun état : appelle le setter (ex: setNom(e.target.value)) à l'intérieur."
       );
     }
-    return pass("Console de saisie restauree.", ["o1a", "o1b"]);
+    return pass("Console de saisie restaurée.", ["o1a", "o1b"]);
   },
 
-  // Step 2: useState({ ... }) + mise a jour par spread, avec soit une cle
-  // calculee ([name]: value), soit les deux champs geres separement (mais
-  // toujours via spread, jamais en ecrasant l'objet).
+  // Étape 2 : état objet mis à jour par spread, avec une clé calculée
+  // ([name]: value) ou les deux champs gérés séparément.
   //
-  // Chaque appel a setFormulaire(...) est evalue INDEPENDAMMENT (finding 1
-  // de la revue) : l'ancienne version faisait un OU global sur hasSpread a
-  // travers TOUS les appels, si bien qu'un seul appel correct (avec spread)
-  // "blanchissait" un autre appel du meme fichier qui ecrasait l'etat sans
-  // spread — exactement le bug que cette etape est censee faire echouer.
-  // On garde volontairement le framing "au moins UN bon appel, AUCUN mauvais
-  // appel" plutot que "un unique appel qui reunit toutes les conditions" :
-  // le cas legitime "nom et email geres par deux handlers separes" (test
-  // ci-dessous) n'a JAMAIS un seul appel qui contient a la fois nom ET
-  // email — la couverture des deux champs se lit forcement a travers
-  // plusieurs appels. Seule la regle d'immutabilite (spread) doit valoir
-  // pour CHAQUE appel individuellement, car un seul appel sans spread suffit
-  // a perdre des donnees a chaque frappe, meme si un autre appel est correct.
+  // Chaque appel à setFormulaire(...) est jugé séparément : un seul appel sans
+  // spread perd des données, même si un autre est correct. La couverture des
+  // champs, elle, se lit sur l'ensemble des appels (nom et email peuvent avoir
+  // chacun leur handler).
   (code) => {
     const c = strip(code);
     if (!/useState\s*\(\s*\{/.test(c)) {
       return fail(
-        "Regroupe nom et email dans un seul etat objet : useState({ nom: '', email: '' })."
+        "Regroupe nom et email dans un seul état objet : useState({ nom: '', email: '' })."
       );
     }
     let match = findBareCallBody(c, "setFormulaire");
     if (!match) {
       return fail(
-        "Mets a jour l'etat via le setter de l'objet (setFormulaire({ ...formulaire, ... }))."
+        "Mets à jour l'état via le setter de l'objet (setFormulaire({ ...formulaire, ... }))."
       );
     }
     let hasBadCall = false;
@@ -107,8 +84,7 @@ export const validators: Validator[] = [
     while (match) {
       const spread = /\.\.\.\s*[A-Za-z_$][\w$]*/.test(match.body);
       if (!spread) {
-        // Cet appel precis ecrase l'etat : peu importe qu'un AUTRE appel
-        // fasse le spread correctement, celui-ci perd des donnees.
+        // Cet appel écrase l'état, quels que soient les autres.
         hasBadCall = true;
       } else {
         if (/\[\s*[\w.]+\s*\]\s*:/.test(match.body)) hasComputedKey = true;
@@ -120,45 +96,42 @@ export const validators: Validator[] = [
     }
     if (hasBadCall) {
       return fail(
-        "Mets a jour l'etat par copie : setFormulaire({ ...formulaire, ... }), jamais en ecrasant l'objet entier. Verifie que TOUS tes appels a setFormulaire font le spread, pas seulement certains."
+        "Mets à jour l'état par copie : setFormulaire({ ...formulaire, ... }), jamais en écrasant l'objet entier. Vérifie que TOUS tes appels à setFormulaire font le spread, pas seulement certains."
       );
     }
     if (!hasComputedKey && literalKeys.size < 2) {
       return fail(
-        "Mets a jour le bon champ : une cle calculee ([e.target.name]: valeur), ou nom et email geres separement."
+        "Mets à jour le bon champ : une clé calculée ([e.target.name]: valeur), ou nom et email gérés séparément."
       );
     }
-    return pass("Etat regroupe dans un seul objet.", ["o2a", "o2b"]);
+    return pass("État regroupé dans un seul objet.", ["o2a", "o2b"]);
   },
 
-  // Step 3: onSubmit doit etre sur le <form> (pas onClick sur le bouton), et
-  // le handler qu'il designe (inline ou par reference nommee) doit appeler
-  // e.preventDefault().
+  // Étape 3 : onSubmit sur le <form> (pas onClick sur le bouton), et le
+  // handler désigné doit appeler e.preventDefault().
   (code) => {
     const c = strip(code);
     const formTag = findJsxTagAttrs(c, "form");
     if (!formTag || !/\bonSubmit\s*=\s*\{/.test(formTag.body)) {
       return fail(
-        "Attache le gestionnaire de soumission sur le <form> lui-meme (onSubmit={...}), pas sur le bouton."
+        "Attache le gestionnaire de soumission sur le <form> lui-même (onSubmit={...}), pas sur le bouton."
       );
     }
     const onSubmitValue = extractAttrValue(formTag.body, "onSubmit") ?? "";
-    // Suit aussi bien une reference nue (onSubmit={handleSubmit}) qu'un
-    // wrapper qui delegue directement (onSubmit={(e) => handleSubmit(e)}) :
-    // ce dernier est un style courant qui ne doit pas etre penalise juste
-    // parce que le preventDefault vit dans la fonction nommee et pas dans
-    // la fleche elle-meme.
+    // Suit une référence nue (onSubmit={handleSubmit}) comme une flèche qui
+    // délègue (onSubmit={(e) => handleSubmit(e)}) : le preventDefault peut vivre
+    // dans la fonction nommée.
     const handlerSource = resolveHandlerSource(c, onSubmitValue);
     if (!/\.preventDefault\s*\(\s*\)/.test(handlerSource)) {
       return fail(
-        "Empeche le rechargement de la page : appelle e.preventDefault() dans le gestionnaire attache a onSubmit."
+        "Empêche le rechargement de la page : appelle e.preventDefault() dans le gestionnaire attaché à onSubmit."
       );
     }
-    return pass("Transmission maitrisee.", ["o3a", "o3b"]);
+    return pass("Transmission maîtrisée.", ["o3a", "o3b"]);
   },
 
-  // Step 4: disabled doit etre une expression derivee de l'etat formulaire,
-  // pas une valeur figee (true/false ou toute autre valeur arbitraire).
+  // Étape 4 : disabled doit dériver de l'état du formulaire, pas d'une valeur
+  // figée.
   (code) => {
     const c = strip(code);
     const buttonTag = findJsxTagAttrs(c, "button");
@@ -168,14 +141,14 @@ export const validators: Validator[] = [
     const value = (extractAttrValue(buttonTag.body, "disabled") ?? "").trim();
     if (/^(true|false)$/.test(value)) {
       return fail(
-        "disabled={false} (ou {true}) est fige : calcule la condition a partir de l'etat, ex: disabled={!formulaire.nom || !formulaire.email}."
+        "disabled={false} (ou {true}) est figé : calcule la condition à partir de l'état, ex: disabled={!formulaire.nom || !formulaire.email}."
       );
     }
     if (!/\bformulaire\b/.test(value)) {
       return fail(
-        "La condition de disabled doit deriver de l'etat du formulaire (formulaire.nom, formulaire.email...), pas d'une valeur arbitraire."
+        "La condition de disabled doit dériver de l'état du formulaire (formulaire.nom, formulaire.email...), pas d'une valeur arbitraire."
       );
     }
-    return pass("Console verrouillee tant que le formulaire est incomplet.", ["o4a", "o4b"], true);
+    return pass("Console verrouillée tant que le formulaire est incomplet.", ["o4a", "o4b"], true);
   },
 ];

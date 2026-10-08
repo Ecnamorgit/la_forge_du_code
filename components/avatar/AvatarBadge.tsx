@@ -4,16 +4,15 @@ import { getSpecies, getUniformColor } from "@/lib/avatar";
 interface AvatarBadgeProps {
   species: string | null;
   uniformColor: string | null;
-  /** Diameter in pixels. Default 64. */
+  /** Diamètre en pixels. */
   size?: number;
-  /** Optional override character (when species not yet set, falls back to '?'). */
+  /** Caractère affiché tant que l'espèce n'est pas choisie. */
   fallbackChar?: string;
 }
 
 /**
- * Visual representation of a user's avatar: a circular pixel art medallion or emoji with
- * an accent border + glow matching the uniform color. Pure, reusable, used in
- * DashboardNav, /profil, /avatar preview, leaderboard rows (eventually).
+ * Médaillon d'avatar (pixel art ou emoji), cerclé et éclairé à la couleur de
+ * l'uniforme.
  */
 export default function AvatarBadge({
   species,

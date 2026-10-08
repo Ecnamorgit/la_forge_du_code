@@ -42,11 +42,7 @@ function ctx(p: Partial<QuestContext> = {}): QuestContext {
   };
 }
 
-/**
- * N jours ISO consécutifs à partir de `depart`. Donnée de test pour balayer
- * le tirage sur plusieurs jours — ce n'est pas une lecture d'horloge
- * applicative, `buildBriefing` reste nourri par un `todayIso` explicite.
- */
+/** N jours ISO consécutifs à partir de `depart`, pour balayer le tirage. */
 function joursConsecutifs(depart: string, n: number): string[] {
   const jours: string[] = [];
   const d = new Date(`${depart}T00:00:00.000Z`);
@@ -71,15 +67,11 @@ describe("splitCompletions", () => {
 });
 
 /**
- * Passé « riche » : chaque emplacement a plusieurs archétypes faisables, donc
- * le tirage a réellement de quoi varier. Avec un passé vide, l'emplacement
- * effort n'aurait qu'un seul candidat et les tests de variété seraient vrais
- * par accident.
- *   - html/chapitre-1 à 3/4  → boucler-chapitre faisable (≥ 50 %)
- *   - html/chapitre-2 à 1/4  → serie-chapitre faisable (≥ 3 restantes)
- *   - css touché le 2026-08-01 → cursus-dormant faisable (≥ 7 jours)
- *   - javascript jamais touché → premiere-fois faisable
- *   - 2 cursus touchés        → second-front faisable
+ * Passé où chaque emplacement a plusieurs archétypes faisables, pour que le
+ * tirage puisse varier : html/chapitre-1 à 3/4 (boucler-chapitre),
+ * html/chapitre-2 à 1/4 (serie-chapitre), css délaissé depuis le 2026-08-01
+ * (cursus-dormant), javascript jamais ouvert (premiere-fois), deux cursus
+ * touchés (second-front).
  */
 const PASSE_RICHE: CompletionRecord[] = [
   step("html", "chapitre-1", 0, "2026-08-18"),
@@ -166,8 +158,8 @@ describe("buildBriefing — progression", () => {
   });
 
   it("marque le briefing complet quand tous les ordres sont atteints", () => {
-    // Passé vide → reprise (1 ou 2 étapes), effort (5 étapes), curiosité
-    // (ouvrir le premier cursus vierge par ordre alphabétique : css).
+    // Passé vide : reprise (1 ou 2 étapes), effort (5 étapes), curiosité
+    // (ouvrir le premier cursus vierge par ordre alphabétique, css).
     const today = [
       ...Array.from({ length: 6 }, (_, i) => step("html", "chapitre-1", i % 4, "2026-08-19")),
       ...Array.from({ length: 6 }, (_, i) => step("css", "chapitre-1", i % 4, "2026-08-19")),
@@ -196,10 +188,9 @@ describe("buildBriefing — faisabilité", () => {
   });
 
   it("ne propose jamais de boucler un chapitre déjà bouclé", () => {
-    // html/chapitre-1 est terminé (4/4) : chaptersInProgress l'exclut, donc
-    // boucler-chapitre ne peut viser que html/chapitre-2, entamé à 50 %.
-    // Sans un chapitre réellement en cours au-delà de la moitié, l'archétype
-    // ne serait jamais faisable et ce test passerait sans jamais s'exécuter.
+    // html/chapitre-1 est terminé (4/4) : boucler-chapitre ne peut viser que
+    // html/chapitre-2, entamé à 50 %. `tire` garantit que l'archétype a bien
+    // été tiré au moins une fois.
     const past = [
       step("html", "chapitre-1", 0, "2026-08-01"),
       step("html", "chapitre-1", 1, "2026-08-01"),
@@ -253,7 +244,7 @@ describe("barème", () => {
   });
 });
 
-// --- Versement du briefing ------------------------------------------------
+// Versement du briefing
 
 function quest(slot: QuestSlot, done: boolean, label = `ordre ${slot}`): Quest {
   return {
@@ -425,9 +416,8 @@ describe("applyBriefingPayout", () => {
   });
 
   it("assied le bit sur l'emplacement, pas sur la position dans le tableau", () => {
-    // Briefing dégradé : la curiosité est le SEUL ordre émis, donc à l'index 0.
-    // Son bit doit rester celui de la curiosité (2), sans quoi un jour à deux
-    // ordres et un jour à trois ordres se marcheraient dessus dans le masque.
+    // Briefing dégradé : la curiosité est le seul ordre émis, donc à l'index 0.
+    // Son bit doit rester celui de la curiosité (2).
     const b = briefing([quest("curiosite", true)]);
     const out = applyBriefingPayout(b, etat(), "2026-08-19");
 
@@ -436,9 +426,8 @@ describe("applyBriefingPayout", () => {
   });
 
   it("ne repaie pas la curiosité d'un briefing dégradé déjà payée", () => {
-    // Le seul ordre émis est déjà payé (bit 2). Un briefing dégradé dont
-    // l'unique ordre est accompli est `complete` : la clôture, elle, n'a jamais
-    // été versée, elle est donc due — mais l'ordre, non.
+    // Le seul ordre émis est déjà payé (bit 2). Le briefing est `complete` et
+    // la clôture n'a jamais été versée : elle est due, l'ordre non.
     const b = briefing([quest("curiosite", true)]);
     const out = applyBriefingPayout(
       b,

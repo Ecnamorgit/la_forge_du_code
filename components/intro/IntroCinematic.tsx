@@ -22,9 +22,9 @@ import { useModalOverlay } from "@/lib/use-modal-overlay";
 interface IntroCinematicProps {
   /** Quand false, rien n'est rendu. */
   open: boolean;
-  /** Appelé à la fermeture (skip, fin, ou Échap). */
+  /** Appelé à la fermeture : bouton « Fermer », fin ou Échap. */
   onClose: () => void;
-  /** En reduced-motion : scènes en stills, pas d'auto-défilement ni d'animation. */
+  /** En reduced-motion : scènes fixes, sans auto-défilement ni animation. */
   reducedMotion?: boolean;
 }
 
@@ -75,11 +75,9 @@ export default function IntroCinematic({
     onClose();
   }, [onClose]);
 
-  // Repart aux scènes à chaque ouverture (reset intentionnel : le composant
-  // reste monté entre deux ouvertures). Ajusté pendant le rendu plutôt que
-  // dans un effet — c'est le fonctionnement post-signup, le crawl a déjà été
-  // vu sur la landing (IntroCinematicMount + StarWarsCrawl) et ne rejoue
-  // jamais ici : ce composant ne montre que les cinq scènes.
+  // Retour à la première scène à chaque ouverture : le composant reste monté
+  // entre deux ouvertures. Le crawl, lui, est joué sur la landing
+  // (IntroCinematicMount), jamais ici.
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) setIndex(0);
@@ -89,9 +87,9 @@ export default function IntroCinematic({
   useEffect(() => {
     if (!open || reducedMotion) return;
     clearTimeout(timerRef.current);
-    // `index` vient des deps de l'effet : pas d'updater fonctionnel ici, car
-    // appeler `finish()` (setState du parent) dans un updater — censé être
-    // pur — déclenche « Cannot update a component while rendering… ».
+    // `index` vient des deps : pas d'updater fonctionnel, car appeler
+    // `finish()` (setState du parent) dans un updater, censé être pur,
+    // déclenche « Cannot update a component while rendering… ».
     timerRef.current = setTimeout(() => {
       if (index >= INTRO_SCENES.length - 1) finish();
       else setIndex(index + 1);
@@ -106,8 +104,8 @@ export default function IntroCinematic({
     else playDeployBip();
   }, [open, index, soundOn]);
 
-  // Échap ferme, Tab reste piégé dans l'overlay, et le focus initial va au
-  // conteneur (comportement standard partagé — voir use-modal-overlay).
+  // Échap ferme, Tab reste piégé dans l'overlay et le focus initial va au
+  // conteneur (voir use-modal-overlay).
   useModalOverlay(dialogRef, { open, onClose: finish });
 
   if (!open) return null;
@@ -169,7 +167,7 @@ export default function IntroCinematic({
         {scene.narration}
       </p>
 
-      {/* Navigation manuelle explicite inter-slides */}
+      {/* Navigation manuelle entre les scènes */}
       <div className="mt-4 flex items-center justify-center gap-4 z-20">
         {index > 0 && (
           <button

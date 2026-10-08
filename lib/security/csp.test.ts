@@ -7,12 +7,7 @@ const SANDBOX = "https://bac-a-sable.laforgeducode.fr";
 /** Options d'une requête de production. */
 const PROD = { nonce: NONCE, sandboxOrigin: SANDBOX };
 
-/**
- * Message affiché à qui casse ce test. Le constat EXE-03 a permis de retirer
- * `'unsafe-inline'` / `'unsafe-eval'` de `script-src` en servant l'exécution du
- * code des apprenants depuis une origine dédiée. Les réintroduire ré-ouvrirait
- * la faille pour tout le site.
- */
+/** Message d'échec : rappelle pourquoi `script-src` doit rester strict. */
 const POURQUOI =
   "Le code des apprenants s'exécute depuis une origine dédiée (/bac-a-sable*, " +
   "lib/sandbox/sandbox-response.ts), qui porte seule la CSP permissive. " +
@@ -65,8 +60,6 @@ describe("CSP — encadrement des aperçus", () => {
   });
 
   it("en production, aucune origine de développement ne fuit dans frame-src", () => {
-    // Relevé sur le site en ligne après le déploiement du 2026-09-14 :
-    // localhost:3000 et 127.0.0.1:3000 étaient livrés dans la CSP de production.
     const csp = buildCsp(PROD);
     expect(csp).not.toContain("localhost");
     expect(csp).not.toContain("127.0.0.1");

@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * MongoDB chapitre 1 — etapes 2 a 4.
+ * MongoDB chapitre 1 — étapes 2 à 4.
  *
- * L'etape 1 est deja couverte par `lib/validators/all-chapter-1.test.ts`.
+ * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
  */
 
 describe("MongoDB — etape 2 (filtre, projection, limite)", () => {
@@ -54,7 +54,7 @@ describe("MongoDB — etape 3 (mise a jour ciblee)", () => {
   });
 
   it("refuse un $set qui ne touche qu'un seul champ", () => {
-    // Echec cible : l'etape demande explicitement niveau ET badge.
+    // Échec ciblé : l'étape demande explicitement niveau et badge.
     const code = `await db.collection('pilotes').updateOne(
   { nom: 'Lia' },
   { $set: { niveau: 6 } }
@@ -82,7 +82,7 @@ describe("MongoDB — etape 4 (agregation)", () => {
   });
 
   it("refuse un pipeline qui groupe sans compter", () => {
-    // Echec cible : le $group est la, le comptage manque.
+    // Échec ciblé : le $group est là, le comptage manque.
     const code = `const r = await db.collection('pilotes').aggregate([
   { $group: { _id: '$vaisseau.classe' } }
 ]).toArray();`;

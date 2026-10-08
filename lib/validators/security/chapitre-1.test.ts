@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * Securite chapitre 1 — etapes 2 a 4.
+ * Sécurité chapitre 1 — étapes 2 à 4.
  *
- * L'etape 1 est deja couverte par `lib/validators/all-chapter-1.test.ts`.
+ * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
  */
 
 describe("Securite — etape 2 (requete parametree)", () => {
@@ -17,7 +17,7 @@ const r = await db.query(sql, [nom]);`;
   });
 
   it("refuse une interpolation dans la requete", () => {
-    // Echec cible : c'est exactement l'injection que l'etape corrige.
+    // Échec ciblé : c'est exactement l'injection que l'étape corrige.
     const code = "const r = await db.query(`SELECT * FROM pilotes WHERE nom = ${nom}`);";
     expect(valider(code).ok).toBe(false);
   });
@@ -39,7 +39,7 @@ await db.utilisateurs.insert({ login, password: hash });`;
   });
 
   it("refuse un hash calcule mais un mot de passe stocke en clair", () => {
-    // Echec cible : l'erreur reelle, plus subtile que l'absence de hachage.
+    // Échec ciblé : l'erreur réelle, plus subtile que l'absence de hachage.
     const code = `const hash = await bcrypt.hash(password, 10);
 await db.utilisateurs.insert({ login, password });`;
     expect(valider(code).ok).toBe(false);

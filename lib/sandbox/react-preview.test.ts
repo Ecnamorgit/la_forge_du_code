@@ -2,9 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { PREVIEW_MOUNT_NAME_RE, parsePreviewMessage } from "./react-preview";
 
-// Le document exécuté dans l'iframe est testé dans preview-document.test.ts
-// (constat EXE-03). Ici on ne couvre que le protocole de messages du parent et
-// la validation partagée du nom de composant.
+// Le document de l'iframe est testé dans preview-document.test.ts.
 
 describe("parsePreviewMessage", () => {
   const source = {} as Window;

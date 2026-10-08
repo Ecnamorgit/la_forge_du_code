@@ -56,9 +56,8 @@ describe("React chapitre 5 — etape 1 (.map() sur un tableau)", () => {
   });
 
   it("echoue si un composant sans rapport retourne du JSX mais que .map() ne le fait pas (regression Finding 3)", () => {
-    // Le Debug component renvoie bien du JSX en dehors du callback map : le
-    // check ne doit pas se laisser convaincre par une correspondance ailleurs
-    // dans le fichier.
+    // Le composant Debug renvoie du JSX hors du callback de map : cette
+    // correspondance ailleurs dans le fichier ne doit pas suffire.
     const code = `
       const Debug = () => <span>debug</span>;
       function ListeFlotte() {
@@ -153,8 +152,8 @@ describe("React chapitre 5 — etape 3 (filtrer avant de rendre)", () => {
   });
 
   it("valide un filter->map correct meme precede d'un .map() sans rapport (regression Finding 1)", () => {
-    // Un .map() anterieur et sans lien avec le rendu ne doit pas faire
-    // echouer la detection de la VRAIE chaine filter->map plus bas.
+    // Un .map() antérieur et sans lien avec le rendu ne doit pas faire échouer
+    // la détection de la vraie chaîne filter -> map plus bas.
     const code = `
       function ListeFlotte() {
         const ids = flotte.map(v => v.id);
@@ -227,8 +226,8 @@ describe("React chapitre 5 — etape 4 (liste vide)", () => {
   });
 
   it("echoue si length est teste sur le tableau source flotte, pas sur operationnels (regression Finding 2)", () => {
-    // flotte n'est jamais vide dans cet exercice : ce test ne peut donc
-    // jamais se declencher. Le brief cible precisement cette erreur.
+    // `flotte` n'est jamais vide dans cet exercice : ce test ne peut jamais se
+    // déclencher.
     const code = `
       function ListeFlotte() {
         const operationnels = flotte.filter(v => v.statut === 'operationnel');

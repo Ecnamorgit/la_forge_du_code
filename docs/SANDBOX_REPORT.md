@@ -1,8 +1,17 @@
 # Rapport technique — Sandbox d'exécution du code étudiant
 
-**Projet :** CodeForge / Nebula Command
+**Projet :** La Forge du Code / Nebula Command
 **Périmètre :** exécution sécurisée du code écrit par les apprenants, et rendu des aperçus
 **Date :** 2026-06-17
+
+> **Mise à jour (septembre 2026).** Ce rapport décrit l'état du 2026-06-17. Depuis
+> l'audit de sécurité du 2026-09-12 ([suivi des constats](audit-securite/README.md)) :
+>
+> - le code n'est plus injecté par `srcdoc` : les trois exécuteurs (JavaScript, aperçu HTML, aperçu React) sont servis depuis une origine dédiée (`/bac-a-sable`, sous-domaine `bac-a-sable.` en production, voir `lib/sandbox/sandbox-origin.ts`), toujours dans des iframes `sandbox="allow-scripts"`. L'application émet une CSP à nonce, posée par `proxy.ts`, sans `'unsafe-inline'` ni `'unsafe-eval'` ([EXE-03](audit-securite/corrections/EXE-03.md)) ;
+> - les boucles sans fin sont interrompues : instrumentation des boucles (`lib/sandbox/loop-protect.ts`) pour JavaScript, HTML et React, Web Worker pour SQL ([EXE-02](audit-securite/corrections/EXE-02.md)) ;
+> - le cursus SQL exécute les requêtes avec sql.js dans le navigateur ([EXE-07](audit-securite/corrections/EXE-07.md)).
+>
+> Les §3.2, §3.4, §3.5, §4, §5, §6 et §7 sont à lire à la lumière de ces fiches.
 
 ---
 
@@ -25,7 +34,7 @@ Deux mécanismes distincts selon le type de cursus :
 | **React** | composant monté et rendu dans une iframe `sandbox` persistante (JSX transformé par Sucrase **dans le navigateur**) | analyse **statique** du code source — l'aperçu affiche, il ne juge pas |
 | **Cursus statiques** (Git, SQL, Python, TS, Node…) | aucune exécution | analyse statique par motifs (pattern-matching) |
 
-Le principe directeur : **on n'exécute du code que lorsque c'est nécessaire (JS, React), et toujours dans une iframe `sandbox` à origine opaque.** Tout le reste est validé en lisant le texte saisi, ce qui supprime entièrement la surface d'attaque pour ces cursus.
+Le principe directeur : on n'exécute du code que lorsque c'est nécessaire (JS, React), et toujours dans une iframe `sandbox` à origine opaque. Tout le reste est validé en lisant le texte saisi, ce qui supprime entièrement la surface d'attaque pour ces cursus.
 
 Le cas React mérite d'être distingué : le code y est **exécuté pour être montré**, jamais pour être jugé. La validation reste purement statique, donc l'exécution n'a aucune autorité sur la progression de l'apprenant.
 

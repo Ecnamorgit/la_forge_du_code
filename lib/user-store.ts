@@ -1,6 +1,6 @@
 import type { Briefing } from "./quests";
 
-/** Vue client de la liaison. Le serveur en est seul maître. */
+/** Vue client de la liaison, calculée par le serveur. */
 export interface LiaisonPublic {
   streak: number;
   bestStreak: number;
@@ -8,19 +8,14 @@ export interface LiaisonPublic {
   /** Les 7 derniers jours, du plus ancien au plus récent. */
   week: boolean[];
   /**
-   * La journée d'aujourd'hui est-elle DÉJÀ comptée dans `streak` ?
-   *
-   * Faux tant que le cadet n'a validé aucune étape aujourd'hui. `streak` est
-   * alors le compte d'hier : il reste juste, mais il n'est pas encore acquis
-   * pour la journée en cours.
+   * Vrai si la journée est déjà comptée dans `streak`. Faux tant qu'aucune
+   * étape n'a été validée aujourd'hui : `streak` est alors le compte d'hier.
    */
   activeToday: boolean;
   /**
-   * Valider une étape maintenant romprait-il la série ?
-   *
-   * Vrai quand l'absence dépasse ce que les relais peuvent couvrir. Permet
-   * d'annoncer « ta liaison est perdue » plutôt que d'afficher un compteur
-   * périmé jusqu'à la prochaine étape. Toujours faux si `activeToday`.
+   * Vrai si valider une étape maintenant romprait la série (absence plus
+   * longue que ce que couvrent les relais). Permet d'annoncer la rupture
+   * plutôt qu'un compteur périmé. Toujours faux si `activeToday`.
    */
   wouldBreakToday: boolean;
 }
@@ -29,32 +24,26 @@ export interface UserState {
   username: string;
   totalXp: number;
   lastVisit: string;
-  // ISO date (yyyy-mm-dd) the daily mission was last claimed; "" if never.
+  // Jour (aaaa-mm-jj) auquel se rapporte le masque de paiement du briefing ; "" si jamais.
   lastDailyMission: string;
-  // Slug of the last course the user interacted with (visited or completed a
-  // step in). Used by the dashboard to pre-select the "active" cursus. Null
-  // until the user first opens any chapter.
+  // Dernier cursus ouvert ou travaillé, présélectionné par le tableau de bord.
+  // Null avant la première ouverture d'un chapitre.
   lastVisitedCourse: string | null;
   badges: string[];
-  // key = `${course}/${chapter}`, value = sorted step indexes done
+  // Clé `${course}/${chapter}`, valeur : indices des étapes faites, triés.
   completedSteps: Record<string, number[]>;
   joinedAt: string;
-  // ISO date string when the user dismissed the first-login briefing; null until then.
+  // Date ISO de fermeture du briefing de première connexion ; null avant.
   onboardedAt: string | null;
-  // Avatar customization (purely cosmetic). All null until first /avatar visit.
+  // Avatar (cosmétique). Null jusqu'au premier passage sur /avatar.
   species: string | null;
   uniformColor: string | null;
   role: string | null;
 
-  // --- Boucle quotidienne ---------------------------------------------
+  // Boucle quotidienne
   /** Briefing du jour, calculé serveur. Null en mode essai (visiteur local). */
   briefing: Briefing | null;
-  /**
-   * Le compteur de liaison vit ici, et nulle part ailleurs. Un champ `streak`
-   * de premier niveau a longtemps coexisté avec `liaison.streak`, identique à
-   * la source : cette dualité a suffi à faire calculer les déblocables côté
-   * client depuis la mauvaise moitié de l'état.
-   */
+  /** Seule source du compteur de liaison côté client. */
   liaison: LiaisonPublic;
   /** Ids des cosmétiques débloqués, tels qu'ils sont possédés en base. */
   unlocks: string[];
@@ -96,12 +85,12 @@ export const DEFAULT_USER: UserState = {
   cardBg: null,
 };
 
-/** Has the user picked an avatar (all 3 fields populated) ? */
+/** Vrai si l'avatar est choisi (les trois champs renseignés). */
 export function hasAvatar(state: UserState): boolean {
   return state.species !== null && state.uniformColor !== null && state.role !== null;
 }
 
-/** Get array of completed step indexes for a chapter */
+/** Indices des étapes faites dans un chapitre. */
 export function getCompletedSteps(
   state: UserState,
   course: string,
@@ -110,7 +99,6 @@ export function getCompletedSteps(
   return state.completedSteps[`${course}/${chapter}`] ?? [];
 }
 
-/** Check if a chapter is fully completed */
 export function isChapterComplete(
   state: UserState,
   course: string,
@@ -125,7 +113,7 @@ export interface ChapterMeta {
   totalSteps: number;
 }
 
-/** Course progress percent (completed steps / total steps) */
+/** Progression d'un cursus en pourcentage (étapes faites / étapes totales). */
 export function getCourseProgress(
   state: UserState,
   course: string,
@@ -147,7 +135,7 @@ export interface NextStep {
   isFirst: boolean;
 }
 
-/** Find the next step the user should do in a course */
+/** Prochaine étape à faire dans un cursus. */
 export function getNextStep(
   state: UserState,
   course: string,
@@ -177,15 +165,9 @@ function countCompleted(state: UserState, courseSlug: string): number {
 }
 
 /**
- * Pick the course the user is most likely working on right now.
- *
- * Strategy:
- * 1. Prefer state.lastVisitedCourse if it's still valid (in the candidate list
- *    and not 100 % completed). This handles "user just opened React, then went
- *    back to the dashboard" — we want to show React.
- * 2. Otherwise pick the candidate with the most completed steps that isn't
- *    fully done (handles users who came back later with no fresh visit).
- * 3. Otherwise fall back to the first slug given (a fresh user).
+ * Cursus sur lequel l'utilisateur travaille le plus probablement : le dernier
+ * visité s'il est candidat et inachevé, sinon le cursus inachevé le plus
+ * avancé, sinon le premier candidat.
  */
 export function getActiveCourseSlug(
   state: UserState,
@@ -196,14 +178,14 @@ export function getActiveCourseSlug(
 
   const validSet = new Set(candidateSlugs);
 
-  // (1) Honour the explicit lastVisitedCourse if it's still incomplete.
+  // Dernier cursus visité, s'il reste inachevé.
   if (state.lastVisitedCourse && validSet.has(state.lastVisitedCourse)) {
     const total = totalStepsByCourse[state.lastVisitedCourse] ?? 0;
     const done = countCompleted(state, state.lastVisitedCourse);
     if (total > 0 && done < total) return state.lastVisitedCourse;
   }
 
-  // (2) Fall back to the most-progressed unfinished course.
+  // Sinon, le cursus inachevé le plus avancé.
   let bestSlug = candidateSlugs[0];
   let bestProgress = -1;
   for (const slug of candidateSlugs) {

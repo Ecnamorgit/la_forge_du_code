@@ -14,18 +14,18 @@ export interface SqlQueryResult {
 }
 
 export interface SqlRun {
-  /** Last result set produced by the student's SQL (null if none, e.g. INSERT). */
+  /** Dernier jeu de résultats du SQL de l'apprenant (null pour un INSERT, par exemple). */
   result: SqlQueryResult | null;
-  /** Read-back of the DB state via the step's verify query, when configured. */
+  /** État relu par la requête `verify` de l'étape, si elle existe. */
   verify: SqlQueryResult | null;
-  /** Error message if the student's SQL threw, else null. */
+  /** Message d'erreur si le SQL de l'apprenant a échoué, sinon null. */
   error: string | null;
 }
 
 export interface SqlRunOptions {
-  /** SQL run before the student's code to set up tables/data for the step. */
+  /** SQL exécuté avant celui de l'apprenant pour préparer les tables de l'étape. */
   seed?: string;
-  /** SQL run after the student's code to inspect the resulting state. */
+  /** SQL exécuté après celui de l'apprenant pour relire l'état obtenu. */
   verify?: string;
 }
 

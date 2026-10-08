@@ -6,29 +6,26 @@ import Image from "next/image";
 import { INTRO_FX, type Fx, type SceneFx } from "@/lib/intro-fx";
 
 /**
- * Mini-cinématique three.js pixelisée d'une scène d'intro (spec
- * docs/superpowers/specs/2026-07-19-intro-mini-cinematiques-design.md).
+ * Mini-cinématique three.js pixelisée d'une scène d'intro.
  *
- * Approche hybride : le PNG de la scène reste une <Image> ordinaire ; le
- * canvas three.js transparent par-dessus n'anime QUE les effets (glitchs,
- * halos, faisceaux, particules…) d'après la config pure `INTRO_FX`. La
- * dérive de caméra est une animation CSS sur le wrapper, donc image et
- * effets bougent d'un seul bloc — aucune texture à charger côté WebGL,
- * l'image ne peut jamais manquer.
+ * Le PNG de la scène reste une <Image> ordinaire ; un canvas three.js
+ * transparent par-dessus n'anime que les effets (glitchs, halos, faisceaux,
+ * particules) décrits dans `INTRO_FX`. La dérive de caméra est une animation
+ * CSS sur le conteneur : image et effets bougent ensemble, et WebGL n'a
+ * aucune texture à charger.
  *
- * Le rendu interne est en basse résolution (320 px de large) upscalé en
- * nearest-neighbour → les effets restent du pixel art. three.js n'est
- * chargé (import dynamique) qu'au montage, donc uniquement quand l'intro
- * est ouverte. Si WebGL échoue, l'<Image> reste seule : fallback intégral.
+ * Le rendu interne, en basse résolution, est agrandi sans lissage pour rester
+ * en pixel art. three.js n'est importé qu'au montage ; si WebGL échoue,
+ * l'<Image> reste seule.
  */
 
 type ThreeModule = typeof import("three");
 
 /** Ratio des scene-N.png (1024×571). */
 const IMG_ASPECT = 1024 / 571;
-/** Largeur interne du rendu (px) — le pixel art vient de cet upscale. */
+/** Largeur interne du rendu, en px. */
 const RENDER_WIDTH = 320;
-/** ~20 i/s : fluide pour des effets lents, cadence pixel art. */
+/** Environ 20 images/s, suffisant pour des effets lents. */
 const TICK_MS = 50;
 
 /** Classe d'animation CSS du wrapper selon la dérive configurée. */
@@ -39,7 +36,7 @@ const CAMERA_CLASS: Record<SceneFx["camera"]["kind"], string> = {
   "zoom-out": "animate-intro-cam-zoom-out",
 };
 
-/** Hash déterministe → [0,1[ ; sert aux flickers et aux particules. */
+/** Hash déterministe dans [0, 1[, pour les scintillements et les particules. */
 function hash(n: number): number {
   const s = Math.sin(n * 127.1 + 311.7) * 43758.5453;
   return s - Math.floor(s);
@@ -177,7 +174,7 @@ export default function IntroSceneCanvas({
           })
         );
 
-      // --- Construction des effets + fonctions d'update ------------------
+      // Construction des effets et de leurs fonctions de mise à jour.
       const updates: Array<(t: number) => void> = [];
 
       config.effects.forEach((fx: Fx, fxIndex: number) => {
@@ -418,8 +415,8 @@ export default function IntroSceneCanvas({
       cleanupThree = () => {
         for (const d of disposables) d.dispose();
         renderer.dispose();
-        // Libère le contexte WebGL immédiatement : une scène est montée par
-        // slide, sans ça les contextes s'accumulent jusqu'à la limite navigateur.
+        // Un canvas est monté par scène : sans libération immédiate, les
+        // contextes WebGL s'accumulent jusqu'à la limite du navigateur.
         renderer.forceContextLoss();
         if (holder.contains(el)) holder.removeChild(el);
       };

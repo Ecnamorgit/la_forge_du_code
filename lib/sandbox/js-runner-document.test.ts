@@ -3,10 +3,8 @@ import { describe, expect, it } from "vitest";
 import { buildJsRunnerDocument } from "./js-runner-document";
 
 /**
- * Le document d'exécution JavaScript servi depuis l'origine dédiée (constat
- * EXE-03), qui remplace le `srcdoc` inline de `run-js.ts`. Ses invariants de
- * sûreté sont ceux de l'ancien srcdoc, plus ceux propres à un document
- * autonome : il apprend l'origine du parent au lieu de la figer, et n'exécute
+ * Document d'exécution JavaScript servi depuis l'origine dédiée (audit
+ * EXE-03) : il apprend l'origine du parent au lieu de la figer, et n'exécute
  * que du code reçu de `parent`.
  */
 describe("buildJsRunnerDocument", () => {

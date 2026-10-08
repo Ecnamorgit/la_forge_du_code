@@ -11,9 +11,8 @@ const shareTechMono = Share_Tech_Mono({
   display: "swap",
 });
 
-// True bitmap/pixel face — used ONLY for short display headings (hero titles,
-// page H1) so the typography matches the pixel-art direction. Never for body or
-// long labels: pixel fonts get unreadable at small sizes.
+// Police pixel, réservée aux titres courts : elle devient illisible en petite
+// taille.
 const silkscreen = Silkscreen({
   weight: ["400", "700"],
   subsets: ["latin"],
@@ -33,10 +32,9 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-// La CSP à nonce (constat EXE-03) exige un rendu dynamique : le nonce est
-// unique par requête, une page pré-rendue au build n'en aurait aucun et ses
-// scripts d'amorçage seraient bloqués. `force-dynamic` sur le layout racine
-// s'applique à toutes les routes. Coût assumé : plus d'optimisation statique.
+// La CSP à nonce impose un rendu dynamique : une page pré-rendue au build
+// n'aurait pas de nonce et ses scripts seraient bloqués. Posé sur le layout
+// racine, `force-dynamic` vaut pour toutes les routes.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -68,16 +66,13 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      //AJout : W full pour la largeur garantie
       className={`${shareTechMono.variable} ${exo2.variable} ${jetbrainsMono.variable} ${silkscreen.variable} h-full w-full`}
     >
       <body className="min-h-full w-full bg-nebula-bg-darkest text-nebula-text font-body text-base m-0 p-0">
         <AuthSessionProvider>{children}</AuthSessionProvider>
         {/*
-          Mesure d'audience Vercel : sans cookie et sans identifiant persistant,
-          donc hors du champ du consentement préalable — c'est ce qui permet de
-          la poser ici plutôt que derrière une bannière. Voir docs/RGPD.md §2.
-          Inerte hors déploiement Vercel : en local, le script ne se charge pas.
+          Mesure d'audience Vercel sans cookie ni identifiant persistant, donc
+          sans consentement préalable (docs/RGPD.md §2). Inerte hors de Vercel.
         */}
         <Analytics />
       </body>

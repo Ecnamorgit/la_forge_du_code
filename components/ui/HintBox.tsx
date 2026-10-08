@@ -3,9 +3,9 @@ import { CHARACTERS } from "@/lib/characters";
 interface HintBoxProps {
   show: boolean;
   /**
-   * Texte de l'indice, affiché tel quel. Beaucoup d'indices contiennent du code
-   * HTML ou JSX à recopier : il doit se lire, jamais s'interpréter (constat
-   * EXE-04 de l'audit de sécurité du 2026-09-12).
+   * Texte de l'indice, affiché tel quel : beaucoup d'indices contiennent du
+   * HTML ou du JSX à recopier, qui doit se lire et jamais s'interpréter
+   * (audit EXE-04).
    */
   text: string;
 }

@@ -3,13 +3,9 @@ import type { Instrumentation } from "next";
 import { logger } from "./lib/logger";
 
 /**
- * Hook d'instrumentation Next.js : `register()` est appelé une seule fois au
- * démarrage de chaque instance serveur, avant de servir la moindre requête.
- *
- * - Validation fail-fast de la configuration d'environnement (CF-3).
- * - Initialisation optionnelle de Sentry (CF-10) si `SENTRY_DSN` est défini —
- *   import dynamique pour rester totalement inerte (build + bundle) tant que le
- *   monitoring n'est pas configuré.
+ * Appelé une fois au démarrage de chaque instance serveur : valide
+ * l'environnement, puis initialise Sentry si `SENTRY_DSN` est défini. L'import
+ * dynamique laisse Sentry hors du bundle tant qu'il n'est pas configuré.
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
@@ -27,9 +23,8 @@ export async function register() {
 }
 
 /**
- * Capture centralisée des erreurs serveur non gérées (Server Components, Route
- * Handlers, Server Actions). Logge un évènement structuré (CF-9) et, si Sentry
- * est configuré, le remonte au monitoring (CF-10). Aucune PII exposée.
+ * Erreurs serveur non gérées : journal structuré, et Sentry s'il est
+ * configuré. Aucune donnée personnelle n'est journalisée.
  */
 export const onRequestError: Instrumentation.onRequestError = async (
   err,

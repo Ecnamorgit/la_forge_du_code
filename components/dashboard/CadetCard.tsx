@@ -12,16 +12,16 @@ import { cardBgImage, nextUnlock, UNLOCKS, type UnlockContext } from "@/lib/unlo
 interface CadetCardProps {
   username: string;
   totalXp: number;
-  /** Ids des badges possédés — sert au compteur et au calcul des déblocables. */
+  /** Ids des badges possédés (compteur et calcul des déblocables). */
   badges: string[];
   streak: number;
   questsCompleted: number;
   coursesComplete: number;
   chaptersComplete: number;
   /**
-   * Ids des cosmétiques RÉELLEMENT possédés (`UserState.unlocks`). Sans eux,
-   * le « prochain déblocable » reproposerait ce que le cadet a déjà obtenu et
-   * perdu depuis (les paliers de liaison sont réversibles).
+   * Ids des cosmétiques possédés (`UserState.unlocks`). Sans eux, le
+   * « prochain déblocable » reproposerait un objet obtenu puis perdu (les
+   * paliers de liaison sont réversibles).
    */
   unlocks: string[];
   species: string | null;
@@ -35,9 +35,8 @@ interface CadetCardProps {
 }
 
 /**
- * Anneaux de cadre, purs CSS (aucune image neuve — voir lib/unlocks.ts).
- * `standard` (le défaut) n'ajoute rien : le médaillon garde son anneau de
- * couleur d'uniforme habituel.
+ * Anneaux de cadre en CSS pur (voir lib/unlocks.ts). `standard`, le défaut,
+ * n'ajoute rien : le médaillon garde son anneau à la couleur de l'uniforme.
  */
 const FRAME_RING: Partial<Record<string, string>> = {
   double: "outline outline-2 outline-offset-2 outline-nebula-cyan/50",
@@ -81,16 +80,12 @@ export default function CadetCard({
   const titleLabel = title
     ? (UNLOCKS.find((u) => u.id === title && u.axis === "title")?.label ?? null)
     : null;
-  // Les deux catalogues de badges, cursus ET conduite : « Sprinteur » et
-  // « Veilleur » sont sélectionnables dans l'armurerie et acceptés par le
-  // serveur, les résoudre depuis le seul catalogue de cursus faisait
-  // disparaître la pastille sans le dire.
   const emblemBadge = getEmblem(emblem);
   const frameClass = frame ? (FRAME_RING[frame] ?? "") : "";
 
   return (
     <aside className="relative overflow-hidden rounded-sm border border-nebula-border/80 bg-nebula-bg-panel/85 p-6 shadow-[0_0_30px_rgba(0,240,255,0.06)] backdrop-blur-md">
-      {/* Fond de carte débloqué — décor pur, jamais interactif. */}
+      {/* Fond de carte débloqué, purement décoratif. */}
       <Image
         src={cardBgImage(cardBg)}
         alt=""
@@ -102,7 +97,7 @@ export default function CadetCard({
       />
 
       <div className="relative">
-        {/* Avatar + name */}
+        {/* Avatar et nom */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="relative mb-3">
             <div className={`inline-flex rounded-full ${frameClass}`}>
@@ -150,15 +145,13 @@ export default function CadetCard({
           </Link>
         </div>
 
-        {/* Stats grid 2x2 */}
+        {/* Statistiques en grille 2x2 */}
         <div className="grid grid-cols-2 gap-3">
           <Stat label="Total XP" value={totalXp} accent="cyan" />
           <Stat label="Rang" value={rank} accent="orange" />
           <Stat label="Badges" value={badges.length} accent="blue" />
-          {/* « Liaison » et non « Streak » : c'est le mot qu'emploient le
-              bandeau, l'armurerie et les libellés de déblocables. Deux mots
-              pour la même chose, à trente centimètres l'un de l'autre, font
-              une interface inachevée. */}
+          {/* « Liaison » plutôt que « Streak » : c'est le terme du bandeau,
+              de l'armurerie et des déblocables. */}
           <Stat label="Liaison" value={`${streak}j`} accent="green" />
         </div>
 

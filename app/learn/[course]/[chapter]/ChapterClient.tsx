@@ -44,11 +44,7 @@ import { TRIAL_COURSE, TRIAL_CHAPTERS, TRIAL_LAST_CHAPTER } from "@/lib/public-r
 interface ChapterClientProps {
   course: string;
   chapter: ChapterData;
-  /**
-   * Dernier chapitre du cursus (→ finale au lieu d'outro). Calculé côté
-   * serveur : la réponse dépend du registre complet des cursus, qu'on ne veut
-   * pas embarquer dans le bundle client.
-   */
+  /** Dernier chapitre du cursus : il se termine par la finale. */
   isLastChapter: boolean;
 }
 
@@ -57,8 +53,8 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
   const router = useRouter();
   const validators = getValidators(course, chapter.slug);
   const chapterDone = isChapterComplete(state, course, chapter.slug, chapter.steps.length);
-  // Chapitre jouable en essai : cinématiques en mode localStorage, conversion
-  // uniquement en fin de dernier chapitre d'essai.
+  // Chapitre jouable en essai : cinématiques en localStorage, conversion à la
+  // fin du dernier chapitre d'essai.
   const isTrialChapter =
     isTrial && course === TRIAL_COURSE && TRIAL_CHAPTERS.includes(chapter.slug);
   const isLastTrialChapter = isTrialChapter && chapter.slug === TRIAL_LAST_CHAPTER;
@@ -67,13 +63,11 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
     : null;
   const showConversion = isTrial && chapterDone && isLastTrialChapter;
 
-  // Tag this course as the user's current focus so the dashboard's
-  // "Reprendre la mission" picks it on next render. Fire-and-forget.
+  // Ce cursus devient le cursus en cours, repris par le tableau de bord.
   useEffect(() => {
     void markCourseVisited(course);
   }, [course, markCourseVisited]);
 
-  // Derived from store
   const completedStepIndexes = useMemo(
     () => getCompletedSteps(state, course, chapter.slug),
     [state, course, chapter.slug]
@@ -101,9 +95,8 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
     () => chapter.steps.map((_, i) => completedStepIndexes.includes(i)),
     [completedStepIndexes, chapter.steps]
   );
-  // Max XP of the chapter, derived from the same formula that actually awards
-  // XP (lib/xp.ts). Single source of truth — the hardcoded `totalXp` in the
-  // data files drifted from reality, so we never display it.
+  // Calculée avec la formule qui attribue l'XP (lib/xp.ts), et non avec le
+  // `totalXp` des fichiers de données, qui n'est pas fiable.
   const chapterMaxXp = useMemo(
     () =>
       chapter.steps.reduce((sum, s) => sum + xpForStep(s.objectives.length), 0),
@@ -127,16 +120,11 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
 
   const [showBanner, setShowBanner] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
-  // Cinématique de fin de chapitre (ou finale de cursus sur le dernier
-  // chapitre). Jouée entre la dernière bannière d'étape et CompletionScreen
-  // (ou la navigation/conversion d'essai), une seule fois (règle : une
-  // cinématique enregistrée ne se rejoue jamais automatiquement). Montée en
-  // essai uniquement pour les chapitres pilotes (cf. isTrialChapter).
+  // Cinématique de fin de chapitre (ou finale du cursus), jouée une seule fois
+  // entre la dernière bannière d'étape et la suite du chapitre.
   const [showOutroCinematic, setShowOutroCinematic] = useState(false);
-  // En essai hors périmètre trial (cours/chapitre non pilotes) il n'y a pas
-  // de session : l'API des cinématiques répondrait 401. Pour un chapitre
-  // d'essai pilote, on persiste en localStorage (pas de session non plus,
-  // mais une progression locale légitime).
+  // Sans session, l'API des cinématiques répond 401 : les chapitres d'essai
+  // enregistrent en localStorage, les autres n'enregistrent rien.
   const { loaded: cineLoaded, seen: cineSeen, mark: markCine } = useCinematicSeen(
     course,
     isTrial ? (isTrialChapter ? "local" : "off") : "server"
@@ -155,13 +143,9 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
   );
   const [showHint, setShowHint] = useState(false);
   const [xpPopup, setXpPopup] = useState({ show: false, label: "" });
-  // Signal immédiat de fin d'étape pour la boucle quotidienne (ordre
-  // accompli, badge de conduite, notice de liaison) : réutilise le même
-  // composant XPPopup que le flash d'XP, décalé pour coexister avec lui,
-  // jamais un overlay (les overlays sont réservés à la montée de niveau et
-  // au déblocable). Ne se déclenche jamais sur la dernière étape d'un
-  // chapitre : CompletionScreen va s'afficher et porte déjà cette annonce
-  // via dailyLoopAnnounce — une seule annonce par récompense, jamais deux.
+  // Récompenses de la boucle quotidienne (ordre, badge de conduite, liaison),
+  // dans un second XPPopup : les overlays sont réservés à la montée de niveau
+  // et aux déblocables.
   const [rewardPopup, setRewardPopup] = useState({ show: false, label: "" });
   const [flashTrigger, setFlashTrigger] = useState(0);
   const [teleportFlash, setTeleportFlash] = useState(0);
@@ -173,20 +157,15 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
     unlockLabel?: string;
   }>({ trigger: 0, level: 1 });
   const [openDocId, setOpenDocId] = useState<string | null>(null);
-  // Annonces de la boucle quotidienne portées par la dernière étape validée
-  // (ordres accomplis, badges de conduite, message de liaison) : révélées sur
-  // l'écran de fin de chapitre (`CompletionScreen`), là où le cadet se trouve
-  // déjà — jamais sur le dashboard. Valeurs neutres tant qu'aucune étape n'a
-  // encore renvoyé de résultat serveur.
+  // Récompenses de la dernière étape validée, affichées par `CompletionScreen`.
   const [dailyLoopAnnounce, setDailyLoopAnnounce] = useState<{
     completedQuests: string[];
     notice: string | null;
     conductBadges: string[];
   }>({ completedQuests: [], notice: null, conductBadges: [] });
   const previousLevelRef = useRef<number>(levelFromXp(state.totalXp));
-  // Ancre de la carte de conversion d'essai (cf. goNextStep) : permet de la
-  // faire défiler jusqu'à l'écran quand le visiteur clique sur le contrôle de
-  // fin de chapitre, au lieu de la laisser sous la ligne de flottaison.
+  // Permet de faire défiler la carte de conversion d'essai jusqu'à l'écran en
+  // fin de chapitre.
   const conversionRef = useRef<HTMLDivElement>(null);
 
   const hintTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -211,10 +190,8 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
     const alreadyDone = stepDone[currentStep];
     setSaveError(null);
 
-    // Pin the current step so the auto-advance (driven by completedSteps state)
-    // doesn't jump the user to the next step *before* they click SUIVANT on the
-    // banner. Without this, the banner and the editor below would already be
-    // showing step N+1 while the user is still celebrating step N.
+    // Fige l'étape : sans cela, l'avancée automatique afficherait l'étape
+    // suivante avant le clic sur la bannière.
     setManualStepByChapter((prev) => ({ ...prev, [chapter.slug]: currentStep }));
 
     setFlashTrigger((p) => p + 1);
@@ -237,12 +214,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
             conductBadges: result.newConductBadges,
           });
 
-          // Annonce immédiate, à l'étape où la récompense tombe — sauf sur la
-          // dernière étape du chapitre : CompletionScreen va s'afficher juste
-          // après et porte déjà dailyLoopAnnounce (ci-dessus). Doubler le
-          // signal ici afficherait la même récompense deux fois ; le sauter
-          // ici la laisserait s'afficher une seule fois, sur CompletionScreen,
-          // ce qui est le comportement voulu.
+          // Pas d'annonce sur la dernière étape : CompletionScreen l'affiche.
           const isFinalStepOfChapter = currentStep === chapter.steps.length - 1;
           if (!isFinalStepOfChapter) {
             const rewardLines = [
@@ -267,12 +239,8 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
           const leveledUp = newLevel > previousLevelRef.current;
           previousLevelRef.current = newLevel;
 
-          // Une seule cérémonie par étape : la montée de niveau prime sur la
-          // révélation d'un déblocable si les deux tombent sur la même étape
-          // — c'est le jalon le plus rare des deux, et `LevelUpOverlay` ne
-          // peut de toute façon en montrer qu'une à la fois. Le déblocable
-          // n'est pas perdu pour autant : il reste acquis côté serveur et
-          // visible dans l'armurerie.
+          // Une seule cérémonie par étape : la montée de niveau, plus rare,
+          // prime sur le déblocable, qui reste visible dans l'armurerie.
           if (leveledUp) {
             spawnLevelUpBurst();
             setLevelUp((p) => ({ trigger: p.trigger + 1, level: newLevel, unlockLabel: undefined }));
@@ -300,18 +268,15 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
     }, 500);
   }, [course, chapter, currentStep, stepDone, completeStep]);
 
-  // Destination finale d'un chapitre une fois la cinématique (le cas
-  // échéant) écoulée : CompletionScreen pour un connecté, sinon navigation
-  // vers le chapitre d'essai suivant ou révélation de la carte de conversion
-  // en fin de dernier chapitre d'essai. Utilisé par `goNextStep` ET par
-  // `onClose` du lecteur de cinématique (cf. closeOutroCinematic).
+  // Suite du chapitre, après l'éventuelle cinématique : écran de fin si
+  // connecté, sinon chapitre d'essai suivant ou carte de conversion.
   const finishChapter = useCallback(() => {
     if (!isTrial) {
       setShowCompletion(true);
       return;
     }
     if (isLastTrialChapter) {
-      // Fin de l'essai : la carte de conversion est déjà montée (showConversion).
+      // Fin de l'essai : la carte de conversion est déjà affichée.
       conversionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
@@ -325,11 +290,11 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
     if (currentStep === chapter.steps.length - 1) {
       playFanfare();
       if (isTrial && !isTrialChapter) {
-        // Hors périmètre d'essai (défense en profondeur) : comportement historique.
+        // Hors périmètre d'essai (défense en profondeur) : pas de cinématique.
         conversionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
       }
-      // Connecté OU chapitre d'essai : cinématique d'abord si jamais vue.
+      // Cinématique d'abord, si elle n'a jamais été vue.
       if (cineLoaded && !cineSeen.has(outroId)) {
         setShowOutroCinematic(true);
         return;
@@ -350,9 +315,8 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
     finishChapter,
   ]);
 
-  // Référence stable : `CinematicPlayer` réarme son minuteur de scène dès que
-  // `onClose` change d'identité — une flèche inline le ferait à chaque rendu
-  // du chapitre (XP, bannière, popups…), coupant l'enchaînement automatique.
+  // Référence stable : `CinematicPlayer` réarme son minuteur de scène quand
+  // `onClose` change, ce qui couperait l'enchaînement à chaque rendu.
   const closeOutroCinematic = useCallback(() => {
     markCine(outroId);
     setShowOutroCinematic(false);
@@ -372,7 +336,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
   return (
     <div className="flex h-dvh flex-col overflow-hidden">
       {isTrial && <TrialBanner />}
-      {/* Background */}
+      {/* Fond */}
       <div
         className="fixed inset-0 pointer-events-none z-0 bg-center bg-cover bg-no-repeat"
         style={{ backgroundImage: `url('${getChapterBackground(course)}')` }}
@@ -380,7 +344,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
       <div className="fixed inset-0 pointer-events-none z-0 bg-[rgba(3,6,13,0.62)]" />
       <div className="fixed inset-0 pointer-events-none z-0 bg-nebula-stars opacity-25" />
 
-      {/* Effects layers */}
+      {/* Effets */}
       <SuccessFlash trigger={flashTrigger} />
       <div
         key={teleportFlash}
@@ -419,10 +383,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
         />
       )}
       <CompletionScreen
-        // En essai, ce plein écran n'a ni bouton de fermeture utilisable ni
-        // rapport avec la carte de conversion (cf. goNextStep) : on ne le
-        // monte jamais pour un visiteur sans compte. Comportement connecté
-        // inchangé.
+        // Sans compte, l'essai se conclut par la carte de conversion.
         show={showCompletion && !isTrial}
         totalXp={xp}
         badgeIcon={chapter.completionBadge}
@@ -445,15 +406,11 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
         onOpen={(id) => setOpenDocId(id)}
       />
 
-      {/* Top bar */}
+      {/* Barre supérieure */}
       <header className="relative z-50 flex h-14 shrink-0 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/70 px-4 backdrop-blur-md lg:px-6">
         <div className="flex items-center gap-2 lg:gap-4">
           <Link
-            // En essai, `/learn/${course}` retombe derrière le mur d'auth
-            // (middleware -> /login) sauf pour le cursus d'essai lui-même,
-            // désormais public : on y renvoie plutôt que vers l'accueil, seule
-            // destination réellement atteignable jusqu'ici pour un visiteur
-            // sans compte.
+            // Sans compte, seule la carte du cursus d'essai est accessible.
             href={isTrial ? `/learn/${TRIAL_COURSE}` : `/learn/${course}`}
             className="font-tech text-sm uppercase tracking-widest text-nebula-text-secondary transition-colors hover:text-nebula-cyan"
           >
@@ -469,7 +426,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
         <XPBar xp={xp} maxXp={chapterMaxXp} accountLevel={levelFromXp(state.totalXp)} />
       </header>
 
-      {/* Mobile tabs — visible only below lg */}
+      {/* Onglets mobiles, sous lg */}
       <nav className="relative z-40 flex h-11 shrink-0 border-b border-nebula-border/70 bg-nebula-bg-darkest/60 backdrop-blur-md lg:hidden">
         {(["lesson", "editor", "output"] as const).map((tab) => {
           const label =
@@ -493,23 +450,13 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
       </nav>
 
       {/*
-        Zone défilable : regroupe la grille 2 colonnes ET la carte de
-        conversion d'essai dans un même conteneur min-h-0/flex-1/overflow-y-auto.
-        Avant, TrialConversion était un sibling fixe de la grille au niveau
-        racine : toute croissance de son contenu (XP à 4 chiffres, texte plus
-        long, échelle de police système plus grande) rognait la grille
-        1-pour-1 jusqu'à 0, puis débordait tel quel — le footer, lui aussi
-        sibling racine, se retrouvait poussé hors du viewport et rogné par
-        l'overflow-hidden de la racine, sans aucun recours au scroll.
-        En nichant grille + carte dans ce wrapper, c'est ce wrapper qui
-        absorbe tout dépassement via son propre scroll interne ; le footer
-        reste un sibling shrink-0 du wrapper (pas de la carte) et conserve
-        donc toujours sa hauteur pleine, quelle que soit la taille du
-        contenu de la carte.
+        Zone défilable commune à la grille et à la carte de conversion : si la
+        carte grandit, c'est cette zone qui défile, et le pied de page garde sa
+        hauteur.
       */}
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <div className="relative z-[1] grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-          {/* LEFT — lesson */}
+          {/* Leçon */}
           <main
             key={currentStep}
             className={`animate-fade-in min-h-0 overflow-y-auto border-r border-nebula-border/60 bg-nebula-bg-darkest/55 px-5 py-6 backdrop-blur-md lg:px-10 lg:py-9 ${
@@ -626,7 +573,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
               </ul>
             </div>
 
-            {/* Hint button */}
+            {/* Indice */}
             <div className="mt-6">
               <button
                 onClick={toggleHint}
@@ -642,7 +589,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
             )}
           </main>
 
-          {/* RIGHT — workspace */}
+          {/* Espace de travail */}
           <div
             className={`min-h-0 ${
               mobileTab === "lesson" ? "hidden lg:flex" : "flex"
@@ -680,7 +627,7 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
         )}
       </div>
 
-      {/* Footer */}
+      {/* Pied de page */}
       <footer className="relative z-50 flex h-14 shrink-0 items-center justify-between gap-2 border-t border-nebula-border/70 bg-nebula-bg-darkest/70 px-3 backdrop-blur-md lg:h-16 lg:px-6">
         <div className="flex min-w-0 items-center gap-2 lg:gap-3">
           <span className="font-tech text-xs uppercase tracking-widest text-nebula-text-secondary lg:text-sm">

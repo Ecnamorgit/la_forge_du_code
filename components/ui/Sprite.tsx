@@ -1,29 +1,25 @@
 /**
- * Generic pixel-art sprite renderer.
- *
- * Reads a single frame from a sprite sheet using CSS background-position.
- * `image-rendering: pixelated` keeps crisp edges when scaling.
- *
- * The dimension props refer to the *source* frame; pass `displaySize` to
- * render the frame at a different on-screen size while preserving sharpness.
+ * Affiche une case d'une planche de sprites pixel art par background-position,
+ * sans lissage. Les dimensions de la planche sont celles de la source ;
+ * `displaySize` fixe la taille à l'écran.
  */
 
 export interface SpriteSheet {
-  /** Public URL of the sheet. */
+  /** URL publique de la planche. */
   src: string;
-  /** Width of a single frame, in pixels (source). */
+  /** Largeur d'une case, en pixels source. */
   frameWidth: number;
-  /** Height of a single frame, in pixels (source). */
+  /** Hauteur d'une case, en pixels source. */
   frameHeight: number;
-  /** Number of frames per row in the sheet. */
+  /** Nombre de cases par ligne. */
   columns: number;
 }
 
 interface SpriteProps {
   sheet: SpriteSheet;
-  /** Zero-based frame index, counted left-to-right then top-to-bottom. */
+  /** Index de la case à partir de 0, de gauche à droite puis de haut en bas. */
   frame: number;
-  /** Optional on-screen size override (single number = square). */
+  /** Côté du carré dans lequel la case est affichée. */
   displaySize?: number;
   className?: string;
   title?: string;
@@ -43,11 +39,10 @@ export default function Sprite({
   const size = displaySize ?? Math.max(frameWidth, frameHeight);
   const scaleX = size / frameWidth;
   const scaleY = size / frameHeight;
-  // Use the smaller scale so the frame fits inside `size` x `size`.
+  // La plus petite échelle, pour que la case tienne dans `size` x `size`.
   const rawScale = Math.min(scaleX, scaleY);
-  // Snap to an INTEGER multiple when upscaling so pixels stay crisp (no shimmer
-  // from fractional scaling). Downscaling keeps the fractional value — you can't
-  // integer-scale below native, and the alternative would collapse the sprite.
+  // En agrandissement, échelle entière pour garder des pixels nets ; en
+  // réduction, l'échelle reste fractionnaire.
   const scale = rawScale >= 1 ? Math.floor(rawScale) : rawScale;
 
   return (

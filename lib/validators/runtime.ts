@@ -1,20 +1,17 @@
 /**
- * Chapitres dont les validateurs jugent une EXÉCUTION, pas un texte : ils
- * lisent `ctx.logs` ou `ctx.sql`, produits par le bac à sable du navigateur.
- * Appelés sans contexte, ils échouent pour absence de contexte.
+ * Chapitres dont les validateurs jugent une exécution, pas un texte : ils
+ * lisent `ctx.logs` ou `ctx.sql`, produits par le bac à sable du navigateur, et
+ * échouent si on les appelle sans contexte.
  *
- * L'exclusion est nommée **chapitre par chapitre**, et non par cursus : les
- * chapitres 11 et 12 de `javascript` sont statiques (l'hôte d'API est fictif et
- * ne résout jamais dans le sandbox). Un chapitre ajouté demain est statique par
- * défaut ; s'il est runtime, le test d'intégrité échouera bruyamment et il
- * faudra l'inscrire ici — c'est le bon sens de la faute.
+ * La liste est tenue chapitre par chapitre : les chapitres 11 et 12 de
+ * `javascript` sont statiques (hôte d'API fictif). Un nouveau chapitre est
+ * statique par défaut ; s'il dépend de l'exécution, le test d'intégrité échoue
+ * tant qu'il n'est pas inscrit ici.
  *
- * Deux usages :
- * - le test d'intégrité (`parcours-integrite.test.ts`) les exclut de
- *   l'invariant « le code de départ ne valide jamais son étape » ;
- * - le serveur ne peut pas les revalider sans exécuter lui-même le code de
- *   l'apprenant, ce que l'architecture exclut : leur réussite reste déclarée
- *   par le navigateur (`lib/step-proof.ts`).
+ * Ces chapitres sont exclus de l'invariant « le code de départ ne valide
+ * jamais son étape » (`parcours-integrite.test.ts`). Le serveur ne peut pas
+ * non plus les revalider sans exécuter le code de l'apprenant : leur réussite
+ * reste déclarée par le navigateur (`lib/step-proof.ts`).
  */
 export const RUNTIME_CHAPTERS: ReadonlySet<string> = new Set<string>([
   // javascript 1 à 10 : validés sur `ctx.logs`.

@@ -1,13 +1,13 @@
 /**
- * Transformation JSX -> JS, cote navigateur.
+ * Transformation JSX vers JS, côté navigateur.
  *
- * Sucrase plutot que Babel standalone : il ne couvre que JSX, TypeScript et les
- * modules — exactement le besoin de ce cursus — pour environ un dixieme du
- * poids. Import dynamique pour qu'il n'entre pas dans le bundle initial de
- * l'app : seul un chapitre React le charge, et seulement au premier deploiement.
+ * Sucrase plutôt que Babel standalone : il couvre JSX, TypeScript et les
+ * modules, soit le besoin du cursus, pour environ un dixième du poids. Importé
+ * dynamiquement pour rester hors du bundle initial : seul un chapitre React le
+ * charge, au premier déploiement.
  *
- * Le transform JSX classique produit des appels `React.createElement`, ce qui
- * convient puisque l'iframe d'apercu expose `React` en global.
+ * Le transform JSX classique produit des `React.createElement`, `React` étant
+ * global dans l'iframe d'aperçu.
  */
 
 export type JsxTransformResult =
@@ -24,9 +24,8 @@ export async function transformJsx(code: string): Promise<JsxTransformResult> {
     });
     return { ok: true, js };
   } catch (err) {
-    // Sucrase leve sur une syntaxe invalide. On porte le message plutot que de
-    // laisser l'exception traverser : l'appelant l'affiche a l'apprenant, c'est
-    // un retour pedagogique, pas un incident.
+    // Syntaxe invalide : le message est rendu à l'appelant, qui l'affiche à
+    // l'apprenant.
     return {
       ok: false,
       error: err instanceof Error ? err.message : String(err),

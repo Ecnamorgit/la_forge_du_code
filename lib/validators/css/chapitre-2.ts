@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasProperty, hasPropertyWithValue } from "./_utils";
 
 export const validators: Validator[] = [
-  // Step 1: .alert { color: ... }
+  // Étape 1 : .alert { color: ... }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -20,7 +20,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Step 2: #status { color: ... }
+  // Étape 2 : #status { color: ... }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -34,17 +34,17 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Identifiant unique cible.",
+      msg: "Identifiant unique ciblé.",
       objList: ["o2a", "o2b"],
     };
   },
-  // Step 3: h1 { color: hex | rgb }
+  // Étape 3 : h1 { color } en hexadécimal ou en rgb()
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
       return { ok: false, msg: "La balise <style> est manquante." };
     }
-    // Hex: #rgb / #rrggbb / #rrggbbaa. RGB: each channel 0-255 (1-3 digits).
+    // Hex : #rgb, #rrggbb ou #rrggbbaa. RGB : canaux de 0 à 255.
     const hex = /#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})\b/i;
     const channel = "(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)";
     const rgb = new RegExp(
@@ -62,11 +62,11 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Teinte personnalisee.",
+      msg: "Teinte personnalisée.",
       objList: ["o3a", "o3b"],
     };
   },
-  // Step 4: h1 { text-align: ... } AND .alert { font-weight: ... }
+  // Étape 4 : h1 { text-align } et .alert { font-weight }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {

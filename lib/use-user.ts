@@ -22,12 +22,11 @@ export interface CompleteStepResponse {
 export interface UseUserReturn {
   state: UserState;
   hydrated: boolean;
-  /** Refetch the state from the server (e.g. after an external change). */
+  /** Relit l'état depuis le serveur (après un changement externe, par exemple). */
   refresh: () => Promise<void>;
   /**
-   * Server-validated step completion. `code` is the submission that just
-   * passed; the server replays the validator on it (lib/step-proof.ts).
-   * Returns awarded XP + new badge.
+   * Validation d'étape côté serveur. `code` est la soumission qui vient de
+   * passer ; le serveur rejoue le validateur dessus (lib/step-proof.ts).
    */
   completeStep: (
     course: string,
@@ -35,13 +34,13 @@ export interface UseUserReturn {
     stepIndex: number,
     code?: string
   ) => Promise<CompleteStepResponse>;
-  /** Rename the current user. Throws on invalid name or conflict. */
+  /** Renomme l'utilisateur. Lève si le nom est invalide ou déjà pris. */
   renameUser: (newUsername: string) => Promise<UserState>;
-  /** Wipe all progression (XP, badges, completedSteps, streak). */
+  /** Efface toute la progression (XP, badges, étapes, liaison). */
   reset: () => Promise<UserState>;
-  /** Persist that the first-login briefing has been dismissed. */
+  /** Mémorise la fermeture du briefing de première connexion. */
   markOnboarded: () => Promise<UserState>;
-  /** Save / update the avatar (species + uniformColor + role). */
+  /** Enregistre l'avatar (espèce, couleur d'uniforme, rôle). */
   setAvatar: (choices: {
     species: string;
     uniformColor: string;
@@ -56,10 +55,8 @@ export interface UseUserReturn {
     uniform?: string;
   }) => Promise<UserState>;
   /**
-   * Mark a course as the user's current focus. Called by chapter pages on
-   * mount so the dashboard's "Reprendre la mission" follows the user.
-   * Fire-and-forget on the caller side: errors are swallowed silently because
-   * this is a non-critical UX nicety.
+   * Mémorise le cursus en cours, à l'ouverture d'une page de chapitre. Les
+   * erreurs sont ignorées : ce n'est qu'un confort d'interface.
    */
   markCourseVisited: (course: string) => Promise<void>;
 }
@@ -82,8 +79,8 @@ async function readJson<T>(res: Response): Promise<T> {
 }
 
 /**
- * DB-backed user hook. Hydrates from `/api/me` once authenticated, exposes
- * server actions for the only mutations the UI needs.
+ * État utilisateur adossé à la base : hydraté depuis `/api/me` une fois
+ * authentifié, avec les mutations dont l'interface a besoin.
  */
 export function useUser(): UseUserReturn {
   const { status } = useSession();
@@ -100,8 +97,8 @@ export function useUser(): UseUserReturn {
       try {
         const res = await fetch("/api/me", { cache: "no-store" });
         if (res.status === 401) {
-          // JWT is signed-valid but the user row is gone (deleted in DB).
-          // Sign out to clear the stale cookie and redirect to login.
+          // JWT valide mais compte supprimé en base : déconnexion pour
+          // effacer le cookie périmé et revenir à /login.
           setState(DEFAULT_USER);
           void signOut({ callbackUrl: "/login" });
           return;
@@ -279,7 +276,7 @@ export function useUser(): UseUserReturn {
       const next = await readJson<UserState>(res);
       setState(next);
     } catch {
-      // Best-effort: silently ignore network / server hiccups.
+      // Sans conséquence : erreurs réseau ou serveur ignorées.
     }
   }, []);
 

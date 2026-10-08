@@ -85,10 +85,8 @@ export function getChapterData(course: string, chapter: string): ChapterData | n
 }
 
 /**
- * Slugs de tous les cursus, dans l'ordre de déclaration du registre.
- *
- * Permet aux tests de parcourir le contenu sans redéclarer une liste qui se
- * périmerait au premier chapitre ajouté.
+ * Slugs de tous les cursus, dans l'ordre du registre. Permet aux tests de
+ * parcourir le contenu sans redéclarer de liste.
  */
 export function listCourseSlugs(): string[] {
   return Object.keys(REGISTRY);

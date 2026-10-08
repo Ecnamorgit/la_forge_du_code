@@ -11,7 +11,7 @@ beforeAll(() => {
   );
 });
 
-/** Run real SQL for a step, then hand the result to that step's validator. */
+/** Exécute le SQL d'une étape, puis passe le résultat à son validateur. */
 async function play(stepIndex: number, code: string) {
   const cfg = getSqlStepConfig("chapitre-1", stepIndex);
   const run = await runSql(code, cfg);
@@ -24,7 +24,7 @@ async function play(stepIndex: number, code: string) {
   return validators[stepIndex](code, ctx);
 }
 
-// The exact solutions shipped as each step's hint.
+// Les solutions exactes fournies en `hint` à chaque étape.
 const SOLUTIONS = [
   "CREATE TABLE pilotes (id INTEGER PRIMARY KEY, nom VARCHAR(50) NOT NULL, niveau INTEGER DEFAULT 1);\nINSERT INTO pilotes (id, nom, niveau) VALUES (1, 'Lia', 5);",
   "SELECT nom, niveau FROM pilotes WHERE niveau >= 5 ORDER BY niveau DESC LIMIT 10;",

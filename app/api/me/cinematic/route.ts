@@ -5,9 +5,8 @@ import { auth } from "@/auth";
 import { listCinematicViews, markCinematicView } from "@/lib/me-server";
 import { crossOriginRefusal } from "@/lib/same-origin";
 
-// Forme canonique d'un identifiant de cinématique (cf. lib/cinematics/types) :
-// "<cursus>:intro", "<cursus>:finale" ou "<cursus>:chapter:<slug>". Refuser
-// tout le reste évite d'archiver des identifiants arbitraires.
+// "<cursus>:intro", "<cursus>:finale" ou "<cursus>:chapter:<slug>" (voir
+// lib/cinematics/types) : tout autre identifiant est refusé.
 const postSchema = z.object({
   cinematicId: z
     .string()

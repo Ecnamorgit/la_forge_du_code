@@ -1,12 +1,9 @@
 /**
- * Chapitres dont les étapes n'ont volontairement pas d'aperçu, avec la raison.
+ * Chapitres sans aperçu, avec la raison de l'exemption.
  *
- * Clé : `<cursus>/<slug de chapitre>`. Le test d'intégrité exige que toute
- * étape sans `previewMount` appartienne à un chapitre listé ici — c'est ce qui
- * distingue une exclusion assumée d'un oubli silencieux.
- *
- * La valeur, elle, est un message destiné à être lu tel quel : elle reste sans
- * accents pour rester cohérente avec le reste des données de cours.
+ * Clé : `<cursus>/<slug de chapitre>`. `preview-mounts.test.ts` exige que toute
+ * étape sans `previewMount` appartienne à un chapitre listé ici, pour
+ * distinguer une exclusion voulue d'un oubli.
  */
 export const PREVIEW_EXEMPT: Record<string, string> = {
   "react/chapitre-4":

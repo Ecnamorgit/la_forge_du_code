@@ -11,7 +11,7 @@ import {
 
 const strip = (code: string) => stripLineComments(code, "//");
 
-/** Repere le nom du premier hook personnalise declare (`function useX` ou `const useX =`). */
+/** Noms des hooks personnalisés déclarés (`function useX`, `const useX =`...). */
 function findCustomHookNames(code: string): string[] {
   const names: string[] = [];
   const re = /(?:function|const|let|var)\s+(use[A-Z]\w*)/g;
@@ -21,12 +21,9 @@ function findCustomHookNames(code: string): string[] {
 }
 
 /**
- * Le hook `name` est-il APPELE quelque part, en plus d'etre declare ?
- *
- * On retire d'abord `function <name>` du code : sans ca, la declaration
- * `function useCompteur()` compterait elle-meme comme un appel. La forme
- * `const useCompteur = () =>` ne pose pas le probleme (le `=` separe le nom
- * de la parenthese), d'ou le seul cas a neutraliser.
+ * Le hook `name` est-il appelé, en plus d'être déclaré ? On retire d'abord
+ * `function <name>`, sinon la déclaration `function useCompteur()` compterait
+ * comme un appel (la forme `const useCompteur = () =>` n'a pas ce problème).
  */
 function isHookCalled(code: string, name: string): boolean {
   const withoutDecl = code.replace(new RegExp(`function\\s+${name}`, "g"), "");
@@ -34,9 +31,8 @@ function isHookCalled(code: string, name: string): boolean {
 }
 
 /**
- * Cherche le corps du premier hook personnalise dont le corps satisfait
- * `predicate`. Evalue chaque hook INDEPENDAMMENT : un hook correct ailleurs
- * dans le fichier ne doit pas valider un hook incomplet, et inversement.
+ * Premier hook personnalisé dont le corps satisfait `predicate`. Chaque hook
+ * est évalué séparément : un hook correct ne valide pas un hook incomplet.
  */
 function findHookBodyMatching(
   code: string,
@@ -50,14 +46,11 @@ function findHookBodyMatching(
 }
 
 /**
- * Un appel de hook (`useXxx(`) est-il enferme dans un bloc `if (...) { ... }` ?
+ * Un appel de hook (`useXxx(`) est-il dans un bloc `if (...) { ... }` ?
  *
- * Limite assumee, et volontairement etroite : on ne voit que les `if` suivis
- * d'un bloc a accolades. Un `if` sans accolades sur une seule ligne, une
- * branche `else`, un ternaire, une boucle ou un `switch` ne sont PAS detectes.
- * C'est suffisant pour cet exercice, dont le `startCode` place l'appel dans un
- * `if { }` explicite — mais ce n'est pas une analyse statique generale, et il
- * ne faut pas s'en servir comme telle.
+ * Seuls les `if` suivis d'accolades sont vus : un `if` sans accolades, un
+ * `else`, un ternaire, une boucle ou un `switch` ne sont pas détectés. Cela
+ * suffit pour cet exercice, dont le `startCode` place l'appel dans un `if { }`.
  */
 function hookCallInsideIfBlock(code: string): boolean {
   const ifRe = /\bif\s*\(/g;
@@ -82,11 +75,9 @@ function hookCallInsideIfBlock(code: string): boolean {
 }
 
 /**
- * Extrait le contenu d'un `return { ... }` ou `return [ ... ]`, en
- * equilibrant les delimiteurs plutot qu'en coupant au premier `}`/`]`
- * rencontre — un `return { etat: { charge }, recharger };` contient une
- * accolade imbriquee, et un `[^}]*` s'arreterait au milieu en ne comptant
- * qu'un seul membre. Renvoie null si le corps ne retourne rien.
+ * Contenu d'un `return { ... }` ou `return [ ... ]`, délimiteurs équilibrés :
+ * `return { etat: { charge }, recharger };` contient une accolade imbriquée
+ * qu'un `[^}]*` couperait. Renvoie null sans un tel `return`.
  */
 function extractReturnMembers(body: string): string | null {
   const m = /return\s*([{[])/.exec(body);
@@ -98,25 +89,13 @@ function extractReturnMembers(body: string): string | null {
 }
 
 /**
- * Le useEffect retourne-t-il une fonction de cleanup — et pas juste le
- * RESULTAT d'un appel — qui contient `removeEventListener` ?
+ * Corps du cleanup retourné par l'effet, ou null si le `return` ne renvoie pas
+ * une fonction.
  *
- * On isole l'EXPRESSION renvoyee par le `return` (jusqu'au `;` de profondeur
- * zero, ou jusqu'a la fin du bloc englobant) et on determine sa nature :
- *   - une fleche inline `(...) => ...` ou une expression `function (...) {}` :
- *     la fonction elle-meme, on cherche removeEventListener dedans ;
- *   - un simple identifiant (`return nettoyer;`) : un cleanup NOMME, declare
- *     plus haut dans l'effet ou dans le hook — on resout sa definition et on
- *     cherche removeEventListener dans SON corps.
- *
- * `return window.removeEventListener(...)` — qui APPELLE removeEventListener
- * au lieu de retourner une fonction qui l'appelle, et l'execute donc au
- * montage sans jamais nettoyer quoi que ce soit — ne correspond a aucun des
- * deux cas : l'expression n'est ni une fonction ni un simple identifiant.
- *
- * Limite assumee : scanner heuristique par comptage de delimiteurs (voir
- * `statementEnd`), pas un parseur. Suffisant pour ces exercices dont le code
- * attendu ne dissimule pas le retour derriere une construction plus exotique.
+ * L'expression qui suit `return` (voir `statementEnd`) est acceptée si c'est
+ * une flèche, une expression `function`, ou un identifiant dont on résout la
+ * définition dans l'effet puis dans le hook. `return window.removeEventListener(...)`
+ * désabonne dès le montage au lieu de retourner une fonction : refusé.
  */
 function returnedCleanupBody(effectBody: string, hookBody: string): string | null {
   const returnIdx = effectBody.search(/\breturn\b/);
@@ -140,7 +119,7 @@ function returnedCleanupBody(effectBody: string, hookBody: string): string | nul
 }
 
 export const validators: Validator[] = [
-  // Etape 1 : extraire la logique dans un hook personnalise, et l'appeler.
+  // Étape 1 : extraire la logique dans un hook personnalisé, et l'appeler.
   (code) => {
     const c = strip(code);
 
@@ -149,39 +128,38 @@ export const validators: Validator[] = [
       const names = findCustomHookNames(c);
       if (names.length === 0) {
         return fail(
-          "Declare une fonction prefixee par use, par exemple function useCompteur() { ... }.",
+          "Déclare une fonction préfixée par use, par exemple function useCompteur() { ... }.",
           "structure"
         );
       }
       return fail(
-        `Deplace l'appel useState a l'interieur de ${names[0]} : c'est le hook qui doit porter l'etat, pas le composant.`,
+        `Déplace l'appel useState à l'intérieur de ${names[0]} : c'est le hook qui doit porter l'état, pas le composant.`,
         "structure"
       );
     }
 
     if (!isHookCalled(c, hook.name)) {
       return fail(
-        `${hook.name} est declare mais jamais appele. Recupere-le dans ton composant avec ${hook.name}().`
+        `${hook.name} est déclaré mais jamais appelé. Récupère-le dans ton composant avec ${hook.name}().`
       );
     }
 
     return pass("Logique extraite.", ["o1a", "o1b"]);
   },
 
-  // Etape 2 : le hook retourne valeur + action, le composant destructure.
+  // Étape 2 : le hook retourne valeur et action, le composant les déstructure.
   (code) => {
     const c = strip(code);
 
     const hook = findHookBodyMatching(c, (body) => /\buseState\s*\(/.test(body));
     if (!hook) {
       return fail(
-        "Declare un hook prefixe par use qui appelle useState.",
+        "Déclare un hook préfixé par use qui appelle useState.",
         "structure"
       );
     }
 
-    // On cherche un `return { ... }` ou `return [ ... ]` DANS le corps du hook,
-    // et on exige au moins deux sorties (la valeur et l'action).
+    // Le hook doit retourner au moins deux sorties (la valeur et l'action).
     const membersRaw = extractReturnMembers(hook.body);
 
     if (membersRaw === null) {
@@ -197,53 +175,52 @@ export const validators: Validator[] = [
       .filter(Boolean);
     if (members.length < 2) {
       return fail(
-        "Retourne DEUX sorties : la valeur a afficher et l'action qui la modifie.",
+        "Retourne DEUX sorties : la valeur à afficher et l'action qui la modifie.",
         "logic"
       );
     }
 
-    // Cote appelant : destructuration du resultat du hook.
+    // Côté appelant : déstructuration du résultat du hook.
     const destructured = new RegExp(
       `(?:const|let|var)\\s*(?:\\{[^}]*\\}|\\[[^\\]]*\\])\\s*=\\s*${hook.name}\\s*\\(`
     ).test(c);
     if (!destructured) {
       return fail(
-        `Destructure le resultat dans le composant : const { valeur, action } = ${hook.name}();`
+        `Destructure le résultat dans le composant : const { valeur, action } = ${hook.name}();`
       );
     }
 
-    return pass("Module branche.", ["o2a", "o2b"]);
+    return pass("Module branché.", ["o2a", "o2b"]);
   },
 
-  // Etape 3 : hook avec useEffect, abonnement ET desabonnement dans le cleanup.
+  // Étape 3 : hook avec useEffect, abonnement et désabonnement dans le cleanup.
   (code) => {
     const c = strip(code);
 
     const hook = findHookBodyMatching(c, (body) => /\buseEffect\s*\(/.test(body));
     if (!hook) {
       return fail(
-        "Declare un hook prefixe par use qui appelle useEffect.",
+        "Déclare un hook préfixé par use qui appelle useEffect.",
         "structure"
       );
     }
 
-    // On isole le corps de l'appel useEffect DU HOOK, pas n'importe lequel du
-    // fichier : c'est l'abonnement de ce hook qu'on verifie.
+    // Le useEffect du hook, pas n'importe lequel du fichier.
     const effect = findBareCallBody(hook.body, "useEffect");
     if (!effect) {
-      return fail("Appelle useEffect a l'interieur de ton hook.", "structure");
+      return fail("Appelle useEffect à l'intérieur de ton hook.", "structure");
     }
 
     if (!/addEventListener\s*\(/.test(effect.body)) {
       return fail(
-        "Abonne-toi a l'evenement dans l'effet : window.addEventListener('resize', handler)."
+        "Abonne-toi à l'événement dans l'effet : window.addEventListener('resize', handler)."
       );
     }
 
     const returnIdx = effect.body.search(/\breturn\b/);
     if (returnIdx === -1) {
       return fail(
-        "Il manque la fonction de cleanup : termine l'effet par return () => ... pour te desabonner.",
+        "Il manque la fonction de cleanup : termine l'effet par return () => ... pour te désabonner.",
         "logic"
       );
     }
@@ -251,28 +228,28 @@ export const validators: Validator[] = [
     const cleanupBody = returnedCleanupBody(effect.body, hook.body);
     if (cleanupBody === null) {
       return fail(
-        "Le cleanup doit RETOURNER une fonction, pas appeler removeEventListener directement : return () => window.removeEventListener('resize', handler) plutot que return window.removeEventListener(...).",
+        "Le cleanup doit RETOURNER une fonction, pas appeler removeEventListener directement : return () => window.removeEventListener('resize', handler) plutôt que return window.removeEventListener(...).",
         "logic"
       );
     }
     if (!/removeEventListener\s*\(/.test(cleanupBody)) {
       return fail(
-        "Le desabonnement doit vivre DANS le cleanup : return () => window.removeEventListener('resize', handler).",
+        "Le désabonnement doit vivre DANS le cleanup : return () => window.removeEventListener('resize', handler).",
         "logic"
       );
     }
 
     if (!/\buseState\s*\(/.test(hook.body)) {
       return fail(
-        "Stocke la largeur dans un etat avec useState, sinon l'affichage ne se mettra jamais a jour.",
+        "Stocke la largeur dans un état avec useState, sinon l'affichage ne se mettra jamais à jour.",
         "logic"
       );
     }
 
-    return pass("Hublot calibre.", ["o3a", "o3b"]);
+    return pass("Hublot calibré.", ["o3a", "o3b"]);
   },
 
-  // Etape 4 : les regles des hooks — aucun appel dans un bloc conditionnel.
+  // Étape 4 : règles des hooks, aucun appel dans un bloc conditionnel.
   (code) => {
     const c = strip(code);
 
@@ -282,15 +259,13 @@ export const validators: Validator[] = [
 
     if (hookCallInsideIfBlock(c)) {
       return fail(
-        "Un appel de hook est encore enferme dans un if. Remonte-le au niveau superieur du composant, avant tout if et tout return.",
+        "Un appel de hook est encore enfermé dans un if. Remonte-le au niveau supérieur du composant, avant tout if et tout return.",
         "structure"
       );
     }
 
-    // o4b : le comportement conditionnel doit subsister, et l'appel de hook
-    // doit venir AVANT lui. Un if, un ternaire, ou un `&&`/`||` de rendu
-    // conditionnel (`{visible && <Truc />}`, tres frequent en JSX et tout
-    // aussi valide qu'un if ou un ternaire) comptent tous les trois.
+    // o4b : le rendu conditionnel doit subsister (if, ternaire, ou `&&`/`||` en
+    // JSX comme `{visible && <Truc />}`), et useState doit précéder le premier if.
     const firstIf = c.search(/\bif\s*\(/);
     const hasTernaryOrIf =
       firstIf !== -1 || /\?[^:]*:/.test(c) || /(?:&&|\|\|)\s*\(?\s*</.test(c);
@@ -304,11 +279,11 @@ export const validators: Validator[] = [
     const firstHook = c.search(/\buseState\s*\(/);
     if (firstIf !== -1 && firstHook > firstIf) {
       return fail(
-        "L'appel useState doit preceder la condition, pas la suivre. Place-le en premiere ligne du composant.",
+        "L'appel useState doit précéder la condition, pas la suivre. Place-le en première ligne du composant.",
         "structure"
       );
     }
 
-    return pass("Regles des hooks respectees.", ["o4a", "o4b"], true);
+    return pass("Règles des hooks respectées.", ["o4a", "o4b"], true);
   },
 ];

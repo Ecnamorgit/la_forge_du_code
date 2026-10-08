@@ -2,13 +2,13 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * DevOps chapitre 1 — etapes 2 a 4.
+ * DevOps chapitre 1 — étapes 2 à 4.
  *
- * L'etape 1 est deja couverte par `lib/validators/all-chapter-1.test.ts`.
+ * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
  *
- * Attention : l'etape 3 ne retire PAS les commentaires `#`, car dans un
- * .gitignore ce sont des libelles de section qui font partie de la reponse
- * attendue. Les tests l'exercent avec de vrais commentaires.
+ * L'étape 3 ne retire pas les commentaires `#` : dans un .gitignore, ce sont
+ * des libellés de section qui font partie de la réponse. Les tests l'exercent
+ * avec de vrais commentaires.
  */
 
 describe("DevOps — etape 2 (deploiement Vercel)", () => {
@@ -23,7 +23,7 @@ describe("DevOps — etape 2 (deploiement Vercel)", () => {
   });
 
   it("refuse une installation locale au lieu de globale", () => {
-    // Echec cible : l'etape enseigne l'installation globale (-g).
+    // Échec ciblé : l'étape enseigne l'installation globale (-g).
     expect(valider("npm install vercel\nvercel login").ok).toBe(false);
   });
 });
@@ -48,7 +48,7 @@ DB_PASSWORD=`;
   });
 
   it("refuse un .env non ignore par git", () => {
-    // Echec cible : c'est l'oubli qui fuite les secrets.
+    // Échec ciblé : c'est l'oubli qui fait fuiter les secrets.
     const code = `# .env
 API_URL=https://api.codeforge.space
 DB_PASSWORD=secret
@@ -87,7 +87,7 @@ CMD ["node", "server.js"]`;
   });
 
   it("refuse un Dockerfile sans installation des dependances", () => {
-    // Echec cible : toutes les directives sont la sauf le RUN npm ci.
+    // Échec ciblé : toutes les directives sont là sauf le RUN npm ci.
     const code = `FROM node:20-alpine
 WORKDIR /app
 COPY . .

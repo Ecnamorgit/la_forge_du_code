@@ -3,18 +3,12 @@ import { test, expect } from "@playwright/test";
 import { E2E_USER } from "./global-setup";
 
 /**
- * Constat SRV-05 de l'audit de sécurité du 2026-09-12 : l'inscription révélait
- * si une adresse avait déjà un compte.
- *
- * `POST /api/signup` répondait 409 « Cet email est déjà utilisé » : n'importe
- * qui pouvait tester une liste d'adresses et savoir lesquelles sont inscrites,
- * puis cibler ces personnes (hameçonnage, essais de mots de passe).
- *
- * Le test compare la réponse pour une adresse déjà inscrite (le compte e2e) à
- * celle pour une adresse libre : elles doivent être indiscernables.
+ * L'inscription ne révèle pas si une adresse a déjà un compte (audit SRV-05) :
+ * les réponses pour une adresse inscrite et pour une adresse libre doivent
+ * être indiscernables.
  *
  * Lancer la suite avec RESEND_API_KEY="" dans le shell : dotenv n'écrase pas
- * une variable déjà posée, donc aucun e-mail réel ne part pendant les tests.
+ * une variable déjà posée, donc aucun e-mail réel ne part.
  */
 
 test("l'inscription ne révèle pas si une adresse a déjà un compte", async ({ request }) => {

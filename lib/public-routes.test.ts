@@ -23,8 +23,8 @@ describe("isPublicRoute", () => {
     expect(isPublicRoute("/learn/html/chapitre-4")).toBe(false);
   });
 
-  // Le piège : un match par préfixe ouvrirait chapitre-10 le jour où HTML
-  // dépassera 9 chapitres. CSS en a déjà 10, JavaScript 12.
+  // Un match par préfixe ouvrirait chapitre-10 dès que HTML dépasserait neuf
+  // chapitres.
   it("ferme chapitre-10 (pas de match par préfixe)", () => {
     expect(isPublicRoute("/learn/html/chapitre-10")).toBe(false);
     expect(isPublicRoute("/learn/html/chapitre-11")).toBe(false);
@@ -48,9 +48,8 @@ describe("isPublicRoute", () => {
     expect(TRIAL_CHAPTERS[0]).toBe("chapitre-1");
   });
 
-  // Revue adversariale : l'égalité stricte doit fermer toute variante du
-  // chemin, jamais l'ouvrir. Un slash surnuméraire ou une casse différente
-  // ne doivent jamais donner accès.
+  // L'égalité stricte ferme toute variante du chemin (slash surnuméraire,
+  // casse différente).
   it("ferme les slashes finaux multiples", () => {
     expect(isPublicRoute("/learn/html/chapitre-1//")).toBe(false);
   });
@@ -89,9 +88,9 @@ describe("essai étendu", () => {
 });
 
 /**
- * Cohérence entre ce que le middleware protège et ce qu'on déclare aux
- * moteurs. Sans ces tests, déclarer une page protégée au sitemap ferait
- * explorer les crawlers contre une redirection vers /login — silencieusement.
+ * Cohérence entre ce que `proxy.ts` protège et ce qu'on déclare aux moteurs :
+ * une page protégée déclarée au sitemap ferait buter les robots sur une
+ * redirection vers /login.
  */
 describe("cohérence sitemap / robots / middleware", () => {
   it("ne déclare au sitemap que des routes réellement atteignables sans compte", () => {
@@ -99,7 +98,7 @@ describe("cohérence sitemap / robots / middleware", () => {
       const isUnderProtectedPrefix = PROTECTED_PREFIXES.some(
         (p) => route === p || route.startsWith(`${p}/`)
       );
-      // Une route sous préfixe protégé n'est admise que si l'allowlist l'ouvre.
+      // Une route sous préfixe protégé n'est admise que si la liste blanche l'ouvre.
       if (isUnderProtectedPrefix) {
         expect(isPublicRoute(route), `${route} est protégé et hors allowlist`).toBe(true);
       }

@@ -1,10 +1,8 @@
 /**
- * Les déblocables cosmétiques.
- *
- * Contrainte fondatrice : AUCUNE image neuve. L'avatar est un médaillon rond
- * non composé (components/avatar/AvatarBadge.tsx) — une « tenue » demanderait
- * de régénérer 5 images par tenue. Tous les axes retenus ici sont donc du CSS,
- * du texte, ou réutilisent des fichiers déjà présents dans public/.
+ * Déblocables cosmétiques. L'avatar est un médaillon rond non composé
+ * (components/avatar/AvatarBadge.tsx) : une tenue demanderait de régénérer
+ * cinq images. Les axes retenus sont donc du CSS, du texte ou des fichiers
+ * déjà présents dans public/.
  */
 
 import { GRADES, gradeFromXp } from "./grades";
@@ -29,7 +27,7 @@ export interface UnlockDef {
 }
 
 export const UNLOCKS: UnlockDef[] = [
-  // --- Cadres d'avatar (CSS pur) ---
+  // Cadres d'avatar (CSS pur)
   { id: "standard", axis: "frame", label: "Standard", condition: { kind: "default" } },
   { id: "double", axis: "frame", label: "Double anneau", condition: { kind: "streak", days: 5 } },
   { id: "pulse", axis: "frame", label: "Pulsé", condition: { kind: "quests", count: 10 } },
@@ -38,7 +36,7 @@ export const UNLOCKS: UnlockDef[] = [
   { id: "corrompu", axis: "frame", label: "Corrompu", condition: { kind: "badge", badgeId: "security-shield" } },
   { id: "frame-amiral", axis: "frame", label: "Insigne d'Amiral", condition: { kind: "grade", gradeId: "amiral" } },
 
-  // --- Titres (texte pur) ---
+  // Titres (texte pur)
   { id: "cadet", axis: "title", label: "Cadet", condition: { kind: "default" } },
   { id: "cadet-ingenieur", axis: "title", label: "Cadet-Ingénieur", condition: { kind: "chaptersComplete", count: 1 } },
   { id: "titre-veilleur", axis: "title", label: "Veilleur", condition: { kind: "badge", badgeId: "veilleur" } },
@@ -52,18 +50,16 @@ export const UNLOCKS: UnlockDef[] = [
   { id: "titre-revenant", axis: "title", label: "Revenant", condition: { kind: "badge", badgeId: "retour" } },
   { id: "titre-amiral", axis: "title", label: "Amiral de la Coalition", condition: { kind: "grade", gradeId: "amiral" } },
 
-  // --- Couleurs d'uniforme -------------------------------------------
-  // Les identifiants sont ceux de UNIFORM_COLORS dans lib/avatar.ts, et la
-  // colonne écrite est `uniformColor` : un seul espace d'identifiants pour les
-  // couleurs, sinon ces objets seraient invendables (aucune colonne ne les
-  // accepterait). `cyan` est la couleur offerte, les quatre autres se méritent.
+  // Couleurs d'uniforme : mêmes identifiants que UNIFORM_COLORS (lib/avatar.ts),
+  // écrits dans la colonne `uniformColor`. `cyan` est offerte, les quatre
+  // autres se méritent.
   { id: "cyan", axis: "uniform", label: "Cyan", condition: { kind: "default" } },
   { id: "rouge-spectre", axis: "uniform", label: "Rouge Spectre", condition: { kind: "badge", badgeId: "security-shield" } },
   { id: "blanc-glacier", axis: "uniform", label: "Blanc glacier", condition: { kind: "streak", days: 14 } },
   { id: "rose-neon", axis: "uniform", label: "Rose néon", condition: { kind: "quests", count: 25 } },
   { id: "nebuleuse", axis: "uniform", label: "Dégradé nébuleuse", condition: { kind: "grade", gradeId: "capitaine" } },
 
-  // --- Fonds de carte (fichiers déjà dans public/) ---
+  // Fonds de carte (fichiers de public/)
   { id: "planet-green", axis: "cardBg", label: "Monde vert", condition: { kind: "default" } },
   { id: "planet-red", axis: "cardBg", label: "Monde rouge", condition: { kind: "coursesComplete", count: 1 } },
   { id: "planet-gas", axis: "cardBg", label: "Géante gazeuse", condition: { kind: "coursesComplete", count: 3 } },
@@ -76,20 +72,15 @@ export interface UnlockContext {
   streak: number;
   questsCompleted: number;
   totalXp: number;
-  /** Ids de badges possédés, cursus ET conduite confondus. */
+  /** Ids de badges possédés, cursus et conduite confondus. */
   badges: string[];
   coursesComplete: number;
   chaptersComplete: number;
   /**
-   * Ids des objets RÉELLEMENT possédés (`UserUnlock` en base, `UserState.unlocks`
-   * côté client).
-   *
-   * Trois conditions du catalogue sont réversibles — `double` (5 j), `orbital`
-   * (7 j) et `blanc-glacier` (14 j) dépendent du streak, qui retombe à 1 à la
-   * rupture. Sans cette liste, un cadet qui a porté « Blanc glacier » pendant
-   * un mois le verrait reverrouillé au premier jour manqué, sur une couleur
-   * qu'il porte encore à l'écran. La règle de la spec est non négociable : un
-   * objet OBTENU ne redevient jamais verrouillé.
+   * Ids des objets possédés (`UserUnlock` en base, `UserState.unlocks` côté
+   * client). `double`, `orbital` et `blanc-glacier` dépendent du streak, qui
+   * retombe à 1 à la rupture : cette liste garantit qu'un objet obtenu ne
+   * redevient jamais verrouillé.
    */
   owned: string[];
 }
@@ -158,12 +149,9 @@ function check(
 }
 
 /**
- * Statut de tous les déblocables. Les verrouillés portent leur distance :
- * un rayon qu'on voit est une feuille de route, un rayon caché n'existe pas.
- *
- * Un objet est obtenu s'il satisfait sa condition OU s'il figure déjà dans
- * `ctx.owned` : la possession est acquise pour toujours, même quand la
- * condition qui l'a produite redevient fausse (rupture de liaison).
+ * Statut de tous les déblocables ; les verrouillés portent leur distance.
+ * Un objet est obtenu s'il satisfait sa condition ou figure déjà dans
+ * `ctx.owned`, même si la condition redevient fausse (rupture de liaison).
  */
 export function evaluateUnlocks(ctx: UnlockContext): UnlockStatus[] {
   const possede = new Set(ctx.owned);
@@ -175,15 +163,10 @@ export function evaluateUnlocks(ctx: UnlockContext): UnlockStatus[] {
 }
 
 /**
- * Le prochain objet à portée, pour la ligne permanente de la carte de cadet.
- *
- * Les objets déjà possédés en sont exclus : `evaluateUnlocks` les rend
- * `unlocked`, et proposer au cadet ce qu'il a déjà serait une fausse piste.
- *
- * Rend l'objet verrouillé dont la distance mesurable (jours, ordres, XP, grade, chapitres, cursus)
- * est la plus petite. Les conditions de type badge n'ont pas de distance numérique : elles se classent
- * après tout objet mesurable, à égalité entre elles. Quand seuls des objets à badge restent verrouillés,
- * c'est l'ordre de déclaration du catalogue qui tranche — comportement stable et voulu.
+ * Prochain objet à portée, pour la ligne permanente de la carte de cadet :
+ * l'objet verrouillé dont la distance mesurable (jours, ordres, XP, grade,
+ * chapitres, cursus) est la plus petite. Les conditions de badge n'ont pas de
+ * distance et passent après ; entre elles, l'ordre du catalogue tranche.
  */
 export function nextUnlock(ctx: UnlockContext): UnlockStatus | null {
   const distance = (c: UnlockCondition): number => {
@@ -216,11 +199,8 @@ export function nextUnlock(ctx: UnlockContext): UnlockStatus | null {
 }
 
 /**
- * Décor de la carte de cadet pour chaque fond du catalogue.
- *
- * Les six fichiers existent déjà dans `public/` (contrainte fondatrice : aucune
- * image neuve). Les cinq planètes sont les `planet-*-v2.png` livrées ; le
- * dernier fond réutilise le fond d'écran orange de la landing.
+ * Décor de la carte de cadet pour chaque fond du catalogue : les cinq
+ * `planet-*-v2.png` et le fond orange de la landing, tous dans `public/`.
  */
 export const CARD_BG_IMAGE: Record<string, string> = {
   "planet-green": "/planet-green-v2.png",
@@ -232,16 +212,15 @@ export const CARD_BG_IMAGE: Record<string, string> = {
 };
 
 /**
- * Fichier de décor à afficher pour le fond porté. Retombe sur le fond par
- * défaut du catalogue quand le cadet n'a rien choisi (`null`) — ou quand
- * l'identifiant stocké n'est plus au catalogue.
+ * Fichier de décor du fond porté. Retombe sur le fond par défaut quand rien
+ * n'est choisi (`null`) ou que l'identifiant stocké n'est plus au catalogue.
  */
 export function cardBgImage(id: string | null): string {
   const choisi = id === null ? undefined : CARD_BG_IMAGE[id];
   return choisi ?? CARD_BG_IMAGE[defaultFor("cardBg").id];
 }
 
-/** L'objet par défaut d'un axe, porté tant que rien n'a été choisi. */
+/** Objet par défaut d'un axe, porté tant que rien n'a été choisi. */
 export function defaultFor(axis: UnlockAxis): UnlockDef {
   const def = UNLOCKS.find((u) => u.axis === axis && u.condition.kind === "default");
   if (!def) throw new Error(`Aucun défaut déclaré pour l'axe ${axis}`);

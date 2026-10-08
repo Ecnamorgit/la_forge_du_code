@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import path from "node:path";
 import { runSql, _setSqlLocateFile } from "./run-sql";
 
-// Point sql.js at the wasm inside node_modules for Node-based tests.
+// Sous Node, sql.js charge le wasm depuis node_modules.
 beforeAll(() => {
   _setSqlLocateFile((file) =>
     path.join(process.cwd(), "node_modules/sql.js/dist", file)

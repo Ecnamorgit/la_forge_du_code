@@ -1,12 +1,7 @@
 /**
- * Échelle de progression de la Coalition. Remplace l'ancien couple
- * levelFromXp / rankFromXp de lib/user-store.ts, qui plafonnait à « Or » dès
- * 1 000 XP (11 % du parcours) et menait au niveau 94 en fin de cursus.
- *
- * Les seuils sont calibrés sur les 9 312 XP réels du cursus complet
- * (51 chapitres, 192 étapes, mesurés sur data/courses/). Amiral est
- * volontairement placé au-dessus : le dernier grade demande d'avoir tout
- * terminé ET d'avoir été régulier.
+ * Échelle de grades de la Coalition. Les seuils ont été calibrés pour un
+ * parcours complet de 9 312 XP ; Amiral est placé au-dessus, le dernier grade
+ * demandant d'avoir tout terminé et d'avoir été régulier.
  */
 
 export interface Grade {
@@ -51,10 +46,7 @@ export function xpIntoGrade(xp: number): { current: number; span: number } {
   return { current: xp - grade.threshold, span: next.threshold - grade.threshold };
 }
 
-/**
- * Niveau chiffré, courbé. Monte vite au début, ralentit ensuite, culmine à 25
- * au bout du cursus. L'ancienne formule linéaire (xp/100 + 1) menait à 94.
- */
+/** Niveau chiffré en racine carrée : il monte vite au début puis ralentit. */
 export function levelFromXp(xp: number): number {
   return Math.floor(Math.sqrt(Math.max(0, xp) / 16)) + 1;
 }

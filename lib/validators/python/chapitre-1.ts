@@ -4,7 +4,7 @@ import { stripLineComments, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "#");
 
 export const validators: Validator[] = [
-  // Step 1: three variables + f-string print
+  // Étape 1 : trois variables et un print en f-string
   (code) => {
     const c = strip(code);
     const vars =
@@ -12,48 +12,47 @@ export const validators: Validator[] = [
       /niveau\s*=\s*5/.test(c) &&
       /actif\s*=\s*True/.test(c);
     if (!vars) {
-      return fail("Declare nom = 'Lia', niveau = 5, actif = True.");
+      return fail("Déclare nom = 'Lia', niveau = 5, actif = True.");
     }
     if (!/print\s*\(\s*f['"]/.test(c)) {
       return fail("Affiche avec une f-string : print(f\"Pilote {nom}, ...\").");
     }
-    return pass("Python initialise.", ["o1a", "o1b"]);
+    return pass("Python initialisé.", ["o1a", "o1b"]);
   },
-  // Step 2: def calculer_xp + call + print
+  // Étape 2 : def calculer_xp, appel et print
   (code) => {
     const c = strip(code);
     if (!/def\s+calculer_xp\s*\(\s*niveau\s*,\s*bonus\s*\)\s*:/.test(c)) {
-      return fail("Declare la fonction : def calculer_xp(niveau, bonus):");
+      return fail("Déclare la fonction : def calculer_xp(niveau, bonus):");
     }
-    // On retire la ligne de declaration avant de chercher un appel : elle
-    // contient elle-meme « calculer_xp( », donc la chercher telle quelle
-    // validerait un code qui definit la fonction sans jamais l'appeler.
+    // On retire la déclaration avant de chercher un appel : elle contient
+    // elle-même « calculer_xp( » et validerait une fonction jamais appelée.
     const sansDeclaration = c.replace(/def\s+calculer_xp\s*\([^)]*\)\s*:/, "");
     if (!/calculer_xp\s*\(/.test(sansDeclaration) || !/print\s*\(/.test(c)) {
       return fail("Appelle calculer_xp(5, 20) et affiche le resultat avec print.");
     }
-    return pass("Fonction creee.", ["o2a", "o2b"]);
+    return pass("Fonction créée.", ["o2a", "o2b"]);
   },
-  // Step 3: list + for ... enumerate
+  // Étape 3 : liste et for ... in enumerate
   (code) => {
     const c = strip(code);
     if (!/pilotes\s*=\s*\[[^\]]*Lia[^\]]*Max[^\]]*Eva[^\]]*\]/.test(c)) {
-      return fail("Cree la liste : pilotes = ['Lia', 'Max', 'Eva'].");
+      return fail("Crée la liste : pilotes = ['Lia', 'Max', 'Eva'].");
     }
     if (!/for\s+\w+\s*,\s*\w+\s+in\s+enumerate\s*\(\s*pilotes\s*\)/.test(c)) {
       return fail("Parcours avec enumerate : for i, nom in enumerate(pilotes):");
     }
-    return pass("Iteration maitrisee.", ["o3a", "o3b"]);
+    return pass("Itération maîtrisée.", ["o3a", "o3b"]);
   },
-  // Step 4: dict + read value + add key + items loop
+  // Étape 4 : dict, lecture d'une valeur, ajout d'une clé et boucle .items()
   (code) => {
     const c = strip(code);
     if (!/pilote\s*=\s*\{[^}]*['"]nom['"]\s*:/.test(c) || !/pilote\s*\[\s*['"]niveau['"]\s*\]/.test(c)) {
-      return fail("Cree le dictionnaire pilote et lis pilote['niveau'].");
+      return fail("Crée le dictionnaire pilote et lis pilote['niveau'].");
     }
     if (!/pilote\s*\[\s*['"]badge['"]\s*\]\s*=/.test(c) || !/\.items\s*\(\s*\)/.test(c)) {
-      return fail("Ajoute pilote['badge'] = 'gold' et itere avec .items().");
+      return fail("Ajoute pilote['badge'] = 'gold' et itère avec .items().");
     }
-    return pass("Python operationnel.", ["o4a", "o4b"], true);
+    return pass("Python opérationnel.", ["o4a", "o4b"], true);
   },
 ];

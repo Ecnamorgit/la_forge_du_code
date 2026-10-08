@@ -1,10 +1,10 @@
 /**
- * Helpers for JS validators. Combine static checks on the source code with
- * dynamic checks on the execution context (logs / error / lastValue).
+ * Helpers des validateurs JS : vérifications statiques du code source et
+ * vérifications de l'exécution (logs, erreur, dernière valeur).
  */
 
 export function stripComments(code: string): string {
-  // Remove line and block comments to avoid false positives in keyword checks.
+  // Un mot-clé cité en commentaire ne doit pas compter.
   return code
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/[^\n]*/g, "");
@@ -21,12 +21,12 @@ export function hasConsoleLog(code: string): boolean {
   );
 }
 
-/** True if any captured log line equals `text` (after trim). */
+/** Vrai si une ligne de log vaut `text` (espaces de bord ignorés). */
 export function logsInclude(logs: string[], text: string): boolean {
   return logs.some((l) => l.trim() === text.trim());
 }
 
-/** True if any captured log line contains `substring`. */
+/** Vrai si une ligne de log contient `substring`. */
 export function logsContain(logs: string[], substring: string): boolean {
   return logs.some((l) => l.includes(substring));
 }

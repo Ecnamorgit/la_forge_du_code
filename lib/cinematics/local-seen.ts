@@ -1,7 +1,6 @@
 /**
- * Persistance localStorage des cinématiques vues (mode essai, sans compte).
- * Même contrat que lib/trial-user.ts : logique pure testable en node, accès
- * storage gardés par `typeof window`, jamais d'exception.
+ * Cinématiques vues, persistées dans localStorage (mode essai, sans compte).
+ * Les accès au stockage sont gardés par `typeof window` et ne lèvent jamais.
  */
 
 export const CINE_SEEN_STORAGE_KEY = "nc_cine_seen";

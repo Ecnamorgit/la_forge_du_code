@@ -1,7 +1,6 @@
 /**
- * Résolution d'une cinématique : arc écrit du cursus si présent (registre),
- * sinon repli générique. Garantit de toujours renvoyer une cinématique —
- * jamais de trou, jamais de crash (spec §6).
+ * Résolution d'une cinématique : arc écrit du cursus s'il existe, sinon repli
+ * générique. Renvoie toujours une cinématique.
  */
 
 import { HTML_CINEMATICS } from "@/data/courses/html/cinematics";
@@ -9,8 +8,8 @@ import { genericChapterOutro, genericFinale, genericIntro } from "./generic";
 import type { Cinematic, CinematicMoment, CourseCinematics } from "./types";
 
 /**
- * Registre des arcs écrits. La Task 2 y branche l'arc HTML ; ajouter un arc =
- * une entrée ici + un fichier data/courses/<slug>/cinematics.ts.
+ * Arcs écrits par cursus. Ajouter un arc : une entrée ici et un fichier
+ * `data/courses/<slug>/cinematics.ts`.
  */
 const ARCS: Record<string, CourseCinematics> = {
   html: HTML_CINEMATICS,

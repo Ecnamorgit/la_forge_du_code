@@ -1,15 +1,15 @@
 <#
-  Ferme les issues CF-1 -> CF-19 (numéros #2 à #20), toutes implémentées et
-  mergées via la PR #22. Ajoute un commentaire de référence puis clôt l'issue
-  avec le motif "completed". Via l'API REST GitHub (aucune dépendance à `gh`).
+  Ferme les issues CF-1 à CF-19 (#2 à #20), livrées par la PR #22 : ajoute un
+  commentaire de référence puis clôt chaque issue avec le motif « completed ».
+  Via l'API REST GitHub, sans dépendance à `gh`.
 
-  PRÉREQUIS
-    $env:GH_TOKEN = "ghp_..."   # token classic avec scope `repo`
+  Prérequis :
+    $env:GH_TOKEN = "ghp_..."   # token classic avec le scope `repo`
 
-  UTILISATION
+  Utilisation :
     powershell -ExecutionPolicy Bypass -File scripts\close-issues.ps1
 
-  Idempotent : ré-exécutable (fermer une issue déjà fermée est sans effet).
+  Relançable, mais chaque exécution ajoute de nouveau le commentaire.
 #>
 
 $ErrorActionPreference = "Stop"
@@ -38,7 +38,7 @@ function Invoke-GH {
   return Invoke-RestMethod -Method $Method -Uri $Url -Headers $Headers -Body $json -ContentType "application/json"
 }
 
-# Issues #2 à #20 = CF-1 à CF-19.
+# Issues #2 à #20 : CF-1 à CF-19.
 $issueNumbers = 2..20
 
 foreach ($n in $issueNumbers) {
@@ -48,14 +48,13 @@ foreach ($n in $issueNumbers) {
       body = "Implémenté et mergé via #$PrNumber. CI verte (lint, typecheck, tests unitaires, build, e2e). Clôture."
     } | Out-Null
 
-    # Clôture avec motif "completed".
     Invoke-GH PATCH "$ApiBase/issues/$n" @{
       state        = "closed"
       state_reason = "completed"
     } | Out-Null
 
     Write-Output "Issue #$n fermée."
-    Start-Sleep -Milliseconds 500  # ménager le rate-limit
+    Start-Sleep -Milliseconds 500  # limite de débit de l'API GitHub
   } catch {
     Write-Output "Issue #$n : erreur ($($_.Exception.Message))"
   }
