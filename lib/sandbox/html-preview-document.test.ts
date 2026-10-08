@@ -2,16 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { buildHtmlPreviewDocument } from "./html-preview-document";
 
-/**
- * La coquille de l'aperçu HTML servie depuis l'origine dédiée (constat EXE-03),
- * qui remplace le `srcdoc` inline de ChapterWorkspace.
- */
 describe("buildHtmlPreviewDocument", () => {
   const html = buildHtmlPreviewDocument();
 
   it("rend le HTML dans une iframe imbriquée sandboxée", () => {
-    // Une scène imbriquée (srcdoc) hérite de la CSP de la coquille (permissive),
-    // pas de celle du site : c'est ce qui découple la CSP.
+    // La scène imbriquée hérite de la CSP permissive de la coquille, pas de
+    // celle du site.
     expect(html).toContain('id="scene"');
     expect(html).toContain('sandbox="allow-scripts"');
     expect(html).toContain("scene.srcdoc = data.html");

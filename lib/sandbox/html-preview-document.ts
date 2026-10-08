@@ -1,22 +1,19 @@
 /**
  * Document coquille de l'aperçu HTML, servi depuis l'origine dédiée du bac à
- * sable (constat EXE-03), par opposition au `srcdoc` inline que posait
- * `ChapterWorkspace`. Un `srcdoc` hérite de la CSP du parent : les scripts en
- * ligne de l'apprenant forçaient donc l'application à garder `'unsafe-inline'`.
+ * sable (audit EXE-03).
  *
- * La coquille rend le HTML de l'apprenant dans une **iframe imbriquée** (via son
- * `srcdoc`) : cette scène hérite de la CSP de la coquille — permissive, posée
- * par la route — et non de celle (stricte) de l'application, deux crans plus
- * haut. Les scripts en ligne de l'apprenant s'exécutent donc, sans rien
- * concéder à la CSP du site.
+ * La coquille rend le HTML de l'apprenant dans une iframe imbriquée, via son
+ * `srcdoc` : cette scène hérite de la CSP permissive de la coquille, pas de
+ * celle de l'application. Les scripts en ligne de l'apprenant s'exécutent donc
+ * sans affaiblir la CSP du site.
  *
- * Comme les autres documents du bac à sable, la coquille **apprend** l'origine
- * du parent : `html:ready` posté à `"*"`, puis capture de `event.origin` du
- * premier message reçu de `parent`, chaque message filtré par
- * `event.source === parent`.
+ * Comme les autres documents du bac à sable, la coquille apprend l'origine du
+ * parent : `html:ready` est posté à `"*"`, puis l'origine du premier
+ * `html:render` reçu de `parent` est retenue. Tout message entrant est filtré
+ * par `event.source === parent`.
  *
- * Le HTML arrive par message (`html:render`), déjà instrumenté contre les
- * boucles sans fin par le parent (`protegerScriptsHtml`).
+ * Le HTML arrive déjà instrumenté contre les boucles sans fin par le parent
+ * (`protegerScriptsHtml`).
  */
 
 export function buildHtmlPreviewDocument(): string {

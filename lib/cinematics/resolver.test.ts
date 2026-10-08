@@ -20,7 +20,6 @@ describe("getCinematic — repli générique", () => {
     const intro = getCinematic("css", { kind: "intro" });
     expect(intro.id).toBe("css:intro");
     expect(intro.scenes.length).toBeGreaterThanOrEqual(2);
-    // Chaque scène porte un vrai texte.
     for (const s of intro.scenes) expect(s.narration.length).toBeGreaterThan(10);
   });
 

@@ -29,8 +29,6 @@ describe("detecterBoucleInfinie", () => {
   });
 
   it("ne se laisse pas piéger par une chaine de caracteres", () => {
-    // Refuser de deployer parce que l'apprenant AFFICHE le texte "while (true)"
-    // serait pire que le probleme qu'on evite.
     expect(detecterBoucleInfinie('console.log("while (true)")')).toBeNull();
     expect(detecterBoucleInfinie("const s = 'for (;;)';")).toBeNull();
     expect(detecterBoucleInfinie("const s = `while (1)`;")).toBeNull();
@@ -57,8 +55,6 @@ describe("messageBoucleInfinie", () => {
 
 describe("detecterBoucleInfinie — commentaires", () => {
   it("ne se laisse pas piéger par un commentaire", () => {
-    // Refuser de deployer parce que l'apprenant MENTIONNE une boucle dans un
-    // commentaire serait absurde.
     expect(detecterBoucleInfinie("// evite le while (true)\nconst a = 1;")).toBeNull();
     expect(detecterBoucleInfinie("/* pas de for (;;) ici */\nconst a = 1;")).toBeNull();
   });

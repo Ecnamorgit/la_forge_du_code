@@ -1,18 +1,13 @@
 /**
- * Origine dédiée du bac à sable (constat EXE-03 de l'audit de sécurité du
- * 2026-09-12).
+ * Origine dédiée du bac à sable (audit EXE-03).
  *
- * Aujourd'hui le code des apprenants s'exécute dans un `srcdoc`, qui hérite de
- * la CSP de l'application : celle-ci doit donc garder `'unsafe-inline'` et
- * `'unsafe-eval'`, ce qui affaiblit la défense contre les XSS pour tout le
- * site. En servant l'exécution depuis une **autre origine**, cette origine
- * porte seule la CSP permissive, et l'application peut passer à une CSP à
- * nonce, sans `'unsafe-inline'` ni `'unsafe-eval'`.
+ * Le code des apprenants s'exécute sur une autre origine que l'application.
+ * Cette origine porte seule la CSP permissive, et l'application garde une CSP
+ * à nonce sans `'unsafe-inline'` ni `'unsafe-eval'`.
  *
- * - En production, un sous-domaine dédié (`bac-a-sable.laforgeducode.fr`).
- * - En local, `127.0.0.1` est une origine distincte de `localhost` : les deux
- *   pointent sur le même serveur de dev, ce qui suffit à tester la séparation
- *   sans second serveur.
+ * En production, c'est un sous-domaine (`bac-a-sable.laforgeducode.fr`). En
+ * local, `localhost` et `127.0.0.1` sont deux origines distinctes servies par
+ * le même serveur de dev, ce qui suffit à tester la séparation.
  */
 
 /** Résout l'origine du bac à sable à partir de l'origine de l'application. */
@@ -34,9 +29,7 @@ export function sandboxOriginFor(appOrigin: string): string {
     return url.origin;
   }
 
-  // Production : préfixe `bac-a-sable.` sur le domaine nu, en retirant un
-  // éventuel `www.` (bac-a-sable.laforgeducode.fr, pas
-  // bac-a-sable.www.laforgeducode.fr).
+  // Production : `bac-a-sable.` sur le domaine nu, sans l'éventuel `www.`.
   const hote = url.hostname.replace(/^www\./, "");
   url.hostname = `bac-a-sable.${hote}`;
   return url.origin;
@@ -44,14 +37,10 @@ export function sandboxOriginFor(appOrigin: string): string {
 
 /**
  * Inverse de `sandboxOriginFor` : les origines de l'application autorisées à
- * encadrer un document du bac à sable servi depuis `sandboxOrigin`. Sert au
- * `frame-ancestors` de ces documents.
- *
- * - Local : l'autre hôte local (127.0.0.1 <-> localhost), même port.
- * - Production : le domaine nu et sa forme `www.` (le site redirige l'un vers
- *   l'autre ; les deux doivent pouvoir encadrer).
- *
- * Tableau vide si l'origine est illisible : l'appelant émet alors `'none'`.
+ * encadrer un document du bac à sable (`frame-ancestors`). En local, l'autre
+ * hôte local ; en production, le domaine nu et sa forme `www.`, le site
+ * redirigeant l'un vers l'autre. Tableau vide si l'origine est illisible :
+ * l'appelant émet alors `'none'`.
  */
 export function appOriginsForSandbox(sandboxOrigin: string): string[] {
   let url: URL;
@@ -76,8 +65,8 @@ export function appOriginsForSandbox(sandboxOrigin: string): string[] {
 /**
  * Origine publique d'une requête. Derrière un proxy (Vercel), `req.url` peut
  * différer de l'adresse vue par le navigateur : on lit d'abord
- * `x-forwarded-host` / `x-forwarded-proto`, comme Next pour ses server actions
- * et `lib/same-origin.ts`, puis `host`, et enfin l'URL de la requête.
+ * `x-forwarded-host` et `x-forwarded-proto` (comme Next et `lib/same-origin.ts`),
+ * puis `host`, et enfin l'URL de la requête.
  */
 export function originDeLaRequete(req: { headers: Headers; url: string }): string {
   const premier = (valeur: string | null) => valeur?.split(",")[0]?.trim() || null;

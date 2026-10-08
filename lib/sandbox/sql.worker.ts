@@ -1,11 +1,7 @@
 /**
- * Web Worker d'exécution SQL (constat EXE-02 de l'audit de sécurité du
- * 2026-09-12).
- *
- * sql.js tournait sur le fil principal : une requête sans fin (CTE récursive
- * sans condition d'arrêt) figeait l'onglet entier. Dans un Worker, elle ne
- * bloque que ce Worker, que la page peut terminer (`terminate()`) quand le
- * délai est dépassé.
+ * Web Worker d'exécution SQL (audit EXE-02). Une requête sans fin (CTE
+ * récursive sans condition d'arrêt) ne bloque que ce Worker, que la page
+ * termine au-delà du délai, au lieu de figer l'onglet.
  */
 
 import initSqlJs, { type SqlJsStatic } from "sql.js";

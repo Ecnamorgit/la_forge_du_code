@@ -4,13 +4,9 @@ import { buildPreviewDocument } from "./preview-document";
 import { PREVIEW_MOUNT_NAME_RE } from "./react-preview";
 
 /**
- * Le document du bac à sable React servi depuis l'origine dédiée (constat
- * EXE-03). Il remplace `buildPreviewSrcdoc` : ses garde-fous d'exécution sont
- * les mêmes, mais deux invariants lui sont propres et sont la raison d'être de
- * ce fichier — il n'hérite plus de rien du parent, donc il doit apprendre son
- * origine au lieu de la figer, et charger son runtime par URL RELATIVE (il est
- * servi par la même application sur l'origine dédiée), là où le srcdoc l'exigeait
- * absolue.
+ * Document d'aperçu React servi depuis l'origine dédiée (audit EXE-03). Il
+ * n'hérite de rien du parent : il apprend son origine au lieu de la figer, et
+ * charge son runtime par URL relative.
  */
 describe("buildPreviewDocument", () => {
   const html = buildPreviewDocument();
@@ -20,10 +16,8 @@ describe("buildPreviewDocument", () => {
   });
 
   it("charge le runtime par URL RELATIVE sur l'origine dédiée", () => {
-    // À l'inverse du srcdoc (base about:srcdoc, URL absolue obligatoire), ce
-    // document est servi par une vraie origine : la relative résout contre
-    // elle. Une URL absolue rebrancherait l'exécution sur l'origine du parent
-    // et réintroduirait la dépendance CSP qu'EXE-03 supprime.
+    // Le document a une vraie origine : l'URL relative résout contre l'origine
+    // dédiée, seule autorisée par sa CSP pour les scripts.
     const srcs = [...html.matchAll(/<script[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1]!);
     expect(srcs).toContain("/react-runtime/runtime.js");
     for (const src of srcs) {
@@ -32,9 +26,6 @@ describe("buildPreviewDocument", () => {
   });
 
   it("ne fige aucune origine de parent : il l'apprend au runtime", () => {
-    // Cause du blocage CF-15 : un document autonome qui figerait l'origine du
-    // parent posterait sa poignée de main vers sa PROPRE origine, jetée par le
-    // navigateur. Il poste donc `ready` à "*", puis capture `event.origin`.
     expect(html).toContain('parent.postMessage(msg, parentOrigin || "*")');
     expect(html).toContain("parentOrigin = event.origin");
   });
@@ -78,9 +69,9 @@ describe("buildPreviewDocument", () => {
   });
 
   it("produit un script inline syntaxiquement valide", () => {
-    // Attrape une interpolation qui produirait du JS invalide. N'attrape PAS un
-    // backtick non échappé dans un commentaire du template literal : celui-là
-    // casse la compilation du module et fait échouer ce fichier au chargement.
+    // Attrape une interpolation qui produirait du JS invalide. Un backtick non
+    // échappé dans le template literal casse, lui, la compilation du module :
+    // ce fichier échoue alors dès le chargement.
     const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]!);
     expect(scripts.length).toBeGreaterThan(0);
     for (const s of scripts) {

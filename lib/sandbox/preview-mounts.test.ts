@@ -6,10 +6,8 @@ import { PREVIEW_MOUNT_NAME_RE } from "./react-preview";
 import { PREVIEW_EXEMPT } from "./preview-exemptions";
 
 /**
- * Chaque étape React doit être dans un des deux cas : elle a un `previewMount`
- * valide, ou son chapitre est exempté avec une raison écrite. Une étape oubliée
- * échoue ici — c'est le seul garde-fou contre un aperçu qui reste vide sans que
- * personne ne s'en aperçoive.
+ * Chaque étape React a un `previewMount` valide, ou son chapitre est exempté
+ * avec une raison écrite. Sans ce test, un oubli laisserait un aperçu vide.
  */
 describe("previewMount du cursus React", () => {
   const slugs = CHAPTER_SUMMARIES.react.map((c) => c.slug);
@@ -36,9 +34,8 @@ describe("previewMount du cursus React", () => {
   });
 
   /**
-   * Le vrai piège : un previewMount qui nomme un composant que l'étape ne
-   * déclare pas. Le `hint` étant la solution de référence, il doit contenir la
-   * déclaration de ce composant.
+   * Un previewMount peut nommer un composant que l'étape ne déclare pas. Le
+   * `hint` étant la solution de référence, il doit contenir sa déclaration.
    */
   it("nomme un composant declare dans le hint de l'etape", () => {
     for (const slug of slugs) {

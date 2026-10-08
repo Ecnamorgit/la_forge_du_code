@@ -1,18 +1,15 @@
 /**
- * Document d'exécution JavaScript (headless), servi depuis l'origine dédiée du
- * bac à sable (constat EXE-03), par opposition au `srcdoc` inline qu'utilisait
- * `run-js.ts`. Un `srcdoc` hérite de la CSP du parent, ce qui forçait
- * l'application à garder `'unsafe-eval'` ; servi depuis sa propre origine, ce
- * document porte seul la CSP permissive.
+ * Document d'exécution JavaScript (sans affichage), servi depuis l'origine
+ * dédiée du bac à sable (audit EXE-03) : il porte seul la CSP permissive
+ * qu'exige `new Function`, l'application gardant une CSP stricte.
  *
- * Comme `preview-document.ts`, il **apprend** l'origine du parent au lieu de la
- * figer : `sandbox:ready` posté à `"*"` (une poignée de main ne porte aucun
- * secret), puis capture de `event.origin` du premier message reçu de `parent`,
- * chaque message entrant filtré par `event.source === parent`.
+ * Comme `preview-document.ts`, il apprend l'origine du parent au lieu de la
+ * figer : `sandbox:ready` est posté à `"*"` (aucun secret), puis l'origine du
+ * premier `sandbox:run` reçu de `parent` est retenue. Tout message entrant est
+ * filtré par `event.source === parent`.
  *
- * Le code des apprenants n'est plus figé dans le HTML : il arrive par message
- * (`sandbox:run`), déjà instrumenté contre les boucles sans fin par le parent
- * (`protegerBoucles`) — acorn n'existe pas ici, on ne le rejoue pas.
+ * Le code arrive déjà instrumenté contre les boucles sans fin par le parent
+ * (`protegerBoucles`) : acorn n'est pas chargé ici.
  */
 
 export function buildJsRunnerDocument(): string {
