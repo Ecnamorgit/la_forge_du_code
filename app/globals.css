@@ -9,6 +9,8 @@
   --bg-editor: #050a14;
   --border: #1a2744;
   --border-glow: #0e4d8f;
+  /* Contour des champs de saisie : >= 3:1 sur --bg-panel (WCAG 1.4.11). */
+  --border-input: #50668c;
   --cyan: #00f0ff;
   --cyan-dim: #004d55;
   --cyan-faint: rgba(0, 240, 255, 0.06);
@@ -25,8 +27,10 @@
   --blue: #3d7eff;
   --blue-dim: #1a3366;
   --text: #c8d6e5;
-  --text-secondary: #6b7d99;
-  --text-dim: #2a3a55;
+  /* Contrastes mesurés sur --bg-panel : secondary ~6:1 (texte informatif),
+     dim ~3,5:1 (décor, état désactivé — pas pour un texte à lire). */
+  --text-secondary: #8395b3;
+  --text-dim: #5a6d8c;
 }
 
 @theme inline {
@@ -42,6 +46,7 @@
   --color-nebula-bg-editor: var(--bg-editor);
   --color-nebula-border: var(--border);
   --color-nebula-border-glow: var(--border-glow);
+  --color-nebula-border-input: var(--border-input);
   --color-nebula-cyan: var(--cyan);
   --color-nebula-cyan-dim: var(--cyan-dim);
   --color-nebula-cyan-faint: var(--cyan-faint);

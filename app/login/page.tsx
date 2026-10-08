@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Suspense, useState } from "react";
 
+import AuthField from "@/components/ui/AuthField";
 import BrandLogo from "@/components/ui/BrandLogo";
 import { safeInternalPath } from "@/lib/safe-redirect";
 
@@ -112,13 +113,13 @@ function LoginPageContent() {
               <h1 className="font-display text-xl tracking-[0.06em] text-nebula-cyan [text-shadow:0_0_16px_rgba(0,240,255,0.28)] sm:text-2xl">
                 CONNEXION
               </h1>
-              <p className="mt-1 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
+              <p className="mt-1 font-tech text-[11px] uppercase tracking-[0.2em] text-nebula-text-secondary">
                 Accède à ta station orbitale
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <Field
+              <AuthField
                 label="Adresse e-mail"
                 id="email"
                 type="email"
@@ -127,7 +128,7 @@ function LoginPageContent() {
                 value={email}
                 onChange={setEmail}
               />
-              <Field
+              <AuthField
                 label="Mot de passe"
                 id="password"
                 type="password"
@@ -173,7 +174,7 @@ function LoginPageContent() {
               <div className="text-center">
                 <Link
                   href="/forgot-password"
-                  className="font-tech text-[11px] uppercase tracking-wider text-nebula-text-dim transition-colors hover:text-nebula-cyan"
+                  className="font-tech text-[11px] uppercase tracking-wider text-nebula-text-secondary transition-colors hover:text-nebula-cyan"
                 >
                   Mot de passe oublié ?
                 </Link>
@@ -210,33 +211,5 @@ function LoginSkeleton() {
         </div>
       </div>
     </div>
-  );
-}
-
-function Field({
-  label,
-  id,
-  value,
-  onChange,
-  ...rest
-}: {
-  label: string;
-  id: string;
-  value: string;
-  onChange: (v: string) => void;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value" | "id">) {
-  return (
-    <label htmlFor={id} className="block">
-      <span className="mb-1.5 block font-tech text-[10px] uppercase tracking-[0.25em] text-nebula-text-dim">
-        {label}
-      </span>
-      <input
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-sm border border-nebula-border bg-nebula-bg-darkest/60 px-3 py-2.5 font-tech text-sm text-nebula-text outline-none transition-colors focus:border-nebula-cyan"
-        {...rest}
-      />
-    </label>
   );
 }

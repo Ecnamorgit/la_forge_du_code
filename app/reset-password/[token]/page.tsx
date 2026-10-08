@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, use } from "react";
 
+import AuthField from "@/components/ui/AuthField";
 import BrandLogo from "@/components/ui/BrandLogo";
 
 interface PageProps {
@@ -74,7 +75,7 @@ export default function ResetPasswordPage({ params }: PageProps) {
               <h1 className="font-tech text-2xl tracking-[0.18em] text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)]">
                 NOUVEAU MOT DE PASSE
               </h1>
-              <p className="mt-1 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
+              <p className="mt-1 font-tech text-[11px] uppercase tracking-[0.2em] text-nebula-text-secondary">
                 Choisis un nouveau secret de mission
               </p>
             </div>
@@ -88,38 +89,28 @@ export default function ResetPasswordPage({ params }: PageProps) {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <label htmlFor="password" className="block">
-                  <span className="mb-1.5 block font-tech text-[10px] uppercase tracking-[0.25em] text-nebula-text-dim">
-                    Nouveau mot de passe (min. 8 caractères)
-                  </span>
-                  <input
-                    id="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    minLength={8}
-                    maxLength={128}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-sm border border-nebula-border bg-nebula-bg-darkest/60 px-3 py-2.5 font-tech text-sm text-nebula-text outline-none transition-colors focus:border-nebula-cyan"
-                  />
-                </label>
-                <label htmlFor="confirm" className="block">
-                  <span className="mb-1.5 block font-tech text-[10px] uppercase tracking-[0.25em] text-nebula-text-dim">
-                    Confirme
-                  </span>
-                  <input
-                    id="confirm"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    minLength={8}
-                    maxLength={128}
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
-                    className="w-full rounded-sm border border-nebula-border bg-nebula-bg-darkest/60 px-3 py-2.5 font-tech text-sm text-nebula-text outline-none transition-colors focus:border-nebula-cyan"
-                  />
-                </label>
+                <AuthField
+                  label="Nouveau mot de passe (min. 8 caractères)"
+                  id="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  maxLength={128}
+                  value={password}
+                  onChange={setPassword}
+                />
+                <AuthField
+                  label="Confirme"
+                  id="confirm"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  maxLength={128}
+                  value={confirm}
+                  onChange={setConfirm}
+                />
 
                 {error && (
                   <p className="font-tech text-xs text-nebula-red">

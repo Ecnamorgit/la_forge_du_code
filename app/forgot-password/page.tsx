@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import AuthField from "@/components/ui/AuthField";
 import BrandLogo from "@/components/ui/BrandLogo";
 
 export default function ForgotPasswordPage() {
@@ -48,7 +49,7 @@ export default function ForgotPasswordPage() {
               <h1 className="font-tech text-2xl tracking-[0.2em] text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)]">
                 MOT DE PASSE OUBLIÉ
               </h1>
-              <p className="mt-1 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
+              <p className="mt-1 font-tech text-[11px] uppercase tracking-[0.2em] text-nebula-text-secondary">
                 On t&apos;envoie un lien de réinitialisation
               </p>
             </div>
@@ -60,26 +61,21 @@ export default function ForgotPasswordPage() {
                   Si un compte existe avec l&apos;adresse <strong className="break-all text-nebula-cyan">{email}</strong>,
                   un lien de réinitialisation vient d&apos;être envoyé. Vérifie aussi ton dossier <strong>spam</strong>.
                 </p>
-                <p className="font-tech text-[11px] uppercase tracking-wider text-nebula-text-dim">
+                <p className="font-tech text-[11px] uppercase tracking-wider text-nebula-text-secondary">
                   Le lien expire dans 1h.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <label htmlFor="email" className="block">
-                  <span className="mb-1.5 block font-tech text-[10px] uppercase tracking-[0.25em] text-nebula-text-dim">
-                    Adresse e-mail
-                  </span>
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-sm border border-nebula-border bg-nebula-bg-darkest/60 px-3 py-2.5 font-tech text-sm text-nebula-text outline-none transition-colors focus:border-nebula-cyan"
-                  />
-                </label>
+                <AuthField
+                  label="Adresse e-mail"
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={setEmail}
+                />
 
                 <button
                   type="submit"
