@@ -160,8 +160,8 @@ export default function ProfilPage() {
         </Link>
 
         {/* En-tête */}
-        <section className="mb-10 rounded-sm border border-nebula-cyan/40 bg-nebula-bg-panel/85 p-8 backdrop-blur-md shadow-[0_0_40px_rgba(0,240,255,0.08)] animate-fade-down">
-          <div className="flex flex-wrap items-center gap-8">
+        <section className="mb-10 rounded-sm border border-nebula-cyan/40 bg-nebula-bg-panel/85 p-5 backdrop-blur-md sm:p-8 shadow-[0_0_40px_rgba(0,240,255,0.08)] animate-fade-down">
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:flex-wrap sm:gap-8">
             <div className="relative shrink-0">
               {state.species ? (
                 <AvatarBadge
@@ -179,7 +179,7 @@ export default function ProfilPage() {
               </div>
             </div>
 
-            <div className="min-w-0 flex-1">
+            <div className="w-full min-w-0 sm:w-auto sm:flex-1">
               <div className="mb-1 font-tech text-xs uppercase tracking-[0.22em] text-nebula-text-dim">
                 Identité
               </div>
@@ -201,7 +201,7 @@ export default function ProfilPage() {
                         if (e.key === "Enter") saveEdit();
                         if (e.key === "Escape") setEditing(false);
                       }}
-                      className="flex-1 bg-transparent font-tech text-2xl text-nebula-cyan outline-none"
+                      className="min-w-0 flex-1 bg-transparent font-tech text-2xl text-nebula-cyan outline-none"
                     />
                   </div>
                   {editError && (
