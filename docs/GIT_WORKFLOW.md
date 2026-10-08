@@ -1,6 +1,6 @@
 # Workflow Git & Conventions de Commit
 
-Ce document définit la stratégie de branchement, les conventions de messages de validation (commits) et le processus de revue et de fusion (merge) appliqués au projet CodeForge.
+Ce document définit la stratégie de branchement, les conventions de messages de validation (commits) et le processus de revue et de fusion (merge) appliqués au projet La Forge du Code.
 
 ---
 
@@ -22,7 +22,7 @@ Toutes les nouvelles modifications doivent être isolées dans des branches déd
 
 ## 2. Conventions de commits (Semantic Commits)
 
-Les messages de commit doivent suivre la spécification des **Commits Conventionnels** afin de faciliter la lecture de l'historique et l'automatisation du journal des modifications (`CHANGELOG.md`).
+Les messages de commit doivent suivre la spécification des **Commits Conventionnels** afin de faciliter la lecture de l'historique et de permettre, à terme, la génération automatique d'un journal des modifications.
 
 Le format requis est :
 ```

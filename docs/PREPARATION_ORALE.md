@@ -15,7 +15,7 @@
 | **Entretien technique** | **40 min** | Questions du jury sur ton dossier et ta présentation. C'est là que tout se joue. |
 | Entretien final | 15 min | Vision du métier, motivations, échange sur le dossier professionnel. |
 
-**Minutage cible : 36 min sur 39 slides** (fenêtre attendue : 35 à 40 min). Le temps de chaque slide est écrit en tête de ses notes orateur (⏱). Par partie :
+**Minutage cible : 36 min sur 39 slides** (fenêtre attendue : 35 à 40 min). Le temps de chaque slide est écrit en tête de ses notes orateur. Par partie :
 
 | Partie | Slides | Temps | Point de contrôle (chrono en main) |
 |---|---|---|---|
@@ -104,7 +104,7 @@ Les slides longues : bac à sable (18) 2 min, route /api/me/step (25) 1 min 30, 
 ### Slide 17 — Validateur (CP4)
 « Une fonction par étape : elle reçoit le code, rend un verdict et un message d'aide ciblé. Fonction pure : même entrée, même sortie, pas de base ni de réseau ; testable en isolation, 1 525 tests unitaires au total. »
 
-### Slide 18 — Bac à sable (CP4) ⚠️ SUJET FORT — 2 min, apprends-le
+### Slide 18 — Bac à sable (CP4) — SUJET FORT — 2 min, apprends-le
 « Exécuter du code écrit par un utilisateur, c'est dangereux : vol de cookie de session, XSS, boucle infinie. Trois couches.
 Un : l'iframe a `sandbox="allow-scripts"` **sans** `allow-same-origin`. Le navigateur lui donne une **origine opaque** : pour lui, c'est un site étranger ; aucun accès aux cookies, au stockage ni au DOM de mon application. C'est le navigateur qui garantit l'isolation, pas mon code.
 Deux : avant l'audit, le document d'exécution était un `srcdoc`. Or un srcdoc **hérite de la CSP du parent** : pour que le code de l'apprenant tourne, tout mon site devait autoriser `unsafe-inline` et `unsafe-eval`, ce qui désarmait la protection anti-XSS partout. Depuis l'audit, le document est servi depuis une **origine dédiée**, bac-a-sable.laforgeducode.fr, avec sa propre CSP permissive ; le site, lui, a une CSP stricte à nonce. Poignée de main : le document dit « prêt », puis je lui poste le code.
@@ -133,7 +133,7 @@ Et le serveur n'exécute **jamais** le code de l'apprenant. »
 ### Slide 24 — completeStep (CP6)
 « Une transaction : tout ou rien. Idempotence d'abord (étape déjà faite = réponse normale) ; puis, depuis l'audit, l'**ordre** : l'étape n exige l'étape n-1, la même règle que la carte des chapitres, sinon 409 ; puis insertion, XP incrémenté atomiquement, badge si le chapitre est complet. Prisma paramètre tout : pas d'injection. »
 
-### Slide 25 — Route POST /api/me/step (CP7) ⚠️ 2 min
+### Slide 25 — Route POST /api/me/step (CP7) — 2 min
 « Avant l'audit, cette route vérifiait la session et la forme des données, puis accordait l'étape. Un script pouvait donc déclarer toutes les étapes et prendre la tête du classement : c'est le constat EXE-01, que j'ai prouvé par un test. Aujourd'hui, six contrôles. Zéro : même origine, contre la CSRF. Un : la session. Deux : 20 appels par minute et par compte, comptés avant même de lire le corps. Trois : Zod. Quatre, le cœur : la **preuve**. Le navigateur envoie le code, le serveur rejoue le même validateur ; 422 sinon. Cinq : le métier, qui vérifie l'ordre, 409. Le serveur reste la seule source de vérité de l'XP. »
 **Q : et les étapes JavaScript ?** → « Leurs validateurs lisent la sortie de la console, produite dans le navigateur. Les rejouer demanderait d'exécuter le code sur le serveur, ce que j'exclus. Leur réussite reste déclarée, mais l'ordre et le débit s'appliquent. Risque résiduel documenté. »
 
@@ -152,7 +152,7 @@ Et le serveur n'exécute **jamais** le code de l'apprenant. »
 
 ## PARTIE 4 — Jeu d'essai, démo, qualité (slides 29 à 33) · ≈ 7 min
 
-### Slide 29 — Jeu d'essai ⚠️ demandé par le référentiel, avec analyse des écarts
+### Slide 29 — Jeu d'essai — demandé par le référentiel, avec analyse des écarts
 « Fonctionnalité la plus représentative : valider une étape, côté navigateur puis côté serveur. Mon jeu d'essai est un test Playwright : un compte dédié appelle l'API comme le ferait un script. Cinq cas. Nominal : 200 et 41 XP, avant comme après. Les quatre autres étaient **en écart avant l'audit** : étape sautée acceptée, étape sans solution acceptée, solution d'une autre étape acceptée, 25 appels d'affilée tous acceptés. Analyse : le serveur ne vérifiait que l'existence de l'étape. Correctif EXE-01 : preuve rejouée, ordre, débit. Après : 5 sur 5 conformes, et le test reste dans la CI. »
 
 ### Slide 30 — Analyse des écarts

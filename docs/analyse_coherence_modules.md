@@ -26,11 +26,11 @@
 
 | | HTML (8 ch) | CSS (10 ch) | JS (12 ch) |
 |---|---|---|---|
-| Narrateur mis en voix | ✅ | ✅ | ✅ |
-| Intro **Kira** en prose | ❌ | ❌ | ✅ |
+| Narrateur mis en voix | oui | oui | oui |
+| Intro **Kira** en prose | non | non | oui |
 | Adresse au joueur | « Ingénieur » | « cadet » | « Cadet » |
-| Erreurs scénarisées (`tone`) | ch.1 seulement | ❌ aucune | 1 cas (boucle) |
-| Panneau de référence (`docRefs`) | ✅ 8 ch | ❌ | ❌ |
+| Erreurs scénarisées (`tone`) | ch.1 seulement | aucune | 1 cas (boucle) |
+| Panneau de référence (`docRefs`) | oui (8 ch) | non | non |
 | Métaphore de cours | base lunaire | dock graphique | station / vaisseau |
 
 ## 2. Diagnostic — les 6 fractures de cohérence
@@ -52,13 +52,13 @@
 
 | # | Tâche | Portée | Effort | Impact |
 |---|---|---|---|---|
-| 1 | **Unifier l'identité** → « Cadet » partout (corriger HTML « Ingénieur », CSS). | HTML+CSS | S | Cohérence ⭐⭐⭐ |
-| 2 | **Généraliser la scénarisation d'erreur** : poser `tone` (`structure`/`syntax`/`logic`) sur les validateurs HTML/CSS/JS. | 3 cursus | M | Immersion ⭐⭐⭐ |
-| 3 | **Incarner Kira + H.E.L.P. uniformément** : réplique Kira en tête de briefing + hints en voix H.E.L.P. sur HTML/CSS (pattern JS). | HTML+CSS | M | Immersion ⭐⭐ |
-| 4 | **Réconcilier bible §3 ↔ cours** : trancher la métaphore par concept et l'appliquer. | Docs + cours | S/M | Cohérence ⭐⭐ |
-| 5 | **Thématiser le combat par cursus** : HTML = réparer la structure, CSS = boucliers, JS = tourelles (bible §3). | 3 cursus | M | Game ⭐⭐ |
-| 6 | **Arc méta** : barre « recul du Null » par cursus + étapes-pièges où Le Spectre injecte du code corrompu. | Transverse | L | Game ⭐⭐⭐ |
-| 7 | **Parité référence** : étendre `docRefs` à CSS puis JS. | CSS+JS | L | Pédago ⭐⭐ |
+| 1 | **Unifier l'identité** → « Cadet » partout (corriger HTML « Ingénieur », CSS). | HTML+CSS | S | Cohérence : fort |
+| 2 | **Généraliser la scénarisation d'erreur** : poser `tone` (`structure`/`syntax`/`logic`) sur les validateurs HTML/CSS/JS. | 3 cursus | M | Immersion : fort |
+| 3 | **Incarner Kira + H.E.L.P. uniformément** : réplique Kira en tête de briefing + hints en voix H.E.L.P. sur HTML/CSS (pattern JS). | HTML+CSS | M | Immersion : moyen |
+| 4 | **Réconcilier bible §3 ↔ cours** : trancher la métaphore par concept et l'appliquer. | Docs + cours | S/M | Cohérence : moyen |
+| 5 | **Thématiser le combat par cursus** : HTML = réparer la structure, CSS = boucliers, JS = tourelles (bible §3). | 3 cursus | M | Game : moyen |
+| 6 | **Arc méta** : barre « recul du Null » par cursus + étapes-pièges où Le Spectre injecte du code corrompu. | Transverse | L | Game : fort |
+| 7 | **Parité référence** : étendre `docRefs` à CSS puis JS. | CSS+JS | L | Pédago : moyen |
 
 **Ordre recommandé :** 1 → 2 → 3 (quick wins de cohérence, faible risque, généralisation
 du travail déjà fait sur JS), puis 4, puis 5/6 (différenciateurs game), 7 en dernier.

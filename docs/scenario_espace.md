@@ -1,12 +1,12 @@
-# 🌌 Plan d'Implémentation du Scénario Spatial & Storytelling — Nebula Command
+# Plan d'Implémentation du Scénario Spatial & Storytelling — Nebula Command
 
-Ce document présente la conception narrative et les storyboards pixel art pour les différents cursus d'apprentissage de **CodeForge**. Il fait le pont entre le lore de la station spatiale et les compétences de développement à acquérir par le Cadet (le joueur).
+Ce document présente la conception narrative et les storyboards pixel art pour les différents cursus d'apprentissage de **La Forge du Code**. Il fait le pont entre le lore de la station spatiale et les compétences de développement à acquérir par le Cadet (le joueur).
 
 ---
 
-# 🌟 Discours de lancement – *CodeForge — Nebula Command*  
+# Discours de lancement – *La Forge du Code — Nebula Command*  
 
-> **« Chers cadets, bienvenue à bord de la Coalition Nebula, le réseau de stations orbitales qui maintient en vie l’univers numérique. Ici, chaque ligne de code est un module de survie, chaque fonction un réacteur d’étoile. Vous êtes les ingénieurs de la flotte, ceux qui restaurent les systèmes et transforment le vide du Web en constellations de possibilités. »**  
+> « Chers cadets, bienvenue à bord de la Coalition Nebula, le réseau de stations orbitales qui maintient en vie l’univers numérique. Ici, chaque ligne de code est un module de survie, chaque fonction un réacteur d’étoile. Vous êtes les ingénieurs de la flotte, ceux qui restaurent les systèmes et transforment le vide du Web en constellations de possibilités. »  
 
 > **Mission** : *Humanité, il faut quitter le monde physique pour naviguer dans l’immensité du Web et explorer les galaxies du développement.* Votre vaisseau ? Un réseau d’infrastructures codées, vos outils ? Les langages que vous allez maîtriser. Ensemble, nous allons établir des liaisons entre les planètes de la connaissance et ouvrir une voie interstellaire où chaque algorithme devient une porte vers de nouveaux horizons.  
 
@@ -14,18 +14,18 @@ Ce document présente la conception narrative et les storyboards pixel art pour 
 
 ---  
 
-# 🎞️ Plan‑séquence Pixel Art – Accueil  
+# Plan‑séquence Pixel Art – Accueil  
 
 **Durée** : 30 secondes (≈ 15 frames à 2 px).  
 **Style** : Palette rétro 8‑bits, sprites en 16×16 px, musique chiptune épurée.  
 
 | Frame | Description visuelle | Narration (texte pixel) |
 |------|----------------------|--------------------------|
-| 1️⃣ | Un néon bleuté apparaît au centre d’un ciel étoilé pixellisé ; une silhouette de vaisseau se dessine lentement. | « Bienvenue à bord de Nebula Command ! » |
-| 2️⃣ | Le joueur (avatar pixel, casque d’ingénieur) apparaît, une console holographique à la main. | « Vous êtes Cadet-Ingénieur de la station ». |
-| 3️⃣ | Des panneaux de code flottent autour du vaisseau : HTML, CSS, JS… ils s’animent comme des modules d’énergie. | « Chaque langage est une pièce maîtresse de notre ship ». |
-| 4️⃣ | La console scelle un bloc de données ; le bloc se stabilise en une petite planète pixel art qui orbite autour du vaisseau. | « Construisez, assemblez, faites évoluer les infrastructures spatiales ». |
-| 5️⃣ | Une invitation apparaît : « Choisissez votre premier cursus et partez explorer les galaxies du Web ». | — |
+| 1 | Un néon bleuté apparaît au centre d’un ciel étoilé pixellisé ; une silhouette de vaisseau se dessine lentement. | « Bienvenue à bord de Nebula Command ! » |
+| 2 | Le joueur (avatar pixel, casque d’ingénieur) apparaît, une console holographique à la main. | « Vous êtes Cadet-Ingénieur de la station ». |
+| 3 | Des panneaux de code flottent autour du vaisseau : HTML, CSS, JS… ils s’animent comme des modules d’énergie. | « Chaque langage est une pièce maîtresse de notre ship ». |
+| 4 | La console scelle un bloc de données ; le bloc se stabilise en une petite planète pixel art qui orbite autour du vaisseau. | « Construisez, assemblez, faites évoluer les infrastructures spatiales ». |
+| 5 | Une invitation apparaît : « Choisissez votre premier cursus et partez explorer les galaxies du Web ». | — |
 
 **Éléments clés à animer**  
 - La **console d’ingénieur** qui s’illumine à chaque validation.  
@@ -34,7 +34,7 @@ Ce document présente la conception narrative et les storyboards pixel art pour 
 
 ---  
 
-## 📡 Cursus 1 – HTML  
+## Cursus 1 – HTML  
 
 ### Titre de Mission  
 **« Construction du Dock d’Orbite »**  
@@ -43,11 +43,11 @@ Ce document présente la conception narrative et les storyboards pixel art pour 
 Dans l’immensité spatiale, le premier chantier consiste à ériger un **dock d’accueil** où les vaisseaux (pages web) s’amarrent. L’HTML devient la charpente qui définit la structure du dock : balises comme des poutres, sections comme des compartiments pressurisés. Sans ce squelette, aucune technologie ne pourra se poser ou se relier aux autres modules.  
 
 ### Storyboard pixel art (5 frames)  
-1️⃣ **Vaisseau de construction** apparaît et déploie une balise `<html>` qui s’enroule autour d’un cadre lumineux.  
-2️⃣ **Balises `<head>` & `<body>`** s’ajoutent comme deux niveaux de panneaux de contrôle, chaque niveau s’allume lorsqu’on les place.  
-3️⃣ **Éléments de contenu** (`<h1>`, `<p>`, `<img>`) apparaissent sous forme de modules d’équipement flottant et se connectent aux panneaux.  
-4️⃣ Le dock s’illumine, un **signal de stabilité** pulse autour du vaisseau, indiquant que la structure est complète.  
-5️⃣ Une icône “**Dock prêt à accueillir**” apparaît, accompagnée d’un message : *« Le Dock d’Orbite est opérationnel »*.  
+1. **Vaisseau de construction** apparaît et déploie une balise `<html>` qui s’enroule autour d’un cadre lumineux.  
+2. **Balises `<head>` & `<body>`** s’ajoutent comme deux niveaux de panneaux de contrôle, chaque niveau s’allume lorsqu’on les place.  
+3. **Éléments de contenu** (`<h1>`, `<p>`, `<img>`) apparaissent sous forme de modules d’équipement flottant et se connectent aux panneaux.  
+4. Le dock s’illumine, un **signal de stabilité** pulse autour du vaisseau, indiquant que la structure est complète.  
+5. Une icône “**Dock prêt à accueillir**” apparaît, accompagnée d’un message : *« Le Dock d’Orbite est opérationnel »*.  
 
 ### Pistes gamifiées pour les exercices  
 - **Badge “Architecte de Docks”** débloqué dès que 5 structures HTML sont validées.  
@@ -56,7 +56,7 @@ Dans l’immensité spatiale, le premier chantier consiste à ériger un **dock 
 
 ---  
 
-## 🎨 Cursus 2 – CSS  
+## Cursus 2 – CSS  
 
 ### Titre de Mission  
 **« Peau de nébuleuse »**  
@@ -65,12 +65,12 @@ Dans l’immensité spatiale, le premier chantier consiste à ériger un **dock 
 Une fois le dock installé, il faut l’envelopper d’une **peau visuelle** qui attire les voyageurs. Le CSS agit comme un enrouleur de nébuleuse : couleurs, gradients, animations qui donnent forme et atmosphère à chaque module du vaisseau. Sans cette couche esthétique, même la structure la plus solide resterait invisible dans le vide.  
 
 ### Storyboard pixel art (6 frames)  
-1️⃣ Le dock apparaît en gris neutre ; un cursor stylus apparaît comme une baguette lumineuse.  
-2️⃣ La première propriété `background-color` s’applique, transformant le fond en bleu nuit profond.  
-3️⃣ Un **gradient** se déploie comme une aurore boréale qui couvre les panneaux.  
-4️⃣ Des **animations CSS** (fade‑in) font scintiller des icônes, simulant des étoiles clignotantes.  
-5️⃣ Le joueur utilise `transform` pour faire tourner un module ; celui‑ci s’aligne avec les constellations du ciel pixelisé.  
-6️⃣ Une **barre de réputation** se remplit, affichant « Peau de nébuleuse appliquée ».  
+1. Le dock apparaît en gris neutre ; un cursor stylus apparaît comme une baguette lumineuse.  
+2. La première propriété `background-color` s’applique, transformant le fond en bleu nuit profond.  
+3. Un **gradient** se déploie comme une aurore boréale qui couvre les panneaux.  
+4. Des **animations CSS** (fade‑in) font scintiller des icônes, simulant des étoiles clignotantes.  
+5. Le joueur utilise `transform` pour faire tourner un module ; celui‑ci s’aligne avec les constellations du ciel pixelisé.  
+6. Une **barre de réputation** se remplit, affichant « Peau de nébuleuse appliquée ».  
 
 ### Pistes gamifiées pour les exercices  
 - **Récompense “Palette Nebulite”** lorsqu’un joueur crée 3 thèmes de couleur différents.  
@@ -79,7 +79,7 @@ Une fois le dock installé, il faut l’envelopper d’une **peau visuelle** qui
 
 ---  
 
-## ⚡ Cursus 3 – JavaScript  
+## Cursus 3 – JavaScript  
 
 ### Titre de Mission  
 **« Propulsion Réactive »**  
@@ -88,11 +88,11 @@ Une fois le dock installé, il faut l’envelopper d’une **peau visuelle** qui
 Le dock ne bouge pas tout seul ; il faut le **piloter**. Le JavaScript devient le moteur de réaction qui déclenche les actions : clics, chargements dynamiques, interactions en temps réel. Chaque fonction est une impulsion qui propulse le vaisseau vers de nouvelles missions spatiales.  
 
 ### Storyboard pixel art (5 frames)  
-1️⃣ Un **bouton “Lancer”** apparaît ; lorsqu’on clique dessus, un feu d’artifice de pixels s’allume.  
-2️⃣ Une fonction `console.log()` se matérialise sous forme de bulle de texte qui voyage dans l’espace.  
-3️⃣ Des **événements** (`click`, `keyup`) apparaissent comme des capteurs placés sur les panneaux du vaisseau.  
-4️⃣ Une boucle `while` est illustrée par une roue d’engrenage qui tourne indéfiniment, symbolisant le cycle de mise à jour.  
-5️⃣ Le moteur s’active : des jets de carburant pixelisé propulsent le vaisseau hors du quai.  
+1. Un **bouton “Lancer”** apparaît ; lorsqu’on clique dessus, un feu d’artifice de pixels s’allume.  
+2. Une fonction `console.log()` se matérialise sous forme de bulle de texte qui voyage dans l’espace.  
+3. Des **événements** (`click`, `keyup`) apparaissent comme des capteurs placés sur les panneaux du vaisseau.  
+4. Une boucle `while` est illustrée par une roue d’engrenage qui tourne indéfiniment, symbolisant le cycle de mise à jour.  
+5. Le moteur s’active : des jets de carburant pixelisé propulsent le vaisseau hors du quai.  
 
 ### Pistes gamifiées pour les exercices  
 - **Badge “Pilote Réactif”** après avoir implémenter 3 gestionnaires d’événements différents.  
@@ -101,7 +101,7 @@ Le dock ne bouge pas tout seul ; il faut le **piloter**. Le JavaScript devient l
 
 ---  
 
-## 📘 Cursus 4 – TypeScript  
+## Cursus 4 – TypeScript  
 
 ### Titre de Mission  
 **« Cartographie des Routes Stellaires »**  
@@ -110,12 +110,12 @@ Le dock ne bouge pas tout seul ; il faut le **piloter**. Le JavaScript devient l
 Pour naviguer sans se perdre parmi les nombreuses planètes du Web, il faut une **carte précise**. Le TypeScript offre un système de typage qui agit comme un atlas stellaire : chaque fonction, chaque variable possède une constellation de types bien définie. Cela évite les collisions et assure que le trajet reste sûr.  
 
 ### Storyboard pixel art (6 frames)  
-1️⃣ Un **tableau de navigation** apparaît avec des cases vides.  
-2️⃣ Le joueur place un **type** (`string`, `number`) dans une case ; chaque type s’allume d’une couleur distincte.  
-3️⃣ Des **interfaces** apparaissent comme des panneaux de coordonnées, reliant plusieurs types entre eux.  
-4️⃣ Une fonction reçoit ces types et projette un **chemin lumineux** vers la prochaine planète.  
-5️⃣ Un système d’alertes (`error`) se déclenche lorsqu’un type incorrect est utilisé, créant une explosion de meteors.  
-6️⃣ Le chemin devient stable, affichant « Route stellaire validée ».  
+1. Un **tableau de navigation** apparaît avec des cases vides.  
+2. Le joueur place un **type** (`string`, `number`) dans une case ; chaque type s’allume d’une couleur distincte.  
+3. Des **interfaces** apparaissent comme des panneaux de coordonnées, reliant plusieurs types entre eux.  
+4. Une fonction reçoit ces types et projette un **chemin lumineux** vers la prochaine planète.  
+5. Un système d’alertes (`error`) se déclenche lorsqu’un type incorrect est utilisé, créant une explosion de meteors.  
+6. Le chemin devient stable, affichant « Route stellaire validée ».  
 
 ### Pistes gamifiées pour les exercices  
 - **Badge “Cartographe”** débloqué après avoir créé 5 interfaces différentes.  
@@ -124,7 +124,7 @@ Pour naviguer sans se perdre parmi les nombreuses planètes du Web, il faut une 
 
 ---  
 
-## ⚛️ Cursus 5 – React  
+## Cursus 5 – React  
 
 ### Titre de Mission  
 **« Station de Réplication Multiplicative »**  
@@ -133,13 +133,13 @@ Pour naviguer sans se perdre parmi les nombreuses planètes du Web, il faut une 
 Une fois les bases solidaires, il faut **multiplier les modules**. React introduit le concept des composants comme des blocs de construction réutilisables, chacun pouvant être dupliqué et assemblé en structures plus complexes. C’est l’équivalent d’une station qui clone automatiquement des sous‑vaisseaux pour explorer plusieurs systèmes à la fois.  
 
 ### Storyboard pixel art (7 frames)  
-1️⃣ Un **composant** apparaît comme une petite boîte lumineuse avec un nom (`Header`).  
-2️⃣ Le joueur le duplicate en appuyant sur un bouton « Clone », créant plusieurs boîtes identiques qui flottent.  
-3️⃣ Chaque clone reçoit des **props** (données) différentes, illustrées par des icônes personnalisées.  
-4️⃣ Une **mise à jour d’état** fait vibrer une boîte ; elle change de couleur pour indiquer un nouveau comportement.  
-5️⃣ Les boîtes se combinent en une **arborescence** rappelant les branches d’un arbre stellaire.  
-6️⃣ Un **render cycle** montre le flux d’énergie qui parcourt toutes les boîtes simultanément.  
-7️⃣ Une icône “**Station opérationnelle**” apparaît, signalant que la réplication est réussie.  
+1. Un **composant** apparaît comme une petite boîte lumineuse avec un nom (`Header`).  
+2. Le joueur le duplicate en appuyant sur un bouton « Clone », créant plusieurs boîtes identiques qui flottent.  
+3. Chaque clone reçoit des **props** (données) différentes, illustrées par des icônes personnalisées.  
+4. Une **mise à jour d’état** fait vibrer une boîte ; elle change de couleur pour indiquer un nouveau comportement.  
+5. Les boîtes se combinent en une **arborescence** rappelant les branches d’un arbre stellaire.  
+6. Un **render cycle** montre le flux d’énergie qui parcourt toutes les boîtes simultanément.  
+7. Une icône “**Station opérationnelle**” apparaît, signalant que la réplication est réussie.  
 
 ### Pistes gamifiées pour les exercices  
 - **Badge “Architecte de Composants”** après avoir créé 3 composants distincts avec props variées.  
@@ -148,7 +148,7 @@ Une fois les bases solidaires, il faut **multiplier les modules**. React introdu
 
 ---  
 
-## 🐙 Cursus 6 – Git  
+## Cursus 6 – Git  
 
 ### Titre de Mission  
 **« Journal de Navigateur Temporal »**  
@@ -157,11 +157,11 @@ Une fois les bases solidaires, il faut **multiplier les modules**. React introdu
 Chaque modification apportée au vaisseau doit être **enregistrée dans le temps**. Git agit comme un journal de bord qui trace chaque version du code, permettant de revenir en arrière si une fissure apparaît. Les commits sont des enregistrements stellaires que l’on peut consulter pour comprendre l’évolution du projet.  
 
 ### Storyboard pixel art (5 frames)  
-1️⃣ Un **chronomètre** apparaît avec le symbole d’un commit ; chaque clic crée une petite bulle de texte flottante.  
-2️⃣ Les bulles se transforment en **snapshots** du vaisseau, chacun montrant un état différent (v1, v2…).  
-3️⃣ Une icône de branche (`branch`) apparaît ; le joueur crée une nouvelle branche pour expérimenter sans affecter la version principale.  
-4️⃣ Un **merge** est illustré par deux chemins qui se rejoignent en un seul, symbolisant l’intégration des modifications.  
-5️⃣ Une fenêtre de **conflit résolu** s’allume, récompensant le joueur avec une étoile de stabilité.  
+1. Un **chronomètre** apparaît avec le symbole d’un commit ; chaque clic crée une petite bulle de texte flottante.  
+2. Les bulles se transforment en **snapshots** du vaisseau, chacun montrant un état différent (v1, v2…).  
+3. Une icône de branche (`branch`) apparaît ; le joueur crée une nouvelle branche pour expérimenter sans affecter la version principale.  
+4. Un **merge** est illustré par deux chemins qui se rejoignent en un seul, symbolisant l’intégration des modifications.  
+5. Une fenêtre de **conflit résolu** s’allume, récompensant le joueur avec une étoile de stabilité.  
 
 ### Pistes gamifiées pour les exercices  
 - **Badge “Chronicle Keeper”** lorsqu’on effectue 10 commits sans erreur.  
@@ -170,7 +170,7 @@ Chaque modification apportée au vaisseau doit être **enregistrée dans le temp
 
 ---  
 
-## ♿ Cursus 7 – HTML/CSS Avancés & Accessibilité  
+## Cursus 7 – HTML/CSS Avancés & Accessibilité  
 
 ### Titre de Mission  
 **« Habitat Universel Inclusif »**  
@@ -179,12 +179,12 @@ Chaque modification apportée au vaisseau doit être **enregistrée dans le temp
 Un habitat doit accueillir tous les voyageurs, même ceux avec des besoins spécifiques. L’accessibilité transforme le code en **sentier lumineux** pour les utilisateurs malvoyants ou à mobilité réduite. En intégrant `aria-` et des contrastes suffisants, on assure que chaque coin du vaisseau soit visitable par tous.  
 
 ### Storyboard pixel art (6 frames)  
-1️⃣ Une **page HTML** apparaît avec un contraste faible ; elle est sombre et difficile à lire.  
-2️⃣ Le joueur applique `role="button"` et `aria-label` aux éléments, qui s’illuminent en vert lorsqu’ils sont correctement balisés.  
-3️⃣ Un **contraste élevé** se crée ; les textes deviennent lumineux contre un fond sombre, visible même dans l’obscurité spatiale.  
-4️⃣ Une animation `focus` fait apparaître une bordure clignotante autour des interactifs, indiquant le focus clavier.  
-5️⃣ Un **lecteur d’écran** virtuel parcourt la page et annonce chaque élément, les icônes de lecture s’allument.  
-6️⃣ Une icône “**Habitat inclusif certifié**” apparaît, récompensant l’effort d’accessibilité.  
+1. Une **page HTML** apparaît avec un contraste faible ; elle est sombre et difficile à lire.  
+2. Le joueur applique `role="button"` et `aria-label` aux éléments, qui s’illuminent en vert lorsqu’ils sont correctement balisés.  
+3. Un **contraste élevé** se crée ; les textes deviennent lumineux contre un fond sombre, visible même dans l’obscurité spatiale.  
+4. Une animation `focus` fait apparaître une bordure clignotante autour des interactifs, indiquant le focus clavier.  
+5. Un **lecteur d’écran** virtuel parcourt la page et annonce chaque élément, les icônes de lecture s’allument.  
+6. Une icône “**Habitat inclusif certifié**” apparaît, récompensant l’effort d’accessibilité.  
 
 ### Pistes gamifiées pour les exercices  
 - **Badge “Concepteur Inclusif”** après avoir intégré 5 attributs ARIA différents.  
@@ -195,13 +195,13 @@ Un habitat doit accueillir tous les voyageurs, même ceux avec des besoins spéc
 
 ---
 
-## 🚀 Deuxième Partie : Cursus Intermédiaires & Avancés (8 Cursus Pilotes)
+## Deuxième Partie : Cursus Intermédiaires & Avancés (8 Cursus Pilotes)
 
 Ces cursus constituent la suite de l'exploration galactique et consolident les capacités techniques des ingénieurs de la flotte.
 
 > **Note de cadrage.** Ces 8 cursus sont aujourd'hui des **aperçus** (1 chapitre pilote chacun — cf. le statut « APERÇU » du catalogue). Les storyboards ci-dessous sont des **esquisses de direction**, volontairement resserrées : un pitch, trois temps forts visuels, un hook gamifié. Objectif : fixer le ton sans sur-spécifier une production pixel-art qui n'est pas encore lancée. Chaque cursus sera storyboardé en détail au moment où son contenu passera de « aperçu » à « complet ».
 
-## 🛢️ Cursus 8 – SQL – Mission « Noyau de Fusion »
+## Cursus 8 – SQL – Mission « Noyau de Fusion »
 - **Synopsis narratif**  
   Dans le cœur d’une station spatiale nommée *Helios‑7*, les données sont stockées dans des réacteurs de fusion. Les opérateurs doivent extraire, combiner et analyser ces flux de matière‑énergie pour stabiliser la puissance du système. Le cursus SQL enseigne à créer des **tables stellaires**, à interroger les champs gravitationnels et à joindre plusieurs systèmes comme un navigateur de constellations.
 
@@ -220,7 +220,7 @@ Ces cursus constituent la suite de l'exploration galactique et consolident les c
 
 ---
 
-## 🟢 Cursus 9 – Node.js – Mission « Propulseur d'Orbite »
+## Cursus 9 – Node.js – Mission « Propulseur d'Orbite »
 - **Synopsis narratif**  
   À bord du vaisseau *Astra‑One*, le moteur de propulsion est contrôlé par des scripts qui communiquent avec les capteurs, les systèmes de navigation et les pods de colonie. Le cursus Node.js montre comment créer des **routes orbitales**, gérer les **évènements en vol** et orchestrer une communication fluide entre les modules du vaisseau.
 
@@ -239,7 +239,7 @@ Ces cursus constituent la suite de l'exploration galactique et consolident les c
 
 ---
 
-## 🧪 Cursus 10 – Tests – Mission « Bouclier de Défense »
+## Cursus 10 – Tests – Mission « Bouclier de Défense »
 - **Synopsis narratif**  
   Le vaisseau *Vigil‑X* possède un bouclier énergétique qui ne fonctionne que si chaque composant a été testé. Les tests unitaires, d’intégration et e2e sont les capteurs de fissures du champ de force. Ce cursus forme les défenseurs à détecter les failles avant le décollage.
 
@@ -257,7 +257,7 @@ Ces cursus constituent la suite de l'exploration galactique et consolident les c
 
 ---
 
-## ⚙️ Cursus 11 – DevOps – Mission « Fabrique d'Exploits Automatiques »
+## Cursus 11 – DevOps – Mission « Fabrique d'Exploits Automatiques »
 - **Synopsis narratif**  
   Sur la planète industrielle *Nebula‑Forge*, les usines automatisées assemblent des pièces spatiales sans interruption. Le cursus DevOps enseigne à créer des pipelines de construction, de déploiement continu et de monitoring, afin que chaque mise à jour spatiale se fasse en toute sérénité.
 
@@ -276,7 +276,7 @@ Ces cursus constituent la suite de l'exploration galactique et consolident les c
 
 ---
 
-## 🍃 Cursus 12 – MongoDB – Mission « Caverne des Archives Stellaires »
+## Cursus 12 – MongoDB – Mission « Caverne des Archives Stellaires »
 - **Synopsis narratif**  
   Au cœur d’une nébuleuse, se trouve la **Caverne des Archives**, un entrepôt de données où chaque étoile possède son propre registre. MongoDB permet de stocker ces registres sous forme de documents flexibles, de les interroger avec précision et d’évoluer le schéma comme une constellation qui grandit.
 
@@ -295,7 +295,7 @@ Ces cursus constituent la suite de l'exploration galactique et consolident les c
 
 ---
 
-## 🛡️ Cursus 13 – Sécurité – Mission « Bouclier Anti-Pirates »
+## Cursus 13 – Sécurité – Mission « Bouclier Anti-Pirates »
 - **Synopsis narratif**  
   Le vaisseau *Raven‑8* navigue dans une zone remplie de pirates spatiaux cherchant à pirater ses systèmes. La sécurité est le bouclier qui protège les ports, les communications et les données sensibles. Ce cursus forme des gardiens capables d’implémenter chiffrement, contrôle d’accès et audits de sécurité.
 
@@ -314,7 +314,7 @@ Ces cursus constituent la suite de l'exploration galactique et consolident les c
 
 ---
 
-## 🐍 Cursus 14 – Python – Mission « Explorateur des Nébulettes »
+## Cursus 14 – Python – Mission « Explorateur des Nébulettes »
 - **Synopsis narratif**  
   À bord du vaisseau *Curiosity‑X*, les scientifiques utilisent Python pour analyser les nébulettes, modéliser des trajectoires et créer des scripts d’automatisation. Le cursus Python forme l’explorateur qui transforme des données brutes en connaissances stellaires.
 
@@ -333,7 +333,7 @@ Ces cursus constituent la suite de l'exploration galactique et consolident les c
 
 ---
 
-## 📐 Cursus 15 – Algorithmique (Algo) – Mission « Cartes Stellaires de Dijkstra »
+## Cursus 15 – Algorithmique (Algo) – Mission « Cartes Stellaires de Dijkstra »
 - **Synopsis narratif**  
   La navigation interstellaire repose sur les plus courts chemins entre systèmes planétaires. L’algorithme de Dijkstra sert à tracer ces routes de façon optimale, évitant les champs d’astéroïdes et économisant le carburant. Ce cursus enseigne à concevoir des graphes cosmiques et à calculer les itinéraires les plus efficaces.
 
@@ -352,8 +352,6 @@ Ces cursus constituent la suite de l'exploration galactique et consolident les c
 
 ---
 
-## 🚀 **Conclusion de la partie 2**
+## Conclusion de la partie 2
 
-Ces huit missions spatiales rétro, chacune accompagnée d’un synopsis, d’un storyboard pixel art détaillé et d’éléments gamifiés, constituent le cœur de la prochaine vague de cursus sur CodeForge. Elles offrent aux apprenants une immersion totale dans un univers où **l’apprentissage devient aventure** : chaque concept technique se transforme en défi passionnant, chaque réussite en récompense visuelle et symbolique.
-
-Vous êtes maintenant prêt à intégrer ces scénarios dans vos modules pédagogiques, à les décliner en quêtes interactives ou à les associer à des évaluations dynamiques. Que le voyage commence ! 🌌✨
+Ces huit missions, chacune accompagnée d’un synopsis, d’un storyboard pixel art et d’éléments gamifiés, constituent la base de la prochaine vague de cursus de La Forge du Code. Chaque concept technique y devient un défi, chaque réussite une récompense visuelle.

@@ -4,7 +4,7 @@ Ce document présente le plan marketing et d'acquisition (Playbook de croissance
 
 ---
 
-## 🚀 1. Le Growth Loop (Boucle Virale Produit)
+## 1. Le Growth Loop (Boucle Virale Produit)
 
 La meilleure source de trafic est celle générée directement par vos utilisateurs actuels au sein même du produit.
 
@@ -17,7 +17,7 @@ Apprenant rejoint ──> Valide une mission ──> Débloque un badge unique
 
 ### A. Le Partage Social des Succès (Bragging Rights)
 *   **Fonctionnalité :** Dès qu'un utilisateur débloque un badge (ex: *Architecte CSS* ou *Ingénieur QA*), l'application génère une carte de succès personnalisée (l'avatar de l'apprenant, son grade, son pseudo et le badge en pixel art).
-*   **Action :** Un bouton "Partager sur LinkedIn/Twitter" pré-remplit un post dynamique du type : *« Je viens de débloquer le grade d'Opérateur de Relais sur Nebula Command en réparant des protocoles HTML ! 🚀 Join the fleet : [Lien de parrainage] »*.
+*   **Action :** Un bouton "Partager sur LinkedIn/Twitter" pré-remplit un post dynamique du type : *« Je viens de débloquer le grade d'Opérateur de Relais sur Nebula Command en réparant des protocoles HTML ! Join the fleet : [Lien de parrainage] »*.
 *   **Impact :** Attire du trafic organique de pairs intéressés par le dev.
 
 ### B. Le Programme de Parrainage ("Recrute un Cadet")
@@ -29,7 +29,7 @@ Apprenant rejoint ──> Valide une mission ──> Débloque un badge unique
 
 ---
 
-## 🤝 2. Stratégie Communautaire (Organic & Devrel)
+## 2. Stratégie Communautaire (Organic & Devrel)
 
 Les développeurs aiment le "build in public" et les projets indépendants avec une âme graphique forte.
 
@@ -45,7 +45,7 @@ Les développeurs aiment le "build in public" et les projets indépendants avec 
 
 ---
 
-## ✍️ 3. Marketing de Contenu & SEO (Inbound)
+## 3. Marketing de Contenu & SEO (Inbound)
 
 Attirer du trafic en apportant de la valeur technique gratuite sur le web.
 
@@ -58,11 +58,11 @@ Créer des mini-outils gratuits hébergés sur des sous-domaines (ex: `flexbox.n
 Rédiger des articles de blog détaillés sur des plateformes comme **Dev.to**, **Medium**, et **Hashnode** :
 - *« Comment j'ai sécurisé l'exécution du code JS utilisateur de mes apprenants dans une Sandbox Next.js »*
 - *« Pourquoi nous avons choisi Tailwind CSS v4 et React 19 pour notre jeu de code »*
-- Ces articles drainent du trafic ultra-qualifié de passionnés de tech et de formateurs.
+- Ces articles drainent du trafic qualifié de passionnés de tech et de formateurs.
 
 ---
 
-## 🎙️ 4. Influenceurs Tech & Bootcamps
+## 4. Influenceurs Tech & Bootcamps
 
 ### A. Les Créateurs de Contenu de Reconversion Professionnelle
 *   **Cibles :** Les youtubeurs, streamers Twitch et créateurs TikTok spécialisés dans la reconversion professionnelle vers le dev web (ex : *"Devenir dev en 2026"*).

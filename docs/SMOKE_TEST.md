@@ -1,4 +1,4 @@
-# CodeForge — Smoke Test Manuel
+# La Forge du Code — Smoke Test Manuel
 
 Checklist exhaustive pour tester toutes les fonctionnalités du site et vérifier qu'aucune feature n'est cassée. À parcourir page par page, idéalement avant chaque release.
 
@@ -6,7 +6,7 @@ Checklist exhaustive pour tester toutes les fonctionnalités du site et vérifie
 
 - Naviguer en navigation privée pour partir d'un état propre
 - Garder la console DevTools (F12) ouverte → onglet Console pour les erreurs JS, onglet Network pour les requêtes
-- Tester sur Chrome ET Firefox au minimum
+- Tester sur Chrome et Firefox au minimum
 - Tester en responsive : mobile (375px) + desktop (1440px+)
 
 **Comment utiliser ce fichier** :
@@ -21,9 +21,9 @@ Checklist exhaustive pour tester toutes les fonctionnalités du site et vérifie
 
 ## 0. Démarrage du serveur
 
-- [x] `cd codeforge && pnpm install` → installe sans erreur
+- [x] `pnpm install` (à la racine du dépôt) → installe sans erreur
 - [x] `pnpm dev` → serveur démarre sur `http://localhost:3000`
-- [X] La console serveur ne montre AUCUNE erreur rouge au démarrage
+- [X] La console serveur ne montre aucune erreur rouge au démarrage
 - [x] Base de données accessible (Prisma) → variable `DATABASE_URL` dans `.env`= 
 
 - [x] Build de production : `pnpm build` → finit sans erreur pnpm build
@@ -62,7 +62,7 @@ URL : `http://localhost:3000/`
 
 ### 2.2 Inscription réussie
 
-- [x] Créer un compte avec un email VALIDE (ex: `test+1@example.com`)
+- [x] Créer un compte avec un email valide (ex: `test+1@example.com`)
 - [x] Le formulaire affiche un message de succès / redirige vers une page "Vérifiez votre email"
 - [x] Network : POST `/api/signup` → 200 OK
 - [x] Email de vérification reçu (vérifier Resend ou logs serveur en dev)
@@ -108,7 +108,7 @@ URL : `http://localhost:3000/`
 
 ## 5. Onboarding & Avatar (`/avatar`)
 
-À tester après une PREMIÈRE connexion (utilisateur fraichement créé).
+À tester après une première connexion (utilisateur fraîchement créé).
 
 - [ ] Au premier login, redirection automatique vers `/avatar` (si pas encore onboarded)
 - [ ] Sélection d'avatar fonctionne (preview)
@@ -128,7 +128,7 @@ URL : `http://localhost:3000/`
 - [ ] Chaque cours affiche son titre, son icône, son progrès
 - [ ] Clic sur un cours → redirige vers `/learn/[course]`
 
-### 6.1 Vérification de TOUS les cours présents
+### 6.1 Vérification de tous les cours présents
 
 Chacun doit être listé et cliquable :
 
@@ -215,7 +215,7 @@ Sur un chapitre JS (ex: `/learn/javascript/chapitre-1`) :
 - [ ] Coller la solution du `hint`
 - [ ] Cliquer "Lancer" → exécution sans erreur
 - [ ] Les `console.log` apparaissent dans une zone de sortie
-- [ ] Validation : objectives passent en "✓" un par un
+- [ ] Validation : les objectifs se cochent un par un
 - [ ] Banner de succès s'affiche (icon, title, sub, XP)
 - [ ] Bouton "Étape suivante" / "Continuer" apparaît
 - [ ] Clic → step 2 chargé avec son `startCode`
@@ -281,7 +281,7 @@ Les chapitres `git/ch1`, `sql/ch1`, `devops/ch1` contiennent du shell/SQL/Docker
 
 ### 11.1 Protection des routes
 
-Avec session DÉCONNECTÉE :
+Session déconnectée :
 
 - [ ] `/dashboard` → redirige vers `/login`
 - [ ] `/profil` → redirige vers `/login`
@@ -378,19 +378,19 @@ Sans session :
 
 | #   | Page / Route | Description | Sévérité     | Repro |
 | --- | ------------ | ----------- | ------------ | ----- |
-| 1   |              |             | 🔴 / 🟠 / 🟡 |       |
+| 1   |              |             | Bloquant / Majeur / Mineur |       |
 | 2   |              |             |              |       |
 | 3   |              |             |              |       |
 
 **Légende sévérité** :
 
-- 🔴 Bloquant : impossible d'utiliser la feature
-- 🟠 Majeur : feature dégradée mais utilisable
-- 🟡 Mineur : visuel, typo, edge case rare
+- **Bloquant** : impossible d'utiliser la feature
+- **Majeur** : feature dégradée mais utilisable
+- **Mineur** : visuel, typo, edge case rare
 
 ---
 
-## Notes de session
+## Notes de la passe
 
 ```
 (Ajoute ici tes observations libres : feeling général, idées d'amélioration UX, etc.)

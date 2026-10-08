@@ -61,14 +61,14 @@ formellement : une politique de suppression des comptes inactifs (ex. après
 | Droit | État dans l'application |
 |---|---|
 | Accès / rectification | Profil + page avatar (pseudo, avatar) ; à compléter pour l'email |
-| Effacement | Le modèle de données est prêt : les relations utilisateur sont en `ON DELETE CASCADE` (supprimer un `User` purge sessions, tokens, badges, progression). **À exposer** via un endpoint « supprimer mon compte ». |
+| Effacement | Disponible depuis la page profil : `DELETE /api/me`, avec mot de passe exigé. Les relations utilisateur sont en `ON DELETE CASCADE` (supprimer un `User` purge sessions, tokens, badges, progression). |
 | Réinitialisation de progression | Déjà disponible (`/api/me/reset`) |
-| Portabilité | À ajouter si demandé (export JSON des données du compte) |
+| Portabilité | Disponible depuis la page profil : export JSON des données du compte (`GET /api/me/export`) |
 
 ## 6. Sécurité des données
 
 - Mots de passe **hachés** (bcrypt, coût 12), jamais en clair.
-- Transport **HTTPS** ; en-têtes de sécurité (HSTS, CSP, X-Frame-Options…) — voir `next.config.ts`.
+- Transport **HTTPS** ; en-têtes de sécurité (HSTS, X-Frame-Options…) dans `next.config.ts`, CSP à nonce posée par `proxy.ts`.
 - **Rate-limiting** sur les points d'authentification (anti brute-force).
 - Endpoint « mot de passe oublié » **anti-énumération** (ne révèle pas l'existence d'un compte).
 - Exécution du code étudiant **isolée** (sandbox), sans accès aux données de l'application.
@@ -98,6 +98,4 @@ parcours individuel et n'implique aucun sous-traitant tiers.
 ## 9. À finaliser
 
 - Publier une **politique de confidentialité** et des **mentions légales**.
-- Ajouter un endpoint **« supprimer mon compte »** (droit à l'effacement en self-service).
 - Définir et appliquer les **durées de conservation** (comptes inactifs).
-- Optionnel : **export des données** (portabilité).

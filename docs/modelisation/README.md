@@ -1,6 +1,6 @@
-# MCD / MLD CodeForge pour Looping
+# MCD / MLD de La Forge du Code pour Looping
 
-Ce dossier contient le modèle de données de CodeForge / Nebula Command sous
+Ce dossier contient le modèle de données de La Forge du Code (Nebula Command) sous
 forme de scripts SQL, à ouvrir dans **Looping** (looping.exe) pour obtenir le
 **MLD** et le **MCD** éditables.
 
@@ -10,8 +10,9 @@ forme de scripts SQL, à ouvrir dans **Looping** (looping.exe) pour obtenir le
 |---|---|
 | `mcd-fidele.sql` | Version **fidèle** à la base Prisma actuelle (dénormalisée). |
 | `mcd-normalise.sql` | Version **normalisée / académique** (entités conceptuelles). |
+| `schema-reel.sql` | Instantané du DDL généré depuis le schéma Prisma, tables Auth.js comprises (antérieur aux tables `UserUnlock`, `CinematicView` et `TrackEvent`). |
 
-Les deux couvrent le **domaine métier + une authentification simplifiée**
+Les deux premiers couvrent le **domaine métier + une authentification simplifiée**
 (la plomberie NextAuth est regroupée dans une seule entité `COMPTE`).
 
 ## Comment ouvrir dans Looping

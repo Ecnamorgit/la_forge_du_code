@@ -4,14 +4,14 @@ Ce document décrit comment concevoir et intégrer un **Visualiseur de Combat Sp
 
 ---
 
-## 🎮 1. Le Concept du Rendu
+## 1. Le Concept du Rendu
 
 L'objectif est d'insérer un panneau visuel interactif (Canvas 2D) qui s'anime lors de chaque clic sur **DÉPLOYER**. Au lieu d'afficher instantanément un message d'erreur ou de succès, l'application joue une courte séquence de combat résolvant visuellement le code soumis par l'étudiant.
 
 ```
        [ ZONE DE COMBAT SPATIAL - CANVAS 2D ]
 ┌───────────────────────────────────────────────────┐
-│  🛸 [Joueur]  === (Laser Cyan) ===>   👾 [Ennemi] │
+│  [Joueur]  === (Laser Cyan) ===>   [Ennemi]       │
 │                                                   │
 │  [Bouclier: 100%]             [Surchauffe: 0%]    │
 └───────────────────────────────────────────────────┘
@@ -31,7 +31,7 @@ L'objectif est d'insérer un panneau visuel interactif (Canvas 2D) qui s'anime l
 
 ---
 
-## 🛠️ 2. Architecture Technique (React & HTML5 Canvas)
+## 2. Architecture Technique (React & HTML5 Canvas)
 
 Pour implémenter cette fonctionnalité de manière performante et fluide, nous recommandons de créer un composant `<CombatVisualizer />` basé sur un **Canvas HTML5 2D** :
 
@@ -83,12 +83,12 @@ export default function CombatVisualizer({ status, onAnimationComplete }: Combat
 
 ---
 
-## 👾 3. Résolution des Animations Pixel Art avec CSS Steps
+## 3. Résolution des Animations Pixel Art avec CSS Steps
 
-Si nous souhaitons conserver un rendu purement CSS/HTML sans passer par un Canvas lourd, nous pouvons utiliser l'astuce des **CSS steps()** en corrigeant le bug actuel de positionnement.
+Si nous souhaitons conserver un rendu purement CSS/HTML sans passer par un Canvas lourd, nous pouvons utiliser l'astuce des **CSS steps()**, à condition de corriger le bug de positionnement (correction faite, voir ci-dessous).
 
-### Correction du Bug de Positionnement (Inline Styles)
-Actuellement, [EnemySprite.tsx](file:///c:/Users/joan7/Desktop/projet%20fil%20rouge/codeforge/components/ui/EnemySprite.tsx) écrase l'animation de translation X car il définit `backgroundPosition: "0px 0px"` en dur dans l'attribut `style`. 
+### Correction du Bug de Positionnement (Inline Styles) — faite
+[EnemySprite.tsx](../components/ui/EnemySprite.tsx) écrasait l'animation de translation X car il définissait `backgroundPosition: "0px 0px"` en dur dans l'attribut `style`. La correction ci-dessous est en place.
 
 **Correction CSS/React :**
 1. Supprimer `backgroundPosition: "0px 0px"` de l'attribut `style` inline.
@@ -113,9 +113,9 @@ Actuellement, [EnemySprite.tsx](file:///c:/Users/joan7/Desktop/projet%20fil%20ro
 
 ---
 
-## 🧠 4. Niveau Supérieur : Le Code Interactif (CodinGame Pur)
+## 4. Niveau Supérieur : Le Code Interactif (CodinGame Pur)
 
-Pour aller encore plus loin et offrir une expérience véritablement identique à *CodinGame*, le code de l'élève peut être exécuté **pendant** l'animation en lui transmettant des données de jeu à chaque tick :
+Pour aller encore plus loin et offrir une expérience proche de *CodinGame*, le code de l'élève peut être exécuté **pendant** l'animation en lui transmettant des données de jeu à chaque tick :
 
 1. **Le Défi :** L'élève doit écrire une fonction JavaScript pour détruire des météores arrivant à des distances différentes.
 2. **Le Code Étudiant :**

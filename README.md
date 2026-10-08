@@ -8,16 +8,16 @@ fait **valider en direct**, et gagne de l'XP et des badges au fil des missions.
 
 ---
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
 - **Authentification complète** : inscription, vérification d'email, connexion, mot de passe oublié / réinitialisation.
 - **4 cursus complets** (HTML, CSS, JavaScript, React) + **10 cursus en aperçu** — chapitre pilote (TypeScript, Git, SQL, Node.js, Tests, DevOps, MongoDB, Sécurité, Python, Algo), signalés « Aperçu » dans le catalogue.
 - **Éditeur de code intégré** (Monaco) avec **validation des exercices en direct**.
-- **Exécution sécurisée du code étudiant** dans un sandbox isolé (iframe à origine opaque).
+- **Exécution sécurisée du code étudiant** dans des iframes `sandbox` servies depuis une origine dédiée (`/bac-a-sable`), ce qui laisse à l'application une CSP stricte à nonce.
 - **Gamification** : XP, niveaux, séries (streak), badges, classement.
 - **Avatar personnalisable** (espèce, rôle, couleur).
 
-## 🧱 Stack technique
+## Stack technique
 
 | Domaine | Technologies |
 |---|---|
@@ -26,9 +26,9 @@ fait **valider en direct**, et gagne de l'XP et des badges au fil des missions.
 | Base de données | PostgreSQL via Prisma (`@prisma/adapter-pg`) |
 | Email | Resend (emails transactionnels) |
 | UI | Tailwind CSS v4, Monaco Editor, Three.js |
-| Qualité | Vitest, ESLint, GitHub Actions (CI) |
+| Qualité | Vitest, Playwright, ESLint, TypeScript (`tsc`), GitHub Actions (CI) |
 
-## 🚀 Démarrage rapide
+## Démarrage rapide
 
 **Prérequis :** Node.js 22+, pnpm, une base PostgreSQL.
 
@@ -48,7 +48,7 @@ pnpm dev
 
 Ouvre ensuite [http://localhost:3000](http://localhost:3000).
 
-## 📜 Scripts
+## Scripts
 
 | Script | Action |
 |---|---|
@@ -56,19 +56,24 @@ Ouvre ensuite [http://localhost:3000](http://localhost:3000).
 | `pnpm build` | build de production |
 | `pnpm start` | lance le build de production |
 | `pnpm lint` | analyse ESLint |
+| `pnpm typecheck` | vérification des types TypeScript (`tsc --noEmit`) |
 | `pnpm test` | tests unitaires (Vitest, mode watch) |
 | `pnpm test:run` | tests unitaires (exécution unique, utilisée par la CI) |
+| `pnpm test:e2e` | tests de bout en bout (Playwright) |
 
-## 🧪 Tests
+## Tests
 
-Tests unitaires avec **Vitest** sur les fonctions pures (validateurs, XP, helpers).
+- Tests unitaires avec **Vitest** sur les fonctions pures (validateurs, XP, helpers, bac à sable).
+- Tests de bout en bout avec **Playwright** (dossier `e2e/`) : parcours utilisateur et contrôles de sécurité, dans Chromium. Ils exigent une base PostgreSQL migrée et Chromium installé (`pnpm exec playwright install chromium`).
+
 Détails et périmètre dans [`docs/TESTING.md`](docs/TESTING.md).
 
 ```bash
-pnpm test:run
+pnpm test:run   # tests unitaires
+pnpm test:e2e   # tests de bout en bout
 ```
 
-## 🗂️ Structure du projet
+## Structure du projet
 
 ```
 app/                Pages (App Router), routes API, layouts
@@ -78,11 +83,12 @@ lib/                Logique serveur : auth, validators, tokens, email, db, xp
 lib/validators/     Validateurs d'exercices (un par étape)
 lib/sandbox/        Exécution isolée du code étudiant
 prisma/             Schéma et migrations
+e2e/                Tests de bout en bout (Playwright)
 docs/               Documentation technique et de soutenance
 auth.ts / auth.config.ts / proxy.ts   Auth.js + middleware
 ```
 
-## 📚 Documentation
+## Documentation
 
 | Document | Sujet |
 |---|---|
@@ -96,13 +102,14 @@ auth.ts / auth.config.ts / proxy.ts   Auth.js + middleware
 | [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Mise en production |
 | [`docs/TESTING.md`](docs/TESTING.md) | Tests & CI |
 | [`docs/RGPD.md`](docs/RGPD.md) | Conformité données personnelles |
+| [`docs/audit-securite/README.md`](docs/audit-securite/README.md) | Audit de sécurité et corrections |
 | [`docs/SOUTENANCE_CHECKLIST.md`](docs/SOUTENANCE_CHECKLIST.md) | Checklist des livrables |
 
-## ☁️ Déploiement
+## Déploiement
 
 Guide complet dans [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) (variables d'environnement,
 domaine d'envoi Resend, migrations, build).
 
-## 📄 Licence
+## Licence
 
 Voir le fichier [`LICENSE`](LICENSE).

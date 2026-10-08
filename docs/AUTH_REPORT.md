@@ -1,8 +1,20 @@
 # Rapport technique — Authentification
 
-**Projet :** CodeForge / Nebula Command
+**Projet :** La Forge du Code / Nebula Command
 **Périmètre :** mécanisme d'authentification, d'autorisation et de gestion de compte
 **Date :** 2026-06-17
+
+> **Mise à jour (septembre 2026).** Ce rapport décrit l'état du 2026-06-17.
+> Plusieurs points ont changé depuis, notamment à la suite de l'audit de sécurité
+> du 2026-09-12 ([suivi des constats](audit-securite/README.md)) :
+>
+> - les tokens à usage unique sont stockés hachés (SHA-256) en base (ticket CF-1 de [ROADMAP.md](ROADMAP.md)) ;
+> - les sessions sont révocables : chaque compte porte une `sessionVersion`, incrémentée à la réinitialisation du mot de passe, et le JWT dure 7 jours ([SRV-03](audit-securite/corrections/SRV-03.md)) ;
+> - la limitation de débit s'appuie sur Upstash Redis, obligatoire sur Vercel ([SRV-01](audit-securite/corrections/SRV-01.md)) ;
+> - un compte est verrouillé après 10 échecs de connexion en 15 minutes ([SRV-07](audit-securite/corrections/SRV-07.md)) ;
+> - l'inscription ne révèle plus si une adresse a déjà un compte, au lieu du 409 décrit au §4.1 ([SRV-05](audit-securite/corrections/SRV-05.md)) ;
+> - les routes qui modifient des données contrôlent l'en-tête `Origin`, et la suppression du compte exige le mot de passe ([SRV-09](audit-securite/corrections/SRV-09.md)) ;
+> - la CSP, à nonce, est posée par `proxy.ts` et non plus par `next.config.ts` ([EXE-03](audit-securite/corrections/EXE-03.md)).
 
 ---
 
