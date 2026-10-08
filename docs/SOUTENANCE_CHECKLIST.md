@@ -62,7 +62,6 @@ Liste complète des documents et éléments à produire pour le projet et sa sou
 - [x] **Guide d'installation / setup dev** — à la racine dans le [README.md](../README.md), section « Démarrage rapide ».
 - [x] **Guide de déploiement** — `DEPLOYMENT.md`.
 - [ ] **Manuel utilisateur** — prise en main côté apprenant (court).
-- [x] **Fichiers `AGENTS.md` / `CLAUDE.md`** — générés par Next.js.
 
 ## 9. Livrables de soutenance
 

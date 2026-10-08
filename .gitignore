@@ -62,9 +62,12 @@ next-env.d.ts
 
 /lib/generated/prisma
 
-# configuration locale des assistants de code
+# configuration locale des assistants de code ; AGENTS.md et CLAUDE.md sont
+# recréés par `next dev` quand un assistant le lance
 .claude/
 .agents/
+/AGENTS.md
+/CLAUDE.md
 
 # exports de la documentation (gardés en local)
 /docs/*.pdf
