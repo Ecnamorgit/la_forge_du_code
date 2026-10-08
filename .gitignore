@@ -18,17 +18,12 @@
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-# Session e2e partagee, ecrite par e2e/global-setup.ts
+# session e2e partagée, écrite par e2e/global-setup.ts
 /playwright/.auth/
 
-# monaco assets self-hébergés (copiés par scripts/copy-monaco.mjs)
+# fichiers générés par les scripts predev/prebuild
 /public/monaco/
-# bundle du runtime React genere par scripts/build-react-runtime.mjs — sauf
-# probe.js, ecrit a la main et suivi par git (force-add), qui sert la sonde
-# CSP e2e (e2e/csp-srcdoc-script.spec.ts).
 /public/react-runtime/
-# fichiers WebAssembly de sql.js, copies par scripts/copy-sql-wasm.mjs, et
-# worker SQL bundle par scripts/build-sql-worker.mjs
 /public/sql/*.wasm
 /public/sql/sql-worker.js
 
@@ -67,9 +62,10 @@ next-env.d.ts
 
 /lib/generated/prisma
 
-# Local agent config
+# configuration locale des assistants de code
 .claude/
+.agents/
 
-# Generated documentation deliverables (kept locally, not versioned)
+# exports de la documentation (gardés en local)
 /docs/*.pdf
 /docs/*.pptx
