@@ -7,8 +7,6 @@ import { E2E_USER, STORAGE_STATE } from "./global-setup";
 /**
  * Efface la progression du compte e2e sur un chapitre : l'interface ouvre la
  * première étape non faite, et le compte est partagé entre tests et specs.
- * Sans ça, un test qui valide une étape ferait démarrer le suivant sur la
- * mauvaise étape.
  */
 async function repartirDuDebut(course: string, chapter: string): Promise<void> {
   assertTestDatabaseUrl(process.env.DATABASE_URL);
@@ -25,12 +23,8 @@ async function repartirDuDebut(course: string, chapter: string): Promise<void> {
 }
 
 /**
- * Parcours HTML de bout en bout.
- *
- * 1) On joue intégralement le chapitre 1 (3 étapes) : saisie dans Monaco →
- *    DEPLOYER → bannière de réussite → étape suivante → écran de complétion.
- * 2) On vérifie que le panneau de référence (docRefs) fonctionne sur un
- *    chapitre tardif (ch8), preuve que le câblage docRefs ch2-8 est actif.
+ * Parcours HTML de bout en bout : le chapitre 1 joué jusqu'à l'écran de
+ * complétion, puis le panneau de référence sur un chapitre tardif.
  */
 
 async function login(page: Page): Promise<void> {
@@ -41,17 +35,15 @@ async function login(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
 }
 
-/** Remplace tout le contenu de l'éditeur Monaco par `code`. */
 async function setEditorContent(page: Page, code: string): Promise<void> {
   const editor = page.locator(".monaco-editor").first();
   await editor.click();
-  // Ctrl+A sélectionne tout DANS Monaco (éditeur focus), puis insertText
-  // remplace la sélection sans déclencher l'auto-fermeture des balises.
+  // insertText remplace la sélection sans déclencher l'auto-fermeture des
+  // balises de Monaco.
   await page.keyboard.press("Control+A");
   await page.keyboard.insertText(code);
 }
 
-// Solutions valides pour chaque étape du chapitre 1.
 const CH1_SOLUTIONS = [
   "<!DOCTYPE html>\n<html></html>",
   "<!DOCTYPE html>\n<html>\n<head>\n<title>Mission Selene</title>\n</head>\n</html>",
@@ -59,21 +51,11 @@ const CH1_SOLUTIONS = [
 ];
 
 /**
- * Constat EXE-03 : l'aperçu HTML n'est plus un `srcdoc` (qui hérite de la CSP
- * du site) mais une coquille chargée par `src` depuis une origine DÉDIÉE, qui
- * rend le HTML de l'apprenant dans une iframe imbriquée. On vérifie deux choses
- * qu'un `srcdoc` rendait impossibles : la coquille est servie depuis une autre
- * origine que l'app, et le HTML de l'apprenant s'y rend bien (deux niveaux
- * d'iframe traversés par Playwright au niveau du protocole).
- *
- * Placé en tête de fichier : le chapitre 1 est encore vierge pour l'utilisateur
- * E2E (recréé à chaque run), avant que le test de complétion ne le termine.
+ * L'aperçu HTML est une coquille chargée par `src` depuis une origine dédiée
+ * (audit EXE-03), qui rend le HTML de l'apprenant dans une iframe imbriquée.
  */
 test.describe("aperçu HTML sur l'origine dédiée", () => {
-  // Session partagée écrite par global-setup, PAS de connexion formulaire : le
-  // budget de connexion par IP (10 / 5 min, en mémoire) est partagé par toute
-  // la suite, et une connexion de plus ici faisait déborder `trial.spec.ts`,
-  // dernier de l'ordre d'exécution (échec dur en CI, pas seulement flaky).
+  // Session partagée écrite par global-setup (limite de connexions par IP).
   test.use({ storageState: STORAGE_STATE });
 
   test("l'aperçu HTML est rendu depuis une origine distincte", async ({ page }) => {
@@ -93,16 +75,13 @@ test.describe("aperçu HTML sur l'origine dédiée", () => {
     `l'aperçu (${origineApercu}) doit être servi depuis une autre origine que l'app (${origineApp})`
   ).not.toBe(origineApp);
 
-  // HTML volontairement INVALIDE pour l'étape (pas de <!DOCTYPE>) : il se rend
-  // quand même, mais ne déclenche ni bannière de réussite ni avancement d'étape
-  // — ce test prouve le RENDU cross-origin, pas la validation.
+  // Sans <!DOCTYPE>, ce HTML se rend sans valider l'étape : seul le rendu
+  // est vérifié ici.
   await setEditorContent(page, "<h1>Bonjour Nebula</h1>");
   await page.getByRole("button", { name: /DEPLOYER/ }).click();
 
-  // Le HTML se rend dans la scène imbriquée (coquille → scène) : on entre les
-  // DEUX frames en chaînant `frameLocator` depuis `page`. On cible par sélecteur
-  // DOM et non `getByRole` : l'arbre d'accessibilité ne traverse pas de façon
-  // fiable deux iframes opaques imbriquées (vérifié empiriquement).
+  // Sélecteur DOM plutôt que `getByRole` : l'arbre d'accessibilité ne traverse
+  // pas de façon fiable deux iframes opaques imbriquées.
   const scene = page
     .frameLocator('iframe[title="Apercu"]')
     .frameLocator('iframe[title="Rendu HTML"]');
@@ -130,12 +109,10 @@ test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async 
     await setEditorContent(page, CH1_SOLUTIONS[i]);
     await page.getByRole("button", { name: /DEPLOYER/ }).click();
 
-    // Feedback de validation.
     await expect(page.getByText("SYSTÈME EN LIGNE")).toBeVisible({
       timeout: 10_000,
     });
 
-    // Bannière de réussite → bouton d'avancement.
     const bannerBtn = page.getByRole("button", {
       name: isLast ? /TERMINER LE PROTOCOLE/ : /SYSTÈME SUIVANT/,
     });
@@ -143,17 +120,14 @@ test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async 
     await bannerBtn.click();
 
     if (isLast) {
-      // L'outro de chapitre s'intercale toujours avant l'écran de complétion :
-      // l'utilisateur E2E est recréé à chaque run (e2e/global-setup.ts), il
-      // n'a donc jamais vu cette cinématique. Assertion stricte pour attraper
-      // une régression de l'auto-play.
+      // L'outro précède l'écran de complétion : l'utilisateur E2E, recréé à
+      // chaque run, ne l'a jamais vue.
       await expect(page.getByTestId("cinematic-player")).toBeVisible({
         timeout: 15_000,
       });
       await page.getByTestId("cinematic-skip").click();
       await expect(page.getByText(/COMPLÉTÉE/)).toBeVisible({ timeout: 10_000 });
     } else {
-      // L'étape suivante est montée (nouveau startCode dans l'éditeur).
       await expect(
         page.getByText(`Étape ${i + 2} sur ${total}`).first()
       ).toBeVisible({ timeout: 10_000 });

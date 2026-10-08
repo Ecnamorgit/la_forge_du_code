@@ -1,14 +1,13 @@
--- Démonstration du constat SRV-04 (audit de sécurité du 2026-09-12) : la Row
--- Level Security bloque un rôle non privilégié (comme la clé publique « anon »
--- de Supabase / PostgREST), sans gêner le propriétaire des tables (le rôle par
--- lequel Prisma se connecte).
+-- Démonstration de la Row Level Security (audit SRV-04) : elle bloque un rôle
+-- non privilégié, comme la clé publique « anon » de Supabase, sans gêner le
+-- propriétaire des tables, rôle par lequel Prisma se connecte.
 --
--- À lancer sur une base de TEST, jamais la production :
+-- À lancer sur une base de test, jamais en production :
 --   docker exec -i codeforge-e2e psql -U postgres -d codeforge_test < scripts/demontrer-rls.sql
 --
 -- La migration 20260914102000_enable_row_level_security active la RLS ; ce
--- script la bascule temporairement pour montrer l'avant / après, puis remet
--- l'état activé et nettoie ses objets de test.
+-- script la désactive le temps de montrer la différence, puis la réactive et
+-- supprime ses objets de test.
 
 INSERT INTO "User" (id, email, username, password, "lastVisit")
 VALUES ('rls-temoin', 'rls@codeforge.test', 'rlstemoin', 'x', '') ON CONFLICT (id) DO NOTHING;

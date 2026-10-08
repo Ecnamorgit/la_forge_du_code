@@ -17,15 +17,13 @@ test("intro de cursus : rejouable via le bouton, jamais deux auto-play", async (
   await page.goto("/learn/html");
 
   const player = page.getByTestId("cinematic-player");
-  // L'utilisateur E2E est recréé à chaque run (e2e/global-setup.ts) : ses
-  // CinematicView sont donc toujours vides et l'auto-play de l'intro est
-  // attendu, pas seulement toléré. Assertion stricte pour que la régression
-  // « l'intro ne se joue plus » fasse échouer la suite.
+  // L'utilisateur E2E, recréé à chaque run, n'a jamais vu l'intro : sa
+  // lecture automatique est attendue.
   await expect(player).toBeVisible({ timeout: 15_000 });
   await page.getByTestId("cinematic-skip").click();
   await expect(player).toHaveCount(0);
 
-  // Rechargement : plus jamais d'auto-play.
+  // Au rechargement, elle ne se relance pas.
   await page.reload();
   await expect(page.getByTestId("replay-intro")).toBeVisible({ timeout: 15_000 });
   await expect(player).toHaveCount(0);

@@ -1,14 +1,11 @@
 /**
- * Admin one-off: reset a user's password directly in the DB (bypasses email).
- * Also marks the email verified so you can log in immediately.
+ * Réinitialise directement en base le mot de passe d'un utilisateur, sans
+ * passer par l'e-mail, et marque son adresse comme vérifiée.
  *
- * Usage:
+ * Usage :
  *   npx tsx scripts/reset-password.ts <email> <newPassword>
  *
- * Example:
- *   npx tsx scripts/reset-password.ts pluriface@gmail.com MonNouveauMdp1
- *
- * Needs DATABASE_URL in .env (loaded via dotenv).
+ * Nécessite DATABASE_URL dans .env.
  */
 import "dotenv/config";
 import bcrypt from "bcryptjs";

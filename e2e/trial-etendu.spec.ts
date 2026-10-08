@@ -1,9 +1,8 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Parcours d'essai étendu (sans compte) : carte publique, chapitres 1-3
- * jouables avec cinématiques, verrous vers l'inscription au-delà.
- * Aucune session : pas de storageState.
+ * Parcours d'essai sans compte (pas de storageState) : carte publique,
+ * chapitres 1 à 3 jouables avec cinématiques, inscription requise au-delà.
  */
 
 test("la carte HTML est publique, avec verrous d'inscription au-delà du chapitre 3", async ({
@@ -13,7 +12,7 @@ test("la carte HTML est publique, avec verrous d'inscription au-delà du chapitr
   // Pas de redirection vers /login.
   await expect(page).toHaveURL(/\/learn\/html$/);
 
-  // Intro auto-jouée à la première visite (storage vierge) → skip.
+  // L'intro se lance seule à la première visite.
   await expect(page.getByTestId("cinematic-player")).toBeVisible({ timeout: 15_000 });
   await page.getByTestId("cinematic-skip").click();
   await expect(page.getByTestId("cinematic-player")).toHaveCount(0);
@@ -21,7 +20,7 @@ test("la carte HTML est publique, avec verrous d'inscription au-delà du chapitr
   // Nœuds hors essai : verrouillés vers l'inscription.
   await expect(page.getByText("Inscription requise").first()).toBeVisible();
 
-  // Rechargement : pas de re-auto-play (nc_cine_seen).
+  // Une fois vue (nc_cine_seen), elle ne se relance pas au rechargement.
   await page.reload();
   await expect(page.getByTestId("replay-intro")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId("cinematic-player")).toHaveCount(0);
@@ -60,7 +59,7 @@ test("le chapitre 1 en essai joue l'outro puis propose le chapitre suivant", asy
     await bannerBtn.click();
   }
 
-  // Outro du chapitre 1, CTA « Chapitre suivant » → navigation vers le ch. 2.
+  // L'outro du chapitre 1 mène au chapitre 2.
   const player = page.getByTestId("cinematic-player");
   await expect(player).toBeVisible({ timeout: 10_000 });
   await page.getByRole("button", { name: /Chapitre suivant/ }).click();

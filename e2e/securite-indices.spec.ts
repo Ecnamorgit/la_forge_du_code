@@ -3,16 +3,9 @@ import { test, expect } from "@playwright/test";
 import { STORAGE_STATE } from "./global-setup";
 
 /**
- * Constat EXE-04 de l'audit de sécurité du 2026-09-12 : les indices sont
- * injectés dans la page comme du HTML.
- *
- * `HintBox` affichait `step.hint` via `dangerouslySetInnerHTML`. Or 68 indices
- * sur 192 contiennent du code HTML ou JSX à recopier : au lieu d'être montré,
- * ce code était interprété. L'indice de la première étape du chapitre 2 HTML
- * (« Ajoute <a href=…>Documentation MDN</a>. ») devenait un vrai lien dans la
- * page, et l'apprenant ne voyait jamais le code à taper. Le même mécanisme
- * injecte des <style>, <img> ou <form> dans l'interface ; et si les cours
- * passaient un jour en base de données, ce serait une XSS stockée.
+ * Les indices sont affichés comme du texte et non injectés comme du HTML
+ * (audit EXE-04) : beaucoup contiennent du code HTML ou JSX à recopier, comme
+ * celui de la première étape du chapitre 2 HTML.
  */
 
 test.use({ storageState: STORAGE_STATE });

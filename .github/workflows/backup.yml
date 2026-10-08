@@ -1,36 +1,25 @@
 name: Sauvegarde de la base
 
-# Le plan gratuit Supabase n'inclut aucune sauvegarde (constaté le 2026-08-06,
-# « Free Plan does not include project backups »). Ce workflow prend le relais :
-# un pg_dump quotidien, chiffré, déposé en artefact.
+# Le plan gratuit Supabase n'inclut aucune sauvegarde : ce workflow fait un
+# pg_dump quotidien et le dépose en artefact. Le dump contient les e-mails et
+# les hachés de mots de passe : il est chiffré avant de quitter le runner.
 #
-# Le dump contient les emails et les hashs de mots de passe des utilisateurs.
-# Il est donc chiffré AVANT de quitter le runner : l'artefact est inexploitable
-# sans la passphrase, qui ne transite jamais par le dépôt.
+# Secrets à créer dans Settings > Secrets and variables > Actions.
+# BACKUP_DATABASE_URL reçoit la valeur de DIRECT_URL, le pooler sur le port
+# 5432 (mode session) : le port 6543 (mode transaction) casse pg_dump, et
+# db.<ref>.supabase.co, en IPv6 seul sur les projets gratuits, est injoignable
+# depuis un runner GitHub. BACKUP_PASSPHRASE, la phrase de chiffrement, doit
+# aussi être conservée hors de GitHub.
 #
-# Deux secrets à créer dans Settings → Secrets and variables → Actions :
-#   BACKUP_DATABASE_URL  la valeur de DIRECT_URL, c'est-à-dire le pooler sur le
-#                        port 5432 (mode SESSION). Ce qui compte est le port,
-#                        pas le pooler : en 6543 pgbouncer est en mode
-#                        transaction et casse pg_dump ; en 5432 il est en mode
-#                        session et se comporte comme une connexion directe.
-#                        Ne PAS utiliser db.<ref>.supabase.co : cette connexion
-#                        vraiment directe est en IPv6 seul sur les projets
-#                        gratuits, et un runner GitHub ne l'atteint pas.
-#   BACKUP_PASSPHRASE    la phrase de chiffrement — à conserver AILLEURS que
-#                        dans GitHub, sinon perdre le compte, c'est perdre les
-#                        sauvegardes avec.
-#
-# Restauration : cf. docs/DEPLOYMENT.md §7.
+# Restauration : docs/DEPLOYMENT.md, section 7.
 
 on:
   schedule:
-    # 03:00 UTC chaque jour. GitHub peut décaler l'exécution en cas de charge :
-    # c'est sans importance pour une sauvegarde quotidienne.
+    # 03:00 UTC chaque jour (GitHub peut retarder l'exécution en cas de charge).
     - cron: "0 3 * * *"
   workflow_dispatch:
 
-# Deux sauvegardes simultanées n'apportent rien et se marchent dessus.
+# Une seule sauvegarde à la fois.
 concurrency:
   group: sauvegarde-base
   cancel-in-progress: false
@@ -40,10 +29,8 @@ jobs:
     name: pg_dump chiffré
     runs-on: ubuntu-latest
     steps:
-      # Ces contrôles existent parce que `pg_dump` échoue de façon illisible sur
-      # une URL mal formée : « invalid connection option "DIRECT_URL" » quand on
-      # a colle la ligne entière du .env au lieu de la seule valeur. Mieux vaut
-      # nommer l'erreur ici que la laisser deviner.
+      # `pg_dump` échoue de façon illisible sur une URL mal formée, par exemple
+      # la ligne entière du .env au lieu de sa valeur : l'erreur est nommée ici.
       - name: Vérifier les secrets
         env:
           URL: ${{ secrets.BACKUP_DATABASE_URL }}
@@ -82,16 +69,10 @@ jobs:
 
           echo "Secrets présents, URL de forme correcte."
 
-      # `pg_dump` refuse de sauvegarder un serveur plus récent que lui, et le
-      # serveur Supabase est en 17.6 (constaté le 2026-08-06). L'image du runner
-      # fournit un client 16 : on installe donc le 17 depuis PGDG.
-      #
-      # Installer ne suffit pas. `/usr/bin/pg_dump` n'est pas un binaire mais le
-      # wrapper de postgresql-common, qui a continué de choisir le 16 déjà
-      # présent — d'où un premier échec sur « server version mismatch » alors
-      # que le paquet 17 était bien installé. On appelle donc le binaire
-      # versionné par son chemin absolu, et on refuse de continuer s'il ne
-      # rapporte pas la version attendue.
+      # `pg_dump` refuse un serveur plus récent que lui : Supabase est en 17 et
+      # le runner fournit un client 16, d'où l'installation du 17 depuis PGDG.
+      # `/usr/bin/pg_dump` est le wrapper de postgresql-common, qui choisirait
+      # encore le 16 : le binaire versionné est appelé par son chemin absolu.
       - name: Installer postgresql-client 17
         run: |
           set -euo pipefail

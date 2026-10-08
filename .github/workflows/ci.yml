@@ -1,7 +1,7 @@
 name: CI
 
-# Intégration continue : à chaque push / pull request sur main et dev,
-# on installe les dépendances, on lint, puis on lance les tests unitaires.
+# Lint, typecheck, tests unitaires, build et e2e à chaque push ou pull request
+# sur main et dev.
 on:
   push:
     branches: [main, dev]
@@ -30,8 +30,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Le client Prisma est généré (lib/generated/prisma) et nécessaire au
-      # typecheck comme au build.
+      # Client Prisma généré (lib/generated/prisma), nécessaire au typecheck
+      # comme au build.
       - name: Generate Prisma client
         run: pnpm prisma generate
 
@@ -44,10 +44,9 @@ jobs:
       - name: Tests unitaires
         run: pnpm test:run
 
-      # Build de production. DATABASE_URL factice : aucune page n'interroge la
-      # base au build (pas de generateStaticParams), l'URL sert juste à
-      # instancier le pool Prisma à l'import. La validation d'env (fail-fast)
-      # ne tourne qu'au démarrage du serveur, pas au build.
+      # DATABASE_URL factice : aucune page n'interroge la base au build, l'URL
+      # sert seulement à instancier le pool Prisma. La validation de
+      # l'environnement n'a lieu qu'au démarrage du serveur.
       - name: Build
         run: pnpm build
         env:
@@ -74,24 +73,17 @@ jobs:
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
       DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
       AUTH_SECRET: ci-e2e-secret-not-used-1234567890
-      # La suite tourne contre `pnpm build && pnpm start`, pas `pnpm dev` :
-      # c'est la seule façon d'émettre la CSP (next.config.ts, garde `isProd`)
-      # et donc d'exercer réellement l'aperçu React sous la vraie politique.
-      # Cf. docs/BRIEF_CSP_GARDE_FOU.md
+      # Suite lancée contre `pnpm build && pnpm start` : la CSP n'est émise
+      # qu'en production (proxy.ts, garde `CSP_ACTIVE`). Voir
+      # docs/audit-securite/corrections/EXE-03.md.
       E2E_PROD: "1"
-      # `instrumentation.ts` valide l'environnement avant la première requête,
-      # et `lib/env.ts` durcit ses règles sous NODE_ENV=production : APP_URL
-      # https non-localhost, et RESEND_API_KEY présente. Valeurs factices —
-      # aucune spec n'envoie d'email ni ne clique un lien de vérification
-      # (e2e/global-setup.ts crée l'utilisateur déjà vérifié, en base).
+      # En production, `lib/env.ts` exige une APP_URL https non-localhost et une
+      # RESEND_API_KEY. Valeurs factices : aucune spec n'envoie d'e-mail.
       APP_URL: https://ci.codeforge.invalid
       RESEND_API_KEY: ci-e2e-key-not-used
-      # Auth.js ne fait confiance à l'hôte automatiquement qu'en développement ;
-      # sous NODE_ENV=production il refuse localhost avec UntrustedHost.
-      # En local le problème ne se voit pas : `next start` charge `.env`, qui
-      # définit cette variable. La CI n'a pas de `.env` — d'où la ligne ici.
-      # `lib/env.ts` la déclare optional() : ne pas être validée ne veut pas
-      # dire être facultative. Requise en production (cf. docs/DEPLOYMENT.md).
+      # Sans elle, Auth.js refuse localhost en production (UntrustedHost). En
+      # local, `.env` la fournit ; elle est aussi requise en production
+      # (docs/DEPLOYMENT.md) bien que `lib/env.ts` la déclare optionnelle.
       AUTH_TRUST_HOST: "true"
     steps:
       - name: Checkout

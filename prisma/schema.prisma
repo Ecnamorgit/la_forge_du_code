@@ -1,5 +1,5 @@
-// Prisma schema for Nebula Command (CodeForge)
-// PostgreSQL for production-ready persistence. URL is configured in prisma.config.ts.
+// Schéma Prisma de La Forge du Code (PostgreSQL). L'URL est configurée dans
+// prisma.config.ts.
 
 generator client {
   provider = "prisma-client"
@@ -10,7 +10,7 @@ datasource db {
   provider = "postgresql"
 }
 
-// --- Auth.js core models (Prisma adapter requirements) -------------------
+// Modèles requis par l'adaptateur Prisma d'Auth.js
 
 model User {
   id            String    @id @default(cuid())
@@ -19,28 +19,28 @@ model User {
   name          String?
   image         String?
 
-  // App-specific fields
+  // Champs propres à l'application
   username     String    @unique
-  password     String? // hashed (credentials provider); null for OAuth-only users
-  // Version de session : incrémentée à chaque réinitialisation de mot de passe
-  // pour révoquer les sessions JWT émises avant (constat SRV-03). Le jeton porte
-  // la version au moment de la connexion ; une divergence invalide la session.
+  password     String? // haché ; null pour un compte OAuth seul
+  // Incrémentée à chaque réinitialisation de mot de passe pour révoquer les
+  // sessions JWT émises avant (audit SRV-03) : le jeton porte la version lue à
+  // la connexion, et une divergence invalide la session.
   sessionVersion Int      @default(0)
   joinedAt     DateTime  @default(now())
   totalXp      Int       @default(0)
   streak       Int       @default(1)
-  lastVisit         String    @default("") // ISO date (yyyy-mm-dd) du dernier jour ACTIF (travail réel, pas visite)
-  lastDailyMission  String    @default("") // ISO date (yyyy-mm-dd) of last daily-mission claim
-  lastVisitedCourse String? // slug of the last course the user actively interacted with
-  onboardedAt       DateTime? // null until the user finishes the first-login briefing
+  lastVisit         String    @default("") // date ISO (yyyy-mm-dd) du dernier jour actif (travail réel, pas simple visite)
+  lastDailyMission  String    @default("") // date ISO du jour auquel se rapporte dailyClaimed
+  lastVisitedCourse String? // slug du dernier cursus pratiqué
+  onboardedAt       DateTime? // null tant que le briefing de première connexion n'est pas terminé
 
-  // --- Boucle quotidienne -------------------------------------------------
+  // Boucle quotidienne
   bestStreak        Int     @default(1) // record permanent de liaison
   streakShields     Int     @default(0) // relais de secours détenus (max 2)
   shieldEverGranted Boolean @default(false) // le relais offert du 3e jour n'est donné qu'une fois
   questsCompleted   Int     @default(0) // total d'ordres validés (badges de conduite)
   perfectBriefingRun Int    @default(0) // briefings complets d'affilée
-  lastPerfectDay    String  @default("") // ISO date du dernier briefing complet
+  lastPerfectDay    String  @default("") // date ISO du dernier briefing complet
   dailyClaimed      Int     @default(0) // masque de bits : 0-2 = les 3 ordres, 3 = clôture
 
   // Cosmétiques déblocables (null = valeur par défaut du catalogue)
@@ -49,7 +49,7 @@ model User {
   emblem String?
   cardBg String?
 
-  // Avatar (purely cosmetic). All null until first configuration on /avatar.
+  // Avatar, purement cosmétique : null jusqu'à la première configuration sur /avatar.
   species      String? // "humain" | "cyborg" | "synthetique" | "hybride" | "inconnue"
   uniformColor String? // "cyan" | "orange" | "green" | "purple" | "gold"
   role         String? // "pilote" | "ingenieur" | "tacticien" | "explorateur"
@@ -63,8 +63,8 @@ model User {
   cinematicViews  CinematicView[]
 }
 
-// Single-use tokens for email verification + password reset.
-// `kind` discriminates the purpose; `usedAt` enforces single-use semantics.
+// Jetons à usage unique (vérification d'e-mail, réinitialisation du mot de
+// passe) : `kind` en donne l'usage, `usedAt` empêche la réutilisation.
 model OneTimeToken {
   id        String    @id @default(cuid())
   token     String    @unique
@@ -115,7 +115,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// --- App-specific progress models ----------------------------------------
+// Progression
 
 model UserBadge {
   id         String   @id @default(cuid())

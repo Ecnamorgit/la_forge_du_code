@@ -1,6 +1,6 @@
 // Copie les assets Monaco (min/vs) dans public/monaco/vs pour les self-héberger
 // au lieu de les charger depuis le CDN jsdelivr (CF-16). Exécuté via predev /
-// prebuild. Les assets ne sont pas versionnés (cf. .gitignore).
+// prebuild ; les assets ne sont pas versionnés.
 import { cp, rm, access } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";

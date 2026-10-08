@@ -1,25 +1,22 @@
 <#
-  Crée les milestones (M1/M2/M3), les labels et les 19 issues de la roadmap
-  sur le dépôt GitHub, via l'API REST (aucune dépendance à `gh`).
+  Crée les milestones (M1 à M3), les labels et les 19 issues de la roadmap sur
+  le dépôt GitHub, via l'API REST (sans dépendance à `gh`).
 
-  PRÉREQUIS
-    1. Un Personal Access Token GitHub (classic) avec le scope `repo`,
-       ou un fine-grained token avec permission "Issues: Read and write".
-       => https://github.com/settings/tokens
-    2. Le définir dans la session AVANT de lancer le script :
-         $env:GH_TOKEN = "ghp_xxx..."
+  Prérequis : un token GitHub classic avec le scope `repo`, ou fine-grained
+  avec la permission « Issues: Read and write », défini dans la session :
+    $env:GH_TOKEN = "ghp_xxx..."
 
-  UTILISATION
+  Utilisation :
     pwsh ./scripts/create-issues.ps1
-    (ou)  powershell -File scripts\create-issues.ps1
+    powershell -File scripts\create-issues.ps1
 
-  Idempotent : relançable sans dupliquer milestones/labels (les issues, elles,
-  seront recréées à chaque exécution — ne lance le bloc issues qu'une fois).
+  Relançable sans dupliquer milestones et labels, mais les issues sont
+  recréées à chaque exécution.
 #>
 
 $ErrorActionPreference = "Stop"
 
-# --- Config dépôt -----------------------------------------------------------
+# Dépôt cible
 $Owner = "Ecnamorgit"
 $Repo  = "la_forge_du_code"
 
@@ -43,7 +40,7 @@ function Invoke-GH {
   return Invoke-RestMethod -Method $Method -Uri $Url -Headers $Headers -Body $json -ContentType "application/json"
 }
 
-# --- 1. Milestones ----------------------------------------------------------
+# Milestones
 $milestoneDefs = @(
   @{ title = "M1 - Blockers prod";        desc = "Deployable sans faille critique" },
   @{ title = "M2 - Fiabilite";            desc = "Tient en charge, observable" },
@@ -64,7 +61,7 @@ foreach ($m in $milestoneDefs) {
   }
 }
 
-# --- 2. Labels --------------------------------------------------------------
+# Labels
 $labelDefs = @(
   @{ name = "P0"; color = "b60205"; description = "Bloquant production" },
   @{ name = "P1"; color = "d93f0b"; description = "Fiabilite" },
@@ -89,7 +86,7 @@ foreach ($l in $labelDefs) {
   }
 }
 
-# --- 3. Issues --------------------------------------------------------------
+# Issues
 $issues = @(
   @{ m="M1 - Blockers prod"; labels=@("P0","securite"); title="CF-1 - Hasher les tokens a usage unique en base"; body=@"
 **P0 - Securite - Effort M**
@@ -296,7 +293,7 @@ foreach ($iss in $issues) {
   }
   $created = Invoke-GH POST "$ApiBase/issues" $payload
   Write-Output "  #$($created.number) - $($iss.title)"
-  Start-Sleep -Milliseconds 700  # menager le rate-limit GitHub
+  Start-Sleep -Milliseconds 700  # limite de débit de l'API GitHub
 }
 
 Write-Output "`nTermine. Toutes les issues ont ete creees."

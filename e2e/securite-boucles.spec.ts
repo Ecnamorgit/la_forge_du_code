@@ -6,8 +6,7 @@ import { E2E_USER, STORAGE_STATE } from "./global-setup";
 
 /**
  * Efface la progression du compte e2e sur un chapitre : l'interface ouvre la
- * première étape non faite, et d'autres specs partagent ce compte. Sans ça,
- * le témoin tomberait sur l'étape 2 selon l'ordre d'exécution des specs.
+ * première étape non faite, et d'autres specs partagent ce compte.
  */
 async function repartirDuDebut(course: string, chapter: string): Promise<void> {
   assertTestDatabaseUrl(process.env.DATABASE_URL);
@@ -24,21 +23,16 @@ async function repartirDuDebut(course: string, chapter: string): Promise<void> {
 }
 
 /**
- * Constat EXE-02 de l'audit de sécurité du 2026-09-12 : une boucle sans fin
- * dans le code de l'apprenant fige l'onglet entier.
- *
- * Le JavaScript s'exécute dans une iframe `srcdoc` sandboxée qui, dans
- * Chromium, partage le fil d'exécution de la page (vérifié le 2026-07-30,
- * cf. lib/sandbox/loop-guard.ts) : le délai de 3 s prévu par le parent ne se
- * déclenche jamais. Le SQL (sql.js) tourne directement sur ce fil. Dans les
- * deux cas, l'apprenant perd la main et doit recharger la page, sans message.
+ * Une boucle sans fin dans le code de l'apprenant ne doit pas figer l'onglet
+ * (audit EXE-02) : le JavaScript est instrumenté (lib/sandbox/loop-protect.ts)
+ * et le SQL s'exécute dans un Worker arrêté passé le délai.
  *
  * Chaque test a sa propre page : un onglet figé ne gêne pas les suivants.
  */
 
 test.use({ storageState: STORAGE_STATE });
 
-/** Remplace tout le contenu de l'éditeur Monaco (cf. html-parcours.spec.ts). */
+/** Remplace tout le contenu de l'éditeur Monaco. */
 async function saisir(page: Page, code: string): Promise<void> {
   const editeur = page.locator(".monaco-editor").first();
   await expect(editeur).toBeVisible({ timeout: 30_000 });
@@ -48,10 +42,8 @@ async function saisir(page: Page, code: string): Promise<void> {
 }
 
 /**
- * L'onglet exécute-t-il encore du code ? On laisse d'abord au code de
- * l'apprenant le temps de démarrer (chargement du moteur SQL, de l'iframe) et
- * au délai de 3 s de se déclencher : sonder aussitôt après le clic passerait
- * avant que la boucle ne fige quoi que ce soit.
+ * Vérifie que l'onglet exécute encore du code, après avoir laissé au code de
+ * l'apprenant le temps de démarrer et au délai d'interruption de s'écouler.
  */
 async function ongletRepond(page: Page, delaiMs = 10_000): Promise<boolean> {
   await new Promise((resolve) => setTimeout(resolve, 6_000));
@@ -61,7 +53,7 @@ async function ongletRepond(page: Page, delaiMs = 10_000): Promise<boolean> {
   ]);
 }
 
-/** Recopie les erreurs du navigateur dans la sortie du test, pour les annexes. */
+/** Recopie les erreurs du navigateur dans la sortie du test. */
 function journaliserErreurs(page: Page): void {
   page.on("console", (m) => {
     if (m.type() === "error") console.log(`[console] ${m.text()}`);
@@ -73,8 +65,7 @@ test.beforeEach(({ page }) => journaliserErreurs(page));
 
 const DEPLOYER = /DEPLOYER/;
 
-// Le témoin SQL (une requête normale est exécutée) est porté par
-// sql-moteur.spec.ts, constat EXE-07.
+// Le témoin SQL est dans sql-moteur.spec.ts.
 
 test("témoin JavaScript : un programme normal est exécuté et validé", async ({ page }) => {
   await repartirDuDebut("javascript", "chapitre-1");
@@ -94,7 +85,7 @@ test("SQL : une requête sans fin est interrompue, l'onglet reste utilisable", a
   await page.getByRole("button", { name: DEPLOYER }).click();
 
   expect(await ongletRepond(page), "l'onglet est figé").toBe(true);
-  // Le message apparaît dans le retour ET dans la console : le premier suffit.
+  // Le message apparaît aussi dans la console, d'où `.first()`.
   await expect(page.getByText(/interrompue/i).first()).toBeVisible({ timeout: 15_000 });
 });
 
@@ -108,6 +99,6 @@ test("JavaScript : une boucle sans fin est interrompue, l'onglet reste utilisabl
   await page.getByRole("button", { name: DEPLOYER }).click();
 
   expect(await ongletRepond(page), "l'onglet est figé").toBe(true);
-  // Le message apparaît dans le retour ET dans la console : le premier suffit.
+  // Le message apparaît aussi dans la console, d'où `.first()`.
   await expect(page.getByText(/interrompue/i).first()).toBeVisible({ timeout: 15_000 });
 });

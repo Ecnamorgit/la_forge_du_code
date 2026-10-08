@@ -6,16 +6,9 @@ import bcrypt from "bcryptjs";
 import { assertLocalAppUnderTest, assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
- * Session authentifiée partagée par toutes les specs.
- *
- * `auth.ts` limite les connexions à 10 par tranche de 5 minutes et par IP. La
- * suite e2e dépassait ce seuil : chaque spec se connectait pour son compte, et
- * la onzième connexion prenait un 429 puis repartait sur /login. Le test qui
- * échouait changeait d'une exécution à l'autre — c'était simplement celui qui
- * tombait onzième.
- *
- * On se connecte donc UNE fois ici et les specs réutilisent l'état. Ça supprime
- * la contention au lieu d'affaiblir la limite, qui protège la production.
+ * Session authentifiée partagée par toutes les specs : `auth.ts` limite les
+ * connexions à 10 par tranche de 5 minutes et par IP, seuil que la suite
+ * dépasserait si chaque spec se connectait elle-même.
  */
 export const STORAGE_STATE = path.join(process.cwd(), "playwright", ".auth", "e2e-user.json");
 
@@ -37,18 +30,12 @@ export const E2E_USER = {
 export default async function globalSetup(config: FullConfig): Promise<void> {
   const url = process.env.DATABASE_URL;
 
-  // AVANT toute connexion : ce fichier efface puis recrée des lignes de la
-  // table User, et le `.env` du dépôt pointe sur la base de production
-  // (docs/DEPLOYMENT.md). La garde est fermée par défaut — elle refuse tout ce
-  // dont elle n'est pas sûre — et son message dit comment monter une base de
-  // test. Cf. lib/e2e-db-guard.ts, testé sous vitest.
+  // Avant toute connexion : ce fichier efface et recrée des lignes de User, et
+  // le `.env` du dépôt pointe sur la base de production.
   assertTestDatabaseUrl(url);
 
-  // La garde ci-dessus ne voit que la base que CE processus va ensemencer.
-  // L'application testée, elle, choisit sa propre base : si elle est distante
-  // — E2E_BASE_URL, ou un `pnpm dev` déjà lancé sur le .env de production et
-  // réutilisé par `reuseExistingServer` — la première garde inspire une
-  // confiance qu'elle ne couvre pas. Cf. lib/e2e-db-guard.ts.
+  // L'application testée peut utiliser une autre base que celle ensemencée
+  // ici : cible distante (E2E_BASE_URL) ou serveur déjà lancé et réutilisé.
   assertLocalAppUnderTest(process.env.E2E_BASE_URL);
 
   const client = new Client({ connectionString: url });
@@ -73,9 +60,8 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
 }
 
 /**
- * Ouvre un navigateur, se connecte une seule fois et écrit l'état de session
- * sur disque. Les specs qui déclarent `storageState: STORAGE_STATE` démarrent
- * alors déjà authentifiées, sans repasser par le formulaire.
+ * Se connecte une fois et écrit l'état de session sur disque, repris par les
+ * specs qui déclarent `storageState: STORAGE_STATE`.
  */
 async function enregistrerSessionPartagee(config: FullConfig): Promise<void> {
   const baseURL =
@@ -94,13 +80,8 @@ async function enregistrerSessionPartagee(config: FullConfig): Promise<void> {
     try {
       await page.waitForURL(/\/dashboard/, { timeout: 30_000 });
     } catch {
-      // Le compte de test vient d'être créé, à l'instant, dans la base que la
-      // garde a validée. S'il ne permet pas de se connecter, c'est presque
-      // toujours que l'application parle à une AUTRE base que celle-là — un
-      // serveur déjà lancé sur un autre `.env` et réutilisé
-      // (`reuseExistingServer`), ou une cible distante. C'est la dernière
-      // vérification possible : les gardes statiques inspectent des variables,
-      // celle-ci constate ce que l'application fait vraiment.
+      // Le compte vient d'être créé dans la base validée par la garde : un
+      // échec ici signifie que l'application parle à une autre base.
       throw new Error(
         [
           `Connexion impossible avec le compte de test sur ${baseURL}.`,

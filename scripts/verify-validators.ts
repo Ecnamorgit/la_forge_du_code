@@ -1,11 +1,9 @@
 /**
- * Self-check for the static validators added for the previously-blocked
- * chapters. For every step it asserts two things:
- *   1. the canonical `hint` (the intended solution) PASSES validation
- *   2. the initial `startCode` (incomplete) FAILS validation
+ * Contrôle des validateurs statiques : pour chaque étape, l'indice `hint` (la
+ * solution attendue) doit passer et le `startCode` initial doit échouer.
  *
- * Run with:  npx tsx scripts/verify-validators.ts
- * Exits non-zero if any mismatch is found.
+ * Usage : npx tsx scripts/verify-validators.ts
+ * Code de sortie non nul au moindre écart.
  */
 import { getChapterData } from "@/lib/courses-registry";
 import { getValidators } from "@/lib/validators";
@@ -53,7 +51,7 @@ for (const [course, chapters] of TARGETS) {
         return;
       }
 
-      // 1. The hint (intended solution) must pass.
+      // L'indice (solution attendue) doit passer.
       checks++;
       const hintRes = validate(step.hint);
       if (!hintRes.ok) {
@@ -63,7 +61,7 @@ for (const [course, chapters] of TARGETS) {
         );
       }
 
-      // 2. The initial startCode (incomplete) must fail.
+      // Le startCode initial, incomplet, doit échouer.
       checks++;
       const startRes = validate(step.startCode);
       if (startRes.ok) {

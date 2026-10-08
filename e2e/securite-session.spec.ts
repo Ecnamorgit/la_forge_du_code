@@ -5,16 +5,9 @@ import bcrypt from "bcryptjs";
 import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
- * Constat SRV-03 de l'audit de sécurité du 2026-09-12 : les sessions JWT
- * n'étaient jamais révoquées.
- *
- * Une session est un JWT signé, non stocké. Rien ne l'invalidait : une session
- * volée restait valable jusqu'à son expiration, même après que la victime avait
- * réinitialisé son mot de passe.
- *
- * Le test connecte un compte, obtient une session, puis simule la révocation en
- * incrémentant `sessionVersion` en base — ce que fait une réinitialisation de
- * mot de passe. La session ouverte avant doit alors cesser de fonctionner.
+ * Une réinitialisation du mot de passe révoque les sessions JWT ouvertes
+ * (audit SRV-03). La révocation est simulée en incrémentant `sessionVersion`
+ * en base, comme le fait la réinitialisation.
  *
  * Compte dédié, recréé à chaque exécution.
  */
@@ -55,11 +48,9 @@ async function revoquerEnBase(): Promise<void> {
   }
 }
 
-// Connexion via l'API de next-auth, avec une IP dédiée (x-forwarded-for) : le
-// formulaire de login partage un budget de débit par IP (`login:unknown` en
-// local) avec toutes les autres specs, et une connexion de plus le ferait
-// déborder. La session s'installe dans le contexte de `page`, réutilisée par
-// les `page.request` suivants.
+// Connexion par l'API de next-auth avec une IP dédiée : le formulaire partage
+// son budget de connexions par IP avec les autres specs. La session reste dans
+// le contexte de `page`.
 async function connecter(page: Page): Promise<void> {
   const headers = { "x-forwarded-for": "198.51.100.77" };
   const { csrfToken } = await (await page.request.get("/api/auth/csrf", { headers })).json();
