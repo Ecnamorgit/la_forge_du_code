@@ -150,7 +150,7 @@ Contrôle l'**epaisseur** de la police : **normal**, **bold**, ou un nombre (100
 Souligne, barre ou enleve la décoration : **underline**, **line-through**, **none**.
 \`a { text-decoration: none; }\`
 
-**Réflexe :** pour les liens, on enleve souvent le soulignement avec **text-décoration: none**.
+**Réflexe :** pour les liens, on enleve souvent le soulignement avec **text-decoration: none**.
         `,
       },
       objectives: [
