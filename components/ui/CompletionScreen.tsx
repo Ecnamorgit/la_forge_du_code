@@ -12,9 +12,9 @@ interface CompletionScreenProps {
   totalXp: number;
   badgeIcon: string;
   badgeLabel: string;
-  /** Optional frame in /sprites/badges.png. Falls back to badgeIcon emoji. */
+  /** Case dans /sprites/badges.png ; à défaut, `badgeIcon` est affiché. */
   badgeFrame?: number;
-  /** Badge id — when set, a share button generates a public success card. */
+  /** Id du badge : s'il est fourni, un bouton de partage génère une carte publique. */
   badgeId?: string;
   /** Libellés des ordres du jour accomplis par cette étape. */
   completedQuests?: string[];

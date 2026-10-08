@@ -3,27 +3,25 @@
 import { useEffect, useState } from "react";
 
 interface LevelUpOverlayProps {
-  /** Incremented each time a celebration should be displayed. */
+  /** Incrémenté à chaque célébration à afficher. */
   trigger: number;
-  /** The level the user just reached. Ignored when `unlockLabel` is set. */
+  /** Niveau tout juste atteint ; ignoré si `unlockLabel` est fourni. */
   level: number;
   /**
-   * Libellé du cosmétique débloqué à l'instant. Quand il est fourni, l'overlay
-   * annonce ce déblocage plutôt qu'une montée de niveau — même habillage,
-   * même rythme, réutilisé pour ne pas dupliquer un composant de cérémonie.
+   * Libellé du cosmétique tout juste débloqué. S'il est fourni, l'overlay
+   * annonce ce déblocage au lieu d'une montée de niveau.
    */
   unlockLabel?: string;
 }
 
 /**
- * Big celebration overlay — "NIVEAU FRANCHI" or a cosmetic unlock reveal.
- * Auto-dismisses after ~2.4s. Mounted high in the tree so it covers the
- * whole screen, and `pointer-events-none` so it never blocks the page under
- * it (no dismiss control needed: it never intercepts a click).
+ * Célébration plein écran (montée de niveau ou déblocage), masquée après
+ * 2,4 s. En `pointer-events-none`, elle n'intercepte aucun clic et n'a donc
+ * pas besoin de bouton de fermeture.
  */
 export default function LevelUpOverlay({ trigger, level, unlockLabel }: LevelUpOverlayProps) {
-  // `show` is derived from the trigger, so we never set state synchronously
-  // inside the effect — only `dismissed`, and only from the timer callback.
+  // `show` est dérivé de `trigger` : l'effet ne modifie que `dismissed`, et
+  // seulement depuis le minuteur.
   const [dismissed, setDismissed] = useState(0);
 
   useEffect(() => {

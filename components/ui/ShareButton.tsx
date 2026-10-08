@@ -5,9 +5,9 @@ import { useUser } from "@/lib/use-user";
 import { sanitizeShareName } from "@/lib/share";
 
 /**
- * Shares a success card (growth loop). Builds the public /share/[badge] URL
- * (which carries the OG image meta) and uses the Web Share API when available,
- * falling back to a LinkedIn share intent. Only the pseudo is ever sent.
+ * Partage d'une carte de réussite. Construit l'URL publique /share/[badge]
+ * (qui porte les métadonnées de l'image OG) et passe par l'API Web Share si
+ * elle existe, sinon par LinkedIn. Seul le pseudo est transmis.
  */
 
 interface ShareButtonProps {
@@ -36,7 +36,7 @@ export default function ShareButton({ badgeId, badgeLabel, xp = 0 }: ShareButton
         await navigator.share({ title: "La Forge du Code", text, url });
         return;
       } catch {
-        // User cancelled or share failed → fall through to LinkedIn.
+        // Partage annulé ou en échec : repli sur LinkedIn.
       }
     }
     const intent = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
@@ -47,7 +47,7 @@ export default function ShareButton({ badgeId, badgeLabel, xp = 0 }: ShareButton
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch {
-        // Clipboard is best-effort.
+        // La copie dans le presse-papiers est facultative.
       }
     }
   }, [buildUrl, badgeLabel]);
@@ -57,7 +57,7 @@ export default function ShareButton({ badgeId, badgeLabel, xp = 0 }: ShareButton
       onClick={onShare}
       className="inline-flex items-center gap-2 rounded-sm border border-nebula-cyan/60 bg-nebula-cyan-faint px-5 py-2 font-tech text-xs uppercase tracking-widest text-nebula-cyan transition-all hover:bg-nebula-cyan/10"
     >
-      {copied ? "Lien copie ✓" : "Partager 🚀"}
+      {copied ? "Lien copié ✓" : "Partager 🚀"}
     </button>
   );
 }

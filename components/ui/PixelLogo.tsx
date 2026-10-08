@@ -3,50 +3,42 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Pixel-art brand logo — Coalition Nebula fleet crest, fake-3D edition.
+ * Logo pixel art : l'écusson de la flotte Coalition Nebula, en pseudo-3D.
  *
- * True 2D pixel art (hand-drawn bitmaps, nearest-neighbour scaling, no AA —
- * per docs/PIXEL_ART_GUIDE.md) composed into a pseudo-3D scene:
+ * Bitmaps dessinés à la main et agrandis sans lissage (voir
+ * docs/PIXEL_ART_GUIDE.md). L'écusson tourne sur son axe vertical comme une
+ * pièce, avec une tranche dorée visible pendant la rotation. Un chasseur
+ * humain poursuit une soucoupe extraterrestre sur une orbite elliptique
+ * inclinée en lui tirant dessus ; les vaisseaux passent derrière l'écusson.
+ * Avec `fx` (menu principal), les tirs ratés traversent tout l'écran.
  *
- *  - the crest slowly spins on its vertical axis like a coin: the face is
- *    squashed by cos(θ), a gold rim shows the thickness while turning, and
- *    both faces carry the motif (two-sided medal, back slightly dimmed),
- *  - a space chase orbits the crest on a tilted elliptical path: an alien
- *    saucer flees, pursued by a human fighter that fires laser bolts at it;
- *    both are occluded by the crest when passing behind (drawn darker),
- *  - with the `fx` prop (main menu only), missed bolts escape the logo and
- *    streak across the whole screen on a fixed overlay canvas,
- *  - the orange star twinkles on a 4-frame cycle.
- *
- * Everything renders on a tiny offscreen scene (SCENE² art pixels) then
- * upscales without smoothing, so the animation stays on one chunky pixel
- * grid, stepped at ~15 fps for a hand-animated feel. Fully static under
- * prefers-reduced-motion (no chase, no bolts, no overlay).
+ * Tout est rendu dans une petite scène hors écran (SCENE² pixels d'art) puis
+ * agrandi, à environ 15 images/s. Image fixe sous prefers-reduced-motion.
  */
 
 const PALETTE: Record<string, string> = {
-  K: "#03060d", // outline
-  F: "#ffc844", // gold light (light source top-right)
-  G: "#d9942b", // gold mid
-  g: "#8a5416", // gold shadow
-  n: "#1a2744", // field light
-  N: "#0a1628", // field base
-  s: "#050a14", // field shadow
-  O: "#ff6b2c", // star orange
-  o: "#6b2d13", // star shadow
-  W: "#ffd964", // star core
+  K: "#03060d", // contour
+  F: "#ffc844", // or clair (lumière en haut à droite)
+  G: "#d9942b", // or moyen
+  g: "#8a5416", // or ombré
+  n: "#1a2744", // fond clair
+  N: "#0a1628", // fond
+  s: "#050a14", // fond ombré
+  O: "#ff6b2c", // étoile orange
+  o: "#6b2d13", // étoile ombrée
+  W: "#ffd964", // cœur de l'étoile
   C: "#00f0ff", // code cyan
-  c: "#00a8b8", // code cyan deep
-  H: "#c8d6e5", // human hull
-  h: "#6b7d99", // human hull shadow
-  E: "#ff6b2c", // engine glow
-  v: "#7dffb8", // alien dome light
-  V: "#00b35f", // alien hull
-  u: "#006b39", // alien hull shadow
-  M: "#ff2d55", // alien lights
+  c: "#00a8b8", // code cyan foncé
+  H: "#c8d6e5", // coque humaine
+  h: "#6b7d99", // coque humaine ombrée
+  E: "#ff6b2c", // réacteur
+  v: "#7dffb8", // dôme alien clair
+  V: "#00b35f", // coque alien
+  u: "#006b39", // coque alien ombrée
+  M: "#ff2d55", // feux alien
 };
 
-/** 24×26 crest bitmap — 1 char = 1 pixel, `.` = transparent. */
+/** Écusson 24×26 : un caractère par pixel, `.` pour la transparence. */
 const CREST: string[] = [
   "..KKKKKKKKKKKKKKKKKKKK..",
   ".KFFFFFFFFFFFFFFFFFFFFK.",
@@ -76,7 +68,7 @@ const CREST: string[] = [
   "...........KK...........",
 ];
 
-/** 13×7 human fighter, nose pointing right. Mirrored at draw time. */
+/** Chasseur humain 13×7, nez vers la droite, retourné au dessin si besoin. */
 const HUMAN_SHIP: string[] = [
   "....H........",
   "....HH.......",
@@ -87,7 +79,7 @@ const HUMAN_SHIP: string[] = [
   "....H........",
 ];
 
-/** 13×6 alien saucer — symmetric, no mirroring needed. */
+/** Soucoupe extraterrestre 13×6, symétrique. */
 const ALIEN_SHIP: string[] = [
   "....vvvvv....",
   "..vVVVVVVVv..",
@@ -104,48 +96,45 @@ const SHIP_H = HUMAN_SHIP.length;
 const ALIEN_W = ALIEN_SHIP[0].length;
 const ALIEN_H = ALIEN_SHIP.length;
 
-/** Scene size in art pixels — crest centred, room for the chase orbit. */
+/** Taille de la scène en pixels d'art : écusson centré, place pour l'orbite. */
 const SCENE = 44;
 const CX = SCENE / 2;
 const CY = SCENE / 2;
 
-/** Orbit (art px) — wide ellipse, slightly tilted downward at the front. */
+/** Orbite (px d'art) : ellipse large, légèrement abaissée à l'avant. */
 const ORBIT_RX = 15;
 const ORBIT_RY = 6;
 const ORBIT_Y_OFFSET = 1;
 
-/**
- * Crest spin: showcase rhythm — hold the face readable, then a slow smooth
- * half-turn (both faces carry the same motif).
- */
-const SPIN_PERIOD = 7; // s per half-turn cycle
-const SPIN_HOLD = 4.4; // s spent facing the viewer each cycle
+/** Rotation de l'écusson : pause face au spectateur, puis demi-tour lent. */
+const SPIN_PERIOD = 7; // s par cycle de demi-tour
+const SPIN_HOLD = 4.4; // s face au spectateur à chaque cycle
 
-/** Chase ≈ 7 s/orbit; the human fighter trails the saucer. */
+/** Environ 7 s par orbite ; le chasseur suit la soucoupe. */
 const SHIP_OMEGA = (2 * Math.PI) / 7;
-const CHASE_GAP = 1.55; // rad between hunter and prey
+const CHASE_GAP = 1.55; // rad entre le chasseur et sa proie
 
 const TWINKLE_MS = 420;
-const TICK_MS = 66; // ~15 fps, chunky hand-animated feel
+const TICK_MS = 66; // environ 15 images/s
 
-/** Laser bolts (scene space, art px). */
-const BOLT_SPEED = 42; // art px/s
-const BURST_EVERY = 1.7; // s between two-shot bursts
-const SCREEN_BOLT_SPEED = 1100; // css px/s once escaped
+/** Tirs laser (espace de la scène, px d'art). */
+const BOLT_SPEED = 42; // px d'art/s
+const BURST_EVERY = 1.7; // s entre deux rafales de deux tirs
+const SCREEN_BOLT_SPEED = 1100; // px CSS/s une fois sortis du logo
 const MAX_SCREEN_BOLTS = 3;
 
 /**
- * Twinkle cycle — per frame, [row, col, colorKey] overrides applied on top
- * of the base crest. Frame 0 = base crest untouched.
+ * Scintillement : pour chaque image, surcharges [ligne, colonne, couleur]
+ * appliquées à l'écusson. L'image 0 est l'écusson de base.
  */
 const TWINKLE_FRAMES: Array<Array<[number, number, string]>> = [
   [],
-  // Star heats up: side rays appear.
+  // L'étoile chauffe : rayons latéraux.
   [
     [5, 8, "O"],
     [5, 17, "O"],
   ],
-  // Full flash: golden tips, longer rays, hot core.
+  // Éclat maximal : pointes dorées, rayons allongés, cœur brillant.
   [
     [5, 7, "O"],
     [5, 8, "O"],
@@ -158,14 +147,14 @@ const TWINKLE_FRAMES: Array<Array<[number, number, string]>> = [
     [5, 10, "W"],
     [5, 15, "W"],
   ],
-  // Cooling down.
+  // Refroidissement.
   [
     [5, 8, "O"],
     [5, 17, "O"],
   ],
 ];
 
-/** Multiplies a #rrggbb colour by `f` (0..1) — used for back/far shading. */
+/** Multiplie une couleur #rrggbb par `f` (0..1) pour assombrir revers et arrière-plan. */
 function shade(hex: string, f: number): string {
   const val = parseInt(hex.slice(1), 16);
   const r = Math.round(((val >> 16) & 0xff) * f);
@@ -174,7 +163,7 @@ function shade(hex: string, f: number): string {
   return `rgb(${r},${g},${b})`;
 }
 
-/** Rasterises a char bitmap onto a fresh 1:1 canvas. */
+/** Dessine un bitmap de caractères sur un nouveau canvas, à l'échelle 1:1. */
 function rasterise(
   bitmap: string[],
   overrides: Array<[number, number, string]> = [],
@@ -215,9 +204,9 @@ type Sprites = {
 function buildSprites(): Sprites {
   return {
     crestFront: TWINKLE_FRAMES.map((f) => rasterise(CREST, f)),
-    // Same motif on both faces (two-sided medal); the back is only dimmed.
+    // Même motif sur les deux faces ; le revers est seulement assombri.
     crestBack: TWINKLE_FRAMES.map((f) => rasterise(CREST, f, 0.85)),
-    // Rim = crest silhouette in gold, shown as the coin's thickness.
+    // Tranche : silhouette de l'écusson en or, qui figure l'épaisseur de la pièce.
     crestRim: rasterise(CREST, [], 1, (key) =>
       key === "." ? "." : key === "K" ? "K" : "G"
     ),
@@ -228,22 +217,22 @@ function buildSprites(): Sprites {
   };
 }
 
-/** A laser bolt living in scene space. */
+/** Tir laser dans l'espace de la scène. */
 type Bolt = {
   x: number;
   y: number;
   vx: number;
   vy: number;
-  /** Drawn in front of / behind the crest (decided at spawn). */
+  /** Devant ou derrière l'écusson (fixé à la création). */
   front: boolean;
-  /** Whether this bolt was aimed to miss and may escape the scene. */
+  /** Tir visé à côté, qui peut sortir de la scène. */
   miss: boolean;
 };
 
-/** A bolt streaking across the viewport (css px). */
+/** Tir qui traverse l'écran (px CSS). */
 type ScreenBolt = { x: number; y: number; vx: number; vy: number };
 
-/** Orbital position at angle `a`. */
+/** Position sur l'orbite à l'angle `a`. */
 function orbitPos(a: number) {
   return {
     x: CX + Math.cos(a) * ORBIT_RX,
@@ -286,7 +275,7 @@ function drawScene(
 
   const twinkle = Math.floor((t * 1000) / TWINKLE_MS) % TWINKLE_FRAMES.length;
 
-  // --- Chase state --------------------------------------------------------
+  // Poursuite
   const alienA = t * SHIP_OMEGA;
   const humanA = alienA - CHASE_GAP;
   const alien = orbitPos(alienA);
@@ -298,7 +287,7 @@ function drawScene(
       if (b.front !== front) continue;
       const x = Math.round(b.x);
       const y = Math.round(b.y);
-      // 2px bolt head + 1px dimmer tail against the travel direction.
+      // Tête de 2 px et traîne de 1 px plus sombre, opposée au déplacement.
       scene.fillStyle = PALETTE.C;
       scene.fillRect(x, y, Math.abs(b.vx) > Math.abs(b.vy) ? 2 : 1, Math.abs(b.vx) > Math.abs(b.vy) ? 1 : 2);
       scene.fillStyle = PALETTE.c;
@@ -339,8 +328,8 @@ function drawScene(
   drawShips(false);
   drawBolts(false);
 
-  // --- Crest, spinning on its vertical axis ------------------------------
-  // Hold facing the viewer, then ease through a half-turn (easeInOutCubic).
+  // Écusson : pause face au spectateur, puis demi-tour sur l'axe vertical
+  // (easeInOutCubic).
   const cycle = t % SPIN_PERIOD;
   const halfTurns = Math.floor(t / SPIN_PERIOD);
   let progress = 0;
@@ -354,8 +343,8 @@ function drawScene(
 
   scene.save();
   scene.translate(CX, CY);
-  // Gold rim, slightly wider than the face — the coin's thickness. Only
-  // drawn while actually turning so the resting crest stays crisp.
+  // Tranche dorée, un peu plus large que la face, dessinée seulement pendant
+  // la rotation pour garder l'écusson net au repos.
   if (facing < 0.97) {
     const rimScale = facing + 2.5 / CREST_W;
     scene.save();
@@ -364,8 +353,8 @@ function drawScene(
     scene.restore();
   }
   if (facing > 0.06) {
-    // Unsigned scale: the motif stays readable (never mirrored) on both
-    // faces — like a medal struck on both sides.
+    // Échelle non signée : le motif n'est jamais inversé, quelle que soit la
+    // face.
     scene.scale(facing, 1);
     scene.drawImage(crest[twinkle], -CREST_W / 2, -CREST_H / 2);
   }
@@ -376,9 +365,9 @@ function drawScene(
 }
 
 type PixelLogoProps = {
-  /** Logo box size in CSS pixels — the canvas overflows it for the orbit. */
+  /** Taille du logo en px CSS ; le canvas déborde pour l'orbite. */
   size: number;
-  /** Main-menu extra: missed laser bolts escape and cross the screen. */
+  /** Menu principal : les tirs laser ratés s'échappent et traversent l'écran. */
   fx?: boolean;
 };
 
@@ -404,7 +393,7 @@ export default function PixelLogo({ size, fx = false }: PixelLogoProps) {
     sceneCanvas.height = SCENE;
     const sceneCtx = sceneCanvas.getContext("2d")!;
 
-    // --- Screen-crossing bolt overlay (main menu only) --------------------
+    // Calque des tirs qui traversent l'écran (menu principal seulement).
     const screenCanvas = screenRef.current;
     const screenCtx = screenCanvas?.getContext("2d") ?? null;
     const screenBolts: ScreenBolt[] = [];
@@ -424,14 +413,14 @@ export default function PixelLogo({ size, fx = false }: PixelLogoProps) {
     const fireBolt = (t: number) => {
       const alien = orbitPos(t * SHIP_OMEGA);
       const human = orbitPos(t * SHIP_OMEGA - CHASE_GAP);
-      // Aim at the saucer with pixel-gunner accuracy: some shots go wide
-      // (those are the ones that may escape the logo).
+      // Une partie des tirs part à côté de la soucoupe : ce sont eux qui
+      // peuvent sortir du logo.
       const miss = Math.random() < 0.45;
       const wide = miss ? (Math.random() < 0.5 ? -1 : 1) * (2.5 + Math.random() * 2) : 0;
       const dx = alien.x - human.x;
       const dy = alien.y - human.y;
       const len = Math.hypot(dx, dy) || 1;
-      // Perpendicular offset for wide shots.
+      // Décalage perpendiculaire des tirs ratés.
       const px = (-dy / len) * wide;
       const py = (dx / len) * wide;
       const tx = dx + px;
@@ -448,7 +437,7 @@ export default function PixelLogo({ size, fx = false }: PixelLogoProps) {
     };
 
     const stepBolts = (t: number, dt: number) => {
-      // Two-shot bursts on a steady rhythm.
+      // Rafales de deux tirs à rythme régulier.
       if (t - lastBurst >= BURST_EVERY) {
         lastBurst = t;
         burstShots = 2;
@@ -465,7 +454,7 @@ export default function PixelLogo({ size, fx = false }: PixelLogoProps) {
         const b = bolts[i];
         b.x += b.vx * dt;
         b.y += b.vy * dt;
-        // Direct hit on the saucer: bolt is absorbed.
+        // Soucoupe touchée : le tir disparaît.
         if (!b.miss && Math.hypot(b.x - alien.x, b.y - alien.y) < 3) {
           bolts.splice(i, 1);
           continue;
@@ -474,7 +463,7 @@ export default function PixelLogo({ size, fx = false }: PixelLogoProps) {
           b.x < -2 || b.x > SCENE + 2 || b.y < -2 || b.y > SCENE + 2;
         if (!out) continue;
         bolts.splice(i, 1);
-        // Missed shots escape the logo and cross the whole screen.
+        // Les tirs ratés sortent du logo et traversent l'écran.
         if (
           screenCtx &&
           b.miss &&
@@ -518,7 +507,7 @@ export default function PixelLogo({ size, fx = false }: PixelLogoProps) {
         screenCtx.translate(b.x, b.y);
         screenCtx.rotate(Math.atan2(b.vy, b.vx));
         screenCtx.imageSmoothingEnabled = false;
-        // Chunky bolt: bright core + dimmer tail, in art-pixel units.
+        // Tir en pixels d'art : cœur brillant et traîne plus sombre.
         screenCtx.fillStyle = PALETTE.C;
         screenCtx.fillRect(0, -artScale / 2, artScale * 3, artScale);
         screenCtx.fillStyle = PALETTE.c;
@@ -540,7 +529,7 @@ export default function PixelLogo({ size, fx = false }: PixelLogoProps) {
       "(prefers-reduced-motion: reduce)"
     ).matches;
     if (reducedMotion) {
-      // Static pose: crest facing forward, both ships visible.
+      // Pose fixe : écusson de face, deux vaisseaux visibles.
       drawScene(sceneCtx, sprites, Math.PI / (2 * SHIP_OMEGA), []);
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(sceneCanvas, 0, 0, backing, backing);

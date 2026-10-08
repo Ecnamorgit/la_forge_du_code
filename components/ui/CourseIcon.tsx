@@ -3,9 +3,9 @@ import { MISSION_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import { getCourseIconFrame } from "@/lib/courses-catalog";
 
 /**
- * Renders a course's pixel icon from /sprites/mission-icons.png once that sheet
- * ships (SPRITE_SHEETS_READY.mission), otherwise the emoji fallback. The `className`
- * (e.g. a Tailwind text size) styles the emoji span so today's layout is unchanged.
+ * Icône pixel d'un cursus, tirée de /sprites/mission-icons.png quand la planche
+ * est prête (SPRITE_SHEETS_READY.mission), sinon l'emoji. `className` (par
+ * exemple une taille de texte Tailwind) s'applique aussi à l'emoji.
  */
 export default function CourseIcon({
   slug,

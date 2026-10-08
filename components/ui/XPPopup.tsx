@@ -2,10 +2,8 @@ interface XPPopupProps {
   show: boolean;
   label: string;
   /**
-   * Décale la pastille plus bas pour coexister avec le popup XP principal
-   * quand les deux sont visibles au même instant — annonce immédiate de la
-   * boucle quotidienne (ordre accompli, badge de conduite, notice de
-   * liaison), à l'étape où la récompense tombe.
+   * Décale la pastille vers le bas quand elle s'affiche en même temps que le
+   * popup XP principal (ordre accompli, badge de conduite, message de liaison).
    */
   secondary?: boolean;
 }

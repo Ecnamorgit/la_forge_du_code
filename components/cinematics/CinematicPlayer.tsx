@@ -16,7 +16,7 @@ interface CinematicPlayerProps {
   cinematic: Cinematic;
   /** Quand false, rien n'est rendu. */
   open: boolean;
-  /** Appelé à la fermeture — fin naturelle, « Passer », ou Échap. */
+  /** Appelé à la fermeture : fin naturelle, « Passer » ou Échap. */
   onClose: () => void;
   /** En reduced-motion : texte affiché d'un bloc, pas d'auto-défilement ni d'effets. */
   reducedMotion?: boolean;
@@ -62,8 +62,8 @@ export default function CinematicPlayer({
   const tickRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  // Reset à chaque ouverture (le composant reste monté entre deux ouvertures —
-  // même patron que IntroCinematic).
+  // Réinitialisation à chaque ouverture : le composant reste monté entre deux
+  // ouvertures.
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) {
@@ -90,7 +90,7 @@ export default function CinematicPlayer({
     return () => clearTimeout(timerRef.current);
   }, [open, index, reducedMotion, finish, cinematic.scenes.length]);
 
-  // Horloge de la machine à écrire (60 ms ≈ fluide sans surcoût).
+  // Horloge de la machine à écrire.
   useEffect(() => {
     if (!open || reducedMotion) return;
     clearInterval(tickRef.current);
@@ -98,8 +98,8 @@ export default function CinematicPlayer({
     return () => clearInterval(tickRef.current);
   }, [open, index, reducedMotion]);
 
-  // Cue sonore par scène — no-op tant que le son global n'est pas activé
-  // (lib/audio est gardé par setSoundEnabled, déjà piloté ailleurs).
+  // Son par scène, muet tant que le son global n'est pas activé
+  // (setSoundEnabled dans lib/audio).
   useEffect(() => {
     if (!open) return;
     if (index === cinematic.scenes.length - 1) playFanfare();
@@ -133,7 +133,7 @@ export default function CinematicPlayer({
       data-testid="cinematic-player"
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-nebula-bg-darkest outline-none"
     >
-      {/* Passer : toujours visible (règle de la spec). */}
+      {/* « Passer » reste toujours visible. */}
       <button
         onClick={finish}
         data-testid="cinematic-skip"
