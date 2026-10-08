@@ -128,7 +128,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Objet intelligent. Cursus JS termine !",
+      msg: "Objet intelligent.",
       objList: ["o4a", "o4b"],
       final: true,
     };

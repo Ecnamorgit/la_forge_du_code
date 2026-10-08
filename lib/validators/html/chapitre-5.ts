@@ -94,13 +94,19 @@ export const validators: Validator[] = [
         msg: "Ajoute une balise <textarea> dans le formulaire.",
       };
     }
-    const submit = inner.match(
-      /<button\b[^>]*type\s*=\s*["']submit["'][^>]*>[\s\S]*?<\/button>/i
-    );
-    if (!submit) {
+    // Un <button> sans attribut type soumet le formulaire (type par défaut) ;
+    // seuls type="button" et type="reset" ne l'envoient pas.
+    const boutons = inner.match(/<button\b[^>]*>[\s\S]*?<\/button>/gi) ?? [];
+    const envoie = boutons.some((b) => {
+      const type = b.match(/^<button\b[^>]*(?<![-\w])type\s*=\s*["']?([a-z]+)/i);
+      return !type || type[1].toLowerCase() === "submit";
+    });
+    if (!envoie) {
       return {
         ok: false,
-        msg: 'Ajoute un <button type="submit"> pour envoyer le formulaire.',
+        msg: boutons.length
+          ? 'Ce bouton n\'envoie pas le formulaire : utilise type="submit".'
+          : 'Ajoute un <button type="submit"> pour envoyer le formulaire.',
       };
     }
     return {

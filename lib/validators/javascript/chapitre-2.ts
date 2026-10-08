@@ -1,5 +1,5 @@
 import type { Validator } from "@/data/courses/html/types";
-import { hasKeyword, logsInclude, stripComments } from "./_utils";
+import { logsInclude, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
   return error ? `Erreur d'execution : ${error}` : null;
@@ -98,7 +98,9 @@ export const validators: Validator[] = [
     if (!/\belse\s+if\s*\(/.test(stripped)) {
       return { ok: false, msg: "Utilise au moins un else if (...)." };
     }
-    if (!hasKeyword(code, "else")) {
+    // Un `else` qui n'est pas suivi de `if` : le `else` d'un `else if` ne
+    // compte pas.
+    if (!/\belse\b(?!\s*if\b)/.test(stripped)) {
       return { ok: false, msg: "Ajoute aussi une branche else finale." };
     }
     if (!logsInclude(ctx.logs, "OK")) {

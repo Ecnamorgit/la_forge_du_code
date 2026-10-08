@@ -51,7 +51,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Barre verrouillee.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : .section-title { position: sticky } avec un top
+  // Étape 4 : .section-title { position: sticky } avec un top ou un bottom
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -59,7 +59,7 @@ export const validators: Validator[] = [
       return { ok: false, msg: "Définis position: sticky sur .section-title." };
     }
     const body = ruleBody(css, ".section-title");
-    if (!body || !/(?<![-\w])top\s*:\s*[^;]/i.test(body)) {
+    if (!body || !/(?<![-\w])(?:top|bottom)\s*:\s*[^;]/i.test(body)) {
       return { ok: false, msg: "Sticky exige un top (ou bottom) défini. Ajoute top: 0 par exemple." };
     }
     return { ok: true, msg: "Positionnement maîtrise.", objList: ["o4a", "o4b"], final: true };

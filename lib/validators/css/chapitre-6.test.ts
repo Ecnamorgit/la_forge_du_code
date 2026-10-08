@@ -101,6 +101,16 @@ describe("CSS chapitre 6 — etape 4 (titre collant)", () => {
     expect(valider(page(".section-title { position: sticky; top: 0; }")).ok).toBe(true);
   });
 
+  it("accepte position: sticky avec un bottom défini", () => {
+    expect(valider(page(".section-title { position: sticky; bottom: 0; }")).ok).toBe(true);
+  });
+
+  it("refuse margin-bottom, qui ne remplace pas le bottom", () => {
+    expect(
+      valider(page(".section-title { position: sticky; margin-bottom: 10px; }")).ok
+    ).toBe(false);
+  });
+
   it("refuse sticky sans top, qui ne colle a rien", () => {
     expect(valider(page(".section-title { position: sticky; }")).ok).toBe(false);
   });

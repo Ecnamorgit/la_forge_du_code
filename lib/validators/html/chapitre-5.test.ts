@@ -65,10 +65,24 @@ describe("HTML chapitre 5 — etape 3 (zone de texte et envoi)", () => {
     expect(valider(code).ok).toBe(true);
   });
 
-  it("refuse un bouton sans type submit", () => {
-    // Échec ciblé : l'étape exige un type="submit" explicite.
+  it("accepte un bouton sans type, qui soumet par défaut", () => {
     const code = form('<textarea id="rapport"></textarea><button>Transmettre</button>');
-    expect(valider(code).ok).toBe(false);
+    expect(valider(code).ok).toBe(true);
+  });
+
+  it("refuse un bouton qui n'envoie pas le formulaire", () => {
+    for (const type of ["button", "reset"]) {
+      const code = form(
+        `<textarea id="rapport"></textarea><button type="${type}">Transmettre</button>`
+      );
+      const r = valider(code);
+      expect(r.ok).toBe(false);
+      expect(r.msg).toMatch(/type="submit"/);
+    }
+  });
+
+  it("refuse l'absence de bouton", () => {
+    expect(valider(form('<textarea id="rapport"></textarea>')).ok).toBe(false);
   });
 
   it("refuse un input texte a la place du textarea", () => {

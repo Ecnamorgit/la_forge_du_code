@@ -179,7 +179,7 @@ Tu maîtrises maintenant les fondations de CSS : sélecteurs, box model, Flexbox
       bannerIcon: "🏁",
       bannerTtl: "CARTE COMPLÈTE",
       bannerSub:
-        "La cartographie tactique est opérationnelle. Cursus CSS termine.",
+        "La cartographie tactique est opérationnelle. Chapitre 5 terminé.",
       bannerXp: "⚡ +70 XP",
     },
   ],

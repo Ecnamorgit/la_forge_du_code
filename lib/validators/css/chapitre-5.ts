@@ -135,7 +135,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Cartographie complete. Cursus CSS termine !",
+      msg: "Cartographie complète.",
       objList: ["o4a"],
       final: true,
     };

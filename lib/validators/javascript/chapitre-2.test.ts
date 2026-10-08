@@ -121,4 +121,21 @@ if (temperature > 50) { console.log("OK"); } else { console.log("FROID"); }`;
   it("refuse une sortie autre que OK", () => {
     expect(valider(OK, ctx(["CRITIQUE"])).ok).toBe(false);
   });
+
+  it("refuse un else if sans branche else finale", () => {
+    const code = `const temperature = 72;
+if (temperature > 90) {
+  console.log("CRITIQUE");
+} else if (temperature > 50) {
+  console.log("OK");
+}`;
+    const r = valider(code, ctx(["OK"]));
+    expect(r.ok).toBe(false);
+    expect(r.msg).toMatch(/else finale/);
+  });
+
+  it("accepte un else final collé à l'accolade", () => {
+    const code = OK.replace("} else {", "}else{");
+    expect(valider(code, ctx(["OK"])).ok).toBe(true);
+  });
 });

@@ -34,7 +34,7 @@ pnpm test:e2e       # Exécute tous les tests Playwright en arrière-plan
 
 ## 1. Tests unitaires (Vitest)
 
-La suite compte 1 525 tests unitaires couvrant les modules logiques purs et les validateurs métiers de la plateforme.
+La suite compte 1 537 tests unitaires couvrant les modules logiques purs et les validateurs métiers de la plateforme.
 
 ### Périmètre couvert
 
