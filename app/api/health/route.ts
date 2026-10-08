@@ -3,13 +3,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
-// Jamais mis en cache / pré-rendu : doit refléter l'état réel à chaque appel.
 export const dynamic = "force-dynamic";
 
-/**
- * Sonde de santé pour load-balancer / monitoring d'uptime.
- * `200` si la base répond, `503` sinon.
- */
+/** Sonde de santé : `200` si la base répond, `503` sinon. */
 export async function GET() {
   try {
     await prisma.$queryRaw`SELECT 1`;

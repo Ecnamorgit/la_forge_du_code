@@ -2,25 +2,16 @@ import "dotenv/config";
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * Contre `pnpm dev`, aucune CSP n'est émise (next.config.ts, garde `isProd`) :
- * `e2e/csp-srcdoc-script.spec.ts` se saute et ne prouve rien, et le script
- * inline du srcdoc de l'aperçu n'est jamais exercé sous la vraie politique.
- *
- * `E2E_PROD=1` lance donc un vrai build de production. C'est ce que fait la CI
- * (.github/workflows/ci.yml). En local, `pnpm start` exige en plus une APP_URL
- * https non-localhost et une RESEND_API_KEY (lib/env.ts) : d'où l'interrupteur
- * plutôt qu'un basculement sec.
+ * Contre `pnpm dev`, aucune CSP n'est émise (`proxy.ts`) et
+ * `e2e/csp-stricte.spec.ts` se saute. `E2E_PROD=1` lance un build de production,
+ * comme la CI. En local, `pnpm start` exige aussi une APP_URL https
+ * non-localhost et une RESEND_API_KEY (`lib/env.ts`), d'où l'interrupteur.
  */
 const enProduction = process.env.E2E_PROD === "1";
 
 /**
- * Configuration des tests e2e (CF-8).
- *
- * Le serveur est démarré automatiquement (`webServer`). En CI, une base
- * Postgres de service est fournie (cf. .github/workflows/ci.yml) et un
- * utilisateur vérifié est créé par `e2e/global-setup.ts`.
- *
- * Prérequis local : une base PostgreSQL accessible via `DATABASE_URL`, puis
+ * Tests e2e. `e2e/global-setup.ts` crée l'utilisateur vérifié. En local, il
+ * faut une base PostgreSQL (`DATABASE_URL`) migrée et Chromium installé :
  *   pnpm prisma migrate deploy
  *   pnpm exec playwright install chromium
  *   pnpm test:e2e

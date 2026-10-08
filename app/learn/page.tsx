@@ -19,11 +19,11 @@ import {
 interface CourseEntry extends CourseInfo {
   chapters: number;
   status: "available" | "locked";
-  /** Editorial depth: a full learning path vs a piloted intro chapter. */
+  /** Parcours complet ou simple chapitre d'aperçu. */
   depth: CourseStatus;
 }
 
-// Complete courses first, preview ("Aperçu") ones last, original order otherwise.
+// Cursus complets d'abord, aperçus ensuite ; l'ordre du catalogue est conservé.
 const DEPTH_ORDER: Record<CourseStatus, number> = { complete: 0, preview: 1 };
 
 const COURSES: CourseEntry[] = COURSES_CATALOG.map((c) => ({
@@ -37,8 +37,7 @@ export default function LearnPage() {
   const { state, hydrated } = useUser();
   const userRole = hydrated && state?.role && isRoleId(state.role) ? state.role : null;
 
-  // Split courses if a role is defined (mapping shared with the onboarding —
-  // see lib/avatar.ts).
+  // Si un rôle est choisi, ses cursus recommandés (lib/avatar.ts) passent en tête.
   const roleCourses = userRole ? ROLE_RECOMMENDED_COURSES[userRole] : null;
   const recommendedCourses = roleCourses
     ? COURSES.filter((c) => roleCourses.includes(c.slug))
@@ -83,7 +82,7 @@ export default function LearnPage() {
           </p>
         </div>
 
-        {/* Recommended Section */}
+        {/* Cursus recommandés */}
         {recommendedCourses.length > 0 && (
           <div className="w-full mb-10 animate-fade-up">
             <div className="flex items-center gap-3 mb-6">
@@ -100,7 +99,7 @@ export default function LearnPage() {
           </div>
         )}
 
-        {/* Other / Unified Section */}
+        {/* Autres cursus, ou tous sans rôle */}
         <div className="w-full animate-fade-up">
           {recommendedCourses.length > 0 && (
             <div className="flex items-center gap-3 mb-6 mt-4">
@@ -154,7 +153,6 @@ function CourseCard({ course }: { course: CourseEntry }) {
 
   const c = colorMap[course.color] ?? colorMap.cyan;
 
-  // Fallback si pas de visual (pour la structure standard des cartes)
   const inner = (
     <div
       className={`
@@ -167,7 +165,7 @@ function CourseCard({ course }: { course: CourseEntry }) {
         }
       `}
     >
-      {/* Background wireframe logo */}
+      {/* Logo filaire en fond */}
       <div className={`absolute inset-0 z-0 overflow-hidden rounded-lg pointer-events-none opacity-[0.18] flex items-center justify-center ${c.text}`}>
         <CourseWireframe slug={course.slug} />
       </div>

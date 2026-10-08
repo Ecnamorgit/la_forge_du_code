@@ -31,18 +31,17 @@ const credentialsSchema = z.object({
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  // The Prisma adapter type targets an older client surface, but the runtime
-  // contract is identical — safe cast.
+  // Le type de l'adaptateur vise une ancienne version du client Prisma ; le
+  // contrat à l'exécution est identique.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: PrismaAdapter(prisma as any),
   callbacks: {
     ...authConfig.callbacks,
-    // Version côté Node de `jwt` : elle ajoute la révocation de session
-    // (constat SRV-03), qui lit la base et ne peut donc pas vivre dans
-    // `auth.config.ts`, partagé avec le middleware edge.
+    // Ajoute la révocation de session (audit SRV-03) : elle lit la base, donc
+    // reste hors de `auth.config.ts`, chargé par `proxy.ts`.
     jwt: async ({ token, user }) => {
       if (user) {
-        // Connexion : on emmène l'identité ET la version de session du moment.
+        // Connexion : le jeton emporte l'identité et la version de session.
         token.id = user.id;
         token.username = (user as { username?: string }).username;
         token.sessionVersion = (user as { sessionVersion?: number }).sessionVersion ?? 0;
@@ -65,8 +64,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Mot de passe", type: "password" },
       },
       authorize: async (credentials, request) => {
-        // Throttle login attempts per IP *before* running bcrypt, to blunt
-        // brute-force. Exceeding the budget fails the attempt like bad creds.
+        // Limite par IP avant bcrypt, contre la force brute. Un dépassement
+        // échoue comme de mauvais identifiants.
         const ip = getClientIp(request as unknown as Request);
         if (!(await rateLimit(`login:${ip}`, { limit: 10, windowMs: 5 * 60 * 1000 })).ok) {
           return null;
@@ -77,9 +76,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const { email, password } = parsed.data;
 
-        // Limite par compte (constat SRV-07) : la limite par IP ne freine pas
-        // un attaquant aux IP multiples. À 10 échecs en 15 minutes, même le bon
-        // mot de passe est refusé jusqu'à la fin de la fenêtre.
+        // Limite par compte (audit SRV-07), contre un attaquant aux IP
+        // multiples : après 10 échecs en 15 minutes, même le bon mot de passe
+        // est refusé jusqu'à la fin de la fenêtre.
         if (await compteVerrouille(email)) return null;
 
         const user = await prisma.user.findUnique({
@@ -97,7 +96,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (!user || !user.password) {
           // Comparaison factice : le temps de réponse ne révèle pas que
-          // l'adresse n'a pas de compte (constats SRV-05 et SRV-07).
+          // l'adresse n'a pas de compte (audit SRV-07).
           await bcrypt.compare(password, await hashFactice());
           await noterEchecConnexion(email);
           return null;
@@ -109,10 +108,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        // On refuse la connexion tant que l'adresse n'est pas vérifiée : sans ce
-        // contrôle, n'importe qui peut s'inscrire avec l'email d'un tiers et s'en
-        // servir (squattage / pré-account-takeover). Un bypass de test existe mais
-        // `lib/env.ts` interdit ce flag en production.
+        // Adresse non vérifiée : connexion refusée, sinon n'importe qui pourrait
+        // s'inscrire avec l'email d'un tiers et s'en servir. Le contournement de
+        // test est interdit en production par `lib/env.ts`.
         if (!user.emailVerified && process.env.AUTH_ALLOW_UNVERIFIED_LOGIN !== "true") {
           throw new CredentialsSignin("email_unverified");
         }

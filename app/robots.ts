@@ -7,15 +7,10 @@ import {
 } from "@/lib/public-routes";
 
 /**
- * robots.txt généré depuis les constantes de routage.
- *
- * Les listes viennent de `lib/public-routes.ts`, la même source que `proxy.ts` :
- * une section protégée ajoutée là-bas devient automatiquement interdite ici.
- *
- * `allow` sur le chapitre d'essai est placé APRÈS le `disallow` de `/learn` et
- * porte sur un chemin plus long : Google applique la règle la plus spécifique,
- * donc l'essai reste explorable alors que le reste du cursus est fermé. Sans
- * cette exception, la page qui convertit serait invisible aux moteurs.
+ * Les listes viennent de `lib/public-routes.ts`, comme pour `proxy.ts` : une
+ * section protégée déclarée là-bas est interdite ici. Le chapitre d'essai reste
+ * explorable car son chemin est plus long que `/learn`, et Google applique la
+ * règle la plus spécifique.
  */
 export default function robots(): MetadataRoute.Robots {
   const base = process.env.APP_URL ?? "http://localhost:3000";
@@ -25,10 +20,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: ["/", ...PUBLIC_TRIAL_ROUTES],
-        // Préfixes nus, sans slash final : `Disallow: /dashboard` couvre à la
-        // fois `/dashboard` et tout ce qui est dessous. Avec `/dashboard/`, le
-        // chemin exact resterait explorable — et c'est une vraie route, qui
-        // redirige vers /login.
+        // Sans slash final, `Disallow: /dashboard` couvre aussi la route
+        // exacte, qui redirige vers /login.
         disallow: [...PROTECTED_PREFIXES, ...NON_INDEXABLE_PREFIXES],
       },
     ],

@@ -11,17 +11,14 @@ const bodySchema = z.object({
   email: z.string().email().max(254),
 });
 
-/**
- * toujours retourné 200 OK pour ne pas révéler si l'adresse e-mail est enregistrée ou non.
- */
+/** Répond 200 que l'adresse soit inscrite ou non, pour ne pas la révéler. */
 export async function POST(req: Request) {
   const refus = crossOriginRefusal(req);
   if (refus) return refus;
 
-  //
   const limit = await rateLimit(`forgot:${getClientIp(req)}`, {
     limit: 5,
-    windowMs: 15 * 60 * 1000, // 5 requettes / 15 min / IP
+    windowMs: 15 * 60 * 1000,
   });
   if (!limit.ok) return tooManyRequests(limit.retryAfter);
 
@@ -43,7 +40,6 @@ export async function POST(req: Request) {
     select: { id: true, email: true, password: true },
   });
 
-  // envoyer que si l'utilisateur existe et a un mot de passe
   if (user && user.password) {
     const token = await createToken({ userId: user.id, kind: "password_reset" });
     await sendPasswordResetEmail({ to: user.email, token }).catch(() => {});

@@ -39,8 +39,7 @@ function AvatarPageInner() {
   const { state, hydrated, setAvatar, setCosmetics } = useUser();
 
   const mode: Mode = state.species ? "edit" : "create";
-  // Chemin interne uniquement : sert au bouton d'enregistrement ET au lien
-  // « Annuler » (constat SRV-06, redirection ouverte).
+  // Chemin interne uniquement, contre la redirection ouverte (audit SRV-06).
   const returnTo = safeInternalPath(searchParams.get("from"));
 
   const [species, setSpecies] = useState<SpeciesId>(
@@ -55,9 +54,9 @@ function AvatarPageInner() {
   const [error, setError] = useState<string | null>(null);
   const [cosmeticError, setCosmeticError] = useState<string | null>(null);
 
-  // Seed the local form state from the server snapshot once it hydrates (and
-  // again if the server values change). Done during render — React's supported
-  // pattern for adjusting state to a changing source — rather than in an effect.
+  // Recopie l'état serveur dans le formulaire après hydratation, et à chaque
+  // changement. Fait pendant le rendu plutôt que dans un effet, comme le
+  // recommande React pour ajuster un état à sa source.
   const seedKey = hydrated
     ? `${state.species ?? ""}|${state.uniformColor ?? ""}|${state.role ?? ""}`
     : null;
@@ -69,9 +68,8 @@ function AvatarPageInner() {
     if (state.role) setRole(state.role as RoleId);
   }
 
-  // Importe la progression accumulée en mode essai puis la purge du storage
-  // local. Best-effort : un échec ne doit jamais bloquer l'onboarding, la
-  // perte maximale est la progression d'un seul chapitre d'essai.
+  // Importe la progression du mode essai puis la purge du stockage local. Un
+  // échec ne bloque pas l'onboarding : au pire, un chapitre d'essai est perdu.
   useEffect(() => {
     const trialState = readTrialState();
     const steps = trialCompletedSteps(trialState);
@@ -89,21 +87,15 @@ function AvatarPageInner() {
           clearTrialState();
           clearLocalSeen();
         } else {
-          // Message stable et greppable : signal le seul endroit où l'échec
-          // de l'import d'essai est visible (le serveur ne log que le succès).
+          // Seule trace de l'échec : le serveur ne journalise que le succès.
           console.warn("trial_import_failed", { status: res.status });
         }
       } catch (err) {
-        // Idem en cas de coupure réseau : l'onboarding continue, mais l'échec
-        // ne doit plus disparaître silencieusement.
         console.warn("trial_import_failed", { error: err });
       }
     })();
   }, []);
 
-  // Statistiques de complétion, pour nourrir `evaluateUnlocks` — même motif
-  // que app/profil/page.tsx et app/dashboard/page.tsx (getCompletionStats),
-  // calculé une seule fois plutôt que dupliqué ici.
   const completionStats = useMemo(
     () => getCompletionStats(state, COURSES_CATALOG.map((c) => c.slug)),
     [state]
@@ -115,9 +107,8 @@ function AvatarPageInner() {
     badges: state.badges,
     coursesComplete: completionStats.coursesComplete,
     chaptersComplete: completionStats.chaptersComplete,
-    // La possession, sans laquelle l'armurerie reverrouillerait un objet
-    // obtenu dès que la condition qui l'a produit redevient fausse (les
-    // paliers de liaison retombent à la rupture).
+    // Sans la possession, l'armurerie reverrouillerait un objet obtenu dès que
+    // sa condition redevient fausse (la liaison retombe à la rupture).
     owned: state.unlocks,
   };
 
@@ -126,11 +117,8 @@ function AvatarPageInner() {
     setError(null);
     setSaving(true);
     try {
-      // `uniformColor` peut porter une couleur méritée (choisie depuis
-      // l'Armurerie ci-dessous, jamais depuis ce sélecteur qui n'offre que les
-      // couleurs de base) : `setAvatar` sait la reconnaître et vérifie que le
-      // cadet la possède réellement — un seul appel, aucune valeur de
-      // remplissage, aucune fenêtre où la couleur gagnée pourrait se perdre.
+      // `uniformColor` peut être une couleur méritée, choisie dans
+      // l'armurerie : `setAvatar` vérifie que le cadet la possède.
       await setAvatar({ species, uniformColor, role });
       router.push(returnTo);
       router.refresh();
@@ -173,7 +161,7 @@ function AvatarPageInner() {
           </p>
         </header>
 
-        {/* Preview */}
+        {/* Aperçu */}
         <div className="mb-10 flex flex-col items-center gap-3 animate-fade-up">
           <AvatarBadge species={species} uniformColor={uniformColor} size={128} />
           <div className="text-center font-tech text-xs uppercase tracking-[0.2em] text-nebula-text-secondary">
@@ -186,7 +174,7 @@ function AvatarPageInner() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-10 animate-fade-up">
-          {/* Species */}
+          {/* Espèce */}
           <Section
             label="Origine"
             description="D'où viens-tu ? Choisis ton espèce d'origine."
@@ -206,7 +194,7 @@ function AvatarPageInner() {
             </div>
           </Section>
 
-          {/* Uniform color */}
+          {/* Couleur d'uniforme */}
           <Section
             label="Couleur d'uniforme"
             description="Affichée comme accent autour de ton avatar."
@@ -239,7 +227,7 @@ function AvatarPageInner() {
             </div>
           </Section>
 
-          {/* Role */}
+          {/* Rôle */}
           <Section
             label="Rôle préféré"
             description="Oriente les cursus recommandés pour ton profil sur la page Cursus."

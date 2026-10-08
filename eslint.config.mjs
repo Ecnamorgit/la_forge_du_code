@@ -5,14 +5,14 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  // Override default ignores of eslint-config-next.
+  // Remplace les exclusions par défaut d'eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
+    // Exclusions par défaut d'eslint-config-next.
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Assets statiques (dont Monaco self-hébergé copié dans public/monaco).
+    // Fichiers statiques, dont Monaco copié dans public/monaco.
     "public/**",
   ]),
 ]);

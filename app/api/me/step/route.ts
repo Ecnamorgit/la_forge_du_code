@@ -17,8 +17,8 @@ const bodySchema = z.object({
   course: z.string().min(1).max(32),
   chapter: z.string().min(1).max(64),
   stepIndex: z.number().int().min(0).max(999),
-  // Code qui vient de passer le validateur dans le navigateur : le serveur le
-  // rejoue (lib/step-proof.ts). Facultatif pour les étapes jugées sur exécution.
+  // Code validé dans le navigateur, que le serveur rejoue (lib/step-proof.ts).
+  // Facultatif pour les étapes jugées sur exécution.
   code: z.string().max(MAX_CODE_LENGTH).optional(),
 });
 
@@ -32,9 +32,8 @@ export async function POST(req: Request) {
   }
   const userId = session.user.id;
 
-  // Par compte, avant toute lecture du corps : chaque appel compte, valide ou
-  // non. Un apprenant met des dizaines de secondes à réussir une étape ; 20 par
-  // minute ne gêne qu'un script (constat EXE-01).
+  // Par compte, avant la lecture du corps, pour compter chaque appel (audit
+  // EXE-01). 20 par minute ne gênent qu'un script.
   const limit = await rateLimit(`step:${userId}`, { limit: 20, windowMs: 60_000 });
   if (!limit.ok) return tooManyRequests(limit.retryAfter);
 

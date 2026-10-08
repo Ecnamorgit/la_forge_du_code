@@ -20,7 +20,7 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ email }),
       });
     } catch {
-      // Silent — server already returns 200 in all paths.
+      // Même affichage en cas d'échec réseau.
     } finally {
       setSubmitted(true);
       setPending(false);

@@ -5,9 +5,10 @@ import { getBadge } from "@/lib/badges-catalog";
 import { sanitizeShareName, parseShareXp } from "@/lib/share";
 
 /**
- * Public landing page for a shared success card. Carries the OG/Twitter meta so
- * LinkedIn/X render the dynamic image (app/api/share/[badge]/route.tsx), and
- * gives visitors a CTA into the app. No auth, no personal data beyond a pseudo.
+ * Page publique d'une carte de réussite partagée : elle porte les métadonnées
+ * OG et Twitter de l'image dynamique (app/api/share/[badge]/route.tsx) et
+ * invite le visiteur sur l'application. Aucune donnée personnelle hormis le
+ * pseudo.
  */
 
 type Params = Promise<{ badge: string }>;

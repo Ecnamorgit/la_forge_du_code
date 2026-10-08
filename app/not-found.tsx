@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-/** Page 404 globale (App Router). Rendue côté serveur. */
 export default function NotFound() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-nebula-bg-darkest px-6 text-center text-nebula-text">

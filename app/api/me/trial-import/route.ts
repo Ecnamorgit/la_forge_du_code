@@ -21,10 +21,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  // Clé sur l'utilisateur authentifié, pas sur l'IP : la route est déjà
-  // authentifiée à ce stade, et l'IP se prête à un partage de bucket (proxy
-  // sans en-tête normalisé -> "unknown" pour tout le monde) ou à une rotation
-  // triviale par l'appelant.
+  // Clé sur l'utilisateur plutôt que sur l'IP, qui peut être partagée
+  // ("unknown" derrière certains proxys) ou changée par l'appelant.
   const limit = await rateLimit(`trial-import:${session.user.id}`, {
     limit: 10,
     windowMs: 15 * 60 * 1000,
@@ -52,9 +50,9 @@ export async function POST(req: Request) {
       );
       if (!result.alreadyDone) imported += 1;
     } catch (err) {
-      // Une étape refusée ne doit pas faire échouer l'onboarding. Les étapes
-      // arrivent triées (filterTrialSteps) : un refus d'ordre ne vient que
-      // d'un trou dans la progression d'essai, et les suivantes le suivront.
+      // Une étape refusée ne fait pas échouer l'onboarding. Les étapes
+      // arrivent triées : un refus d'ordre signale un trou dans la progression
+      // d'essai, et les suivantes seront refusées aussi.
       if (err instanceof InvalidStepError || err instanceof StepOrderError) continue;
       throw err;
     }
@@ -64,7 +62,7 @@ export async function POST(req: Request) {
     (raw as { seenCinematics?: unknown } | null)?.seenCinematics
   );
   for (const cinematicId of seenCinematics) {
-    // Idempotent (upsert) ; un échec isolé ne fait pas échouer l'onboarding.
+    // Idempotent (upsert).
     try {
       await markCinematicView(session.user.id, cinematicId);
     } catch {
@@ -72,9 +70,8 @@ export async function POST(req: Request) {
     }
   }
 
-  // On journalise à la fois le nombre reçu (avant filtrage) et le nombre
-  // retenu (après allowlist) : l'écart entre les deux est le seul signal
-  // qui révélerait une tentative de sonder l'endpoint.
+  // L'écart entre le nombre reçu et le nombre retenu par l'allowlist trahirait
+  // une tentative de sonder la route.
   const rawCount = Array.isArray(rawSteps) ? rawSteps.length : 0;
   logger.info("trial_import", {
     imported,

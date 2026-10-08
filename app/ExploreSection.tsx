@@ -28,7 +28,7 @@ const COLOR_MAP: Record<
 };
 
 interface Props {
-  /** Slug of the user's currently active course, so we hide it from this grid. */
+  /** Cursus actif, masqué de cette grille. */
   activeCourseSlug: string;
 }
 
@@ -47,7 +47,7 @@ export default function ExploreSection({ activeCourseSlug }: Props) {
         {otherCourses.map((course, index) => {
           const c = COLOR_MAP[course.color] ?? COLOR_MAP.cyan;
 
-          // Prevent tooltips from overflowing the screen edges
+          // Aux extrémités, l'infobulle s'aligne sur le bord pour ne pas déborder.
           const isLeftAligned = index < 3;
           const isRightAligned = index > otherCourses.length - 4;
 
@@ -64,7 +64,7 @@ export default function ExploreSection({ activeCourseSlug }: Props) {
 
           return (
             <Link key={course.slug} href={`/learn/${course.slug}`} className="group relative">
-              {/* Badge/Écusson container */}
+              {/* Écusson */}
               <div
                 className={`
                   flex h-20 w-20 cursor-pointer items-center justify-center rounded-full
@@ -80,7 +80,7 @@ export default function ExploreSection({ activeCourseSlug }: Props) {
                 />
               </div>
 
-              {/* Hover Tooltip/Popup */}
+              {/* Infobulle au survol */}
               <div
                 className={`
                   pointer-events-none absolute bottom-full z-50 mb-3 w-64 ${tooltipAlignClass}
@@ -89,7 +89,7 @@ export default function ExploreSection({ activeCourseSlug }: Props) {
                   transition-all duration-300 group-hover:translate-y-[-4px] group-hover:visible group-hover:opacity-100
                 `}
               >
-                {/* Arrow pointing to the badge */}
+                {/* Flèche vers l'écusson */}
                 <div className={`absolute top-full border-x-[6px] border-t-[6px] border-x-transparent border-t-nebula-bg-panel ${arrowAlignClass}`} />
                 
                 <div className="mb-1 flex items-center justify-between">

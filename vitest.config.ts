@@ -1,8 +1,7 @@
 import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
 
-// Tests unitaires des fonctions pures (validateurs, XP, helpers).
-// Aucune dépendance à la base ni au navigateur : environnement Node.
+// Tests unitaires de fonctions pures, sans base ni navigateur.
 export default defineConfig({
   test: {
     environment: "node",
@@ -12,8 +11,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL(".", import.meta.url)),
-      // `server-only` lève une erreur à l'import hors Server Component ; en test
-      // (Node) on le neutralise pour pouvoir tester les helpers serveur purs.
+      // `server-only` lève une erreur à l'import hors Server Component : on le
+      // neutralise pour tester les helpers serveur.
       "server-only": fileURLToPath(
         new URL("./test/server-only-stub.ts", import.meta.url)
       ),

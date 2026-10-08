@@ -10,16 +10,12 @@ const { auth } = NextAuth(authConfig);
 
 const AUTH_PAGES = new Set(["/login", "/signup"]);
 
-// La CSP à nonce n'est émise qu'en production : en développement, le serveur a
-// besoin d'`eval` et de `ws:` (HMR), et émettre une politique différente de
-// celle livrée donnerait une fausse confiance (cf. docs/BRIEF_CSP_GARDE_FOU.md).
+// CSP à nonce en production seulement : le serveur de développement a besoin
+// d'`eval` et de `ws:` (HMR), et une politique différente de celle livrée
+// donnerait une fausse confiance (voir docs/audit-securite/corrections/EXE-03.md).
 const CSP_ACTIVE = process.env.NODE_ENV === "production";
 
-/**
- * Nonce unique par requête. `crypto.randomUUID` et `btoa` existent dans le
- * runtime edge du middleware ; `Buffer` non, d'où `btoa` plutôt que la forme
- * `Buffer.from(...).toString("base64")` de la doc Next.
- */
+/** Nonce unique par requête. */
 function genererNonce(): string {
   return btoa(crypto.randomUUID());
 }
@@ -28,13 +24,12 @@ export default auth((req) => {
   const { pathname, search } = req.nextUrl;
   const isAuthed = !!req.auth;
 
-  // Les documents du bac à sable (constat EXE-03) posent EUX-MÊMES leur CSP
-  // permissive : on ne doit pas la remplacer par la CSP stricte de l'app.
+  // Les documents du bac à sable posent eux-mêmes leur CSP permissive, que la
+  // CSP stricte de l'app ne doit pas remplacer.
   const estBacASable = pathname === "/bac-a-sable" || pathname.startsWith("/bac-a-sable/");
 
-  // Nonce + CSP à nonce, seulement en production et hors bac à sable. La seule
-  // origine autorisée dans `frame-src` est celle du bac à sable de CETTE
-  // requête (sous-domaine dédié en production, autre hôte local en CI).
+  // `frame-src` n'autorise que l'origine du bac à sable dérivée de la requête
+  // (sous-domaine dédié en production, autre hôte local en CI).
   const nonce = CSP_ACTIVE && !estBacASable ? genererNonce() : null;
   const csp = nonce
     ? buildCsp({ nonce, sandboxOrigin: sandboxOriginFor(originDeLaRequete(req)) })
@@ -62,8 +57,8 @@ export default auth((req) => {
     return res;
   }
 
-  // Rendu de page : le nonce part dans un en-tête de requête, que Next lit
-  // pendant le rendu serveur pour marquer ses scripts d'amorçage/hydratation.
+  // Next lit le nonce dans les en-têtes de requête pendant le rendu serveur
+  // pour marquer ses propres scripts.
   const requestHeaders = new Headers(req.headers);
   if (nonce && csp) {
     requestHeaders.set("x-nonce", nonce);

@@ -6,10 +6,8 @@ import { InvalidAvatarError, UserNotFoundError, setAvatar } from "@/lib/me-serve
 import { isRoleId, isSpeciesId } from "@/lib/avatar";
 import { crossOriginRefusal } from "@/lib/same-origin";
 
-// `uniformColor` n'est validé qu'en forme ici (chaîne non vide) : la
-// décision de fond — couleur de base toujours libre, couleur méritée
-// réservée à qui l'a débloquée — dépend de l'utilisateur et vit dans
-// `setAvatar` (lib/me-server.ts), pas dans une liste de constantes.
+// `uniformColor` n'est validé ici qu'en forme : le droit à une couleur
+// méritée dépend de l'utilisateur et se vérifie dans `setAvatar`.
 const bodySchema = z
   .object({
     species: z.string().min(1).max(32),

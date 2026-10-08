@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { UserNotFoundError, exportUserData } from "@/lib/me-server";
 
-/** RGPD — export des données personnelles en JSON téléchargeable. */
+/** Export RGPD des données personnelles, en JSON téléchargeable. */
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) {

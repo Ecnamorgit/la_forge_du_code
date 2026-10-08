@@ -11,17 +11,17 @@ import TrialCtaLink from "@/components/ui/TrialCtaLink";
 export default function LandingPage() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden overflow-y-auto">
-      {/* Cinématique d'intro (auto-play 1re visite, rejouable) */}
+      {/* Cinématique d'intro, lancée à la première visite */}
       <IntroCinematicMount />
-      {/* Comptage minimal : une vue = un évènement, sans identifiant */}
+      {/* Comptage anonyme des vues */}
       <TrackLandingView />
 
-      {/* Background layers */}
+      {/* Fond */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-bg" />
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-stars opacity-30" />
       <div className="fixed inset-0 z-0 pointer-events-none bg-[rgba(3,6,13,0.55)]" />
 
-      {/* Decorative planets — hidden under md to keep mobile clean */}
+      {/* Planètes décoratives, masquées sur mobile */}
       <div className="pointer-events-none fixed left-[6%] top-[24%] z-[5] hidden opacity-50 md:block">
         <Image
           src="/planet-gas-v2.png"
@@ -53,7 +53,7 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* Nav */}
+      {/* Navigation */}
       <PublicHeader>
         <Link
           href="/codex"
@@ -75,13 +75,9 @@ export default function LandingPage() {
         </Link>
       </PublicHeader>
 
-      {/*
-        Content wrapper :
-        - min-h-[calc(100%-4rem)] occupies remaining viewport below the nav
-        - flex column distributes hero, features, footer along the height
-      */}
+      {/* Contenu : occupe la hauteur sous la navigation à partir de lg */}
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col px-4 py-8 sm:px-6 sm:py-10 lg:min-h-[calc(100vh-4rem)]">
-        {/* Hero — takes the slack so the screen feels balanced */}
+        {/* Hero, qui prend l'espace restant */}
         <section className="flex flex-1 flex-col items-center justify-center py-8 text-center animate-fade-down">
           <BrandLogo
             size={128}
@@ -128,7 +124,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Features — band at bottom of the viewport */}
+        {/* Atouts, en bas de l'écran */}
         <section className="mx-auto grid w-full max-w-5xl shrink-0 grid-cols-1 gap-5 animate-fade-up md:grid-cols-3 lg:gap-6">
           <FeatureCard
             icon="/feature-courses-v2.png"

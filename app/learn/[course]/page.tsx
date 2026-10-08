@@ -608,8 +608,8 @@ export default async function CourseMapPage({
   const { course } = await params;
   const session = await auth();
   const isTrialVisit = !session?.user?.id;
-  // Défense en profondeur : le middleware ne laisse passer sans session que
-  // la carte du cursus d'essai ; on ne rend jamais une autre carte sans compte.
+  // Défense en profondeur : comme le proxy, seule la carte du cursus d'essai
+  // est servie sans session.
   if (isTrialVisit && course !== TRIAL_COURSE) redirect("/login");
 
   const levels = LEVELS_BY_COURSE[course];

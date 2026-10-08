@@ -13,10 +13,8 @@ export default async function ChapterPage({
 }) {
   const { course, chapter } = await params;
 
-  // Défense en profondeur (constat SRV-10) : le proxy renvoie déjà vers la
-  // connexion, mais une page qui ne se garde pas elle-même servirait son
-  // contenu au premier contournement du proxy. Même règle que lui : sans
-  // session, seuls les chapitres d'essai sont ouverts.
+  // Défense en profondeur si le proxy est contourné (audit SRV-10). Même règle
+  // que lui : sans session, seuls les chapitres d'essai sont ouverts.
   const chemin = `/learn/${course}/${chapter}`;
   if (!isPublicRoute(chemin)) {
     const session = await auth();
@@ -33,8 +31,8 @@ export default async function ChapterPage({
     <ChapterClient
       course={course}
       chapter={chapterData}
-      // Calculé ici : `isLastChapter` tire le registre complet des cursus,
-      // qui n'a rien à faire dans le bundle client.
+      // Calculé côté serveur : `isLastChapter` charge tout le registre des
+      // cursus, inutile dans le bundle client.
       isLastChapter={isLastChapter(course, chapterData.slug)}
     />
   );

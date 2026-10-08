@@ -12,18 +12,17 @@ const bodySchema = z.object({
 });
 
 /**
- * Re-send a verification email. Always returns 200 with the same shape
- * regardless of whether the email exists or is already verified — this avoids
- * leaking the user database via response timing/content.
+ * Renvoie l'e-mail de vérification. La réponse est la même que l'adresse
+ * existe, soit déjà vérifiée ou non, pour ne pas révéler les comptes.
  */
 export async function POST(req: Request) {
   const refus = crossOriginRefusal(req);
   if (refus) return refus;
 
-  // Throttle to prevent verification-email spam.
+  // Contre l'envoi massif d'e-mails de vérification.
   const limit = await rateLimit(`resend:${getClientIp(req)}`, {
     limit: 5,
-    windowMs: 15 * 60 * 1000, // 5 requests / 15 min / IP
+    windowMs: 15 * 60 * 1000,
   });
   if (!limit.ok) return tooManyRequests(limit.retryAfter);
 
@@ -47,7 +46,7 @@ export async function POST(req: Request) {
 
   if (user && !user.emailVerified) {
     const token = await createToken({ userId: user.id, kind: "email_verify" });
-    // Fire-and-forget: don't expose send errors to the client (no enumeration).
+    // Une erreur d'envoi n'est pas remontée au client.
     await sendVerificationEmail({ to: user.email, token }).catch(() => {});
   }
 
