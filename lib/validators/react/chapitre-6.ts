@@ -37,13 +37,13 @@ export const validators: Validator[] = [
     const tag = findJsxTagAttrs(c, "input");
     if (!tag || !/\bvalue\s*=\s*\{/.test(tag.body)) {
       return fail(
-        "Garde l'input controle par React : value={nom} doit rester branche sur l'etat."
+        "Garde l'input contrôlé par React : value={nom} doit rester branché sur l'état."
       );
     }
     const onChangeValue = extractAttrValue(tag.body, "onChange");
     if (onChangeValue === null) {
       return fail(
-        "Le Spectre a coupe l'ecoute du clavier : ajoute onChange={(e) => setNom(e.target.value)} sur l'input."
+        "Le Spectre a coupé l'écoute du clavier : ajoute onChange={(e) => setNom(e.target.value)} sur l'input."
       );
     }
     // onChange peut aussi désigner un handler nommé (`onChange={handleChange}`),
@@ -52,10 +52,10 @@ export const validators: Validator[] = [
     const handlerSource = resolveHandlerSource(c, onChangeValue);
     if (!/\bset[A-Z]\w*\s*\(/.test(handlerSource)) {
       return fail(
-        "Ton onChange existe mais ne met a jour aucun etat : appelle le setter (ex: setNom(e.target.value)) a l'interieur."
+        "Ton onChange existe mais ne met à jour aucun état : appelle le setter (ex: setNom(e.target.value)) à l'intérieur."
       );
     }
-    return pass("Console de saisie restauree.", ["o1a", "o1b"]);
+    return pass("Console de saisie restaurée.", ["o1a", "o1b"]);
   },
 
   // Étape 2 : état objet mis à jour par spread, avec une clé calculée
@@ -69,13 +69,13 @@ export const validators: Validator[] = [
     const c = strip(code);
     if (!/useState\s*\(\s*\{/.test(c)) {
       return fail(
-        "Regroupe nom et email dans un seul etat objet : useState({ nom: '', email: '' })."
+        "Regroupe nom et email dans un seul état objet : useState({ nom: '', email: '' })."
       );
     }
     let match = findBareCallBody(c, "setFormulaire");
     if (!match) {
       return fail(
-        "Mets a jour l'etat via le setter de l'objet (setFormulaire({ ...formulaire, ... }))."
+        "Mets à jour l'état via le setter de l'objet (setFormulaire({ ...formulaire, ... }))."
       );
     }
     let hasBadCall = false;
@@ -96,15 +96,15 @@ export const validators: Validator[] = [
     }
     if (hasBadCall) {
       return fail(
-        "Mets a jour l'etat par copie : setFormulaire({ ...formulaire, ... }), jamais en ecrasant l'objet entier. Verifie que TOUS tes appels a setFormulaire font le spread, pas seulement certains."
+        "Mets à jour l'état par copie : setFormulaire({ ...formulaire, ... }), jamais en écrasant l'objet entier. Vérifie que TOUS tes appels à setFormulaire font le spread, pas seulement certains."
       );
     }
     if (!hasComputedKey && literalKeys.size < 2) {
       return fail(
-        "Mets a jour le bon champ : une cle calculee ([e.target.name]: valeur), ou nom et email geres separement."
+        "Mets à jour le bon champ : une clé calculée ([e.target.name]: valeur), ou nom et email gérés séparément."
       );
     }
-    return pass("Etat regroupe dans un seul objet.", ["o2a", "o2b"]);
+    return pass("État regroupé dans un seul objet.", ["o2a", "o2b"]);
   },
 
   // Étape 3 : onSubmit sur le <form> (pas onClick sur le bouton), et le
@@ -114,7 +114,7 @@ export const validators: Validator[] = [
     const formTag = findJsxTagAttrs(c, "form");
     if (!formTag || !/\bonSubmit\s*=\s*\{/.test(formTag.body)) {
       return fail(
-        "Attache le gestionnaire de soumission sur le <form> lui-meme (onSubmit={...}), pas sur le bouton."
+        "Attache le gestionnaire de soumission sur le <form> lui-même (onSubmit={...}), pas sur le bouton."
       );
     }
     const onSubmitValue = extractAttrValue(formTag.body, "onSubmit") ?? "";
@@ -124,10 +124,10 @@ export const validators: Validator[] = [
     const handlerSource = resolveHandlerSource(c, onSubmitValue);
     if (!/\.preventDefault\s*\(\s*\)/.test(handlerSource)) {
       return fail(
-        "Empeche le rechargement de la page : appelle e.preventDefault() dans le gestionnaire attache a onSubmit."
+        "Empêche le rechargement de la page : appelle e.preventDefault() dans le gestionnaire attaché à onSubmit."
       );
     }
-    return pass("Transmission maitrisee.", ["o3a", "o3b"]);
+    return pass("Transmission maîtrisée.", ["o3a", "o3b"]);
   },
 
   // Étape 4 : disabled doit dériver de l'état du formulaire, pas d'une valeur
@@ -141,14 +141,14 @@ export const validators: Validator[] = [
     const value = (extractAttrValue(buttonTag.body, "disabled") ?? "").trim();
     if (/^(true|false)$/.test(value)) {
       return fail(
-        "disabled={false} (ou {true}) est fige : calcule la condition a partir de l'etat, ex: disabled={!formulaire.nom || !formulaire.email}."
+        "disabled={false} (ou {true}) est figé : calcule la condition à partir de l'état, ex: disabled={!formulaire.nom || !formulaire.email}."
       );
     }
     if (!/\bformulaire\b/.test(value)) {
       return fail(
-        "La condition de disabled doit deriver de l'etat du formulaire (formulaire.nom, formulaire.email...), pas d'une valeur arbitraire."
+        "La condition de disabled doit dériver de l'état du formulaire (formulaire.nom, formulaire.email...), pas d'une valeur arbitraire."
       );
     }
-    return pass("Console verrouillee tant que le formulaire est incomplet.", ["o4a", "o4b"], true);
+    return pass("Console verrouillée tant que le formulaire est incomplet.", ["o4a", "o4b"], true);
   },
 ];

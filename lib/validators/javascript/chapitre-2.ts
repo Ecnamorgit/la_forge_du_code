@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { logsInclude, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
-  return error ? `Erreur d'execution : ${error}` : null;
+  return error ? `Erreur d'exécution : ${error}` : null;
 }
 
 export const validators: Validator[] = [
@@ -44,7 +44,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Booléen confirme.",
+      msg: "Booléen confirmé.",
       objList: ["o2a", "o2b"],
     };
   },
@@ -73,7 +73,7 @@ export const validators: Validator[] = [
     if (!logsInclude(ctx.logs, "ALERTE")) {
       return {
         ok: false,
-        msg: 'La console doit afficher "ALERTE" (le bouclier est a 25).',
+        msg: 'La console doit afficher "ALERTE" (le bouclier est à 25).',
       };
     }
     // "OK" en plus de "ALERTE" trahit une sortie codée en dur.
@@ -111,7 +111,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Trois zones distinguees.",
+      msg: "Trois zones distinguées.",
       objList: ["o4a", "o4b"],
       final: true,
     };

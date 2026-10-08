@@ -22,7 +22,7 @@ export const validators: Validator[] = [
     if (!hasTag(clean, "header")) return { ok: false, msg: "Encadre l'en-tête dans une balise <header>." };
     if (!hasTag(clean, "main")) return { ok: false, msg: "Encadre le contenu principal dans une balise <main>." };
     if (!hasTag(clean, "footer")) return { ok: false, msg: "Ajoute un <footer> en bas de la page." };
-    return { ok: true, msg: "Plan de station pose.", objList: ["o1a", "o1b"] };
+    return { ok: true, msg: "Plan de station posé.", objList: ["o1a", "o1b"] };
   },
   // Étape 2 : une <nav> d'au moins 3 <a> dans le <header>
   (code) => {
@@ -35,19 +35,19 @@ export const validators: Validator[] = [
     if (links.length < 3) {
       return { ok: false, msg: `La <nav> doit contenir au moins 3 liens (actuellement ${links.length}).` };
     }
-    return { ok: true, msg: "Routes balisees.", objList: ["o2a", "o2b"] };
+    return { ok: true, msg: "Routes balisées.", objList: ["o2a", "o2b"] };
   },
   // Étape 3 : une <section> dans un <article>, lui-même dans <main>
   (code) => {
     const clean = stripHtmlComments(code);
     const main = tagInner(clean, "main");
-    if (main === null) return { ok: false, msg: "Le <main> doit être conserve." };
+    if (main === null) return { ok: false, msg: "Le <main> doit être conservé." };
     const article = tagInner(main, "article");
     if (article === null) return { ok: false, msg: "Place un <article> dans <main>." };
     if (!hasTag(article, "section")) {
       return { ok: false, msg: "Place une <section> à l'intérieur de l'<article>." };
     }
-    return { ok: true, msg: "Blocs delimites.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Blocs délimités.", objList: ["o3a", "o3b"] };
   },
   // Étape 4 : alt sur l'image et aria-current="page" sur un lien
   (code) => {

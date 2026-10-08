@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     if (body && /(?<![-\w])width\s*:\s*800px\b/i.test(body)) {
       return { ok: false, msg: "Retire width: 800px en dur (max-width suffit, ou utilise width: 100%)." };
     }
-    return { ok: true, msg: "Fluidite active.", objList: ["o1a", "o1b"] };
+    return { ok: true, msg: "Fluidité active.", objList: ["o1a", "o1b"] };
   },
   // Étape 2 : une @media qui redéfinit le font-size de h1
   (code) => {
@@ -27,7 +27,7 @@ export const validators: Validator[] = [
     if (!/@media\b[^{]+\{[\s\S]*?h1\s*\{[\s\S]*?font-size[\s\S]*?\}/i.test(css)) {
       return {
         ok: false,
-        msg: "Dans ta media query, redefinis font-size sur h1.",
+        msg: "Dans ta media query, redéfinis font-size sur h1.",
       };
     }
     return { ok: true, msg: "Typographie adaptative.", objList: ["o2a", "o2b"] };

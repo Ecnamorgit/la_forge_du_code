@@ -37,15 +37,15 @@ export const validators: Validator[] = [
     if (sections.length < 2) {
       return {
         ok: false,
-        msg: `Cree au moins 2 balises <section> avec id (actuellement ${sections.length}).`,
+        msg: `Crée au moins 2 balises <section> avec id (actuellement ${sections.length}).`,
       };
     }
     const ids = sections.map((m) => m[1]);
     const unique = new Set(ids);
     if (unique.size < 2) {
-      return { ok: false, msg: "Les deux <section> doivent avoir des id differents." };
+      return { ok: false, msg: "Les deux <section> doivent avoir des id différents." };
     }
-    return { ok: true, msg: "Reperes etablis.", objList: ["o2a", "o2b"] };
+    return { ok: true, msg: "Repères établis.", objList: ["o2a", "o2b"] };
   },
   // Étape 3 : au moins 2 liens internes href="#..." vers des id existants
   (code) => {
@@ -67,11 +67,11 @@ export const validators: Validator[] = [
       if (!idSet.has(link[1])) {
         return {
           ok: false,
-          msg: `Le lien #${link[1]} ne correspond a aucun id present sur la page.`,
+          msg: `Le lien #${link[1]} ne correspond à aucun id présent sur la page.`,
         };
       }
     }
-    return { ok: true, msg: "Saut verifie.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Saut vérifié.", objList: ["o3a", "o3b"] };
   },
   // Étape 4 : une <nav> d'au moins 3 liens, dont l'externe et 2 ancres
   (code) => {
@@ -95,6 +95,6 @@ export const validators: Validator[] = [
     if (anchorCount < 2) {
       return { ok: false, msg: "Garde au moins 2 liens internes (#missions, #contact) dans la <nav>." };
     }
-    return { ok: true, msg: "Navigation complete.", objList: ["o4a", "o4b"], final: true };
+    return { ok: true, msg: "Navigation complète.", objList: ["o4a", "o4b"], final: true };
   },
 ];

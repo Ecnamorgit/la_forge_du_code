@@ -34,7 +34,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Répartition reussie.",
+      msg: "Répartition réussie.",
       objList: ["o2a"],
     };
   },

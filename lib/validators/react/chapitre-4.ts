@@ -11,7 +11,7 @@ export const validators: Validator[] = [
       return fail("Englobe ton app dans <BrowserRouter>.");
     }
     if (countMatches(c, /<Route\s+path=/) < 2 || !/element=\{/.test(c)) {
-      return fail("Definis deux <Route path='...' element={...} /> (Accueil et APropos).");
+      return fail("Définis deux <Route path='...' element={...} /> (Accueil et APropos).");
     }
     return pass("Routes actives.", ["o1a", "o1b"]);
   },
@@ -32,7 +32,7 @@ export const validators: Validator[] = [
     // La <Route path="/vaisseaux/:id"> vit dans App (indiquée en commentaire
     // dans le startCode) : le signal vérifiable ici est la lecture du paramètre.
     if (!/useParams\s*\(\s*\)/.test(c)) {
-      return fail("Recupere les params de l'URL avec const { id } = useParams().");
+      return fail("Récupère les params de l'URL avec const { id } = useParams().");
     }
     // On retire la déstructuration avant de chercher l'affichage : elle s'écrit
     // elle-même `{ id }` et validerait un code qui ne rend jamais le paramètre.
@@ -43,17 +43,17 @@ export const validators: Validator[] = [
     if (!/\{\s*id\s*\}/.test(sansDestructuration)) {
       return fail("Affiche l'id lu depuis l'URL : <div>Vaisseau : {id}</div>.");
     }
-    return pass("URL decodee.", ["o3a", "o3b"]);
+    return pass("URL décodée.", ["o3a", "o3b"]);
   },
   // Étape 4 : useNavigate et navigate('/dashboard')
   (code) => {
     const c = strip(code);
     if (!/useNavigate\s*\(\s*\)/.test(c)) {
-      return fail("Recupere la fonction via const navigate = useNavigate();");
+      return fail("Récupère la fonction via const navigate = useNavigate();");
     }
     if (!/navigate\s*\(\s*['"]\/dashboard['"]\s*\)/.test(c)) {
       return fail("Au clic, redirige avec navigate('/dashboard').");
     }
-    return pass("SPA maitrisee.", ["o4a", "o4b"], true);
+    return pass("SPA maîtrisée.", ["o4a", "o4b"], true);
   },
 ];

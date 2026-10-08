@@ -36,7 +36,7 @@ export const validators: Validator[] = [
     if (!/\bsizes\s*=\s*["'][^"']+["']/i.test(m[0])) {
       return { ok: false, msg: 'Ajoute aussi l\'attribut sizes="..." pour guider le navigateur.' };
     }
-    return { ok: true, msg: "Bande passante optimisee.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Bande passante optimisée.", objList: ["o3a", "o3b"] };
   },
   // Étape 4 : <picture> avec au moins 2 <source> et un <img> de repli
   (code) => {

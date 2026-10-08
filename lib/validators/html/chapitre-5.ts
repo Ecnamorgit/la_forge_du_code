@@ -38,7 +38,7 @@ export const validators: Validator[] = [
     if (!labelMatch) {
       return {
         ok: false,
-        msg: 'Le champ a besoin d\'un <label for="..."> associe.',
+        msg: 'Le champ a besoin d\'un <label for="..."> associé.',
       };
     }
     const targetId = labelMatch[1];
@@ -54,7 +54,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Premier champ étiquete.",
+      msg: "Premier champ étiqueté.",
       objList: ["o1a", "o1b"],
     };
   },
@@ -78,7 +78,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Types specialises ajoutes.",
+      msg: "Types spécialisés ajoutés.",
       objList: ["o2a", "o2b"],
     };
   },
@@ -111,7 +111,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Rapport pret a etre transmis.",
+      msg: "Rapport prêt à être transmis.",
       objList: ["o3a", "o3b"],
     };
   },
@@ -135,7 +135,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Console operationnelle.",
+      msg: "Console opérationnelle.",
       objList: ["o4a", "o4b"],
       final: true,
     };

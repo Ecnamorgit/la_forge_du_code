@@ -95,7 +95,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Colonnes tracees.",
+      msg: "Colonnes tracées.",
       objList: ["o2a", "o2b"],
     };
   },
@@ -117,7 +117,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Grille aeree.",
+      msg: "Grille aérée.",
       objList: ["o3a"],
     };
   },

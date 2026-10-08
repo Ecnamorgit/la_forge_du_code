@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { logsContain, logsInclude, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
-  return error ? `Erreur d'execution : ${error}` : null;
+  return error ? `Erreur d'exécution : ${error}` : null;
 }
 
 export const validators: Validator[] = [
@@ -111,7 +111,7 @@ export const validators: Validator[] = [
     ) {
       return {
         ok: false,
-        msg: "Ajoute une méthode greet a pilote.",
+        msg: "Ajoute une méthode greet à pilote.",
       };
     }
     if (!/\bthis\.name\b/.test(stripped)) {

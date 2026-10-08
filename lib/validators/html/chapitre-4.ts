@@ -26,7 +26,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Inventaire dresse.",
+      msg: "Inventaire dressé.",
       objList: ["o1a", "o1b"],
     };
   },
@@ -44,7 +44,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Procédure sequencee.",
+      msg: "Procédure séquencée.",
       objList: ["o2a", "o2b"],
     };
   },

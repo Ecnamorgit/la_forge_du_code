@@ -68,7 +68,7 @@ function Reacteur() {
 }`;
     const r = etape1!(code);
     expect(r.ok).toBe(false);
-    expect(r.msg).toMatch(/jamais appele/);
+    expect(r.msg).toMatch(/jamais appelé/);
   });
 });
 
@@ -314,7 +314,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
 }`;
     const r = etape4!(code);
     expect(r.ok).toBe(false);
-    expect(r.msg).toMatch(/preceder|premiere ligne/);
+    expect(r.msg).toMatch(/précéder|première ligne/);
   });
 
   it("accepte un ternaire comme comportement conditionnel", () => {

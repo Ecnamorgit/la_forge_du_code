@@ -34,7 +34,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Titre illumine.",
+      msg: "Titre illuminé.",
       objList: ["o2a", "o2b"],
     };
   },
@@ -52,7 +52,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Fond spatial active.",
+      msg: "Fond spatial activé.",
       objList: ["o3a", "o3b"],
     };
   },
@@ -70,7 +70,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Texte amplifie.",
+      msg: "Texte amplifié.",
       objList: ["o4a", "o4b"],
       final: true,
     };

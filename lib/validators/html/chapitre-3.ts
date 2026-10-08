@@ -22,7 +22,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Capteur active.",
+      msg: "Capteur activé.",
       objList: ["o1a", "o1b"],
     };
   },
@@ -40,7 +40,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Dimensions calibrees.",
+      msg: "Dimensions calibrées.",
       objList: ["o2a", "o2b"],
     };
   },
@@ -83,7 +83,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Cliche archive.",
+      msg: "Cliché archivé.",
       objList: ["o4a", "o4b"],
       final: true,
     };

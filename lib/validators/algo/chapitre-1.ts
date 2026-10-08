@@ -10,15 +10,15 @@ export const validators: Validator[] = [
     const hasLinear = /O\s*\(\s*n\s*\)/i.test(code);
     const hasQuadratic = /O\s*\(\s*n\s*(\^|\*\*)?\s*2\s*\)/i.test(code);
     if (!hasConstant || !hasLinear || !hasQuadratic) {
-      return fail("Indique les trois complexites en commentaire : O(1), O(n) et O(n^2).");
+      return fail("Indique les trois complexités en commentaire : O(1), O(n) et O(n^2).");
     }
-    return pass("Complexite comprise.", ["o1a", "o1b"]);
+    return pass("Complexité comprise.", ["o1a", "o1b"]);
   },
   // Étape 2 : recherche dichotomique (while, milieu, return -1 si absent)
   (code) => {
     const c = strip(code);
     if (!/while\s*\(/.test(c)) {
-      return fail("Implemente la boucle while avec des bornes debut/fin.");
+      return fail("Implémente la boucle while avec des bornes debut/fin.");
     }
     if (!/Math\.floor\s*\(/.test(c) || !/return\s+-\s*1/.test(c)) {
       return fail("Calcule le milieu (Math.floor) et retourne -1 si la cible est absente.");
@@ -29,14 +29,14 @@ export const validators: Validator[] = [
   (code) => {
     const c = strip(code);
     if (countMatches(c, /for\s*\(/) < 2) {
-      return fail("Le tri a bulles a besoin de DEUX boucles for imbriquees.");
+      return fail("Le tri à bulles a besoin de DEUX boucles for imbriquées.");
     }
     // Échange par déstructuration, ex. [a[j], a[j + 1]] = [a[j + 1], a[j]] : on
     // cherche `] = [`, ce qui tolère les index imbriqués.
     if (!/\]\s*=\s*\[/.test(c)) {
-      return fail("Echange deux elements avec le destructuring : [a[j], a[j+1]] = [a[j+1], a[j]].");
+      return fail("Échange deux éléments avec le destructuring : [a[j], a[j+1]] = [a[j+1], a[j]].");
     }
-    return pass("Donnees ordonnees.", ["o3a", "o3b"]);
+    return pass("Données ordonnées.", ["o3a", "o3b"]);
   },
   // Étape 4 : Fibonacci récursif et itératif
   (code) => {
@@ -45,10 +45,10 @@ export const validators: Validator[] = [
       /function\s+fiboRecursif/.test(c) &&
       /fiboRecursif\s*\([^)]*-\s*1\s*\)\s*\+\s*fiboRecursif\s*\([^)]*-\s*2\s*\)/.test(c);
     if (!recursive) {
-      return fail("Implemente fiboRecursif avec un cas de base puis fiboRecursif(n-1) + fiboRecursif(n-2).");
+      return fail("Implémente fiboRecursif avec un cas de base puis fiboRecursif(n-1) + fiboRecursif(n-2).");
     }
     if (!/function\s+fiboIteratif/.test(c) || !/for\s*\(/.test(c)) {
-      return fail("Implemente fiboIteratif avec une boucle (version O(n)).");
+      return fail("Implémente fiboIteratif avec une boucle (version O(n)).");
     }
     return pass("Fondamentaux acquis.", ["o4a", "o4b"], true);
   },

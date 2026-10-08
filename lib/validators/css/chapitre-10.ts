@@ -37,7 +37,7 @@ export const validators: Validator[] = [
     if (!/(padding|border-radius)\s*:\s*[^;]*var\s*\(/i.test(css)) {
       return { ok: false, msg: "Utilise var(...) pour padding ou border-radius dans une règle." };
     }
-    return { ok: true, msg: "Système coherent.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Système cohérent.", objList: ["o3a", "o3b"] };
   },
   // Étape 4 : un bloc [data-theme="..."] qui redéfinit une propriété personnalisée
   (code) => {

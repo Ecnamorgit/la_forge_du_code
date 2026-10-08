@@ -8,7 +8,7 @@ import {
 
 function runtimeError(error: string | null): string | null {
   if (!error) return null;
-  return `Erreur d'execution : ${error}`;
+  return `Erreur d'exécution : ${error}`;
 }
 
 export const validators: Validator[] = [
@@ -102,7 +102,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Trois types confirmes.",
+      msg: "Trois types confirmés.",
       objList: ["o3a", "o3b"],
     };
   },
@@ -116,7 +116,7 @@ export const validators: Validator[] = [
     if (!tlMatch) {
       return {
         ok: false,
-        msg: "Utilise un template literal entoure de backticks (`...`).",
+        msg: "Utilise un template literal entouré de backticks (`...`).",
       };
     }
     const interpolations = (tlMatch[0].match(/\$\{[^}]+\}/g) ?? []).length;
@@ -129,7 +129,7 @@ export const validators: Validator[] = [
     if (ctx.logs.length === 0) {
       return {
         ok: false,
-        msg: "Affiche le message compose avec console.log.",
+        msg: "Affiche le message composé avec console.log.",
       };
     }
     const hasExpectedContent = ctx.logs.some(
@@ -138,12 +138,12 @@ export const validators: Validator[] = [
     if (!hasExpectedContent) {
       return {
         ok: false,
-        msg: "Le message logue doit mentionner Cadet et SELENE.",
+        msg: "Le message logué doit mentionner Cadet et SELENE.",
       };
     }
     return {
       ok: true,
-      msg: "Message compose envoye.",
+      msg: "Message composé envoyé.",
       objList: ["o4a", "o4b"],
       final: true,
     };

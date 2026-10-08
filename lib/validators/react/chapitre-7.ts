@@ -128,19 +128,19 @@ export const validators: Validator[] = [
       const names = findCustomHookNames(c);
       if (names.length === 0) {
         return fail(
-          "Declare une fonction prefixee par use, par exemple function useCompteur() { ... }.",
+          "Déclare une fonction préfixée par use, par exemple function useCompteur() { ... }.",
           "structure"
         );
       }
       return fail(
-        `Deplace l'appel useState a l'interieur de ${names[0]} : c'est le hook qui doit porter l'etat, pas le composant.`,
+        `Déplace l'appel useState à l'intérieur de ${names[0]} : c'est le hook qui doit porter l'état, pas le composant.`,
         "structure"
       );
     }
 
     if (!isHookCalled(c, hook.name)) {
       return fail(
-        `${hook.name} est declare mais jamais appele. Recupere-le dans ton composant avec ${hook.name}().`
+        `${hook.name} est déclaré mais jamais appelé. Récupère-le dans ton composant avec ${hook.name}().`
       );
     }
 
@@ -154,7 +154,7 @@ export const validators: Validator[] = [
     const hook = findHookBodyMatching(c, (body) => /\buseState\s*\(/.test(body));
     if (!hook) {
       return fail(
-        "Declare un hook prefixe par use qui appelle useState.",
+        "Déclare un hook préfixé par use qui appelle useState.",
         "structure"
       );
     }
@@ -175,7 +175,7 @@ export const validators: Validator[] = [
       .filter(Boolean);
     if (members.length < 2) {
       return fail(
-        "Retourne DEUX sorties : la valeur a afficher et l'action qui la modifie.",
+        "Retourne DEUX sorties : la valeur à afficher et l'action qui la modifie.",
         "logic"
       );
     }
@@ -186,11 +186,11 @@ export const validators: Validator[] = [
     ).test(c);
     if (!destructured) {
       return fail(
-        `Destructure le resultat dans le composant : const { valeur, action } = ${hook.name}();`
+        `Destructure le résultat dans le composant : const { valeur, action } = ${hook.name}();`
       );
     }
 
-    return pass("Module branche.", ["o2a", "o2b"]);
+    return pass("Module branché.", ["o2a", "o2b"]);
   },
 
   // Étape 3 : hook avec useEffect, abonnement et désabonnement dans le cleanup.
@@ -200,7 +200,7 @@ export const validators: Validator[] = [
     const hook = findHookBodyMatching(c, (body) => /\buseEffect\s*\(/.test(body));
     if (!hook) {
       return fail(
-        "Declare un hook prefixe par use qui appelle useEffect.",
+        "Déclare un hook préfixé par use qui appelle useEffect.",
         "structure"
       );
     }
@@ -208,19 +208,19 @@ export const validators: Validator[] = [
     // Le useEffect du hook, pas n'importe lequel du fichier.
     const effect = findBareCallBody(hook.body, "useEffect");
     if (!effect) {
-      return fail("Appelle useEffect a l'interieur de ton hook.", "structure");
+      return fail("Appelle useEffect à l'intérieur de ton hook.", "structure");
     }
 
     if (!/addEventListener\s*\(/.test(effect.body)) {
       return fail(
-        "Abonne-toi a l'evenement dans l'effet : window.addEventListener('resize', handler)."
+        "Abonne-toi à l'événement dans l'effet : window.addEventListener('resize', handler)."
       );
     }
 
     const returnIdx = effect.body.search(/\breturn\b/);
     if (returnIdx === -1) {
       return fail(
-        "Il manque la fonction de cleanup : termine l'effet par return () => ... pour te desabonner.",
+        "Il manque la fonction de cleanup : termine l'effet par return () => ... pour te désabonner.",
         "logic"
       );
     }
@@ -228,25 +228,25 @@ export const validators: Validator[] = [
     const cleanupBody = returnedCleanupBody(effect.body, hook.body);
     if (cleanupBody === null) {
       return fail(
-        "Le cleanup doit RETOURNER une fonction, pas appeler removeEventListener directement : return () => window.removeEventListener('resize', handler) plutot que return window.removeEventListener(...).",
+        "Le cleanup doit RETOURNER une fonction, pas appeler removeEventListener directement : return () => window.removeEventListener('resize', handler) plutôt que return window.removeEventListener(...).",
         "logic"
       );
     }
     if (!/removeEventListener\s*\(/.test(cleanupBody)) {
       return fail(
-        "Le desabonnement doit vivre DANS le cleanup : return () => window.removeEventListener('resize', handler).",
+        "Le désabonnement doit vivre DANS le cleanup : return () => window.removeEventListener('resize', handler).",
         "logic"
       );
     }
 
     if (!/\buseState\s*\(/.test(hook.body)) {
       return fail(
-        "Stocke la largeur dans un etat avec useState, sinon l'affichage ne se mettra jamais a jour.",
+        "Stocke la largeur dans un état avec useState, sinon l'affichage ne se mettra jamais à jour.",
         "logic"
       );
     }
 
-    return pass("Hublot calibre.", ["o3a", "o3b"]);
+    return pass("Hublot calibré.", ["o3a", "o3b"]);
   },
 
   // Étape 4 : règles des hooks, aucun appel dans un bloc conditionnel.
@@ -259,7 +259,7 @@ export const validators: Validator[] = [
 
     if (hookCallInsideIfBlock(c)) {
       return fail(
-        "Un appel de hook est encore enferme dans un if. Remonte-le au niveau superieur du composant, avant tout if et tout return.",
+        "Un appel de hook est encore enfermé dans un if. Remonte-le au niveau supérieur du composant, avant tout if et tout return.",
         "structure"
       );
     }
@@ -279,11 +279,11 @@ export const validators: Validator[] = [
     const firstHook = c.search(/\buseState\s*\(/);
     if (firstIf !== -1 && firstHook > firstIf) {
       return fail(
-        "L'appel useState doit preceder la condition, pas la suivre. Place-le en premiere ligne du composant.",
+        "L'appel useState doit précéder la condition, pas la suivre. Place-le en première ligne du composant.",
         "structure"
       );
     }
 
-    return pass("Regles des hooks respectees.", ["o4a", "o4b"], true);
+    return pass("Règles des hooks respectées.", ["o4a", "o4b"], true);
   },
 ];

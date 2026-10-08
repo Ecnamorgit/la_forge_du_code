@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { logsContain, logsInclude, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
-  return error ? `Erreur d'execution : ${error}` : null;
+  return error ? `Erreur d'exécution : ${error}` : null;
 }
 
 /**
@@ -45,7 +45,7 @@ export const validators: Validator[] = [
     if (!logsContain(ctx.logs, "Mission lunaire")) {
       return { ok: false, msg: "La console doit afficher 'Mission lunaire'." };
     }
-    return { ok: true, msg: "Flux synchronise.", objList: ["o2a", "o2b"] };
+    return { ok: true, msg: "Flux synchronisé.", objList: ["o2a", "o2b"] };
   },
   // Étape 3 : try/catch avec await, log contenant 'timeout'
   (code, ctx) => {
@@ -62,7 +62,7 @@ export const validators: Validator[] = [
     if (!logsContain(ctx.logs, "timeout")) {
       return { ok: false, msg: "La console doit logger une chaîne contenant 'timeout'." };
     }
-    return { ok: true, msg: "Erreur interceptee.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Erreur interceptée.", objList: ["o3a", "o3b"] };
   },
   // Étape 4 : Promise.all qui renvoie [1, 2, 3]
   (code, ctx) => {
@@ -80,6 +80,6 @@ export const validators: Validator[] = [
         msg: "La console doit afficher un tableau contenant 1, 2, 3.",
       };
     }
-    return { ok: true, msg: "Opérations groupees.", objList: ["o4a", "o4b"], final: true };
+    return { ok: true, msg: "Opérations groupées.", objList: ["o4a", "o4b"], final: true };
   },
 ];

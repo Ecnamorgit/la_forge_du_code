@@ -22,7 +22,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Module dimensionne.",
+      msg: "Module dimensionné.",
       objList: ["o1a", "o1b"],
     };
   },
@@ -46,7 +46,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Padding applique.",
+      msg: "Padding appliqué.",
       objList: ["o2a"],
     };
   },
@@ -70,7 +70,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Margin applique.",
+      msg: "Margin appliqué.",
       objList: ["o3a"],
     };
   },
@@ -95,7 +95,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Module delimite.",
+      msg: "Module délimité.",
       objList: ["o4a", "o4b"],
       final: true,
     };

@@ -8,12 +8,12 @@ export const validators: Validator[] = [
   (code) => {
     const c = strip(code);
     if (!/vaisseau\s*:\s*\{[^}]*nom[^}]*classe/.test(c)) {
-      return fail("Construis un document avec l'objet imbrique vaisseau: { nom, classe }.");
+      return fail("Construis un document avec l'objet imbriqué vaisseau: { nom, classe }.");
     }
     if (!/\.insertOne\s*\(/.test(c) || !/await/.test(c)) {
-      return fail("Insere le document avec await db.collection('pilotes').insertOne(...).");
+      return fail("Insère le document avec await db.collection('pilotes').insertOne(...).");
     }
-    return pass("Document stocke.", ["o1a", "o1b"]);
+    return pass("Document stocké.", ["o1a", "o1b"]);
   },
   // Étape 2 : find avec $gte, projection et limit(10)
   (code) => {
@@ -22,7 +22,7 @@ export const validators: Validator[] = [
       return fail("Filtre le niveau avec { niveau: { $gte: 5 } }.");
     }
     if (!/\.project\s*\(/.test(c) || !/\.limit\s*\(\s*10\s*\)/.test(c)) {
-      return fail("Projette uniquement nom et niveau (sans _id) et limite a 10.");
+      return fail("Projette uniquement nom et niveau (sans _id) et limite à 10.");
     }
     return pass("Documents extraits.", ["o2a", "o2b"]);
   },
@@ -36,9 +36,9 @@ export const validators: Validator[] = [
       !/\$set\s*:\s*\{[^}]*niveau[^}]*badge/.test(c) &&
       !/\$set\s*:\s*\{[^}]*badge[^}]*niveau/.test(c)
     ) {
-      return fail("Modifie niveau ET badge avec l'operateur $set (sans ecraser le document).");
+      return fail("Modifie niveau ET badge avec l'opérateur $set (sans écraser le document).");
     }
-    return pass("Document actualise.", ["o3a", "o3b"]);
+    return pass("Document actualisé.", ["o3a", "o3b"]);
   },
   // Étape 4 : pipeline aggregate avec $group et $sum: 1
   (code) => {
@@ -49,6 +49,6 @@ export const validators: Validator[] = [
     if (!/\$group\s*:/.test(c) || !/\$sum\s*:\s*1/.test(c)) {
       return fail("Groupe par classe avec $group et compte avec $sum: 1.");
     }
-    return pass("Pipeline maitrise.", ["o4a", "o4b"], true);
+    return pass("Pipeline maîtrisé.", ["o4a", "o4b"], true);
   },
 ];

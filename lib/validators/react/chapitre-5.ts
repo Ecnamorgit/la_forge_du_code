@@ -29,30 +29,30 @@ export const validators: Validator[] = [
   (code) => {
     const c = strip(code);
     if (!findCallBody(c, "map")) {
-      return fail("Utilise .map() sur le tableau flotte pour generer la liste, au lieu de recopier chaque <li> a la main.");
+      return fail("Utilise .map() sur le tableau flotte pour générer la liste, au lieu de recopier chaque <li> à la main.");
     }
     // Seuls les callbacks de .map() comptent : un composant sans rapport qui
     // retourne du JSX (`const Debug = () => <span/>`) ne doit pas faire passer un
     // .map() qui ne retourne que du texte.
     if (!findMapCallbackReturningJsx(c)) {
-      return fail("Le callback de .map() doit retourner un element JSX, par exemple v => <li>{v.nom}</li>.");
+      return fail("Le callback de .map() doit retourner un élément JSX, par exemple v => <li>{v.nom}</li>.");
     }
-    return pass("Flotte affichee dynamiquement.", ["o1a", "o1b"]);
+    return pass("Flotte affichée dynamiquement.", ["o1a", "o1b"]);
   },
   // Étape 2 : une prop key={...} qui n'est pas simplement l'index
   (code) => {
     const c = strip(code);
     const keyMatches = [...c.matchAll(/key=\{([^}]*)\}/g)];
     if (keyMatches.length === 0) {
-      return fail("Ajoute une prop key={...} sur l'element racine retourne par map (ex: <li key={v.id}>).");
+      return fail("Ajoute une prop key={...} sur l'élément racine retourné par map (ex: <li key={v.id}>).");
     }
     const usesIndexOnly = keyMatches.some((m) => /^\s*(index|i|idx)\s*$/.test(m[1]));
     if (usesIndexOnly) {
       return fail(
-        "N'utilise pas l'index du tableau comme key (key={index} ou key={i}) : des que la flotte bouge, React perd le fil. Utilise un identifiant stable comme v.id."
+        "N'utilise pas l'index du tableau comme key (key={index} ou key={i}) : dès que la flotte bouge, React perd le fil. Utilise un identifiant stable comme v.id."
       );
     }
-    return pass("Chaque vaisseau garde une identite stable.", ["o2a", "o2b"]);
+    return pass("Chaque vaisseau garde une identité stable.", ["o2a", "o2b"]);
   },
   // Étape 3 : .map() chaîné directement après un .filter(...), pas seulement
   // présent plus loin dans le fichier.
@@ -71,9 +71,9 @@ export const validators: Validator[] = [
       filterMatch = findCallBody(c, "filter", filterMatch.end);
     }
     if (!isChained) {
-      return fail("Chaine .map() APRES .filter(), dans cet ordre : flotte.filter(v => ...).map(v => ...).");
+      return fail("Chaîne .map() APRÈS .filter(), dans cet ordre : flotte.filter(v => ...).map(v => ...).");
     }
-    return pass("Flotte filtree puis affichee.", ["o3a", "o3b"]);
+    return pass("Flotte filtrée puis affichée.", ["o3a", "o3b"]);
   },
   // Étape 4 : test de longueur sur la collection filtrée (`operationnels`) et
   // branche JSX alternative.
@@ -84,16 +84,16 @@ export const validators: Validator[] = [
     // vide ici) validerait une branche qui ne se déclenche jamais.
     const hasLengthTest = hasEmptyLengthCheck(c, "operationnels");
     if (!hasLengthTest) {
-      return fail("Teste la longueur du tableau (ex: operationnels.length === 0) pour detecter une liste vide.");
+      return fail("Teste la longueur du tableau (ex: operationnels.length === 0) pour détecter une liste vide.");
     }
     // La branche vide doit afficher un message, pas un simple `return null` :
     // on cherche un élément court (p, div, span, hN) qui contient du texte.
     const hasMessageJsx = /<(p|div|span|h[1-6])\b[^>]*>[^<]*[A-Za-z][^<]*<\/\1>/.test(c);
     if (!hasMessageJsx) {
       return fail(
-        "Quand la liste est vide, affiche un message a la place (ex: <p>Aucun vaisseau operationnel.</p>), pas un return null silencieux."
+        "Quand la liste est vide, affiche un message à la place (ex: <p>Aucun vaisseau operationnel.</p>), pas un return null silencieux."
       );
     }
-    return pass("Flotte cartographiee, meme a zero unite.", ["o4a", "o4b"], true);
+    return pass("Flotte cartographiée, même à zéro unité.", ["o4a", "o4b"], true);
   },
 ];

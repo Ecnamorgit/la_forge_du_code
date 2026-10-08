@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { logsContain, logsInclude, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
-  return error ? `Erreur d'execution : ${error}` : null;
+  return error ? `Erreur d'exécution : ${error}` : null;
 }
 
 export const validators: Validator[] = [
@@ -140,7 +140,7 @@ export const validators: Validator[] = [
     if (!lhs5 || !lhs10) {
       return {
         ok: false,
-        msg: "Utilise des seuils progressifs avec le parametre à gauche (ex: if (level < 5) ... if (level < 10) ...).",
+        msg: "Utilise des seuils progressifs avec le paramètre à gauche (ex: if (level < 5) ... if (level < 10) ...).",
       };
     }
     if (!logsInclude(ctx.logs, "Pilote")) {
@@ -154,12 +154,12 @@ export const validators: Validator[] = [
     if (!/['"`]Cadet['"`]/.test(stripped) || !/['"`]Capitaine['"`]/.test(stripped)) {
       return {
         ok: false,
-        msg: 'Les trois rangs "Cadet", "Pilote" et "Capitaine" doivent apparaitre dans la fonction.',
+        msg: 'Les trois rangs "Cadet", "Pilote" et "Capitaine" doivent apparaître dans la fonction.',
       };
     }
     return {
       ok: true,
-      msg: "Rang dynamique attribue.",
+      msg: "Rang dynamique attribué.",
       objList: ["o4a", "o4b"],
       final: true,
     };

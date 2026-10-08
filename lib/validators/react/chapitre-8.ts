@@ -136,7 +136,7 @@ export const validators: Validator[] = [
 
     if (!/\bcreateContext\s*\(/.test(c)) {
       return fail(
-        "Cree le contexte au niveau du module : const ContexteFlotte = createContext(null);",
+        "Crée le contexte au niveau du module : const ContexteFlotte = createContext(null);",
         "structure"
       );
     }
@@ -169,7 +169,7 @@ export const validators: Validator[] = [
       );
     }
     if (call.body.trim().length === 0) {
-      return fail("Passe l'objet contexte a useContext, par exemple useContext(ContexteFlotte).");
+      return fail("Passe l'objet contexte à useContext, par exemple useContext(ContexteFlotte).");
     }
 
     // o2b : la valeur lue doit être affichée, par déstructuration ou via une
@@ -200,7 +200,7 @@ export const validators: Validator[] = [
       );
     }
 
-    return pass("Signal recu.", ["o2a", "o2b"]);
+    return pass("Signal reçu.", ["o2a", "o2b"]);
   },
 
   // Étape 3 : un réducteur à deux actions, branché par useReducer.
@@ -224,7 +224,7 @@ export const validators: Validator[] = [
 
     if (reducerBody === null) {
       return fail(
-        "Declare une fonction reducteur(etat, action) et passe-la en premier argument de useReducer.",
+        "Déclare une fonction reducteur(etat, action) et passe-la en premier argument de useReducer.",
         "structure"
       );
     }
@@ -232,14 +232,14 @@ export const validators: Validator[] = [
     const branches = countActionBranches(reducerBody);
     if (branches < 2) {
       return fail(
-        `Ton reducteur ne gere que ${branches} action. Ajoute les deux transitions demandees : monter et descendre.`,
+        `Ton reducteur ne gère que ${branches} action. Ajoute les deux transitions demandées : monter et descendre.`,
         "logic"
       );
     }
 
     if (!hasFallbackReturn(reducerBody)) {
       return fail(
-        "Ajoute un cas default qui retourne l'etat inchange, sinon une action inconnue effacerait ton etat.",
+        "Ajoute un cas default qui retourne l'état inchangé, sinon une action inconnue effacerait ton état.",
         "logic"
       );
     }
@@ -250,7 +250,7 @@ export const validators: Validator[] = [
       );
     }
 
-    return pass("Reducteur en ligne.", ["o3a", "o3b"]);
+    return pass("Réducteur en ligne.", ["o3a", "o3b"]);
   },
 
   // Étape 4 : diffuser etat et dispatch, et agir depuis le consommateur.
@@ -259,7 +259,7 @@ export const validators: Validator[] = [
 
     if (!findBareCallBody(c, "useReducer")) {
       return fail(
-        "Garde useReducer au sommet : c'est lui qui tient l'etat a diffuser.",
+        "Garde useReducer au sommet : c'est lui qui tient l'état à diffuser.",
         "structure"
       );
     }
@@ -267,7 +267,7 @@ export const validators: Validator[] = [
     const value = providerValueBody(c);
     if (value === null) {
       return fail(
-        "Diffuse l'etat via un Provider : <ContexteAlerte.Provider value={{ etat, dispatch }}>.",
+        "Diffuse l'état via un Provider : <ContexteAlerte.Provider value={{ etat, dispatch }}>.",
         "structure"
       );
     }
@@ -293,10 +293,10 @@ export const validators: Validator[] = [
 
     if (!/\bdispatch\s*\(\s*\{/.test(consumerBody)) {
       return fail(
-        "Declenche une transition depuis Console : onClick={() => dispatch({ type: 'monter' })}."
+        "Déclenche une transition depuis Console : onClick={() => dispatch({ type: 'monter' })}."
       );
     }
 
-    return pass("Reseau complet.", ["o4a", "o4b"], true);
+    return pass("Réseau complet.", ["o4a", "o4b"], true);
   },
 ];

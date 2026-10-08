@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { logsInclude, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
-  return error ? `Erreur d'execution : ${error}` : null;
+  return error ? `Erreur d'exécution : ${error}` : null;
 }
 
 export const validators: Validator[] = [
@@ -58,7 +58,7 @@ export const validators: Validator[] = [
         msg: "Après removeItem, getItem doit retourner null (et tu dois le logger).",
       };
     }
-    return { ok: true, msg: "Clé effacee.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Clé effacée.", objList: ["o3a", "o3b"] };
   },
   // Étape 4 : fonction loadOrInit, affiche 80
   (code, ctx) => {

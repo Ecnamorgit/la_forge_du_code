@@ -9,23 +9,23 @@ export const validators: Validator[] = [
   (code) => {
     const c = strip(code);
     if (!/fetch\s*\(\s*['"]https:\/\/api\.codeforge\.space\/vaisseaux['"]\s*\)/.test(c)) {
-      return fail("Recupere la liste via fetch('https://api.codeforge.space/vaisseaux') (GET par defaut).");
+      return fail("Récupère la liste via fetch('https://api.codeforge.space/vaisseaux') (GET par défaut).");
     }
     if (!/\.ok\b/.test(c) || !/console\.log/.test(c)) {
-      return fail("Verifie response.ok puis logge les donnees recues.");
+      return fail("Vérifie response.ok puis logge les données reçues.");
     }
-    return pass("Flotte recensee.", ["o1a", "o1b"]);
+    return pass("Flotte recensée.", ["o1a", "o1b"]);
   },
   // Étape 2 : POST avec method, headers et body en JSON.stringify
   (code) => {
     const c = strip(code);
     if (!/method\s*:\s*['"]POST['"]/i.test(c) || !/headers\s*:/.test(c) || !/body\s*:/.test(c)) {
-      return fail("Specifie method: 'POST', headers et body dans les options de fetch.");
+      return fail("Spécifie method: 'POST', headers et body dans les options de fetch.");
     }
     if (!/JSON\.stringify\s*\(/.test(c)) {
       return fail("Convertis l'objet du body avec JSON.stringify({ nom: 'Phoenix', classe: 'cargo' }).");
     }
-    return pass("Vaisseau enregistre.", ["o2a", "o2b"]);
+    return pass("Vaisseau enregistré.", ["o2a", "o2b"]);
   },
   // Étape 3 : PUT /vaisseaux/42 avec method et body
   (code) => {
@@ -36,7 +36,7 @@ export const validators: Validator[] = [
     if (!/method\s*:\s*['"]PUT['"]/i.test(c) || !/body\s*:/.test(c)) {
       return fail("Utilise method: 'PUT' avec le body complet { nom: 'Phoenix II', classe: 'combat' }.");
     }
-    return pass("Dossier actualise.", ["o3a", "o3b"]);
+    return pass("Dossier actualisé.", ["o3a", "o3b"]);
   },
   // Étape 4 : DELETE /vaisseaux/7, response.ok et message de succès
   (code) => {
@@ -45,8 +45,8 @@ export const validators: Validator[] = [
       return fail("Supprime via method: 'DELETE' sur '.../vaisseaux/7'.");
     }
     if (!/\.ok\b/.test(c) || !/Vaisseau retire de la flotte/.test(c)) {
-      return fail("Verifie response.ok et logge 'Vaisseau retire de la flotte' en cas de succes.");
+      return fail("Vérifie response.ok et logge 'Vaisseau retire de la flotte' en cas de succès.");
     }
-    return pass("CRUD maitrise.", ["o4a", "o4b"], true);
+    return pass("CRUD maîtrisé.", ["o4a", "o4b"], true);
   },
 ];

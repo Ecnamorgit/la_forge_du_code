@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { logsInclude, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
-  return error ? `Erreur d'execution : ${error}` : null;
+  return error ? `Erreur d'exécution : ${error}` : null;
 }
 
 export const validators: Validator[] = [
@@ -36,12 +36,12 @@ export const validators: Validator[] = [
     } catch {
       return {
         ok: false,
-        msg: "Le tableau affiche n'est pas lisible — vérifie sa syntaxe.",
+        msg: "Le tableau affiché n'est pas lisible — vérifie sa syntaxe.",
       };
     }
     return {
       ok: true,
-      msg: "Inventaire dresse.",
+      msg: "Inventaire dressé.",
       objList: ["o1a", "o1b"],
     };
   },
@@ -62,7 +62,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Vaisseau ajoute.",
+      msg: "Vaisseau ajouté.",
       objList: ["o2a", "o2b"],
     };
   },
@@ -83,7 +83,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Roll call effectue.",
+      msg: "Roll call effectué.",
       objList: ["o3a", "o3b"],
     };
   },
@@ -104,7 +104,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Total vérifie.",
+      msg: "Total vérifié.",
       objList: ["o4a", "o4b"],
       final: true,
     };

@@ -37,7 +37,7 @@ describe("JS chapitre 2 — etape 1 (arithmetique)", () => {
   it("remonte une erreur d'execution", () => {
     const r = valider("console.log(x - 1)", ctx([], "ReferenceError: x is not defined"));
     expect(r.ok).toBe(false);
-    expect(r.msg).toMatch(/Erreur d'execution/);
+    expect(r.msg).toMatch(/Erreur d'exécution/);
   });
 
   it("refuse l'absence de contexte d'execution", () => {

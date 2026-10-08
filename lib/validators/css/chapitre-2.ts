@@ -34,7 +34,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Identifiant unique cible.",
+      msg: "Identifiant unique ciblé.",
       objList: ["o2a", "o2b"],
     };
   },
@@ -62,7 +62,7 @@ export const validators: Validator[] = [
     }
     return {
       ok: true,
-      msg: "Teinte personnalisee.",
+      msg: "Teinte personnalisée.",
       objList: ["o3a", "o3b"],
     };
   },

@@ -48,7 +48,7 @@ export const validators: Validator[] = [
     if (!/(?<![-\w])content\s*:/i.test(body)) {
       return { ok: false, msg: "Un pseudo-élément a besoin d'une propriété content: \"...\" pour s'afficher." };
     }
-    return { ok: true, msg: "Élément fantome cree.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Élément fantôme créé.", objList: ["o3a", "o3b"] };
   },
   // Étape 4 : li:nth-child(...) avec un background
   (code) => {
@@ -59,8 +59,8 @@ export const validators: Validator[] = [
       return { ok: false, msg: "Ajoute une règle li:nth-child(even) ou (odd) { ... }." };
     }
     if (!/\bbackground/i.test(body)) {
-      return { ok: false, msg: "Définis un background pour faire l'effet zebrure." };
+      return { ok: false, msg: "Définis un background pour faire l'effet zébrure." };
     }
-    return { ok: true, msg: "Motif en zebrure.", objList: ["o4a", "o4b"], final: true };
+    return { ok: true, msg: "Motif en zébrure.", objList: ["o4a", "o4b"], final: true };
   },
 ];

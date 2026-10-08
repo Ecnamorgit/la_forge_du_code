@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { logsContain, logsInclude, stripComments } from "./_utils";
 
 function runtimeError(error: string | null): string | null {
-  return error ? `Erreur d'execution : ${error}` : null;
+  return error ? `Erreur d'exécution : ${error}` : null;
 }
 
 export const validators: Validator[] = [
@@ -18,7 +18,7 @@ export const validators: Validator[] = [
     if (!logsContain(ctx.logs, "100") || !logsContain(ctx.logs, "240")) {
       return {
         ok: false,
-        msg: "La console doit afficher le tableau double (contient 100, 240, 160, 400, 60).",
+        msg: "La console doit afficher le tableau doublé (contient 100, 240, 160, 400, 60).",
       };
     }
     return { ok: true, msg: "Données transformées.", objList: ["o1a", "o1b"] };
@@ -55,7 +55,7 @@ export const validators: Validator[] = [
     if (!logsInclude(ctx.logs, "400")) {
       return { ok: false, msg: "La console doit afficher 400 (somme des masses)." };
     }
-    return { ok: true, msg: "Total calcule.", objList: ["o3a", "o3b"] };
+    return { ok: true, msg: "Total calculé.", objList: ["o3a", "o3b"] };
   },
   // Étape 4 : ships.find() renvoie le vaisseau en maintenance, affiche "NEB-02"
   (code, ctx) => {
@@ -69,6 +69,6 @@ export const validators: Validator[] = [
     if (!logsInclude(ctx.logs, "NEB-02")) {
       return { ok: false, msg: "La console doit afficher exactement 'NEB-02'." };
     }
-    return { ok: true, msg: "Vaisseau localise.", objList: ["o4a", "o4b"], final: true };
+    return { ok: true, msg: "Vaisseau localisé.", objList: ["o4a", "o4b"], final: true };
   },
 ];
