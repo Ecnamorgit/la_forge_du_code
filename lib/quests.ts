@@ -1,24 +1,21 @@
 /**
- * Le briefing du jour — trois ordres de mission tirés chaque jour.
+ * Briefing du jour : trois ordres de mission tirés chaque jour.
  *
- * Deux invariants gouvernent ce module :
+ * Le tirage est déterministe (graine = userId + date) : stable toute la
+ * journée sans être stocké, et non rejouable en rechargeant la page.
  *
- *  1. Le tirage est DÉTERMINISTE : graine = userId + date. Stable toute la
- *     journée sans être stocké, non rejouable en rechargeant la page.
+ * La faisabilité est évaluée sur l'état d'avant aujourd'hui (`past`), jamais
+ * sur le travail du jour (`today`), qui ne sert qu'à la progression. Sinon un
+ * ordre pourrait disparaître à cause du travail qu'il demandait.
  *
- *  2. La faisabilité est évaluée sur l'état d'AVANT aujourd'hui (`past`), jamais
- *     sur le travail du jour (`today`). Sinon un ordre peut cesser d'être
- *     éligible à cause du travail qu'il demandait : le cadet le réussirait et le
- *     verrait disparaître. `today` ne sert QU'À la progression.
- *
- * Tout est calculable depuis StepCompletion : aucune télémétrie nouvelle.
+ * Tout se calcule depuis StepCompletion.
  */
 
 import type { ChapterMeta } from "./user-store";
 
 export type QuestSlot = "reprise" | "effort" | "curiosite";
 
-/** Barème. Total journalier plafonné à 60 XP — voir la spec, section « XP du briefing ». */
+/** Barème. Avec le bonus de clôture, le total journalier plafonne à 60 XP. */
 export const QUEST_XP: Record<QuestSlot, number> = {
   reprise: 10,
   effort: 20,
@@ -83,7 +80,7 @@ export function splitCompletions(
   return { past, today };
 }
 
-// --- Utilitaires d'état, tous fondés sur `past` uniquement ----------------
+// Utilitaires d'état
 
 interface Params {
   course: string | null;
@@ -134,7 +131,7 @@ function chaptersInProgress(
   return out;
 }
 
-// --- Archétypes -----------------------------------------------------------
+// Archétypes d'ordres
 
 interface Archetype {
   id: string;
@@ -242,9 +239,9 @@ const ARCHETYPES: Archetype[] = [
   },
 ];
 
-// --- Tirage déterministe --------------------------------------------------
+// Tirage déterministe
 
-/** FNV-1a 32 bits. Suffisant pour choisir un index, sans dépendance. */
+/** FNV-1a 32 bits, suffisant pour choisir un index. */
 function hash(seed: string): number {
   let h = 0x811c9dc5;
   for (let i = 0; i < seed.length; i++) {
@@ -258,7 +255,7 @@ const SLOTS: QuestSlot[] = ["reprise", "effort", "curiosite"];
 
 /**
  * Construit le briefing du jour. Peut rendre moins de trois ordres si un
- * emplacement n'a aucun archétype faisable — c'est correct, et documenté.
+ * emplacement n'a aucun archétype faisable.
  */
 export function buildBriefing(ctx: QuestContext): Briefing {
   const quests: Quest[] = [];
@@ -294,16 +291,13 @@ export function buildBriefing(ctx: QuestContext): Briefing {
   };
 }
 
-// --- Versement du briefing ------------------------------------------------
+// Versement du briefing
 
 /**
- * Bit du masque `User.dailyClaimed` réservé à chaque emplacement.
- *
- * Le bit tient à l'EMPLACEMENT, pas à la position de l'ordre dans le tableau :
- * `buildBriefing` peut rendre moins de trois ordres, et un jour dégradé où la
- * curiosité arrive en première position ne doit pas réutiliser le bit de la
- * reprise. Sans cela, le masque d'un jour à deux ordres et celui d'un jour à
- * trois ordres se marcheraient dessus.
+ * Bit du masque `User.dailyClaimed` réservé à chaque emplacement. Il tient à
+ * l'emplacement et non à la position dans le tableau : `buildBriefing` peut
+ * rendre moins de trois ordres, et la curiosité arrivée en tête ne doit pas
+ * réutiliser le bit de la reprise.
  */
 const SLOT_BIT: Record<QuestSlot, number> = {
   reprise: 0,
@@ -311,7 +305,7 @@ const SLOT_BIT: Record<QuestSlot, number> = {
   curiosite: 2,
 };
 
-/** Bit du bonus de clôture. Réservé : jamais celui d'un ordre. */
+/** Bit du bonus de clôture, jamais utilisé par un ordre. */
 export const CLOSING_BIT = 3;
 
 export interface BriefingPayoutState {
@@ -330,29 +324,25 @@ export interface BriefingPayout {
   bonusXp: number;
   /** Masque à écrire en base, à associer à `todayIso`. */
   nextMask: number;
-  /** Ordres payés à cet instant — la clôture n'en est pas un. */
+  /** Ordres payés à cet instant, clôture non comprise. */
   questsPaid: number;
-  /** Libellés des seuls ordres réellement payés maintenant, à annoncer. */
+  /** Libellés des ordres payés à cet instant, à annoncer. */
   paidLabels: string[];
   perfectRun: number;
   lastPerfectDay: string;
 }
 
 /**
- * Décide ce que vaut le briefing à cet instant : XP due, masque à écrire,
+ * Calcule ce que vaut le briefing à cet instant : XP due, masque à écrire,
  * ordres à annoncer, série de briefings parfaits.
  *
- * Idempotente par construction : chaque bit du masque paie une fois et une
- * seule. Rappelée dix fois dans la journée, elle ne verse rien de plus. Un
- * masque qui se rapporte à un autre jour est ignoré, jamais hérité — sans quoi
- * un cadet revenu après trois jours traînerait le masque plein de sa dernière
- * session et ne serait pas payé.
+ * Idempotente : chaque bit du masque paie une seule fois. Un masque d'un autre
+ * jour est ignoré, sinon un cadet revenu après trois jours garderait le masque
+ * plein de sa dernière session et ne serait pas payé.
  *
- * Le plafond de 60 XP par jour ne s'écrit nulle part ici : il tombe du barème
- * (10 + 20 + 15 + 15) et de l'unicité des bits. Le plafond de compte (`MAX_XP`)
- * reste l'affaire de l'appelant.
- *
- * Fonction pure : le jour courant est un paramètre, jamais l'horloge.
+ * Le plafond de 60 XP par jour découle du barème (10 + 20 + 15 + 15) et de
+ * l'unicité des bits ; le plafond de compte (`MAX_XP`) revient à l'appelant.
+ * Fonction pure : le jour courant est un paramètre.
  */
 export function applyBriefingPayout(
   briefing: Briefing,
@@ -382,8 +372,8 @@ export function applyBriefingPayout(
   if (briefing.complete && (nextMask & closingBit) === 0) {
     bonusXp += CLOSING_XP;
     nextMask |= closingBit;
-    // La série continue si le dernier briefing complet était hier, sinon elle
-    // repart à 1 — y compris quand il n'y en a jamais eu.
+    // La série continue si le dernier briefing complet date d'hier, sinon
+    // elle repart à 1.
     perfectRun =
       lastPerfectDay && daysSince(lastPerfectDay, todayIso) === 1 ? perfectRun + 1 : 1;
     lastPerfectDay = todayIso;

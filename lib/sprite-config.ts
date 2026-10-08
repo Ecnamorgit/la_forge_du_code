@@ -1,20 +1,16 @@
 import type { SpriteSheet } from "@/components/ui/Sprite";
 
 /**
- * Central registry of pixel-art sprite sheets used across the app.
+ * Registre des planches de sprites pixel art.
  *
- * Each sheet declared here MUST exist at the given public path with the
- * declared frame layout. When a sheet is missing, components consuming it
- * should fall back to their emoji equivalents.
+ * Chaque planche déclarée doit exister au chemin indiqué avec la disposition
+ * annoncée. Tables des frames et palette : docs/PIXEL_ART_GUIDE.md.
  */
 
-// Layout contract for the artist + the wiring code. See docs/PIXEL_ART_GUIDE.md
-// for the full frame-index → meaning tables and palette.
-
 /**
- * Drop-in switches. Each stays `false` until the corresponding PNG ships in
- * public/sprites/. While false, consuming components render the emoji fallback,
- * so there is zero visual change until the art is ready — then flip the flag.
+ * Interrupteurs par planche. Tant qu'un drapeau vaut `false`, les composants
+ * affichent l'emoji de repli ; le passer à `true` une fois le PNG livré dans
+ * public/sprites/.
  */
 export const SPRITE_SHEETS_READY = {
   mission: true,
@@ -24,11 +20,11 @@ export const SPRITE_SHEETS_READY = {
 } as const;
 
 /**
- * Course/mission icons. Frame order MUST follow COURSES_CATALOG
- * (lib/courses-catalog.ts): 0=html, 1=css, 2=javascript, 3=react,
+ * Icônes de cursus. L'ordre des frames suit COURSES_CATALOG
+ * (lib/courses-catalog.ts) : 0=html, 1=css, 2=javascript, 3=react,
  * 4=typescript, 5=git, 6=sql, 7=nodejs, 8=tests, 9=devops, 10=mongodb,
- * 11=security, 12=python, 13=algo. Frames 14-31 reserved.
- * Sheet: 8 columns × 4 rows × 64×64 = 512×256.
+ * 11=security, 12=python, 13=algo ; frames 14 à 31 réservées.
+ * Planche : 8 colonnes × 4 lignes de 32×32 = 256×128.
  */
 export const MISSION_ICONS: SpriteSheet = {
   src: "/sprites/mission-icons-v2.png",
@@ -38,8 +34,8 @@ export const MISSION_ICONS: SpriteSheet = {
 };
 
 /**
- * Victory-banner icons (one per achievement archetype). See the BANNER enum in
- * the guide. Sheet: 4 columns × 4 rows × 48×48 = 192×192.
+ * Icônes de bannière de victoire, une par archétype (docs/PIXEL_ART_GUIDE.md).
+ * Planche : 4 colonnes × 4 lignes de 48×48 = 192×192.
  */
 export const BANNER_ICONS: SpriteSheet = {
   src: "/sprites/banner-icons.png",
@@ -49,9 +45,8 @@ export const BANNER_ICONS: SpriteSheet = {
 };
 
 /**
- * Badge icons. Frame order MUST follow the ALL_BADGES array (app/profil/page.tsx),
- * which itself must be kept in sync with BADGE_BY_CHAPTER (lib/courses-meta.ts).
- * Sheet: 8 columns × N rows × 64×64 (e.g. 8×6 = 512×384 covers 48 badges).
+ * Icônes de badges. L'ordre des frames suit BADGES (lib/badges-catalog.ts).
+ * Planche : 8 colonnes × N lignes de 64×64 (8×6 = 512×384 pour 48 badges).
  */
 export const BADGE_ICONS: SpriteSheet = {
   src: "/sprites/badges.png",
@@ -61,10 +56,9 @@ export const BADGE_ICONS: SpriteSheet = {
 };
 
 /**
- * Frames de la cinématique d'intro : une frame par scène, ordre = INTRO_SCENES
- * (lib/intro.ts). Sheet : 5 colonnes × 1 ligne × 320×180 = 1600×180.
- * Livrée plus tard (voir docs/PIXEL_ART_GUIDE.md) ; tant que
- * SPRITE_SHEETS_READY.intro est false, le composant rend un placeholder.
+ * Frames de la cinématique d'intro, une par scène dans l'ordre d'INTRO_SCENES
+ * (lib/intro.ts). Planche : 5 colonnes × 1 ligne de 320×180 = 1600×180.
+ * Pas encore livrée : SPRITE_SHEETS_READY.intro reste à false.
  */
 export const INTRO_CINEMATIC: SpriteSheet = {
   src: "/sprites/intro-cinematic.png",
@@ -73,13 +67,13 @@ export const INTRO_CINEMATIC: SpriteSheet = {
   columns: 5,
 };
 
-/** Per-course chapter background. */
+/** Fond de chapitre par cursus. */
 export const BACKGROUND_BY_COURSE: Record<string, string> = {
-  // TODO: swap to /bg/html-chapter.png when the asset ships.
+  // TODO : passer à /bg/html-chapter.png quand l'image sera livrée.
   html: "/chapter-1-bg.png",
-  // TODO: swap to /bg/css-chapter.png when the asset ships.
+  // TODO : passer à /bg/css-chapter.png quand l'image sera livrée.
   css: "/chapter-1-bg.png",
-  // TODO: swap to /bg/js-chapter.png when the asset ships.
+  // TODO : passer à /bg/js-chapter.png quand l'image sera livrée.
   javascript: "/chapter-1-bg.png",
 };
 

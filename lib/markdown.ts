@@ -19,8 +19,8 @@ interface RenderOpts {
 }
 
 /**
- * Rend le markdown maison des leçons et des fiches.
- * Identique à l'ancien parseBriefing, plus le token [[doc:ID|texte]].
+ * Rend le markdown maison des leçons et des fiches : titres `###`, listes,
+ * gras, code et token [[doc:ID|texte]].
  */
 export function renderLessonMarkdown(
   content: string,
@@ -38,7 +38,7 @@ export function renderLessonMarkdown(
 
       let formatted = line;
 
-      // Token doc -> chip cliquable (avant gras/code, qui ne le touchent pas).
+      // Token doc en pastille cliquable, traité avant le gras et le code.
       formatted = formatted.replace(DOC_TOKEN_RE, (_full, id, label) => {
         const text =
           label != null ? label : escapeHtml(opts.resolveDocTerm?.(id) ?? id);

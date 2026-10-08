@@ -24,7 +24,7 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-/** Métadonnées de chapitres par cursus — constante, calculée une fois. */
+/** Métadonnées de chapitres par cursus, calculées une fois. */
 const CHAPTERS_BY_COURSE: Record<string, { slug: string; totalSteps: number }[]> =
   Object.fromEntries(
     COURSES_CATALOG.map((c) => [
@@ -35,11 +35,9 @@ const CHAPTERS_BY_COURSE: Record<string, { slug: string; totalSteps: number }[]>
 
 interface RawUserBundle {
   /**
-   * Identifiant de compte. Sert de graine au tirage du briefing : le pseudo
-   * est renommable depuis /profil, et l'utiliser ferait changer les trois
-   * ordres au milieu de la journée alors que le masque de paiement, lui,
-   * reste celui du jour — un ordre déjà payé le matin laisserait son bit armé
-   * et le nouvel ordre tiré l'après-midi ne pourrait plus jamais être payé.
+   * Graine du tirage du briefing. Le pseudo est renommable : s'en servir
+   * changerait les ordres en cours de journée alors que le masque de paiement
+   * reste celui du jour, et le nouvel ordre tiré ne pourrait plus être payé.
    */
   id: string;
   username: string;
@@ -105,12 +103,10 @@ function shape(bundle: RawUserBundle): UserState {
   const today = todayIso();
   const { past, today: todayRecords } = splitCompletions(records, today);
 
-  // Projection SANS PERSISTANCE de la machine à états : elle dit ce qui
-  // arriverait si le cadet validait une étape maintenant. Sans cela, `shape()`
-  // rendrait le streak brut et un cadet absent cinq jours lirait encore
-  // « 10 jours de liaison » sur son tableau de bord. Rejouer `advanceLiaison`
-  // évite de dupliquer la règle des relais ici — il n'y a qu'une machine à
-  // états, et c'est celle de lib/streak.ts.
+  // Projection sans persistance : ce qui arriverait si le cadet validait une
+  // étape maintenant. Sans elle, un cadet absent cinq jours verrait encore son
+  // ancienne série. On rejoue `advanceLiaison` pour ne pas dupliquer la règle
+  // des relais (lib/streak.ts).
   const projection = advanceLiaison(
     {
       streak: bundle.streak,
@@ -201,10 +197,9 @@ async function fetchBundle(userId: string): Promise<RawUserBundle | null> {
 }
 
 /**
- * Fetch the user state. Lecture pure : la liaison n'avance JAMAIS ici — elle
- * n'avance que sur travail réel, dans `completeStep`. Ouvrir un onglet ne
- * compte pas comme une journée active.
- * Returns null if the user doesn't exist.
+ * Lecture pure : la liaison n'avance que dans `completeStep`, sur une étape
+ * validée. Ouvrir un onglet ne compte pas comme une journée active.
+ * Renvoie null si l'utilisateur n'existe pas.
  */
 export async function getUserState(userId: string): Promise<UserState | null> {
   const bundle = await fetchBundle(userId);
@@ -272,15 +267,10 @@ export interface CompleteStepResult {
 }
 
 /**
- * Délai de la transaction de `completeStep`. Le défaut Prisma est de 5 s, et
- * cette transaction fait désormais une vingtaine d'allers-retours vers une base
- * distante (relecture du compte, toutes les complétions, badges, déblocables).
- * Un `P2028` ne coûterait pas seulement le briefing : il annulerait aussi la
- * `StepCompletion`, et le cadet perdrait l'étape qu'il vient de terminer. On
- * préfère largement une transaction lente à une étape perdue.
- *
- * `maxWait` couvre l'attente d'une connexion libre dans le pool, `timeout`
- * l'exécution elle-même.
+ * Délais de la transaction de `completeStep` (5 s par défaut chez Prisma).
+ * Elle fait une vingtaine d'allers-retours vers une base distante, et un
+ * `P2028` annulerait aussi la `StepCompletion` : le cadet perdrait son étape.
+ * `maxWait` couvre l'attente d'une connexion du pool, `timeout` l'exécution.
  */
 const COMPLETE_STEP_TX_OPTIONS = { maxWait: 10_000, timeout: 30_000 } as const;
 
@@ -303,7 +293,7 @@ export async function completeStep(
   const totalSteps = chapterData.steps.length;
   const badgeForChapter = getBadgeForChapter(course, chapter);
 
-  // Idempotent insert + atomic XP / badge logic
+  // Insertion idempotente, XP et badge dans la même transaction.
   let awardedXp = 0;
   let newBadge: string | null = null;
   let alreadyDone = false;
@@ -331,9 +321,9 @@ export async function completeStep(
       return;
     }
 
-    // Ordre de progression (constat EXE-01) : vérifié APRÈS le test
+    // Ordre de progression (audit EXE-01) : vérifié après le test
     // d'idempotence, pour qu'une étape déjà faite reste une réponse normale,
-    // et DANS la transaction, sur les complétions qu'elle voit.
+    // et dans la transaction, sur les complétions qu'elle voit.
     const faites = await tx.stepCompletion.findMany({
       where: { userId, course },
       select: { chapter: true, stepIndex: true },
@@ -354,7 +344,7 @@ export async function completeStep(
       select: { totalXp: true },
     });
 
-    // Clamp XP to MAX_XP if we overshot.
+    // Plafonne l'XP à MAX_XP.
     if (user.totalXp > MAX_XP) {
       await tx.user.update({
         where: { id: userId },
@@ -365,7 +355,7 @@ export async function completeStep(
       awardedXp = stepXp;
     }
 
-    // Chapter completion → badge
+    // Chapitre terminé : badge.
     if (badgeForChapter) {
       const doneCount = await tx.stepCompletion.count({
         where: { userId, course, chapter },
@@ -384,7 +374,7 @@ export async function completeStep(
       }
     }
 
-    // --- Boucle quotidienne : liaison, ordres, badges de conduite ---------
+    // Boucle quotidienne : liaison, ordres, badges de conduite.
     const jour = todayIso();
 
     const brut = await tx.user.findUnique({
@@ -426,10 +416,9 @@ export async function completeStep(
       chaptersByCourse: CHAPTERS_BY_COURSE,
     });
 
-    // Toute l'arithmétique du versement — bits, bonus de clôture, série de
-    // briefings parfaits, remise à zéro du masque au changement de journée —
-    // vit dans `applyBriefingPayout`, pure et testée sous vitest. Ce module
-    // importe `server-only` : rien de ce qui y reste enfermé n'est couvert.
+    // L'arithmétique du versement (bits, bonus de clôture, série de briefings
+    // parfaits, remise à zéro du masque) vit dans `applyBriefingPayout`, pure
+    // et testée : ce module importe `server-only` et échappe à vitest.
     const versement = applyBriefingPayout(
       briefing,
       {
@@ -441,20 +430,11 @@ export async function completeStep(
       jour
     );
 
-    // La liaison avance ici, sans condition : on n'atteint ce point que pour
-    // une étape RÉELLEMENT NEUVE — la transaction est sortie plus haut quand
-    // l'étape était déjà validée (`alreadyDone`). Une étape validée est du
-    // travail réel, et c'est la seule chose que la liaison compte ; une simple
-    // visite n'en est pas, et ne passe plus par ici depuis que `getUserState`
-    // ne touche plus au streak.
-    //
-    // Le déclencheur est délibérément l'étape et non l'ordre accompli : un
-    // ordre peut demander plusieurs étapes, et un cadet qui n'en boucle qu'une
-    // un jour chargé a travaillé quand même — lui rompre sa série serait le
-    // punir de son effort.
-    //
-    // `advanceLiaison` est idempotente sur la journée : si `lastActiveDay`
-    // vaut déjà `jour`, elle rend l'état inchangé.
+    // La liaison avance sans condition : on n'arrive ici que pour une étape
+    // nouvelle (la transaction sort plus haut si `alreadyDone`). Le déclencheur
+    // est l'étape et non l'ordre accompli : un ordre peut demander plusieurs
+    // étapes, et un cadet qui n'en fait qu'une a quand même travaillé.
+    // `advanceLiaison` est idempotente sur la journée.
     const transition = advanceLiaison(
       {
         streak: brut.streak,
@@ -490,9 +470,8 @@ export async function completeStep(
 
     awardedXp += xpApres - brut.totalXp;
     questXp = xpApres - brut.totalXp;
-    // Seuls les ordres RÉELLEMENT payés à cet instant : `briefing.quests`
-    // filtré sur `done` réannoncerait à la deuxième étape du jour les ordres
-    // déjà payés à la première, alors que `questXp` vaut alors 0.
+    // Seuls les ordres payés à cet instant : filtrer `briefing.quests` sur
+    // `done` réannoncerait les ordres déjà payés plus tôt dans la journée.
     completedQuests = versement.paidLabels;
 
     if (transition.shieldsConsumed) {
@@ -554,12 +533,9 @@ export async function completeStep(
       owned: [...dejaDebloques],
     });
     for (const s of statuts) {
-      // Les objets par défaut d'un axe sont acquis d'office : `evaluateUnlocks`
-      // les rend `unlocked: true` pour tout le monde, dès la première étape.
-      // Leur créer une ligne `UserUnlock` les ferait annoncer comme « nouveaux
-      // déblocables » alors qu'ils n'ont jamais été verrouillés. `setCosmetics`
-      // les accepte d'ailleurs SANS ligne en base : ne pas les écrire ici lève
-      // la contradiction au lieu de l'entretenir.
+      // Les objets par défaut sont acquis d'office et `setCosmetics` les
+      // accepte sans ligne en base : leur créer un `UserUnlock` les ferait
+      // annoncer comme nouveaux déblocables.
       if (!s.unlocked || s.def.condition.kind === "default") continue;
       if (dejaDebloques.has(s.def.id)) continue;
       await tx.userUnlock.create({ data: { userId, itemId: s.def.id } });
@@ -584,8 +560,8 @@ export async function completeStep(
 }
 
 /**
- * Mark the first-login briefing as seen. Idempotent: only writes the timestamp
- * the first time, so we don't lose the original first-connect signal.
+ * Marque le briefing de première connexion comme vu. Idempotent : la date
+ * n'est écrite que la première fois.
  */
 export async function markOnboarded(userId: string): Promise<UserState> {
   const current = await prisma.user.findUnique({
@@ -612,17 +588,10 @@ export async function markOnboarded(userId: string): Promise<UserState> {
 export class InvalidAvatarError extends Error {}
 
 /**
- * Save the user's avatar choices. Species et role sont validés en amont, dans
- * la route, contre des listes constantes — un id syntaxiquement valide l'est
- * pour tout le monde, aucune donnée utilisateur n'entre en jeu.
- *
- * La couleur d'uniforme est différente : les couleurs de base restent libres,
- * mais les couleurs méritées (catalogue `UNLOCKS`, axe `uniform`) exigent une
- * garde de possession, comme `setCosmetics`. Une garde purement syntaxique
- * (liste de constantes) ne peut pas trancher ça — elle ne sait pas qui écrit.
- * C'est pourquoi cette vérification vit ici plutôt que dans la route : le
- * fond de la décision dépend de l'utilisateur, la route ne peut valider que la
- * forme.
+ * Enregistre l'avatar. Espèce et rôle sont validés dans la route contre des
+ * listes constantes. La couleur d'uniforme se vérifie ici : les couleurs
+ * méritées (catalogue `UNLOCKS`, axe `uniform`) exigent une garde de
+ * possession, qui dépend de l'utilisateur.
  */
 export async function setAvatar(
   userId: string,
@@ -631,9 +600,8 @@ export async function setAvatar(
   await assertUserExists(userId);
 
   if (!isBaseUniformColorId(args.uniformColor)) {
-    // Pas une couleur offerte : n'est acceptée que si le cadet possède
-    // réellement le déblocage correspondant — même mécanisme de garde que
-    // `setCosmetics` (axe "uniform"), repris plutôt que réinventé.
+    // Couleur méritée : acceptée seulement si le cadet possède le déblocage,
+    // même garde que `setCosmetics` (axe "uniform").
     const def = UNLOCKS.find((u) => u.id === args.uniformColor && u.axis === "uniform");
     if (!def) {
       throw new InvalidAvatarError("Couleur d'uniforme invalide");
@@ -666,12 +634,9 @@ export async function setAvatar(
 export class InvalidCosmeticError extends Error {}
 
 /**
- * Les emplacements cosmétiques acceptés, et la colonne écrite pour chacun.
- * Cette table EST la liste blanche : rien d'autre ne peut être écrit.
- *
- * `uniform` écrit `uniformColor`, la colonne qui servait déjà à l'avatar. Un
- * seul espace d'identifiants pour les couleurs (cf. lib/avatar.ts), sans quoi
- * les cinq uniformes du catalogue seraient invendables.
+ * Emplacements cosmétiques acceptés et colonne écrite pour chacun ; cette
+ * table sert de liste blanche. `uniform` écrit `uniformColor`, la colonne de
+ * l'avatar : un seul espace d'identifiants pour les couleurs (cf. lib/avatar.ts).
  */
 const COSMETIC_SLOTS: {
   key: "frame" | "title" | "cardBg" | "uniform";
@@ -694,7 +659,7 @@ export interface CosmeticChoices {
 
 /**
  * Enregistre les cosmétiques portés. Refuse tout objet que le cadet n'a pas
- * débloqué — la validation est serveur, le client n'est pas cru sur parole.
+ * débloqué : la validation se fait côté serveur.
  */
 export async function setCosmetics(
   userId: string,
@@ -709,11 +674,9 @@ export async function setCosmetics(
   const possede = new Set(unlocks.map((u) => u.itemId));
   const badgesPossedes = new Set(badges.map((b) => b.badgeId));
 
-  // L'objet de mise à jour est construit clé par clé, jamais relayé depuis
-  // l'appelant. Passer `choices` tel quel à Prisma serait une faille : le
-  // typage TypeScript n'existe plus à l'exécution, et une route qui
-  // transmettrait le corps JSON brut laisserait écrire n'importe quelle
-  // colonne de `User` — `totalXp: 999999` compris.
+  // Objet de mise à jour construit clé par clé : passer `choices` tel quel à
+  // Prisma laisserait une route qui relaie le corps JSON brut écrire n'importe
+  // quelle colonne de `User`, `totalXp` compris.
   const data: {
     frame?: string;
     title?: string;
@@ -756,12 +719,9 @@ export async function setCosmetics(
 }
 
 /**
- * Mark a course as the user's current focus. Called on chapter page mount
- * so the dashboard's "Reprendre la mission" follows the user around even
- * before they complete a step.
- *
- * Idempotent: if the slug is already set, the write is a no-op cost-wise
- * (Prisma still issues an UPDATE, but the row content matches).
+ * Mémorise le cursus en cours. Appelé à l'ouverture d'une page de chapitre,
+ * pour que « Reprendre la mission » suive le cadet avant même qu'il valide
+ * une étape.
  */
 export async function markCourseVisited(
   userId: string,
@@ -804,8 +764,8 @@ export async function markCinematicView(
 }
 
 /**
- * RGPD — export des données personnelles de l'utilisateur (droit d'accès /
- * portabilité). Retourne le profil + badges + progression sous forme sérialisable.
+ * RGPD : export des données personnelles (droit d'accès et portabilité).
+ * Profil, badges et progression sous forme sérialisable.
  */
 export async function exportUserData(userId: string) {
   const user = await prisma.user.findUnique({
@@ -848,7 +808,7 @@ export async function exportUserData(userId: string) {
 }
 
 /**
- * RGPD — suppression définitive du compte (droit à l'effacement). Le `onDelete:
+ * RGPD : suppression définitive du compte (droit à l'effacement). Le `onDelete:
  * Cascade` du schéma supprime comptes, sessions, badges, progression et tokens.
  */
 export async function deleteAccount(userId: string): Promise<void> {
@@ -857,8 +817,8 @@ export async function deleteAccount(userId: string): Promise<void> {
 }
 
 /**
- * Vérifie le mot de passe du compte avant une action irréversible (suppression
- * du compte, constat SRV-09). Même comparaison que la connexion (`auth.ts`).
+ * Vérifie le mot de passe avant une action irréversible comme la suppression
+ * du compte (audit SRV-09). Même comparaison que la connexion (`auth.ts`).
  */
 export async function verifyPassword(userId: string, password: string): Promise<boolean> {
   const user = await prisma.user.findUnique({

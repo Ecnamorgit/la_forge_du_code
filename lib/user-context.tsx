@@ -28,17 +28,14 @@ export interface UserModeDecision extends UserModeState {
 }
 
 /**
- * Décide du mode utilisateur à partir du statut de session courant et du
- * fait qu'une session authentifiée ait déjà existé pendant ce montage.
+ * Décide du mode utilisateur à partir du statut de session et du fait qu'une
+ * session authentifiée a déjà existé pendant ce montage.
  *
- * Pure, sans dépendance React : c'est le cœur du Correctif B. Le bug qu'elle
- * corrige est que `status === "unauthenticated"` seul ne distingue pas
- * "visiteur jamais connecté" (mode essai légitime, `/learn/html/chapitre-1`
- * n'est plus derrière le middleware) de "session expirée en cours d'usage"
- * (JWT expiré, `SessionProvider` refetch au focus de la fenêtre) : sans
- * cette distinction, un utilisateur connecté dont le token expire bascule
- * silencieusement vers le stockage local — sa progression semble s'effacer,
- * et tout ce qu'il valide ensuite n'est plus écrit sur son compte.
+ * `status === "unauthenticated"` seul ne distingue pas un visiteur jamais
+ * connecté (mode essai légitime) d'une session expirée en cours d'usage (JWT
+ * expiré, relu par `SessionProvider` au retour du focus). Sans cette
+ * distinction, l'utilisateur basculerait sur le stockage local et ce qu'il
+ * valide ne serait plus écrit sur son compte.
  */
 export function decideUserMode(
   status: SessionStatus,
@@ -55,14 +52,12 @@ export function decideUserMode(
 const UserContext = createContext<UserContextValue | null>(null);
 
 /**
- * Choisit la source de progression selon la session.
+ * Choisit la source de progression selon la session. Monté uniquement sur le
+ * sous-arbre /learn, seul endroit où un visiteur anonyme manipule un
+ * UserState ; le tableau de bord, le profil et l'avatar restent protégés par
+ * `proxy.ts` et appellent useUser() directement.
  *
- * Monté uniquement sur le sous-arbre /learn : c'est le seul endroit où un
- * visiteur anonyme manipule un UserState. Le dashboard, le profil et l'avatar
- * restent protégés par le middleware et appellent useUser() directement.
- *
- * Les deux hooks sont appelés inconditionnellement (règles des hooks) ; seul
- * le résultat retenu change.
+ * Les deux hooks sont appelés sans condition (règles des hooks).
  */
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
@@ -74,15 +69,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [prevStatus, setPrevStatus] = useState<SessionStatus>(status);
   const [everAuthenticated, setEverAuthenticated] = useState(status === "authenticated");
 
-  // Ajusté PENDANT le rendu (même pattern que IntroCinematic pour
-  // `prevOpen`/`index`), plutôt que dans un effet séparé : un effet ne
-  // s'exécute qu'après la peinture du rendu où `status` vient de basculer,
-  // donc `everAuthenticated` resterait périmé pour cette frame-là et le
-  // bandeau "mode essai" pourrait s'afficher brièvement avant la redirection.
-  // En ajustant l'état pendant le rendu, `decideUserMode` ci-dessous voit
-  // toujours la valeur à jour dès le rendu qui suit le changement de statut :
-  // aucune frame ne montre jamais `isTrial === true` pour une session qui a
-  // déjà existé.
+  // Ajusté pendant le rendu (comme `prevOpen`/`index` dans IntroCinematic) et
+  // non dans un effet : un effet ne s'exécuterait qu'après la peinture, et le
+  // bandeau « mode essai » pourrait apparaître une frame avant la redirection.
   if (status !== prevStatus) {
     setPrevStatus(status);
     if (status === "authenticated") setEverAuthenticated(true);
@@ -90,9 +79,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const { isTrial, sessionExpired } = decideUserMode(status, { everAuthenticated });
 
-  // Redirection vers /login en cas d'expiration de session : la navigation
-  // est un effet de bord réel (au sens React), elle doit donc rester dans un
-  // effet même si la décision qui la déclenche est déjà correcte au rendu.
+  // Session expirée : la redirection est un effet de bord, elle reste dans un
+  // effet.
   useEffect(() => {
     if (!sessionExpired) return;
     router.replace(`/login?from=${encodeURIComponent(pathname)}`);

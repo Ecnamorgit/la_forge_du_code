@@ -84,10 +84,8 @@ describe("parseTrialState", () => {
   });
 
   it("ne partage pas l'état entre deux appels sur un chemin par défaut", () => {
-    // Mute l'état renvoyé par un premier appel « état par défaut » (JSON
-    // corrompu) : un second appel « état par défaut » (raw absent) ne doit
-    // jamais voir cette mutation, sans quoi les deux chemins partagent le
-    // même littéral d'état vide.
+    // Une mutation de l'état renvoyé par un chemin par défaut ne doit pas être
+    // visible depuis un autre appel.
     const corrupted = parseTrialState("{ pas du json");
     corrupted.chapters[TRIAL_CHAPTERS[0]] = [999];
     expect(parseTrialState(null).chapters).toEqual({});

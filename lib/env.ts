@@ -2,12 +2,11 @@ import { z } from "zod";
 
 /**
  * Validation des variables d'environnement, exécutée une fois au démarrage du
- * serveur (voir `instrumentation.ts`). Le but : échouer **immédiatement** avec un
- * message clair si une variable critique manque ou est mal configurée, plutôt
- * que de planter plus tard au premier appel (DB, email, lien de vérification).
+ * serveur (`instrumentation.ts`), pour échouer tout de suite avec un message
+ * clair plutôt qu'au premier appel (base, e-mail, lien de vérification).
  *
- * `parseEnv` est pur (testable) ; `validateEnv` l'enrobe pour lever une erreur
- * formatée à partir de `process.env`.
+ * `parseEnv` est pur ; `validateEnv` l'applique à `process.env` et lève une
+ * erreur formatée.
  */
 
 type RawEnv = Record<string, string | undefined>;
@@ -46,8 +45,8 @@ const baseSchema = z.object({
   // Bypass de test uniquement : autorise la connexion sans email vérifié.
   // Refusé en production (voir `buildSchema`).
   AUTH_ALLOW_UNVERIFIED_LOGIN: z.string().optional(),
-  // Nombre de proxys de confiance devant l'app, pour dériver l'IP client de
-  // X-Forwarded-For sans se faire spoofer (voir `getClientIp`). Défaut 1.
+  // Nombre de proxys de confiance devant l'application, pour dériver l'IP
+  // client de X-Forwarded-For (voir `getClientIp`). Défaut 1.
   TRUSTED_PROXY_HOPS: z
     .string()
     .refine((v) => /^\d+$/.test(v) && Number.parseInt(v, 10) >= 1, {
@@ -67,8 +66,9 @@ const baseSchema = z.object({
 export type AppEnv = z.infer<typeof baseSchema>;
 
 /**
- * Construit le schéma en appliquant les règles dépendant de l'environnement.
- * En production on durcit : secret non-défaut, email + URL publique obligatoires.
+ * Construit le schéma avec les règles propres à l'environnement. La production
+ * exige un vrai secret, l'envoi d'e-mails, une URL publique en HTTPS et, sur
+ * Vercel, un Redis partagé.
  */
 function buildSchema(nodeEnv: string) {
   const isProd = nodeEnv === "production";
@@ -94,8 +94,8 @@ function buildSchema(nodeEnv: string) {
       }
 
       // Sur Vercel, chaque instance serverless compte en mémoire : sans Redis
-      // partagé, la limitation de débit n'a pas d'effet réel (constat SRV-01).
-      // Hors de Vercel (instance unique, CI), la mémoire suffit.
+      // partagé, la limitation de débit est sans effet (audit SRV-01). Hors de
+      // Vercel (instance unique, CI), la mémoire suffit.
       const redis =
         (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) ||
         (env.KV_REST_API_URL && env.KV_REST_API_TOKEN);
@@ -145,8 +145,8 @@ export type ParseEnvResult =
   | { success: false; errors: string[] };
 
 /**
- * Valide un objet d'environnement brut. Pur : ne lit pas `process.env`,
- * ne lève rien — renvoie le résultat. `NODE_ENV` pilote les règles strictes.
+ * Valide un objet d'environnement brut. Pur : ne lit pas `process.env` et ne
+ * lève pas. `NODE_ENV` pilote les règles strictes.
  */
 export function parseEnv(raw: RawEnv): ParseEnvResult {
   const nodeEnv = raw.NODE_ENV ?? "development";

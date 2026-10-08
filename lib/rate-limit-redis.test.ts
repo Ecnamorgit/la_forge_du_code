@@ -1,16 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 /**
- * Constat SRV-01 de l'audit de sécurité du 2026-09-12 : la limitation de débit
- * restait en mémoire en production.
- *
- * Sur Vercel, chaque instance serverless a sa propre mémoire : sans Redis
- * partagé, les limites (connexion, inscription, e-mails) se comptent instance
- * par instance, et un attaquant qui répartit ses requêtes les dépasse
- * largement. Le Redis créé le 2026-09-14 par l'intégration Upstash de Vercel
- * fournit `KV_REST_API_URL` et `KV_REST_API_TOKEN`, alors que le limiteur ne
- * lisait que `UPSTASH_REDIS_REST_URL` et `UPSTASH_REDIS_REST_TOKEN` : il
- * serait resté en mémoire, Redis configuré ou non.
+ * Audit SRV-01 : sur Vercel, chaque instance serverless a sa propre mémoire,
+ * donc sans Redis partagé les limites se comptent instance par instance.
+ * L'intégration Upstash de Vercel fournit `KV_REST_API_URL` et
+ * `KV_REST_API_TOKEN`, que le limiteur doit lire en plus des noms
+ * `UPSTASH_REDIS_REST_*`.
  */
 
 const clientsCrees = vi.hoisted(() => [] as unknown[]);

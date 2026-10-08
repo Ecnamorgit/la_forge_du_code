@@ -6,14 +6,14 @@ import { generateRawToken, hashToken } from "@/lib/token-crypto";
 export type TokenKind = "email_verify" | "password_reset";
 
 const TTL_MS: Record<TokenKind, number> = {
-  email_verify: 24 * 60 * 60 * 1000, // 24h
-  password_reset: 60 * 60 * 1000, // 1h
+  email_verify: 24 * 60 * 60 * 1000, // 24 h
+  password_reset: 60 * 60 * 1000, // 1 h
 };
 
 /**
- * Create a fresh single-use token. Invalidates any older unused tokens of the
- * same kind for that user (so re-requesting a verification email kills the old
- * link, preventing replay).
+ * Crée un jeton à usage unique et invalide les jetons inutilisés du même type
+ * pour cet utilisateur : redemander un e-mail de vérification annule l'ancien
+ * lien.
  */
 export async function createToken(args: {
   userId: string;
@@ -23,7 +23,7 @@ export async function createToken(args: {
   const expiresAt = new Date(Date.now() + TTL_MS[args.kind]);
 
   await prisma.$transaction([
-    // Invalidate previous unused tokens of the same kind.
+    // Invalide les jetons inutilisés du même type.
     prisma.oneTimeToken.updateMany({
       where: { userId: args.userId, kind: args.kind, usedAt: null },
       data: { usedAt: new Date() },
@@ -56,8 +56,8 @@ export class TokenError extends Error {
 }
 
 /**
- * Consume a token: validates expiry + single-use, marks it used atomically.
- * Throws TokenError on any failure.
+ * Consomme un jeton : vérifie l'expiration et l'usage unique, puis le marque
+ * utilisé de façon atomique. Lève TokenError en cas d'échec.
  */
 export async function consumeToken(args: {
   token: string;
@@ -81,8 +81,8 @@ export async function consumeToken(args: {
     throw new TokenError("Lien expiré, demande-en un nouveau.", "expired");
   }
 
-  // Atomic single-use guard: update only if still unused. If another concurrent
-  // request consumed it between our findUnique and update, the count is 0.
+  // Garde atomique : la mise à jour n'a lieu que si le jeton est encore
+  // inutilisé. Si une requête concurrente l'a consommé entre-temps, count vaut 0.
   const result = await prisma.oneTimeToken.updateMany({
     where: { id: record.id, usedAt: null },
     data: { usedAt: new Date() },

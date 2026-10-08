@@ -1,15 +1,12 @@
 /**
- * La liaison — le streak, devenu objet de jeu.
+ * Liaison : le streak comme objet de jeu. Elle n'avance que sur travail réel
+ * (première étape validée du jour), et un jour manqué ne la rompt pas si le
+ * cadet détient un relais de secours.
  *
- * Deux différences avec l'ancien compteur de lib/me-server.ts :
- *  - elle n'avance QUE sur travail réel (première ÉTAPE validée du jour),
- *    plus à la simple ouverture d'un onglet ;
- *  - un jour manqué ne la rompt pas si le cadet détient un relais de secours.
- *
- * Fonction pure : le jour courant est un paramètre, jamais l'horloge.
+ * Fonction pure : le jour courant est un paramètre.
  */
 
-/** Plafond de relais détenus. Au-delà, l'absence n'aurait plus aucun coût. */
+/** Plafond de relais détenus, pour que l'absence garde un coût. */
 export const MAX_SHIELDS = 2;
 
 /** Série rompue à partir de laquelle le badge « Le Retour » est mérité. */
@@ -23,7 +20,7 @@ export interface LiaisonState {
   bestStreak: number;
   shields: number;
   shieldEverGranted: boolean;
-  /** ISO yyyy-mm-dd du dernier jour actif ; "" si jamais actif. */
+  /** Date ISO (aaaa-mm-jj) du dernier jour actif ; "" si jamais actif. */
   lastActiveDay: string;
 }
 
@@ -33,12 +30,12 @@ export interface LiaisonTransition {
   changed: boolean;
   shieldsConsumed: number;
   broken: boolean;
-  /** Rupture d'une série d'au moins 7 jours → badge « Le Retour ». */
+  /** Rupture d'une série d'au moins 7 jours : badge « Le Retour ». */
   earnedReturn: boolean;
   shieldEarned: boolean;
 }
 
-/** Nombre de jours calendaires entre deux dates ISO yyyy-mm-dd. */
+/** Nombre de jours calendaires entre deux dates ISO (aaaa-mm-jj). */
 export function daysBetweenIso(fromIso: string, toIso: string): number {
   const from = Date.parse(`${fromIso}T00:00:00Z`);
   const to = Date.parse(`${toIso}T00:00:00Z`);
@@ -46,13 +43,8 @@ export function daysBetweenIso(fromIso: string, toIso: string): number {
 }
 
 /**
- * Fait avancer la liaison. À appeler au moment où le cadet valide sa première
- * ÉTAPE de la journée — jamais à la simple visite.
- *
- * Le déclencheur est l'étape et non l'ordre accompli : un ordre peut demander
- * plusieurs étapes, et un cadet qui n'en boucle qu'une un jour chargé a
- * travaillé quand même. Cette fonction n'en sait rien — sa machine à états est
- * inchangée, seul son appelant choisit le déclencheur.
+ * Fait avancer la liaison. À appeler quand le cadet valide une étape (voir
+ * `completeStep`), jamais à la simple visite ; idempotente sur la journée.
  */
 export function advanceLiaison(
   current: LiaisonState,

@@ -1,17 +1,16 @@
 /**
- * Narrative cast — single source of truth for character identity (name + glyph)
- * shown in the UI, aligned with docs/conception_storytelling.md §2.
- *
- * Kira Vesper voices the mission briefings; H.E.L.P. voices the in-editor hints;
- * the Spectre is reserved for trap/error framing (see lib/narrative-feedback.ts).
+ * Personnages : identité affichée (nom, glyphe), alignée sur
+ * docs/conception_storytelling.md §2. Kira Vesper porte les briefings,
+ * H.E.L.P. les indices de l'éditeur ; le Spectre est réservé aux pièges et
+ * aux erreurs (lib/narrative-feedback.ts).
  */
 
 export interface Character {
-  /** Display name as shown to the cadet. */
+  /** Nom affiché au cadet. */
   name: string;
-  /** Short role/title shown alongside the name. */
+  /** Rôle ou titre court affiché à côté du nom. */
   title: string;
-  /** Decorative glyph prefixing the speaker label. */
+  /** Glyphe décoratif devant le nom de l'interlocuteur. */
   glyph: string;
 }
 

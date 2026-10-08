@@ -34,8 +34,8 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
   // le `.env` du dépôt pointe sur la base de production.
   assertTestDatabaseUrl(url);
 
-  // L'application testée peut utiliser une autre base que celle ensemencée
-  // ici : cible distante (E2E_BASE_URL) ou serveur déjà lancé et réutilisé.
+  // Une cible distante (E2E_BASE_URL) parlerait à une base non ensemencée.
+  // Un serveur local déjà lancé et réutilisé n'est pas détecté ici.
   assertLocalAppUnderTest(process.env.E2E_BASE_URL);
 
   const client = new Client({ connectionString: url });

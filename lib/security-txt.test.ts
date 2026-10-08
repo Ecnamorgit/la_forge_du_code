@@ -4,12 +4,10 @@ import path from "node:path";
 import { describe, it, expect } from "vitest";
 
 /**
- * /.well-known/security.txt (RFC 9116, constat SUP-01 de l'audit de sécurité
- * du 2026-09-12). La RFC exige `Contact` et `Expires`, et recommande une
- * expiration à moins d'un an pour que le fichier ne vieillisse pas en silence.
- *
- * Ce test cassera avant la date d'expiration : c'est le rappel de le
- * renouveler (et de vérifier que l'adresse de contact reçoit bien le courrier).
+ * /.well-known/security.txt (RFC 9116, audit SUP-01). La RFC exige `Contact`
+ * et `Expires`, et recommande une expiration à moins d'un an. Le test échoue
+ * une fois la date passée : c'est le rappel de renouveler le fichier et de
+ * vérifier que l'adresse de contact reçoit bien le courrier.
  */
 
 const FICHIER = path.join(process.cwd(), "public", ".well-known", "security.txt");

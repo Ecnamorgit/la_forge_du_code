@@ -2,8 +2,8 @@
  * Comptage minimal du tunnel d'acquisition.
  *
  * Aucune donnée personnelle, aucun identifiant de visiteur persistant : on
- * compte des occurrences horodatées, pas des personnes. Pas de cookie, pas de
- * sous-traitant tiers — cf. docs/RGPD.md.
+ * compte des occurrences horodatées, pas des personnes. Ni cookie ni
+ * sous-traitant tiers (docs/RGPD.md).
  */
 
 export const TRACK_EVENTS = ["landing_vue", "essai_lance", "inscription"] as const;

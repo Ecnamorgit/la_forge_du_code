@@ -1,11 +1,9 @@
 /**
- * État de progression du mode essai (visiteur sans compte).
+ * État de progression du mode essai (visiteur sans compte), indexé par slug
+ * de chapitre de TRIAL_CHAPTERS (lib/public-routes.ts).
  *
- * Logique pure : aucune dépendance React, les accès storage sont gardés par
- * `typeof window` — même contrat que `lib/intro.ts`.
- *
- * Le mode essai couvre les chapitres de TRIAL_CHAPTERS (cf.
- * lib/public-routes.ts) : l'état est indexé par slug de chapitre.
+ * Logique pure, sans React ; les accès au storage sont gardés par
+ * `typeof window`, comme dans `lib/intro.ts`.
  */
 
 import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
@@ -32,7 +30,7 @@ export interface TrialStepRef {
   stepIndex: number;
 }
 
-/** État vide — littéral frais à chaque appel (cf. commentaires ci-dessous). */
+/** État vide, nouveau littéral à chaque appel (cf. `parseTrialState`). */
 export function emptyTrialState(): TrialState {
   return { chapters: {}, xp: 0 };
 }
@@ -41,9 +39,8 @@ function sanitizeChapters(value: unknown): Record<string, number[]> | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
   const out: Record<string, number[]> = {};
   for (const [chapter, steps] of Object.entries(value)) {
-    // La forme est validée avant le filtre de périmètre : une entrée
-    // malformée sous une clé hors périmètre doit corrompre l'état (retour à
-    // vide), pas être silencieusement ignorée avec le reste.
+    // Forme validée avant le filtre de périmètre : une entrée malformée, même
+    // hors périmètre, invalide tout l'état.
     if (!Array.isArray(steps) || !steps.every((n) => typeof n === "number")) return null;
     if (!TRIAL_CHAPTERS.includes(chapter)) continue; // hors périmètre : ignoré
     out[chapter] = [...steps];
@@ -52,21 +49,17 @@ function sanitizeChapters(value: unknown): Record<string, number[]> | null {
 }
 
 /**
- * Décode l'état d'essai depuis sa forme stockée.
+ * Décode l'état d'essai stocké. Le décodage vit ici, en pur, pour être testé
+ * sous node ; `readTrialState` n'enveloppe que `localStorage`. Renvoie l'état
+ * vide si l'entrée est absente, corrompue ou invalide, sans jamais lever.
  *
- * Toute la logique de décodage vit ici, en pur, pour être testable en
- * environnement node : `readTrialState` n'est qu'une enveloppe autour de
- * `localStorage`. Retourne l'état vide si l'entrée est absente, corrompue ou
- * de forme invalide — jamais d'exception.
- *
- * Migre silencieusement l'ancienne forme `{ completedSteps, xp }` (un seul
- * chapitre implicite) vers la forme neuve `{ chapters, xp }`.
+ * Migre l'ancienne forme `{ completedSteps, xp }` (un seul chapitre implicite)
+ * vers `{ chapters, xp }`.
  */
 export function parseTrialState(raw: string | null): TrialState {
-  // Chaque chemin « état par défaut » renvoie un littéral frais (et non un
-  // spread d'une constante partagée) : sinon tous ces appels renverraient la
-  // même référence d'objet pour `chapters`, et une mutation par un appelant
-  // corromprait l'état par défaut pour tout le processus.
+  // Chaque retour par défaut est un littéral frais : avec une constante
+  // partagée, une mutation de `chapters` par un appelant corromprait l'état
+  // par défaut pour tout le processus.
   if (!raw) return emptyTrialState();
   try {
     const parsed: unknown = JSON.parse(raw);
@@ -78,7 +71,7 @@ export function parseTrialState(raw: string | null): TrialState {
       const chapters = sanitizeChapters(v.chapters);
       return chapters ? { chapters, xp: v.xp } : emptyTrialState();
     }
-    // Ancienne forme { completedSteps, xp } : migration silencieuse.
+    // Ancienne forme { completedSteps, xp } : migration.
     if (Array.isArray(v.completedSteps) && v.completedSteps.every((n) => typeof n === "number")) {
       return {
         chapters: { [TRIAL_CHAPTERS[0]]: [...v.completedSteps] },
@@ -101,7 +94,7 @@ export function readTrialState(): TrialState {
   }
 }
 
-/** Persiste l'état ; no-op silencieux si le storage est indisponible ou plein. */
+/** Persiste l'état ; sans effet si le storage est indisponible ou plein. */
 export function writeTrialState(state: TrialState): void {
   if (typeof window === "undefined") return;
   try {
@@ -121,9 +114,8 @@ export function clearTrialState(): void {
 }
 
 /**
- * Applique une validation d'étape pour un chapitre d'essai donné. Même
- * calcul d'XP que `me-server.ts` (`xpForStep`), pour que les chiffres du mode
- * essai soient exactement ceux d'un compte réel.
+ * Applique une validation d'étape pour un chapitre d'essai. Même calcul d'XP
+ * que `me-server.ts` (`xpForStep`).
  */
 export function applyTrialStep(
   state: TrialState,
@@ -161,18 +153,14 @@ export function applyTrialStep(
 export function trialStateToUserState(state: TrialState): UserState {
   return {
     ...DEFAULT_USER,
-    // `DEFAULT_USER` est un singleton d'état applicatif réel (cf.
-    // lib/use-user.ts), pas une constante jetable : le spread ci-dessus ne
-    // clone pas ses champs de type référence. `badges` doit donc être cloné
-    // explicitement, sans quoi un `push` sur l'état d'essai corromprait
-    // l'état par défaut de tous les utilisateurs du processus. Même raison
-    // pour `unlocks` et pour la semaine de liaison, ajoutés par la boucle
-    // quotidienne.
+    // Le spread ne clone pas les champs de type référence de `DEFAULT_USER`,
+    // partagé par tout le processus (cf. lib/use-user.ts) : un `push` sur
+    // l'état d'essai le corromprait. D'où les copies explicites.
     badges: [...DEFAULT_USER.badges],
     unlocks: [...DEFAULT_USER.unlocks],
     liaison: { ...DEFAULT_USER.liaison, week: [...DEFAULT_USER.liaison.week] },
     // Le briefing est calculé serveur ; un visiteur sans compte n'atteint pas
-    // le tableau de bord (middleware), il n'en a donc aucun.
+    // le tableau de bord (proxy.ts), il n'en a donc aucun.
     briefing: null,
     username: "Cadet",
     totalXp: state.xp,

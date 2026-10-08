@@ -1,15 +1,12 @@
 /**
- * Destination de retour sûre à partir d'un paramètre `?from=` (constat SRV-06
- * de l'audit de sécurité du 2026-09-12).
+ * Destination de retour sûre à partir d'un paramètre `?from=` (audit SRV-06).
+ * Non filtré, ce paramètre serait une redirection ouverte :
+ * `/avatar?from=https://piege.example` renverrait vers un site tiers.
  *
- * Un paramètre de retour non filtré est une redirection ouverte : un lien
- * `/avatar?from=https://piege.example` renverrait l'utilisateur vers un site
- * tiers juste après une action de confiance (hameçonnage).
- *
- * Tester `startsWith("/") && !startsWith("//")` ne suffit pas : les navigateurs
- * lisent `\` comme `/`, donc `/\piege.example` devient `//piege.example`, une
- * URL vers un autre domaine. On résout donc la valeur comme le ferait le
- * navigateur, et on n'accepte que ce qui reste sur la même origine.
+ * `startsWith("/") && !startsWith("//")` ne suffit pas : les navigateurs
+ * lisent `\` comme `/`, et `/\piege.example` devient `//piege.example`. On
+ * résout donc la valeur comme le navigateur et on n'accepte que ce qui reste
+ * sur la même origine.
  */
 
 const ORIGINE_FICTIVE = "https://origine.invalid";

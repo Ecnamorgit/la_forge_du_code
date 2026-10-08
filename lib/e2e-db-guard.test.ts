@@ -112,8 +112,8 @@ describe("assertTestDatabaseUrl — ce qui est refusé", () => {
 });
 
 describe("assertTestDatabaseUrl — le paramètre « host » qui écrase l'hôte", () => {
-  // pg-connection-string : « Only set the host if there is no equivalent query
-  // param ». Une URL d'apparence locale peut donc viser la production.
+  // pg-connection-string laisse ce paramètre écraser l'hôte : une URL
+  // d'apparence locale peut viser la production.
   it("refuse une URL locale dont la query redirige vers un hébergeur géré", () => {
     refuse(
       "postgresql://u:p@localhost:5432/codeforge_test?host=db.abcdefgh.supabase.co"

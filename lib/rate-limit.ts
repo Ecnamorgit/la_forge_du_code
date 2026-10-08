@@ -6,18 +6,16 @@ import { Redis } from "@upstash/redis";
 import { logger } from "@/lib/logger";
 
 /**
- * Limiteur de débit à fenêtre fixe, enfichable.
+ * Limiteur de débit à fenêtre fixe.
  *
- * - **Par défaut** : compteurs en mémoire process. Parfait pour une instance
- *   unique (`next start`, VPS, conteneur), zéro dépendance.
- * - **Multi-instance / serverless** : si `UPSTASH_REDIS_REST_URL` +
- *   `UPSTASH_REDIS_REST_TOKEN` (ou `KV_REST_API_URL` + `KV_REST_API_TOKEN`,
- *   noms de l'intégration Upstash de Vercel) sont définis, les compteurs sont
- *   partagés via Upstash Redis, donc la limite est respectée à travers toutes
- *   les instances. Sur Vercel, `lib/env.ts` l'exige.
+ * Par défaut, les compteurs vivent en mémoire du processus, ce qui suffit pour
+ * une instance unique (`next start`, VPS, conteneur). Si `UPSTASH_REDIS_REST_URL`
+ * et `UPSTASH_REDIS_REST_TOKEN` (ou `KV_REST_API_URL` et `KV_REST_API_TOKEN`,
+ * noms de l'intégration Upstash de Vercel) sont définis, ils sont partagés via
+ * Upstash Redis entre toutes les instances ; `lib/env.ts` l'exige sur Vercel.
  *
- * L'API publique (`rateLimit`) est asynchrone dans les deux cas. En cas de panne
- * Redis, on bascule en mémoire (fail-open) plutôt que de bloquer l'auth.
+ * En cas de panne Redis, on bascule en mémoire (fail-open) plutôt que de
+ * bloquer l'authentification.
  */
 
 interface Bucket {
@@ -27,7 +25,7 @@ interface Bucket {
 
 const store = new Map<string, Bucket>();
 
-// Opportunistic cleanup so the map can't grow unbounded under attack.
+// Purge opportuniste, pour que la table ne grossisse pas sans limite sous attaque.
 let lastSweep = Date.now();
 function sweep(now: number): void {
   if (now - lastSweep < 60_000) return;
@@ -39,9 +37,9 @@ function sweep(now: number): void {
 
 export interface RateLimitResult {
   ok: boolean;
-  /** Remaining allowed requests in the current window. */
+  /** Requêtes encore autorisées dans la fenêtre. */
   remaining: number;
-  /** Seconds until the window resets (0 when not limited). */
+  /** Secondes avant la fin de la fenêtre (0 si non limité). */
   retryAfter: number;
 }
 
@@ -71,14 +69,14 @@ function memoryRateLimit(key: string, opts: RateLimitOptions): RateLimitResult {
   return { ok: true, remaining: opts.limit - bucket.count, retryAfter: 0 };
 }
 
-// Upstash client, créé une seule fois si la config est présente.
+// Client Upstash, créé une seule fois si la configuration est présente.
 let redis: Redis | null = null;
 let redisChecked = false;
 function getRedis(): Redis | null {
   if (redisChecked) return redis;
   redisChecked = true;
-  // Les noms d'Upstash, sinon ceux que pose l'intégration Upstash de Vercel
-  // (constat SRV-01 : le Redis de production ne fournit que les seconds).
+  // Noms Upstash, sinon ceux de l'intégration Upstash de Vercel, seuls fournis
+  // par le Redis de production (audit SRV-01).
   const [url, token] =
     process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
       ? [process.env.UPSTASH_REDIS_REST_URL, process.env.UPSTASH_REDIS_REST_TOKEN]
@@ -97,7 +95,7 @@ async function redisRateLimit(
 ): Promise<RateLimitResult> {
   const redisKey = `rl:${key}`;
   const count = await client.incr(redisKey);
-  // Premier hit de la fenêtre : poser l'expiration.
+  // Premier appel de la fenêtre : poser l'expiration.
   if (count === 1) {
     await client.pexpire(redisKey, opts.windowMs);
   }
@@ -150,18 +148,13 @@ export async function isRateLimited(key: string, opts: RateLimitOptions): Promis
 }
 
 /**
- * IP client dérivée des en-têtes de proxy, résistante au spoofing.
+ * IP client dérivée des en-têtes de proxy, résistante à l'usurpation.
  *
- * `X-Forwarded-For` est une liste `client, proxy1, proxy2, …` où le client
- * contrôle les entrées **de gauche** : il peut préfixer une IP arbitraire, que
- * le proxy de confiance se contente d'ajouter à droite. Prendre la première
- * entrée (la plus à gauche) laisse donc un attaquant changer de clé de
- * rate-limit à chaque requête et contourner les throttles de brute-force.
- *
- * On prend au contraire l'entrée ajoutée par notre infra de confiance : la
- * `TRUSTED_PROXY_HOPS`-ième depuis la droite (défaut 1, correct pour Vercel et
- * un reverse-proxy unique). Les hops à gauche de celle-ci sont potentiellement
- * falsifiés et ignorés.
+ * Dans `X-Forwarded-For` (`client, proxy1, proxy2, …`), le client contrôle les
+ * entrées de gauche : prendre la première laisserait un attaquant changer de
+ * clé de limitation à chaque requête. On prend l'entrée ajoutée par notre
+ * infrastructure, la `TRUSTED_PROXY_HOPS`-ième depuis la droite (1 par défaut,
+ * correct pour Vercel et un reverse-proxy unique).
  */
 export function getClientIp(req: Request): string {
   const xff = req.headers.get("x-forwarded-for");
@@ -182,7 +175,7 @@ export function getClientIp(req: Request): string {
   return req.headers.get("x-real-ip") ?? "unknown";
 }
 
-/** Standard 429 response with a Retry-After header. */
+/** Réponse 429 avec l'en-tête Retry-After. */
 export function tooManyRequests(retryAfter: number): NextResponse {
   return NextResponse.json(
     { error: `Trop de tentatives. Reessaie dans ${retryAfter}s.` },

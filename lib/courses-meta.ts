@@ -18,8 +18,7 @@ export function getChaptersMeta(course: string): ChapterMetaFull[] {
   }));
 }
 
-// Pre-computed per-course exports kept for backward compatibility with callers
-// that prefer destructured imports. These are cheap (just object reshaping).
+// Métadonnées précalculées par cursus, pour les imports déstructurés.
 export const HTML_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("html");
 export const CSS_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("css");
 export const JS_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("javascript");
@@ -35,7 +34,7 @@ export const SECURITY_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("securi
 export const PYTHON_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("python");
 export const ALGO_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("algo");
 
-/** Badge unlocked when a chapter is completed (per course). */
+/** Badge obtenu à la fin de chaque chapitre, par cursus. */
 const BADGE_BY_CHAPTER: Record<string, Record<string, string>> = {
   html: {
     "chapitre-1": "selene",
@@ -107,11 +106,9 @@ export interface CompletionStats {
 }
 
 /**
- * Compte les cursus et chapitres bouclés pour un état utilisateur.
- *
- * Même motif que `app/profil/page.tsx` (`isChapterComplete` appliqué chapitre
- * par chapitre) : extrait ici pour ne pas le dupliquer entre `/profil` et le
- * dashboard, qui en a besoin pour nourrir `nextUnlock`.
+ * Compte les cursus et chapitres bouclés pour un état utilisateur
+ * (`isChapterComplete` chapitre par chapitre), pour évaluer les déblocables
+ * côté client (tableau de bord, /avatar).
  */
 export function getCompletionStats(
   state: UserState,

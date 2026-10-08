@@ -1,11 +1,7 @@
 /**
- * Source unique du lore de la Coalition Nebula.
- *
- * Le texte narratif ne doit vivre nulle part ailleurs : quand il était écrit
- * en dur dans le JSX, le crawl et les scènes d'intro ont fini par nommer
- * différemment le même antagoniste. `lib/lore.test.ts` verrouille ça.
- *
- * Le nom canonique de la menace est SPECTRE.
+ * Source unique du lore de la Coalition Nebula, hors du JSX, pour que tous les
+ * textes nomment la menace de la même façon (vérifié par `lib/lore.test.ts`).
+ * Son nom canonique est SPECTRE.
  */
 
 export interface LoreSection {

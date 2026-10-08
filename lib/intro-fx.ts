@@ -1,12 +1,9 @@
 /**
- * Configuration pure des mini-cinématiques de l'intro (spec
- * docs/superpowers/specs/2026-07-19-intro-mini-cinematiques-design.md).
- *
- * Chaque scène de l'intro (PNG en décor) reçoit une dérive de caméra et une
- * liste d'effets animés. Toutes les positions sont en coordonnées
- * normalisées de l'image : x vers la droite, y vers le bas, dans [0,1].
- * Aucune dépendance DOM/three ici — le moteur (IntroSceneCanvas) consomme
- * cette config, ce module reste testable en node.
+ * Configuration des mini-cinématiques de l'intro : chaque scène (PNG en décor)
+ * reçoit une dérive de caméra et une liste d'effets animés. Positions en
+ * coordonnées normalisées de l'image (x vers la droite, y vers le bas, dans
+ * [0,1]). Sans dépendance DOM ni three : le moteur (IntroSceneCanvas) consomme
+ * cette configuration, qui reste testable sous node.
  */
 
 /** Dérive de caméra sur la durée d'une scène (amplitudes très faibles). */
@@ -122,7 +119,7 @@ const STAR = "#c8d6e5";
 
 /** Une entrée par scène de `INTRO_SCENES` (ids 0..4). */
 export const INTRO_FX: Record<number, SceneFx> = {
-  // Scène 0 — station attaquée par Spectre.
+  // Scène 0 : station attaquée par le Spectre.
   0: {
     camera: { kind: "pan", amount: 0.03 },
     effects: [
@@ -144,7 +141,7 @@ export const INTRO_FX: Record<number, SceneFx> = {
       },
     ],
   },
-  // Scène 1 — cockpit du cadet, alerte en cours.
+  // Scène 1 : cockpit du cadet, alerte en cours.
   1: {
     camera: { kind: "sway", amount: 0.012 },
     effects: [
@@ -164,7 +161,7 @@ export const INTRO_FX: Record<number, SceneFx> = {
       },
     ],
   },
-  // Scène 2 — KIRA se présente en hologramme.
+  // Scène 2 : KIRA se présente en hologramme.
   2: {
     camera: { kind: "zoom-in", amount: 0.045 },
     effects: [
@@ -182,7 +179,7 @@ export const INTRO_FX: Record<number, SceneFx> = {
       { kind: "flicker", x: 0.85, y: 0.3, w: 0.14, h: 0.3, color: RED, period: 1.7 },
     ],
   },
-  // Scène 3 — réparation : lasers de code verts vers le vaisseau.
+  // Scène 3 : réparation, lasers de code verts vers le vaisseau.
   3: {
     camera: { kind: "zoom-in", amount: 0.045 },
     effects: [
@@ -201,7 +198,7 @@ export const INTRO_FX: Record<number, SceneFx> = {
       },
     ],
   },
-  // Scène 4 — système stable, portail de customisation.
+  // Scène 4 : système stable, portail de personnalisation.
   4: {
     camera: { kind: "zoom-out", amount: 0.04 },
     effects: [

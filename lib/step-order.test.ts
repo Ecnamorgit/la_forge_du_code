@@ -50,11 +50,10 @@ describe("checkStepOrder", () => {
 });
 
 /**
- * Le serveur ordonne les chapitres selon `getChaptersMeta` (la carte), et
- * compte les étapes selon le registre de contenu. Si les deux divergent, il
- * refuserait des étapes que l'interface propose : un apprenant honnête serait
- * bloqué. Invariant dérivé des registres, donc un chapitre ajouté demain est
- * couvert.
+ * Le serveur ordonne les chapitres selon `getChaptersMeta` (la carte) et
+ * compte les étapes selon le registre de contenu : s'ils divergeaient, il
+ * refuserait des étapes que l'interface propose. L'invariant est dérivé des
+ * registres et couvre donc les chapitres ajoutés.
  */
 describe("la carte et le registre décrivent le même parcours", () => {
   it.each(listCourseSlugs())("%s", (course) => {

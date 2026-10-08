@@ -1,11 +1,8 @@
 /**
- * Static lightweight summaries of all chapters across all courses.
- *
- * This file exists to avoid eager-loading every ChapterData (with its heavy
- * briefing template literals) just to display course maps / dashboards.
- *
- * Keep this file in sync manually when adding/renaming chapters.
- * Heavy ChapterData lives in lib/courses-registry.ts (data/courses/**).
+ * Résumés légers de tous les chapitres, pour afficher cartes et tableaux de
+ * bord sans charger chaque ChapterData et ses longs briefings
+ * (lib/courses-registry.ts). À tenir à jour à la main quand on ajoute ou
+ * renomme un chapitre.
  */
 
 export interface ChapterSummary {

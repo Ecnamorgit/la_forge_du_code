@@ -57,8 +57,10 @@ async function send(args: {
   }
 }
 
-/** Shared frame for transactional emails. Inline styles only — most mail
- *  clients strip <style> tags or class names. */
+/**
+ * Gabarit commun des e-mails transactionnels. Styles en ligne uniquement : la
+ * plupart des clients mail retirent les balises <style> et les classes.
+ */
 function frame(args: { title: string; body: string; cta: { href: string; label: string } }): string {
   const { title, body, cta } = args;
   return `<!doctype html>
@@ -96,7 +98,7 @@ export async function sendVerificationEmail(args: {
   const link = `${appUrl()}/verify-email/${args.token}`;
   const html = frame({
     // Casse normale et accents : un titre tout en majuscules est un signal
-    // classique pour les filtres anti-spam (observé sur Hotmail, 2026-09-08).
+    // classique pour les filtres anti-spam.
     title: "Vérifie ton adresse e-mail",
     body:
       "<p>Bienvenue à bord, Cadet.</p>" +
@@ -150,7 +152,7 @@ export async function sendPasswordResetEmail(args: {
 
 /**
  * Avis envoyé quand quelqu'un tente de s'inscrire avec une adresse déjà
- * inscrite (constat SRV-05) : l'écran d'inscription ne le révèle pas, le
+ * inscrite (audit SRV-05) : l'écran d'inscription ne le révèle pas, le
  * titulaire l'apprend dans sa propre boîte.
  */
 export async function sendAccountExistsEmail(args: { to: string }): Promise<SendResult> {

@@ -9,22 +9,15 @@
 import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 import type { TrialStepRef } from "./trial-user";
 
-/** Borne défensive : le chapitre d'essai n'a qu'une poignée d'étapes. */
+/** Borne défensive : les chapitres d'essai n'ont qu'une poignée d'étapes. */
 const MAX_STEPS = 50;
 
 const TRIAL_CHAPTER_SET = new Set(TRIAL_CHAPTERS);
 
-// Deux protections indépendantes cohabitent ici, et il ne faut retirer
-// aucune des deux en pensant que l'autre suffit :
-//  1. Les branches de rejet en égalité stricte ci-dessous (le garde-fou
-//     principal) : elles éliminent toute entrée qui ne correspond pas
-//     exactement au cursus/chapitre d'essai attendu, quelle que soit sa forme
-//     (objet piégé, prototype pollué, tableau, etc.).
-//  2. La défense en profondeur : l'objet renvoyé par ce filtre construit
-//     `course`/`chapter` en dur à partir de TRIAL_COURSE/TRIAL_CHAPTERS, il ne
-//     recopie jamais les valeurs fournies par l'appelant. Même si le garde 1
-//     avait une faille, aucune valeur arbitraire ne pourrait s'échapper par
-//     ce chemin.
+// Deux protections indépendantes, à garder toutes les deux : les rejets en
+// égalité stricte écartent toute entrée hors du périmètre d'essai, quelle que
+// soit sa forme, et l'objet renvoyé reconstruit `course` et `chapter` depuis
+// TRIAL_COURSE et TRIAL_CHAPTERS sans jamais recopier l'entrée.
 export function filterTrialSteps(steps: unknown): TrialStepRef[] {
   if (!Array.isArray(steps)) return [];
 
@@ -59,7 +52,7 @@ export function filterTrialSteps(steps: unknown): TrialStepRef[] {
   );
 }
 
-/** Ids de cinématiques atteignables en essai — construits en dur, jamais dérivés de l'entrée. */
+/** Ids de cinématiques atteignables en essai, construits en dur et jamais dérivés de l'entrée. */
 const TRIAL_CINEMATIC_IDS: readonly string[] = [
   `${TRIAL_COURSE}:intro`,
   ...TRIAL_CHAPTERS.map((c) => `${TRIAL_COURSE}:chapter:${c}`),

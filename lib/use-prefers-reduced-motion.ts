@@ -3,12 +3,9 @@
 import { useEffect, useState } from "react";
 
 /**
- * Le visiteur demande-t-il une réduction des animations ?
- *
- * Lecture ponctuelle au montage (pas d'abonnement) : les cinématiques décident
- * de leur rythme à l'ouverture, changer de préférence en cours de lecture n'a
- * pas de sens. Rend `false` au premier rendu (SSR compris), puis la vraie
- * valeur juste après l'hydratation.
+ * Vrai si le visiteur demande moins d'animations. Lu une fois au montage, sans
+ * abonnement : les cinématiques fixent leur rythme à l'ouverture. Rend `false`
+ * au premier rendu (SSR compris), puis la vraie valeur après l'hydratation.
  */
 export function usePrefersReducedMotion(): boolean {
   const [reducedMotion, setReducedMotion] = useState(false);

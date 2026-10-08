@@ -5,15 +5,10 @@ import path from "node:path";
 import { describe, it, expect } from "vitest";
 
 /**
- * Constat INF-01, découvert le 2026-09-14 pendant l'audit : les préversions
- * Vercel appliquaient les migrations à la base de production.
- *
- * Dans Vercel, `DATABASE_URL` et `DIRECT_URL` sont réglées sur « Production and
- * Preview » : les préversions parlent à la base de production. Or la commande
- * de build de `vercel.json` lançait `prisma migrate deploy` à chaque
- * déploiement, préversions comprises. Pousser une branche contenant une
- * migration l'appliquait donc à la production, avant toute relecture et toute
- * fusion.
+ * Audit INF-01 : dans Vercel, `DATABASE_URL` et `DIRECT_URL` valent pour la
+ * production et les préversions. Un `prisma migrate deploy` dans la commande
+ * de build appliquerait donc les migrations d'une branche poussée à la base de
+ * production, avant toute relecture.
  */
 
 const RACINE = process.cwd();

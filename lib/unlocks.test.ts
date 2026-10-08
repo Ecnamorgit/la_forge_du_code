@@ -75,11 +75,8 @@ describe("evaluateUnlocks", () => {
     expect(statut?.remaining).toBeNull();
   });
 
-  // Règle non négociable de la spec : un objet OBTENU ne redevient jamais
-  // verrouillé. Trois conditions du catalogue sont réversibles (`double` 5 j,
-  // `orbital` 7 j, `blanc-glacier` 14 j) puisque le streak retombe à 1 à la
-  // rupture — le cadet garde pourtant sa ligne `UserUnlock`, et le serveur
-  // continue d'accepter l'objet.
+  // Un objet obtenu ne redevient jamais verrouillé, même quand le streak
+  // retombe à 1 à la rupture : le cadet garde sa ligne `UserUnlock`.
   it("garde obtenu un objet possédé dont la condition est redevenue fausse", () => {
     const apresRupture = ctx({ streak: 1, owned: ["blanc-glacier", "orbital", "double"] });
     const statuts = evaluateUnlocks(apresRupture);
@@ -120,16 +117,15 @@ describe("nextUnlock", () => {
     expect(suivant).not.toBeNull();
     // Le seul objet verrouillé restant est conditionné par un badge
     expect(suivant?.def.condition.kind).toBe("badge");
-    // Les badges sont à égalité par construction (distance = Infinity pour tous).
-    // L'ordre du catalogue tranche : c'est le premier objet à condition badge.
+    // Les badges sont à égalité (distance infinie) : l'ordre du catalogue
+    // tranche, c'est le premier objet à condition badge.
     const firstBadgeUnlock = UNLOCKS.find((u) => u.condition.kind === "badge");
     expect(suivant?.def.id).toBe(firstBadgeUnlock?.id);
   });
 
   it("ne propose jamais un objet déjà possédé", () => {
-    // Streak retombé à 1 : `double` (5 j) redevient la cible mesurable la plus
-    // proche — sauf qu'il est déjà possédé, et le reproposer serait une fausse
-    // piste. C'est `orbital` (7 j) qui doit suivre.
+    // Avec un streak de 4, `double` (5 j) serait la cible la plus proche, mais
+    // il est déjà possédé : c'est `orbital` (7 j) qui doit suivre.
     const suivant = nextUnlock(ctx({ streak: 4, owned: ["double"] }));
     expect(suivant?.def.id).toBe("orbital");
   });

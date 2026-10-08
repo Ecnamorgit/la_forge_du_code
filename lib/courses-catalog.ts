@@ -1,12 +1,10 @@
 /**
- * Single source of truth for course meta-data (the thing displayed in lists,
- * cards, and navigations).
+ * Métadonnées des cursus affichées dans les listes, cartes et navigations.
  *
- * Adding a new course = add an entry here + add chapter summaries in
- * lib/chapter-summaries.ts + wire it in lib/courses-registry.ts.
- *
- * Visual design (LevelNode positions / sprites) lives in
- * app/learn/[course]/page.tsx where it belongs as art direction.
+ * Ajouter un cursus : une entrée ici, ses résumés de chapitres dans
+ * lib/chapter-summaries.ts et son branchement dans lib/courses-registry.ts.
+ * La mise en page (positions des LevelNode, sprites) reste dans
+ * app/learn/[course]/page.tsx.
  */
 
 import { CHAPTER_SUMMARIES } from "./chapter-summaries";
@@ -164,10 +162,9 @@ export function getCourseChaptersCount(slug: string): number {
 }
 
 /**
- * A course is shown as "complete" once it has enough chapters to form a real
- * learning path; below that it is a piloted "preview" (intro chapter only).
- * Kept as a threshold on the chapter count so there is a single source of
- * truth (no manual per-course flag to keep in sync).
+ * Un cursus est « complet » dès qu'il compte assez de chapitres pour former un
+ * vrai parcours ; en dessous, c'est un aperçu (chapitre d'introduction seul).
+ * Le seuil évite un drapeau par cursus à tenir à jour.
  */
 export const COURSE_COMPLETE_MIN_CHAPTERS = 4;
 
@@ -184,8 +181,8 @@ const ICON_FRAME_BY_SLUG: Record<string, number> = Object.fromEntries(
 );
 
 /**
- * Frame index of a course in /sprites/mission-icons.png. Matches the
- * COURSES_CATALOG order (see docs/PIXEL_ART_GUIDE.md §3A).
+ * Index de frame d'un cursus dans /sprites/mission-icons-v2.png, dans l'ordre
+ * de COURSES_CATALOG (docs/PIXEL_ART_GUIDE.md §3A).
  */
 export function getCourseIconFrame(slug: string): number {
   return ICON_FRAME_BY_SLUG[slug] ?? 0;
