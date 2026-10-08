@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
 import { sendVerificationEmail } from "@/lib/email";
 import { createToken } from "@/lib/tokens";
+import { logger } from "@/lib/logger";
 import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import { crossOriginRefusal } from "@/lib/same-origin";
 
@@ -45,9 +46,19 @@ export async function POST(req: Request) {
   });
 
   if (user && !user.emailVerified) {
-    const token = await createToken({ userId: user.id, kind: "email_verify" });
-    // Une erreur d'envoi n'est pas remontée au client.
-    await sendVerificationEmail({ to: user.email, token }).catch(() => {});
+    // Après la réponse, pour que son délai ne révèle pas le compte. Une erreur
+    // d'envoi n'est pas remontée au client.
+    after(async () => {
+      try {
+        const token = await createToken({ userId: user.id, kind: "email_verify" });
+        const envoi = await sendVerificationEmail({ to: user.email, token });
+        if (!envoi.ok) logger.warn("resend-verification: échec de l'envoi", { error: envoi.error });
+      } catch (err) {
+        logger.error("resend-verification: échec de la création du jeton", {
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    });
   }
 
   return NextResponse.json({ ok: true });

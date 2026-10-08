@@ -1,6 +1,7 @@
 /**
  * Réinitialise directement en base le mot de passe d'un utilisateur, sans
- * passer par l'e-mail, et marque son adresse comme vérifiée.
+ * passer par l'e-mail, marque son adresse comme vérifiée et déconnecte ses
+ * sessions ouvertes.
  *
  * Usage :
  *   npx tsx scripts/reset-password.ts <email> <newPassword>
@@ -28,12 +29,18 @@ async function main(): Promise<void> {
 
   const user = await prisma.user.update({
     where: { email: email.toLowerCase() },
-    data: { password: hashed, emailVerified: new Date() },
+    data: {
+      password: hashed,
+      emailVerified: new Date(),
+      // Révoque les sessions ouvertes, comme la route de réinitialisation
+      // (audit SRV-03).
+      sessionVersion: { increment: 1 },
+    },
     select: { email: true, username: true },
   });
 
   console.log(
-    `✓ Mot de passe reinitialise pour ${user.email} (${user.username}). Email marque verifie.`
+    `✓ Mot de passe réinitialisé pour ${user.email} (${user.username}). E-mail marqué vérifié, sessions révoquées.`
   );
 }
 
