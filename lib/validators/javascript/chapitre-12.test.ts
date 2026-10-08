@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-12";
+import { getChapterData } from "@/lib/courses-registry";
 
 /**
  * JS chapitre 12 — CRUD complet sur une API REST.
@@ -98,11 +99,11 @@ describe("JS chapitre 12 — etape 3 (mettre a jour)", () => {
 describe("JS chapitre 12 — etape 4 (supprimer)", () => {
   const valider = validators[3];
 
-  const OK = `const response = await fetch('https://api.codeforge.space/vaisseaux/7', {
+  const OK = `const response = await fetch('https://api.codeforge.space/vaisseaux/13', {
   method: 'DELETE',
 });
 if (response.ok) {
-  console.log('Vaisseau retire de la flotte');
+  console.log('Vaisseau retiré de la flotte');
 }`;
 
   it("valide un DELETE confirme et marque l'etape finale", () => {
@@ -112,9 +113,18 @@ if (response.ok) {
   });
 
   it("refuse une suppression dont on ne verifie pas le succes", () => {
-    const code = `await fetch('https://api.codeforge.space/vaisseaux/7', { method: 'DELETE' });
-console.log('Vaisseau retire de la flotte');`;
+    const code = `await fetch('https://api.codeforge.space/vaisseaux/13', { method: 'DELETE' });
+console.log('Vaisseau retiré de la flotte');`;
     expect(valider(code).ok).toBe(false);
+  });
+
+  it("valide l'indice donné dans la leçon", () => {
+    const hint = getChapterData("javascript", "chapitre-12")!.steps[3].hint;
+    expect(valider(hint).ok).toBe(true);
+  });
+
+  it("accepte le message sans accent", () => {
+    expect(valider(OK.replace("retiré", "retire")).ok).toBe(true);
   });
 
   it("refuse une suppression sur un autre identifiant", () => {
@@ -122,7 +132,7 @@ console.log('Vaisseau retire de la flotte');`;
   method: 'DELETE',
 });
 if (response.ok) {
-  console.log('Vaisseau retire de la flotte');
+  console.log('Vaisseau retiré de la flotte');
 }`;
     expect(valider(code).ok).toBe(false);
   });

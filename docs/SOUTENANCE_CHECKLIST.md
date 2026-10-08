@@ -45,7 +45,7 @@ Liste complète des documents et éléments à produire pour le projet et sa sou
 ## 6. Qualité & tests
 
 - [x] **Tests manuels** — `SMOKE_TEST.md` (check-list exhaustive).
-- [x] **Tests unitaires** — 1 537 tests unitaires (Vitest) couvrant les validateurs, le briefing du jour, le calcul d'XP, les tokens, le bac à sable, etc. (cf. [TESTING.md](TESTING.md)).
+- [x] **Tests unitaires** — 1 539 tests unitaires (Vitest) couvrant les validateurs, le briefing du jour, le calcul d'XP, les tokens, le bac à sable, etc. (cf. [TESTING.md](TESTING.md)).
 - [x] **Test e2e du parcours** — 50 tests de bout en bout (Playwright) validant le parcours d'apprentissage (dont le chapitre 1 HTML pas à pas) et les contrôles de sécurité, avec nettoyage/seed automatique de la base.
 - [x] **CI/CD** — pipeline GitHub Actions (`.github/workflows/ci.yml`) : job qualité (lint, typecheck, tests unitaires, build) et job E2E (service PostgreSQL 16, tests Playwright contre un build de production), en parallèle.
 - [x] **Stratégie de tests** — approche des tests unitaires et E2E décrite dans [TESTING.md](TESTING.md).

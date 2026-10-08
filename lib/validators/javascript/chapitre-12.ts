@@ -38,14 +38,14 @@ export const validators: Validator[] = [
     }
     return pass("Dossier actualisé.", ["o3a", "o3b"]);
   },
-  // Étape 4 : DELETE /vaisseaux/7, response.ok et message de succès
+  // Étape 4 : DELETE /vaisseaux/13, response.ok et message de succès
   (code) => {
     const c = strip(code);
-    if (!/method\s*:\s*['"]DELETE['"]/i.test(c) || !/\/vaisseaux\/7/.test(c)) {
-      return fail("Supprime via method: 'DELETE' sur '.../vaisseaux/7'.");
+    if (!/method\s*:\s*['"]DELETE['"]/i.test(c) || !/\/vaisseaux\/13\b/.test(c)) {
+      return fail("Supprime via method: 'DELETE' sur '.../vaisseaux/13'.");
     }
-    if (!/\.ok\b/.test(c) || !/Vaisseau retire de la flotte/.test(c)) {
-      return fail("Vérifie response.ok et logge 'Vaisseau retire de la flotte' en cas de succès.");
+    if (!/\.ok\b/.test(c) || !/Vaisseau retir[ée] de la flotte/.test(c)) {
+      return fail("Vérifie response.ok et logge 'Vaisseau retiré de la flotte' en cas de succès.");
     }
     return pass("CRUD maîtrisé.", ["o4a", "o4b"], true);
   },
