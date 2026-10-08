@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 
+import AuthField from "@/components/ui/AuthField";
 import BrandLogo from "@/components/ui/BrandLogo";
 
 export default function SignupPage() {
@@ -101,7 +102,7 @@ export default function SignupPage() {
                   <br />
                   <strong className="break-all text-nebula-cyan">{sentTo}</strong>
                 </p>
-                <p className="mb-6 font-body text-xs leading-relaxed text-nebula-text-dim">
+                <p className="mb-6 font-body text-xs leading-relaxed text-nebula-text-secondary">
                   Suis les instructions qu&apos;il contient pour continuer.
                   Pense à vérifier ton dossier <strong>spam</strong>.
                 </p>
@@ -127,13 +128,13 @@ export default function SignupPage() {
                   <h1 className="font-display text-xl tracking-[0.06em] text-nebula-cyan [text-shadow:0_0_16px_rgba(0,240,255,0.28)] sm:text-2xl">
                     INSCRIPTION
                   </h1>
-                  <p className="mt-1 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
+                  <p className="mt-1 font-tech text-[11px] uppercase tracking-[0.2em] text-nebula-text-secondary">
                     Rejoins la flotte Nebula
                   </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <Field
+                  <AuthField
                     label="Adresse e-mail"
                     id="email"
                     type="email"
@@ -142,7 +143,7 @@ export default function SignupPage() {
                     value={email}
                     onChange={setEmail}
                   />
-                  <Field
+                  <AuthField
                     label="Pseudo (2-16 caractères)"
                     id="username"
                     type="text"
@@ -154,7 +155,7 @@ export default function SignupPage() {
                     value={username}
                     onChange={setUsername}
                   />
-                  <Field
+                  <AuthField
                     label="Mot de passe (min. 8, lettre + chiffre)"
                     id="password"
                     type="password"
@@ -165,7 +166,7 @@ export default function SignupPage() {
                     value={password}
                     onChange={setPassword}
                   />
-                  <Field
+                  <AuthField
                     label="Confirme le mot de passe"
                     id="confirmPassword"
                     type="password"
@@ -207,33 +208,5 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
-  );
-}
-
-function Field({
-  label,
-  id,
-  value,
-  onChange,
-  ...rest
-}: {
-  label: string;
-  id: string;
-  value: string;
-  onChange: (v: string) => void;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value" | "id">) {
-  return (
-    <label htmlFor={id} className="block">
-      <span className="mb-1.5 block font-tech text-[10px] uppercase tracking-[0.25em] text-nebula-text-dim">
-        {label}
-      </span>
-      <input
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-sm border border-nebula-border bg-nebula-bg-darkest/60 px-3 py-2.5 font-tech text-sm text-nebula-text outline-none transition-colors focus:border-nebula-cyan"
-        {...rest}
-      />
-    </label>
   );
 }
