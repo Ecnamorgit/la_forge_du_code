@@ -8,6 +8,10 @@ on:
   pull_request:
     branches: [main, dev]
 
+# Le jeton GITHUB_TOKEN n'a besoin que de lire le dépôt.
+permissions:
+  contents: read
+
 jobs:
   quality:
     name: Lint & tests

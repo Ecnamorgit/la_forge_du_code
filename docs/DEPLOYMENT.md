@@ -170,14 +170,21 @@ La base est la seule donnée non reconstructible : elle **doit** être sauvegard
 > n'inclut **aucune** sauvegarde (« Free Plan does not include project
 > backups »). La couverture repose donc entièrement sur le workflow ci-dessous.
 
-**Sauvegarde automatique (plan gratuit) — `.github/workflows/backup.yml`**
+**Sauvegarde automatique (plan gratuit) — dépôt privé `la_forge_du_code-sauvegardes`**
 
 Un `pg_dump` quotidien à 03:00 UTC, chiffré en AES256 avant de quitter le
 runner, déposé en artefact GitHub avec 90 jours de rétention. Le workflow échoue
 si le dump fait moins de 10 Ko : une sauvegarde vide est le mode de panne
 classique, et elle passerait sinon inaperçue.
 
-Deux secrets à créer dans _Settings → Secrets and variables → Actions_ :
+Le workflow (`.github/workflows/sauvegarde.yml`) vit dans un dépôt privé séparé,
+et non dans celui de l'application : sur un dépôt public, les artefacts
+GitHub Actions sont téléchargeables par tout utilisateur connecté, et les
+sauvegardes chiffrées seraient exposées à une attaque hors ligne de la
+phrase de passe.
+
+Deux secrets à créer dans les _Settings → Secrets and variables → Actions_ de
+ce dépôt :
 
 | Secret | Valeur |
 |---|---|
@@ -198,14 +205,15 @@ sens strict.
 > **Conserver la passphrase ailleurs que dans GitHub.** Si elle n'existe que
 > là, perdre l'accès au compte revient à perdre les sauvegardes avec.
 
-Déclenchement manuel possible : onglet _Actions → Sauvegarde de la base → Run
-workflow_.
+Déclenchement manuel possible : dans le dépôt de sauvegarde, onglet
+_Actions → Sauvegarde de la base → Run workflow_.
 
 **Restaurer depuis un artefact chiffré** (procédure exercée le 2026-08-11, sans
 rien installer d'autre que Docker) :
 
 ```bash
-# 1. Télécharger l'artefact depuis l'onglet Actions, le dézipper, puis :
+# 1. Télécharger l'artefact depuis l'onglet Actions du dépôt de sauvegarde,
+#    le dézipper, puis :
 gpg --decrypt --output backup.dump codeforge-AAAA-MM-JJ-HHMM.dump.gpg
 
 # 2. Monter une base jetable :

@@ -420,7 +420,8 @@ pointe pas sur la production.
 
 **Le plan gratuit Supabase n'inclut aucune sauvegarde** (constaté le 2026-08-06 :
 « Free Plan does not include project backups »). L'hébergeur ne couvre donc
-rien, et la couverture repose sur `.github/workflows/backup.yml` : `pg_dump`
+rien, et la couverture repose sur le workflow du dépôt privé
+`la_forge_du_code-sauvegardes` : `pg_dump`
 quotidien, chiffré AES256 avant de quitter le runner, artefact retenu 90 jours.
 Le workflow échoue si le dump fait moins de 10 Ko — une sauvegarde vide est le
 mode de panne classique et passerait sinon inaperçue.
