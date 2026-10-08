@@ -45,10 +45,10 @@ export const validators: Validator[] = [
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     const themeMatch = css.match(/\[data-theme[\s~^*$|]*=\s*["'][^"']+["']\s*\]\s*\{([^}]+)\}/i);
     if (!themeMatch) {
-      return { ok: false, msg: 'Cible [data-thème="..."] avec un set de variables.' };
+      return { ok: false, msg: 'Cible [data-theme="..."] avec un set de variables.' };
     }
     if (!/--[a-z][\w-]*\s*:/i.test(themeMatch[1])) {
-      return { ok: false, msg: "Le bloc [data-thème] doit redéfinir au moins une variable CSS." };
+      return { ok: false, msg: "Le bloc [data-theme] doit redéfinir au moins une variable CSS." };
     }
     return { ok: true, msg: "Design system complet.", objList: ["o4a", "o4b"], final: true };
   },

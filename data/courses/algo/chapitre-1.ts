@@ -73,7 +73,7 @@ Une fonction qui marche sur 10 éléments peut planter sur 10 millions. La compl
       placeholder: "// while debut <= fin : milieu = (debut + fin) / 2 ; ...",
       narrator:
         "La recherche lineaire teste chaque élément : O(n). La recherche binaire coupe l'espace en deux à chaque étape : O(log n). Sur 1 million d'éléments, c'est 20 étapes au lieu de 1 million. Vital.",
-      hint: "function rechercheBinaire(tableau, cible) {\n  let début = 0;\n  let fin = tableau.length - 1;\n  while (début <= fin) {\n    const milieu = Math.floor((début + fin) / 2);\n    if (tableau[milieu] === cible) return milieu;\n    if (tableau[milieu] < cible) début = milieu + 1;\n    else fin = milieu - 1;\n  }\n  return -1;\n}",
+      hint: "function rechercheBinaire(tableau, cible) {\n  let debut = 0;\n  let fin = tableau.length - 1;\n  while (debut <= fin) {\n    const milieu = Math.floor((debut + fin) / 2);\n    if (tableau[milieu] === cible) return milieu;\n    if (tableau[milieu] < cible) debut = milieu + 1;\n    else fin = milieu - 1;\n  }\n  return -1;\n}",
       briefing: {
         title: "Recherche binaire",
         content: `

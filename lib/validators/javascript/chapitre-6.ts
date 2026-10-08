@@ -30,7 +30,7 @@ export const validators: Validator[] = [
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
     if (!/\bequipage\s*\.\s*filter\s*\(/.test(stripped)) {
-      return { ok: false, msg: "Utilise équipage.filter(...)." };
+      return { ok: false, msg: "Utilise equipage.filter(...)." };
     }
     if (!/niveau\s*>=?\s*5/.test(stripped)) {
       return { ok: false, msg: "La condition doit filtrer niveau >= 5." };

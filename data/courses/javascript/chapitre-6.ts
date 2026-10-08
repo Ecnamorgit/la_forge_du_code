@@ -65,7 +65,7 @@ Tu as un tableau, tu veux **un nouveau tableau de même taille** où chaque él�
       placeholder: "// Utilise filter pour ne garder que les niveaux >= 5",
       narrator:
         "On veut isoler les membres d'élite (niveau ≥ 5). Utilise filter() pour créer un sous-tableau, puis affiche-le.",
-      hint: "const élites = équipage.filter((m) => m.niveau >= 5);\nconsole.log(élites);",
+      hint: "const elites = equipage.filter((m) => m.niveau >= 5);\nconsole.log(elites);",
       briefing: {
         title: "Array.filter()",
         content: `
