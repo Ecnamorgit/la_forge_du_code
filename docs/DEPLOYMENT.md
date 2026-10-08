@@ -79,19 +79,17 @@ pnpm start   # test local du bundle de prod avant de pousser
 
 Le build chez Vercel est défini par `vercel.json` : `prisma generate`, puis les migrations **seulement en production** (`scripts/migrer-si-production.mjs`, constat INF-01), puis `pnpm build`. Renseigner les variables d'env (étape 1) **avant** le premier build.
 
-### Déployer en production (dépôt privé, plan Hobby)
+### Déployer en production
 
-> **Fusionner dans `main` ne déploie pas.** Le dépôt est privé et le projet
-> est sur un compte Vercel **Hobby** : ce plan bloque tout déploiement dont
-> l'auteur du commit n'est pas le compte GitHub relié à Vercel (« Deployment
-> Blocked — the commit author did not have contributing access »). Les commits
-> sont signés par un autre compte GitHub, relié à l'ancien compte Vercel bloqué.
-> `vercel --prod` lancé depuis le dépôt est bloqué de la même façon : la CLI
-> joint les métadonnées git locales. Constaté le 2026-09-14 : deux déploiements
-> `BLOCKED` (la CLI n'affiche que `UNKNOWN` ; l'état réel se lit dans le tableau
-> de bord ou l'API).
+Le dépôt est public : chaque push sur `main` (en pratique, la fusion d'une PR) déclenche un déploiement de production sur Vercel. Vercel ne bascule le domaine que sur un build réussi : en cas d'échec, l'ancien reste en ligne.
 
-La procédure qui fonctionne : déployer une **copie de `main` sans `.git`** — sans métadonnées, rien à bloquer. Le script le fait :
+> Tant que le dépôt était privé, le plan Vercel **Hobby** bloquait tout
+> déploiement dont l'auteur du commit n'était pas le compte GitHub relié à
+> Vercel (« Deployment Blocked — the commit author did not have contributing
+> access »). Ce blocage ne vise que les dépôts privés. Un déploiement bloqué ne
+> se débloque pas avec « Redeploy » : il faut un nouveau push sur `main`.
+
+**Déploiement manuel (secours)** : déployer une copie de `main` sans `.git`, avec le script.
 
 ```bash
 # Une seule fois : se connecter (compte pluriface) et lier le dossier au projet.
@@ -100,18 +98,13 @@ npx vercel link
 ```
 
 ```bash
-# À chaque mise en production, une fois la PR fusionnée et `main` à jour :
+# Une fois la PR fusionnée et `main` à jour :
 node scripts/deployer-production.mjs
 ```
 
-Le script refuse de partir si `main` local diffère de `origin/main` (on déploie ce qui est fusionné, rien d'autre). Le build tourne chez Vercel, avec `vercel.json` et les variables du projet — identique à un déploiement déclenché par git. Vercel ne bascule le domaine que sur un build réussi : en cas d'échec, l'ancien reste en ligne.
+Le script refuse de partir si `main` local diffère de `origin/main` (on déploie ce qui est fusionné, rien d'autre). Le build tourne chez Vercel, avec `vercel.json` et les variables du projet, comme un déploiement déclenché par git. `vercel link` crée un `.env.local` (jeton `VERCEL_OIDC_TOKEN`) et peut ajouter des lignes à `.gitignore` : les deux sont inutiles ici, on peut les retirer.
 
 Vérifier ensuite (étape 6), et pour les changements de sécurité : `curl -sI https://www.laforgeducode.fr/ | grep -i content-security-policy` doit montrer `script-src` à nonce sans `'unsafe-inline'`, et `https://bac-a-sable.laforgeducode.fr/bac-a-sable/html` doit répondre `200`.
-
-> `vercel link` crée un `.env.local` (jeton `VERCEL_OIDC_TOKEN`) et peut ajouter
-> des lignes à `.gitignore` : les deux sont inutiles ici, on peut les retirer.
-> Alternative durable si un jour le dépôt passe en public : le blocage ne vise
-> que les dépôts privés, et chaque push sur `main` se déploierait à nouveau seul.
 
 > **Bascule de compte (2026-09-07)** : le projet est hébergé sur le compte
 > Vercel `pluriface` (plan Hobby), projet `la-forge-du-code`. En cas de nouveau
@@ -119,7 +112,7 @@ Vérifier ensuite (étape 6), et pour les changements de sécurité : `curl -sI 
 > détecte leurs noms depuis `.env.example`, pas leurs valeurs), lier Upstash
 > (variables `KV_REST_API_*`, obligatoires en production : `lib/env.ts` refuse
 > de démarrer sans), ajouter les domaines `www.laforgeducode.fr` et
-> `bac-a-sable.laforgeducode.fr`, puis déployer par le script ci-dessus.
+> `bac-a-sable.laforgeducode.fr`, puis pousser sur `main`.
 
 ---
 
