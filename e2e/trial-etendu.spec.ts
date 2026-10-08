@@ -17,8 +17,13 @@ test("la carte HTML est publique, avec verrous d'inscription au-delà du chapitr
   await page.getByTestId("cinematic-skip").click();
   await expect(page.getByTestId("cinematic-player")).toHaveCount(0);
 
-  // Nœuds hors essai : verrouillés vers l'inscription.
-  await expect(page.getByText("Inscription requise").first()).toBeVisible();
+  // Nœuds hors essai : liens vers l'inscription, signalés dans l'info-bulle
+  // qui s'affiche au survol. Le lien enveloppe un bloc positionné en absolu
+  // et n'a pas de taille propre : on survole ce bloc.
+  const chapitre4 = page.getByRole("link", { name: /\bCH\.4\b/ });
+  await expect(chapitre4).toHaveAttribute("href", "/signup");
+  await chapitre4.locator(":scope > div").hover();
+  await expect(chapitre4.getByText("Inscription requise")).toBeVisible();
 
   // Une fois vue (nc_cine_seen), elle ne se relance pas au rechargement.
   await page.reload();
