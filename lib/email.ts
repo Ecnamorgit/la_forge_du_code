@@ -58,8 +58,8 @@ async function send(args: {
 }
 
 /**
- * Gabarit commun des e-mails transactionnels. Styles en ligne uniquement : la
- * plupart des clients mail retirent les balises <style> et les classes.
+ * Shared template for transactional emails. Inline styles only: most
+ * mail clients strip <style> tags and classes.
  */
 function frame(args: { title: string; body: string; cta: { href: string; label: string } }): string {
   const { title, body, cta } = args;
@@ -97,8 +97,8 @@ export async function sendVerificationEmail(args: {
 }): Promise<SendResult> {
   const link = `${appUrl()}/verify-email/${args.token}`;
   const html = frame({
-    // Casse normale et accents : un titre tout en majuscules est un signal
-    // classique pour les filtres anti-spam.
+    // Normal casing and accents: an all-caps title is a classic signal
+    // for spam filters.
     title: "Vérifie ton adresse e-mail",
     body:
       "<p>Bienvenue à bord, Cadet.</p>" +
@@ -151,9 +151,9 @@ export async function sendPasswordResetEmail(args: {
 }
 
 /**
- * Avis envoyé quand quelqu'un tente de s'inscrire avec une adresse déjà
- * inscrite (audit SRV-05) : l'écran d'inscription ne le révèle pas, le
- * titulaire l'apprend dans sa propre boîte.
+ * Notice sent when someone tries to sign up with an address that is already
+ * registered (audit SRV-05): the sign-up screen does not reveal it, the
+ * account holder learns about it in their own inbox.
  */
 export async function sendAccountExistsEmail(args: { to: string }): Promise<SendResult> {
   const login = `${appUrl()}/login`;

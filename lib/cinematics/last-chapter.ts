@@ -1,16 +1,16 @@
 /**
- * Module serveur uniquement : `lib/courses-registry` charge tout le contenu des
- * cursus (plusieurs centaines de Ko). La page serveur calcule la valeur et la
- * passe en prop (voir `app/learn/[course]/[chapter]/page.tsx`).
+ * Server-only module: `lib/courses-registry` loads the full content of every
+ * course (several hundred KB). The server page computes the value and
+ * passes it as a prop (see `app/learn/[course]/[chapter]/page.tsx`).
  */
 
 import { getCourseStatus } from "@/lib/courses-catalog";
 import { listChapterSlugs } from "@/lib/courses-registry";
 
 /**
- * Vrai si le chapitre est le dernier du cursus (finale au lieu d'outro).
- * Toujours faux pour un cursus pilote (`preview`) : ses chapitres ne couvrent
- * pas le cursus annoncé.
+ * True if the chapter is the last one of the course (finale instead of outro).
+ * Always false for a pilot course (`preview`): its chapters do not cover
+ * the announced course.
  */
 export function isLastChapter(course: string, chapterSlug: string): boolean {
   if (getCourseStatus(course) === "preview") return false;

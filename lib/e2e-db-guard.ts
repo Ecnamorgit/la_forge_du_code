@@ -1,20 +1,20 @@
 /**
- * Garde d'environnement de la suite e2e.
+ * Environment guard for the e2e suite.
  *
- * `e2e/global-setup.ts` fait un `DELETE FROM "User"` puis un `INSERT` sur
- * `process.env.DATABASE_URL`, alors que le `.env` du dépôt pointe sur la base
- * Supabase de production (docs/DEPLOYMENT.md). La politique est donc fermée
- * par défaut : on n'accepte que ce dont on est sûr.
+ * `e2e/global-setup.ts` runs a `DELETE FROM "User"` then an `INSERT` against
+ * `process.env.DATABASE_URL`, while the repo's `.env` points to the production
+ * Supabase database (docs/DEPLOYMENT.md). The policy is therefore deny by
+ * default: we only accept what we are sure about.
  *
- * Module pur (ni réseau ni disque), testé sous vitest.
+ * Pure module (no network, no disk), tested under vitest.
  */
 
-/** Hôtes considérés comme locaux : la machine du développeur ou le service CI. */
+/** Hosts considered local: the developer's machine or the CI service. */
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0"]);
 
 /**
- * Fragments d'hôte d'hébergeurs gérés, refusés même avec la variable
- * d'échappement : l'URL de production de ce projet a cette forme.
+ * Host fragments of managed providers, rejected even with the override
+ * variable: this project's production URL has that shape.
  */
 const FORBIDDEN_HOSTS = [
   "supabase",
@@ -31,10 +31,10 @@ const FORBIDDEN_HOSTS = [
   "timescale",
 ];
 
-/** Variable d'échappement, pour une base de test réellement distante. */
+/** Override variable, for a test database that really is remote. */
 export const DB_OVERRIDE_VARIABLE = "E2E_ALLOW_NON_LOCAL_DB";
 
-/** Marqueurs acceptés dans le nom de base quand l'hôte n'est pas local. */
+/** Markers accepted in the database name when the host is not local. */
 const TEST_MARKERS = ["test", "e2e"];
 
 export class UnsafeE2eDatabaseError extends Error {}
@@ -61,21 +61,21 @@ function help(url: string): string {
 }
 
 function hostOf(u: URL): string {
-  // `new URL` rend « [::1] » pour une adresse IPv6 : on retire les crochets
-  // pour comparer à la liste ci-dessus.
+  // `new URL` returns "[::1]" for an IPv6 address: strip the brackets
+  // to compare against the list above.
   return u.hostname.replace(/^\[|\]$/g, "").toLowerCase();
 }
 
-/** Nom de base, sans le « / » initial ni les paramètres. */
+/** Database name, without the leading "/" or the parameters. */
 function databaseName(u: URL): string {
   return decodeURIComponent(u.pathname.replace(/^\//, "")).toLowerCase();
 }
 
 /**
- * Lève si `raw` ne désigne pas manifestement une base de test.
+ * Throws unless `raw` clearly designates a test database.
  *
- * @param raw valeur de DATABASE_URL
- * @param env environnement, pour l'échappatoire (injecté : fonction pure)
+ * @param raw value of DATABASE_URL
+ * @param env environment, for the override (injected: pure function)
  */
 export function assertTestDatabaseUrl(
   raw: string | undefined,
@@ -91,7 +91,7 @@ export function assertTestDatabaseUrl(
   try {
     url = new URL(raw);
   } catch {
-    // URL illisible : cible indécidable, donc refusée.
+    // Unparseable URL: undecidable target, so rejected.
     throw new UnsafeE2eDatabaseError(
       `DATABASE_URL n'est pas une URL analysable.\n\n${help(raw)}`
     );
@@ -103,9 +103,9 @@ export function assertTestDatabaseUrl(
     );
   }
 
-  // `pg` (pg-connection-string) laisse un paramètre « host » ou « hostaddr »
-  // écraser l'hôte de l'URL : `localhost:5432/codeforge_test?host=db.xxx.supabase.co`
-  // se connecte ailleurs. Cible indécidable, donc refusée.
+  // `pg` (pg-connection-string) lets a "host" or "hostaddr" parameter
+  // override the URL's host: `localhost:5432/codeforge_test?host=db.xxx.supabase.co`
+  // connects elsewhere. Undecidable target, so rejected.
   for (const key of ["host", "hostaddr"]) {
     if (url.searchParams.has(key)) {
       throw new UnsafeE2eDatabaseError(
@@ -140,11 +140,11 @@ export function assertTestDatabaseUrl(
   );
 }
 
-// Application testée
+// Application under test
 
 /**
- * Variable d'échappement pour tester une application réellement distante.
- * Distincte de celle de la base : ce sont deux risques différents.
+ * Override variable to test an application that really is remote.
+ * Separate from the database one: these are two different risks.
  */
 export const APP_OVERRIDE_VARIABLE = "E2E_ALLOW_REMOTE_APP";
 
@@ -171,14 +171,14 @@ function appHelp(url: string): string {
 }
 
 /**
- * Lève si l'application visée par la suite n'est pas locale. Complète
- * `assertTestDatabaseUrl`, qui ne voit que la base ensemencée par
- * `global-setup`, pas celle à laquelle l'application parle. Un serveur local
- * déjà lancé et réutilisé par `reuseExistingServer` n'est pas détecté.
+ * Throws if the application targeted by the suite is not local. Complements
+ * `assertTestDatabaseUrl`, which only sees the database seeded by
+ * `global-setup`, not the one the application talks to. A local server
+ * already running and reused via `reuseExistingServer` is not detected.
  *
- * @param raw URL de base visée ; vide ou absente pour l'application locale
- *            démarrée par Playwright
- * @param env environnement, pour l'échappatoire (injecté : fonction pure)
+ * @param raw targeted base URL; empty or missing for the local application
+ *            started by Playwright
+ * @param env environment, for the override (injected: pure function)
  */
 export function assertLocalAppUnderTest(
   raw: string | undefined,
@@ -197,7 +197,7 @@ export function assertLocalAppUnderTest(
   }
 
   const h = hostOf(url);
-  // `*.localhost` résout en boucle locale et sert au multi-tenant en dev.
+  // `*.localhost` resolves to loopback and is used for multi-tenant in dev.
   if (LOCAL_HOSTS.has(h) || h.endsWith(".localhost")) return;
 
   throw new UnsafeE2eTargetError(

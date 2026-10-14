@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 /**
- * Validation des variables d'environnement, exécutée une fois au démarrage du
- * serveur (`instrumentation.ts`), pour échouer tout de suite avec un message
- * clair plutôt qu'au premier appel (base, e-mail, lien de vérification).
+ * Environment variable validation, run once at server startup
+ * (`instrumentation.ts`), to fail right away with a clear message
+ * rather than on the first call (database, email, verification link).
  *
- * `parseEnv` est pur ; `validateEnv` l'applique à `process.env` et lève une
- * erreur formatée.
+ * `parseEnv` is pure; `validateEnv` applies it to `process.env` and throws a
+ * formatted error.
  */
 
 type RawEnv = Record<string, string | undefined>;
@@ -19,8 +19,8 @@ function looksLikeUrl(value: string): boolean {
   }
 }
 
-// Fragments présents dans le secret d'exemple du `.env.example`. Si on les
-// retrouve en production, c'est que le secret n'a jamais été régénéré.
+// Fragments found in the sample secret from `.env.example`. If they show up
+// in production, the secret was never regenerated.
 const PLACEHOLDER_SECRET_FRAGMENTS = ["change-me", "xxxxxxxx"];
 
 const baseSchema = z.object({
@@ -42,33 +42,33 @@ const baseSchema = z.object({
   RESEND_FROM_EMAIL: z.string().optional(),
   DIRECT_URL: z.string().optional(),
   AUTH_TRUST_HOST: z.string().optional(),
-  // Bypass de test uniquement : autorise la connexion sans email vérifié.
-  // Refusé en production (voir `buildSchema`).
+  // Test-only bypass: allows login without a verified email.
+  // Rejected in production (see `buildSchema`).
   AUTH_ALLOW_UNVERIFIED_LOGIN: z.string().optional(),
-  // Nombre de proxys de confiance devant l'application, pour dériver l'IP
-  // client de X-Forwarded-For (voir `getClientIp`). Défaut 1.
+  // Number of trusted proxies in front of the app, used to derive the client
+  // IP from X-Forwarded-For (see `getClientIp`). Default 1.
   TRUSTED_PROXY_HOPS: z
     .string()
     .refine((v) => /^\d+$/.test(v) && Number.parseInt(v, 10) >= 1, {
       message: "TRUSTED_PROXY_HOPS doit être un entier >= 1",
     })
     .optional(),
-  // Redis partagé du limiteur de débit (lib/rate-limit.ts) : noms d'Upstash,
-  // ou ceux de l'intégration Upstash de Vercel.
+  // Shared Redis for the rate limiter (lib/rate-limit.ts): Upstash names,
+  // or those from Vercel's Upstash integration.
   UPSTASH_REDIS_REST_URL: z.string().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
   KV_REST_API_URL: z.string().optional(),
   KV_REST_API_TOKEN: z.string().optional(),
-  // Posée par Vercel ("1") sur ses déploiements.
+  // Set by Vercel ("1") on its deployments.
   VERCEL: z.string().optional(),
 });
 
 export type AppEnv = z.infer<typeof baseSchema>;
 
 /**
- * Construit le schéma avec les règles propres à l'environnement. La production
- * exige un vrai secret, l'envoi d'e-mails, une URL publique en HTTPS et, sur
- * Vercel, un Redis partagé.
+ * Builds the schema with environment-specific rules. Production requires
+ * a real secret, email sending, a public HTTPS URL and, on Vercel, a
+ * shared Redis.
  */
 function buildSchema(nodeEnv: string) {
   const isProd = nodeEnv === "production";
@@ -93,9 +93,9 @@ function buildSchema(nodeEnv: string) {
         });
       }
 
-      // Sur Vercel, chaque instance serverless compte en mémoire : sans Redis
-      // partagé, la limitation de débit est sans effet (audit SRV-01). Hors de
-      // Vercel (instance unique, CI), la mémoire suffit.
+      // On Vercel, each serverless instance counts in memory: without a shared
+      // Redis, rate limiting has no effect (audit SRV-01). Outside
+      // Vercel (single instance, CI), memory is enough.
       const redis =
         (env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN) ||
         (env.KV_REST_API_URL && env.KV_REST_API_TOKEN);
@@ -145,8 +145,8 @@ export type ParseEnvResult =
   | { success: false; errors: string[] };
 
 /**
- * Valide un objet d'environnement brut. Pur : ne lit pas `process.env` et ne
- * lève pas. `NODE_ENV` pilote les règles strictes.
+ * Validates a raw environment object. Pure: does not read `process.env` and
+ * does not throw. `NODE_ENV` drives the strict rules.
  */
 export function parseEnv(raw: RawEnv): ParseEnvResult {
   const nodeEnv = raw.NODE_ENV ?? "development";
@@ -163,8 +163,8 @@ export function parseEnv(raw: RawEnv): ParseEnvResult {
 }
 
 /**
- * Valide `process.env` et lève une erreur explicite si la configuration est
- * invalide. Appelée au démarrage du serveur.
+ * Validates `process.env` and throws an explicit error if the configuration is
+ * invalid. Called at server startup.
  */
 export function validateEnv(raw: RawEnv = process.env): AppEnv {
   const result = parseEnv(raw);

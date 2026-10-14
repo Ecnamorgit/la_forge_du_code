@@ -1,8 +1,8 @@
 /**
- * Résumés légers de tous les chapitres, pour afficher cartes et tableaux de
- * bord sans charger chaque ChapterData et ses longs briefings
- * (lib/courses-registry.ts). À tenir à jour à la main quand on ajoute ou
- * renomme un chapitre.
+ * Lightweight summaries of every chapter, to render cards and dashboards
+ * without loading each ChapterData and its long briefings
+ * (lib/courses-registry.ts). Update by hand when a chapter is added or
+ * renamed.
  */
 
 export interface ChapterSummary {

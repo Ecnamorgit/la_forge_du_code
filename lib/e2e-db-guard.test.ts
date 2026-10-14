@@ -18,8 +18,8 @@ function refuse(url: string | undefined, env = WITHOUT_OVERRIDE) {
   expect(() => assertTestDatabaseUrl(url, env)).toThrow(UnsafeE2eDatabaseError);
 }
 
-describe("assertTestDatabaseUrl — ce qui passe", () => {
-  it("accepte une base locale", () => {
+describe("assertTestDatabaseUrl — what is accepted", () => {
+  it("accepts a local database", () => {
     expect(() =>
       assertTestDatabaseUrl(
         "postgresql://postgres:test@localhost:5432/codeforge_test",
@@ -28,14 +28,14 @@ describe("assertTestDatabaseUrl — ce qui passe", () => {
     ).not.toThrow();
   });
 
-  it("accepte l'URL du service Postgres de la CI", () => {
-    // .github/workflows/ci.yml, job e2e. La garde ne doit pas casser la CI.
+  it("accepts the URL of the CI Postgres service", () => {
+    // .github/workflows/ci.yml, e2e job. The guard must not break CI.
     expect(() =>
       assertTestDatabaseUrl("postgresql://ci:ci@localhost:5432/ci", WITHOUT_OVERRIDE)
     ).not.toThrow();
   });
 
-  it("accepte 127.0.0.1 et ::1", () => {
+  it("accepts 127.0.0.1 and ::1", () => {
     expect(() =>
       assertTestDatabaseUrl("postgres://u:p@127.0.0.1:5432/app", WITHOUT_OVERRIDE)
     ).not.toThrow();
@@ -44,7 +44,7 @@ describe("assertTestDatabaseUrl — ce qui passe", () => {
     ).not.toThrow();
   });
 
-  it("accepte une base distante explicitement nommée test, avec l'échappatoire", () => {
+  it("accepts a remote database explicitly named test, with the override", () => {
     expect(() =>
       assertTestDatabaseUrl(
         "postgresql://u:p@db.interne.exemple:5432/codeforge_e2e",
@@ -54,32 +54,32 @@ describe("assertTestDatabaseUrl — ce qui passe", () => {
   });
 });
 
-describe("assertTestDatabaseUrl — ce qui est refusé", () => {
-  it("refuse une URL absente ou vide", () => {
+describe("assertTestDatabaseUrl — what is rejected", () => {
+  it("rejects a missing or empty URL", () => {
     refuse(undefined);
     refuse("");
   });
 
-  it("refuse une URL illisible", () => {
+  it("rejects an unparseable URL", () => {
     refuse("pas-une-url");
   });
 
-  it("refuse un protocole inattendu", () => {
+  it("rejects an unexpected protocol", () => {
     refuse("mysql://u:p@localhost:3306/app");
   });
 
-  it("refuse une URL qui ne nomme aucune base", () => {
+  it("rejects a URL that names no database", () => {
     refuse("postgresql://u:p@localhost:5432");
   });
 
-  it("refuse la base Supabase de production — le cas qui motive cette garde", () => {
+  it("rejects the production Supabase database — the case behind this guard", () => {
     refuse("postgresql://postgres:motdepasse@db.abcdefgh.supabase.co:5432/postgres");
     refuse(
       "postgresql://postgres.abcdefgh:motdepasse@aws-0-eu-west-3.pooler.supabase.com:6543/postgres"
     );
   });
 
-  it("refuse un hébergeur géré MÊME avec l'échappatoire et un nom en « test »", () => {
+  it("rejects a managed host EVEN with the override and a 'test' name", () => {
     refuse(
       "postgresql://postgres:x@db.abcdefgh.supabase.co:5432/codeforge_test",
       WITH_OVERRIDE
@@ -87,15 +87,15 @@ describe("assertTestDatabaseUrl — ce qui est refusé", () => {
     refuse("postgresql://u:p@ep-x-y.eu-central-1.aws.neon.tech:5432/e2e", WITH_OVERRIDE);
   });
 
-  it("refuse un hôte distant sans échappatoire, même nommé test", () => {
+  it("rejects a remote host without the override, even if named test", () => {
     refuse("postgresql://u:p@db.interne.exemple:5432/codeforge_test");
   });
 
-  it("refuse un hôte distant avec l'échappatoire mais sans marqueur de test", () => {
+  it("rejects a remote host with the override but no test marker", () => {
     refuse("postgresql://u:p@db.interne.exemple:5432/codeforge", WITH_OVERRIDE);
   });
 
-  it("explique comment corriger", () => {
+  it("explains how to fix it", () => {
     try {
       assertTestDatabaseUrl(
         "postgresql://postgres:x@db.abcdefgh.supabase.co:5432/postgres",
@@ -111,31 +111,31 @@ describe("assertTestDatabaseUrl — ce qui est refusé", () => {
   });
 });
 
-describe("assertTestDatabaseUrl — le paramètre « host » qui écrase l'hôte", () => {
-  // pg-connection-string laisse ce paramètre écraser l'hôte : une URL
-  // d'apparence locale peut viser la production.
-  it("refuse une URL locale dont la query redirige vers un hébergeur géré", () => {
+describe("assertTestDatabaseUrl — the 'host' parameter that overrides the host", () => {
+  // pg-connection-string lets this parameter override the host: a URL
+  // that looks local can target production.
+  it("rejects a local URL whose query redirects to a managed host", () => {
     refuse(
       "postgresql://u:p@localhost:5432/codeforge_test?host=db.abcdefgh.supabase.co"
     );
   });
 
-  it("refuse le paramètre même quand il pointe ailleurs qu'un hébergeur connu", () => {
+  it("rejects the parameter even when it points somewhere other than a known host", () => {
     refuse("postgresql://u:p@localhost:5432/codeforge_test?host=interne.exemple");
   });
 
-  it("refuse hostaddr, la variante par adresse", () => {
+  it("rejects hostaddr, the address-based variant", () => {
     refuse("postgresql://u:p@localhost:5432/codeforge_test?hostaddr=203.0.113.7");
   });
 
-  it("refuse même avec l'échappatoire : la cible est indécidable, pas seulement distante", () => {
+  it("rejects even with the override: the target is undecidable, not just remote", () => {
     refuse(
       "postgresql://u:p@localhost:5432/codeforge_test?host=db.abcdefgh.supabase.co",
       WITH_OVERRIDE
     );
   });
 
-  it("laisse passer les autres paramètres de connexion", () => {
+  it("lets other connection parameters through", () => {
     expect(() =>
       assertTestDatabaseUrl(
         "postgresql://postgres:test@localhost:5432/codeforge_test?sslmode=disable&connect_timeout=5",
@@ -151,37 +151,37 @@ describe("assertLocalAppUnderTest", () => {
     [APP_OVERRIDE_VARIABLE]: "1",
   };
 
-  it("accepte l'absence d'URL : Playwright démarre alors sa propre application", () => {
+  it("accepts a missing URL: Playwright then starts its own application", () => {
     expect(() => assertLocalAppUnderTest(undefined, WITHOUT)).not.toThrow();
     expect(() => assertLocalAppUnderTest("", WITHOUT)).not.toThrow();
     expect(() => assertLocalAppUnderTest("   ", WITHOUT)).not.toThrow();
   });
 
-  it("accepte une application locale", () => {
+  it("accepts a local application", () => {
     expect(() => assertLocalAppUnderTest("http://localhost:3000", WITHOUT)).not.toThrow();
     expect(() => assertLocalAppUnderTest("http://127.0.0.1:3000", WITHOUT)).not.toThrow();
     expect(() => assertLocalAppUnderTest("https://localhost:8443", WITHOUT)).not.toThrow();
   });
 
-  it("accepte un sous-domaine de localhost, qui résout en boucle locale", () => {
+  it("accepts a localhost subdomain, which resolves to loopback", () => {
     expect(() => assertLocalAppUnderTest("http://app.localhost:3000", WITHOUT)).not.toThrow();
   });
 
-  it("refuse une application distante : sa base n'est pas celle qu'on a ensemencée", () => {
+  it("rejects a remote application: its database is not the one we seeded", () => {
     expect(() => assertLocalAppUnderTest("https://laforgeducode.fr", WITHOUT)).toThrow(
       UnsafeE2eTargetError
     );
   });
 
-  it("refuse une URL illisible plutôt que de deviner", () => {
+  it("rejects an unparseable URL rather than guessing", () => {
     expect(() => assertLocalAppUnderTest("pas une url", WITHOUT)).toThrow(UnsafeE2eTargetError);
   });
 
-  it("cède devant une échappatoire explicite", () => {
+  it("yields to an explicit override", () => {
     expect(() => assertLocalAppUnderTest("https://staging.exemple", WITH)).not.toThrow();
   });
 
-  it("explique pourquoi, et comment corriger", () => {
+  it("explains why, and how to fix it", () => {
     try {
       assertLocalAppUnderTest("https://laforgeducode.fr", WITHOUT);
       expect.unreachable("la garde aurait dû lever");

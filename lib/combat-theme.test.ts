@@ -11,7 +11,7 @@ describe("combatThemeForCourse", () => {
   it("javascript → turret", () => {
     expect(combatThemeForCourse("javascript")).toBe("turret");
   });
-  it("tout autre cursus tombe sur turret par défaut", () => {
+  it("any other course falls back to turret by default", () => {
     expect(combatThemeForCourse("sql")).toBe("turret");
     expect(combatThemeForCourse("react")).toBe("turret");
     expect(combatThemeForCourse("typescript")).toBe("turret");

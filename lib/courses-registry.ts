@@ -85,14 +85,14 @@ export function getChapterData(course: string, chapter: string): ChapterData | n
 }
 
 /**
- * Slugs de tous les cursus, dans l'ordre du registre. Permet aux tests de
- * parcourir le contenu sans redéclarer de liste.
+ * Slugs of every course, in registry order. Lets tests walk the
+ * content without redeclaring a list.
  */
 export function listCourseSlugs(): string[] {
   return Object.keys(REGISTRY);
 }
 
-/** Slugs des chapitres d'un cursus, dans l'ordre. Vide si le cursus est inconnu. */
+/** Chapter slugs of a course, in order. Empty if the course is unknown. */
 export function listChapterSlugs(course: string): string[] {
   return Object.keys(REGISTRY[course] ?? {});
 }

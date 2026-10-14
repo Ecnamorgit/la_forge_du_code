@@ -1,6 +1,6 @@
 /**
- * Résolution d'une cinématique : arc écrit du cursus s'il existe, sinon repli
- * générique. Renvoie toujours une cinématique.
+ * Cinematic resolution: the course's written arc if it exists, otherwise the
+ * generic fallback. Always returns a cinematic.
  */
 
 import { HTML_CINEMATICS } from "@/data/courses/html/cinematics";
@@ -8,7 +8,7 @@ import { genericChapterOutro, genericFinale, genericIntro } from "./generic";
 import type { Cinematic, CinematicMoment, CourseCinematics } from "./types";
 
 /**
- * Arcs écrits par cursus. Ajouter un arc : une entrée ici et un fichier
+ * Written arcs per course. To add an arc: one entry here and a file
  * `data/courses/<slug>/cinematics.ts`.
  */
 const ARCS: Record<string, CourseCinematics> = {

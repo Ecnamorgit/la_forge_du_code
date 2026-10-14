@@ -8,63 +8,63 @@ import {
 } from "./grades";
 
 describe("gradeFromXp", () => {
-  it("démarre au grade Cadet", () => {
+  it("starts at the Cadet grade", () => {
     expect(gradeFromXp(0).id).toBe("cadet");
     expect(gradeFromXp(399).id).toBe("cadet");
   });
 
-  it("passe Aspirant au seuil exact", () => {
+  it("reaches Aspirant at the exact threshold", () => {
     expect(gradeFromXp(400).id).toBe("aspirant");
   });
 
-  it("continue à progresser au-delà de 1000 XP, contrairement à l'ancien rang Or", () => {
+  it("keeps progressing beyond 1000 XP, unlike the old Or rank", () => {
     expect(gradeFromXp(1000).id).toBe("aspirant");
     expect(gradeFromXp(2500).id).toBe("lieutenant");
     expect(gradeFromXp(7000).id).toBe("capitaine");
   });
 
-  it("atteint Amiral seulement au-delà des 9312 XP du cursus", () => {
+  it("reaches Amiral only beyond the course's 9312 XP", () => {
     expect(gradeFromXp(9312).id).not.toBe("amiral");
     expect(gradeFromXp(10000).id).toBe("amiral");
   });
 });
 
 describe("nextGrade", () => {
-  it("annonce le grade suivant", () => {
+  it("announces the next grade", () => {
     expect(nextGrade(0)?.id).toBe("aspirant");
   });
 
-  it("retourne null au dernier grade", () => {
+  it("returns null at the last grade", () => {
     expect(nextGrade(10000)).toBeNull();
   });
 });
 
 describe("xpIntoGrade", () => {
-  it("mesure l'avancée dans le grade courant", () => {
+  it("measures progress within the current grade", () => {
     expect(xpIntoGrade(600)).toEqual({ current: 200, span: 800 });
   });
 
-  it("rend une barre pleine au dernier grade", () => {
+  it("returns a full bar at the last grade", () => {
     const { current, span } = xpIntoGrade(12000);
     expect(current).toBe(span);
   });
 });
 
 describe("levelFromXp", () => {
-  it("démarre au niveau 1", () => {
+  it("starts at level 1", () => {
     expect(levelFromXp(0)).toBe(1);
   });
 
-  it("monte vite au début", () => {
+  it("rises quickly at first", () => {
     expect(levelFromXp(16)).toBe(2);
     expect(levelFromXp(64)).toBe(3);
   });
 
-  it("plafonne à 25 au bout du cursus, pas à 94", () => {
+  it("tops out at 25 at the end of the course, not 94", () => {
     expect(levelFromXp(9312)).toBe(25);
   });
 
-  it("ne recule jamais quand l'XP monte", () => {
+  it("never goes down as XP rises", () => {
     let prev = 0;
     for (let xp = 0; xp <= 12000; xp += 137) {
       const lvl = levelFromXp(xp);
@@ -75,7 +75,7 @@ describe("levelFromXp", () => {
 });
 
 describe("GRADES", () => {
-  it("est trié par seuil croissant", () => {
+  it("is sorted by ascending threshold", () => {
     const thresholds = GRADES.map((g) => g.threshold);
     expect([...thresholds].sort((a, b) => a - b)).toEqual(thresholds);
   });

@@ -1,9 +1,9 @@
 /**
- * Logger structuré minimal (edge et node) : une ligne JSON par évènement en
- * production, un format lisible en développement.
+ * Minimal structured logger (edge and node): one JSON line per event in
+ * production, a readable format in development.
  *
- * L'appelant ne doit jamais passer de données sensibles (mot de passe, jeton
- * brut, secret, données personnelles inutiles) dans `meta`.
+ * Callers must never pass sensitive data (password, raw token, secret,
+ * unnecessary personal data) in `meta`.
  */
 
 type LogLevel = "debug" | "info" | "warn" | "error";

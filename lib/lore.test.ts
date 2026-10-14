@@ -5,13 +5,13 @@ import { INTRO_SCENES } from "./intro";
 import { SPECTRE_TAUNTS } from "./narrative-feedback";
 import { nullProgressLabel, nullProgressAriaLabel } from "./null-progress";
 
-/** Termes bannis : anciens noms de la menace, remplacés par « Spectre ». */
+/** Banned terms: former names of the threat, replaced by "Spectre". */
 const BANNED = [/\bnull\b/i, /\bglitch\b/i];
 
 /**
- * Textes narratifs hors de lib/lore.ts et lib/intro.ts (retours d'erreur,
- * progression). On échantillonne les valeurs des fonctions concernées, pas
- * seulement des constantes.
+ * Narrative text outside lib/lore.ts and lib/intro.ts (error feedback,
+ * progress). We sample the output of the relevant functions, not
+ * just constants.
  */
 function scatteredNarrativeText(): string {
   const taunts = SPECTRE_TAUNTS.join(" ");
@@ -29,24 +29,24 @@ function allNarrativeText(): string {
   return `${lore} ${crawl} ${scenes} ${scatteredNarrativeText()}`;
 }
 
-describe("intégrité narrative", () => {
-  it("ne nomme jamais la menace « Null » ou « Glitch »", () => {
+describe("narrative integrity", () => {
+  it("never names the threat 'Null' or 'Glitch'", () => {
     const text = allNarrativeText();
     for (const pattern of BANNED) {
       expect(text, `terme banni ${pattern} trouvé`).not.toMatch(pattern);
     }
   });
 
-  it("nomme la menace Spectre", () => {
+  it("names the threat Spectre", () => {
     expect(allNarrativeText()).toMatch(/spectre/i);
   });
 
-  it("garde le crawl dans son budget de mots", () => {
+  it("keeps the crawl within its word budget", () => {
     const words = CRAWL_LINES.map((l) => l.text).join(" ").split(/\s+/).filter(Boolean);
     expect(words.length).toBeLessThanOrEqual(CRAWL_WORD_BUDGET);
   });
 
-  it("expose trois sections de lore non vides", () => {
+  it("exposes three non-empty lore sections", () => {
     expect(LORE_SECTIONS).toHaveLength(3);
     for (const section of LORE_SECTIONS) {
       expect(section.title.length).toBeGreaterThan(0);

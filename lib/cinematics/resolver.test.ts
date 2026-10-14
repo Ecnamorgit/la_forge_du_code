@@ -6,7 +6,7 @@ import { getCinematic } from "./resolver";
 import { isLastChapter } from "./last-chapter";
 
 describe("cinematicId", () => {
-  it("construit des identifiants stables", () => {
+  it("builds stable identifiers", () => {
     expect(cinematicId("html", { kind: "intro" })).toBe("html:intro");
     expect(cinematicId("html", { kind: "chapter", chapter: "chapitre-3" })).toBe(
       "html:chapter:chapitre-3"
@@ -15,15 +15,15 @@ describe("cinematicId", () => {
   });
 });
 
-describe("getCinematic — repli générique", () => {
-  it("fournit toujours une cinématique, même pour un cursus sans arc", () => {
+describe("getCinematic — generic fallback", () => {
+  it("always provides a cinematic, even for a course without an arc", () => {
     const intro = getCinematic("css", { kind: "intro" });
     expect(intro.id).toBe("css:intro");
     expect(intro.scenes.length).toBeGreaterThanOrEqual(2);
     for (const s of intro.scenes) expect(s.narration.length).toBeGreaterThan(10);
   });
 
-  it("outro générique : déterministe pour un même chapitre", () => {
+  it("generic outro: deterministic for the same chapter", () => {
     const a = getCinematic("css", { kind: "chapter", chapter: "chapitre-2" });
     const b = getCinematic("css", { kind: "chapter", chapter: "chapitre-2" });
     expect(a).toEqual(b);
@@ -31,18 +31,18 @@ describe("getCinematic — repli générique", () => {
     expect(a.scenes.length).toBeLessThanOrEqual(3);
   });
 
-  it("outro générique : varie d'un chapitre à l'autre (rotation)", () => {
+  it("generic outro: varies from one chapter to the next (rotation)", () => {
     const c2 = getCinematic("css", { kind: "chapter", chapter: "chapitre-2" });
     const c3 = getCinematic("css", { kind: "chapter", chapter: "chapitre-3" });
     expect(c2.scenes[0].narration).not.toBe(c3.scenes[0].narration);
   });
 
-  it("mentionne le titre du cursus dans l'intro générique", () => {
+  it("mentions the course title in the generic intro", () => {
     const intro = getCinematic("css", { kind: "intro" });
     expect(intro.scenes.map((s) => s.narration).join(" ")).toContain("CSS");
   });
 
-  it("respecte les tailles de la spec (intro 3-4, outro 2-3, finale 5-7)", () => {
+  it("respects the spec sizes (intro 3-4, outro 2-3, finale 5-7)", () => {
     const intro = getCinematic("css", { kind: "intro" });
     expect(intro.scenes.length).toBeGreaterThanOrEqual(3);
     expect(intro.scenes.length).toBeLessThanOrEqual(4);
@@ -54,7 +54,7 @@ describe("getCinematic — repli générique", () => {
     expect(finale.scenes.length).toBeLessThanOrEqual(7);
   });
 
-  it("aucune narration générique ne double les guillemets", () => {
+  it("no generic narration doubles the quotation marks", () => {
     const sample = [
       getCinematic("css", { kind: "intro" }),
       getCinematic("css", { kind: "finale" }),
@@ -72,16 +72,16 @@ describe("getCinematic — repli générique", () => {
 });
 
 describe("isLastChapter", () => {
-  it("vrai uniquement pour le dernier chapitre du cursus", () => {
+  it("true only for the last chapter of the course", () => {
     expect(isLastChapter("html", "chapitre-8")).toBe(true);
     expect(isLastChapter("html", "chapitre-3")).toBe(false);
   });
 
-  it("faux pour un cursus inconnu", () => {
+  it("false for an unknown course", () => {
     expect(isLastChapter("inconnu", "chapitre-1")).toBe(false);
   });
 
-  it("faux sur un cursus pilote (statut preview), même à son seul chapitre", () => {
+  it("false for a pilot course (preview status), even on its only chapter", () => {
     expect(getCourseStatus("python")).toBe("preview");
     expect(isLastChapter("python", "chapitre-1")).toBe(false);
   });

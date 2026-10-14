@@ -10,12 +10,12 @@ const VALID_PROD = {
 } as const;
 
 describe("parseEnv", () => {
-  it("accepte une configuration de production complète", () => {
+  it("accepts a complete production configuration", () => {
     const res = parseEnv({ ...VALID_PROD });
     expect(res.success).toBe(true);
   });
 
-  it("accepte un dev minimal (secret + DATABASE_URL seulement)", () => {
+  it("accepts a minimal dev setup (secret + DATABASE_URL only)", () => {
     const res = parseEnv({
       NODE_ENV: "development",
       DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/codeforge",
@@ -24,7 +24,7 @@ describe("parseEnv", () => {
     expect(res.success).toBe(true);
   });
 
-  it("rejette une DATABASE_URL absente", () => {
+  it("rejects a missing DATABASE_URL", () => {
     const res = parseEnv({ AUTH_SECRET: "dev-secret-at-least-16-chars" });
     expect(res.success).toBe(false);
     if (!res.success) {
@@ -32,7 +32,7 @@ describe("parseEnv", () => {
     }
   });
 
-  it("rejette une DATABASE_URL non-PostgreSQL", () => {
+  it("rejects a non-PostgreSQL DATABASE_URL", () => {
     const res = parseEnv({
       DATABASE_URL: "mysql://user:pass@localhost:3306/app",
       AUTH_SECRET: "dev-secret-at-least-16-chars",
@@ -40,7 +40,7 @@ describe("parseEnv", () => {
     expect(res.success).toBe(false);
   });
 
-  it("rejette un AUTH_SECRET trop court", () => {
+  it("rejects an AUTH_SECRET that is too short", () => {
     const res = parseEnv({
       DATABASE_URL: "postgresql://u:p@localhost:5432/db",
       AUTH_SECRET: "short",
@@ -51,7 +51,7 @@ describe("parseEnv", () => {
     }
   });
 
-  it("rejette le secret par défaut du .env.example en production", () => {
+  it("rejects the default .env.example secret in production", () => {
     const res = parseEnv({
       ...VALID_PROD,
       AUTH_SECRET: "change-me-to-a-32-char-random-string-please-xxxxxxxx",
@@ -62,7 +62,7 @@ describe("parseEnv", () => {
     }
   });
 
-  it("tolère le secret par défaut en développement", () => {
+  it("tolerates the default secret in development", () => {
     const res = parseEnv({
       NODE_ENV: "development",
       DATABASE_URL: "postgresql://u:p@localhost:5432/db",
@@ -71,7 +71,7 @@ describe("parseEnv", () => {
     expect(res.success).toBe(true);
   });
 
-  it("exige RESEND_API_KEY en production", () => {
+  it("requires RESEND_API_KEY in production", () => {
     const res = parseEnv({
       NODE_ENV: "production",
       DATABASE_URL: VALID_PROD.DATABASE_URL,
@@ -84,7 +84,7 @@ describe("parseEnv", () => {
     }
   });
 
-  it("exige une APP_URL https (pas localhost) en production", () => {
+  it("requires an https APP_URL (not localhost) in production", () => {
     const res = parseEnv({ ...VALID_PROD, APP_URL: "http://localhost:3000" });
     expect(res.success).toBe(false);
     if (!res.success) {
@@ -92,7 +92,7 @@ describe("parseEnv", () => {
     }
   });
 
-  it("rejette le bypass de vérification email en production", () => {
+  it("rejects the email verification bypass in production", () => {
     const res = parseEnv({ ...VALID_PROD, AUTH_ALLOW_UNVERIFIED_LOGIN: "true" });
     expect(res.success).toBe(false);
     if (!res.success) {
@@ -100,7 +100,7 @@ describe("parseEnv", () => {
     }
   });
 
-  it("tolère le bypass de vérification email en développement", () => {
+  it("tolerates the email verification bypass in development", () => {
     const res = parseEnv({
       NODE_ENV: "development",
       DATABASE_URL: "postgresql://u:p@localhost:5432/db",
