@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ email }),
       });
     } catch {
-      // Même affichage en cas d'échec réseau.
+      // Same display on a network failure.
     } finally {
       setSubmitted(true);
       setPending(false);
