@@ -4,7 +4,7 @@
 
 ## Constat
 
-La page de l'avatar lit sa destination de retour dans l'URL, sans la filtrer (`app/avatar/page.tsx:41`) :
+La page de l'avatar lit sa destination de retour dans l'URL, sans la filtrer (`app/(platform)/avatar/page.tsx:41`) :
 
 ```ts
 const returnTo = searchParams.get("from") || "/dashboard";

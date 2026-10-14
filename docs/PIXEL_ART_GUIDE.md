@@ -78,7 +78,7 @@ et de chaque chapitre (`missionIcon`).
 - **Frame 64×64**, **8 colonnes**, autant de lignes que nécessaire
   (ex. **8×6 = 512×384** pour 48 badges).
 - **Ordre des frames = tableau `BADGES`** (`lib/badges-catalog.ts`, repris par
-  `ALL_BADGES` dans `app/profil/page.tsx`) : frame `i` correspond à `BADGES[i]`
+  `ALL_BADGES` dans `app/(platform)/profil/page.tsx`) : frame `i` correspond à `BADGES[i]`
   (mêmes `id`/`label`). Les emojis de repli (`icon`) servent de référence visuelle
   pour chaque badge.
 - Cette liste doit rester synchronisée avec `BADGE_BY_CHAPTER`
@@ -112,7 +112,7 @@ un **multiple entier** : afficher une frame 32 px à 32 (×1) ou 64 (×2), jamai
 | Sheet | Lu par | Frame résolue par | État |
 |---|---|---|---|
 | `mission-icons` | `components/ui/CourseIcon.tsx` (utilisé dans ExploreSection + carte `/learn`) | `getCourseIconFrame(slug)` (ordre `COURSES_CATALOG`) | câblé, activé (`SPRITE_SHEETS_READY.mission`) |
-| `badges` | `app/profil/page.tsx` (par index) + `CompletionScreen` (via `badgeFrameById`) | index dans `lib/badges-catalog.ts` | câblé, activé (`SPRITE_SHEETS_READY.badges`) |
+| `badges` | `app/(platform)/profil/page.tsx` (par index) + `CompletionScreen` (via `badgeFrameById`) | index dans `lib/badges-catalog.ts` | câblé, activé (`SPRITE_SHEETS_READY.badges`) |
 | `banner-icons` | `components/ui/QuestBanner.tsx` | `step.bannerFrame` | planche livrée ; aucune étape ne renseigne encore `bannerFrame`, la bannière affiche donc le logo (archétypes à attribuer) |
 
 **Câblage réalisé :**

@@ -7,7 +7,7 @@ import DashboardNav from "../DashboardNav";
 import { useUser } from "@/lib/use-user";
 import { gradeFromXp, levelFromXp } from "@/lib/grades";
 
-import type { LeaderboardEntry, LeaderboardResponse } from "../api/leaderboard/route";
+import type { LeaderboardEntry, LeaderboardResponse } from "@/app/api/leaderboard/route";
 
 export default function LeaderboardPage() {
   const { state } = useUser();

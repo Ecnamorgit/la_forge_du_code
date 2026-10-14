@@ -627,10 +627,10 @@ export default async function CourseMapPage({
         course={course}
         seenMode={isTrialVisit ? "local" : "server"}
       />
-      <div className="fixed inset-0 z-0 pointer-events-none">
+      <div aria-hidden="true" className="fixed inset-0 z-0 pointer-events-none">
         <Image
           src={COURSE_BACKGROUND}
-          alt=""
+          alt="Nébuleuse orange et champ d'étoiles, fond de la carte des missions"
           fill
           priority
           sizes="100vw"

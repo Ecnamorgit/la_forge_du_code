@@ -1,7 +1,7 @@
 /**
  * Server-only module: `lib/courses-registry` loads the full content of every
  * course (several hundred KB). The server page computes the value and
- * passes it as a prop (see `app/learn/[course]/[chapter]/page.tsx`).
+ * passes it as a prop (see `app/(platform)/learn/[course]/[chapter]/page.tsx`).
  */
 
 import { getCourseStatus } from "@/lib/courses-catalog";

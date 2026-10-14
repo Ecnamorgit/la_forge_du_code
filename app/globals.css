@@ -428,6 +428,17 @@
   }
 }
 
+/* Transform only: text that slides in stays painted from the first frame, so
+   it counts for Largest Contentful Paint right away. */
+@keyframes slide-down {
+  from {
+    transform: translateY(-20px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -450,6 +461,9 @@
 
 .animate-fade-down {
   animation: fade-down 0.8s ease both;
+}
+.animate-slide-down {
+  animation: slide-down 0.8s ease both;
 }
 .animate-fade-up {
   animation: fade-up 0.8s ease both;

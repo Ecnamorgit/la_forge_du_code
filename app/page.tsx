@@ -1,16 +1,22 @@
 import Link from "next/link";
-import Image from "next/image";
 
 import BrandLogo from "@/components/ui/BrandLogo";
 import IntroCinematicMount from "@/components/intro/IntroCinematicMount";
 import ReplayIntroButton from "@/components/intro/ReplayIntroButton";
+import PixelImage from "@/components/ui/PixelImage";
 import PublicHeader from "@/components/ui/PublicHeader";
 import TrackLandingView from "@/components/ui/TrackLandingView";
 import TrialCtaLink from "@/components/ui/TrialCtaLink";
+import { buildHomeJsonLd, serializeJsonLd, siteUrl } from "@/lib/seo";
 
 export default function LandingPage() {
   return (
     <div className="relative min-h-screen w-full overflow-x-hidden overflow-y-auto">
+      {/* Structured data for search engines: not executed, so the CSP does not apply. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildHomeJsonLd(siteUrl())) }}
+      />
       {/* Intro cinematic, played on the first visit */}
       <IntroCinematicMount />
       {/* Anonymous view counting */}
@@ -21,35 +27,33 @@ export default function LandingPage() {
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-stars opacity-30" />
       <div className="fixed inset-0 z-0 pointer-events-none bg-[rgba(3,6,13,0.55)]" />
 
-      {/* Decorative planets, hidden on mobile */}
-      <div className="pointer-events-none fixed left-[6%] top-[24%] z-[5] hidden opacity-50 md:block">
-        <Image
+      {/* Decorative planets, hidden on mobile. Their alt text is for search
+          engines; aria-hidden keeps screen readers on the content. */}
+      <div aria-hidden="true" className="pointer-events-none fixed left-[6%] top-[24%] z-[5] hidden opacity-50 md:block">
+        <PixelImage
           src="/planet-gas-v2.png"
-          alt=""
+          alt="Planète gazeuse bleue à anneaux, en pixel art"
           width={140}
           height={140}
           className="animate-planet-rotate drop-shadow-[0_0_30px_rgba(0,240,255,0.2)]"
-          style={{ imageRendering: "pixelated" }}
         />
       </div>
-      <div className="pointer-events-none fixed right-[5%] top-[55%] z-[5] hidden opacity-50 md:block">
-        <Image
+      <div aria-hidden="true" className="pointer-events-none fixed right-[5%] top-[55%] z-[5] hidden opacity-50 md:block">
+        <PixelImage
           src="/planet-dry-v2.png"
-          alt=""
+          alt="Planète désertique orange criblée de cratères, en pixel art"
           width={170}
           height={170}
           className="animate-planet-rotate drop-shadow-[0_0_30px_rgba(255,107,44,0.2)]"
-          style={{ imageRendering: "pixelated" }}
         />
       </div>
-      <div className="pointer-events-none fixed left-[10%] bottom-[8%] z-[5] hidden opacity-35 lg:block">
-        <Image
+      <div aria-hidden="true" className="pointer-events-none fixed left-[10%] bottom-[8%] z-[5] hidden opacity-35 lg:block">
+        <PixelImage
           src="/planet-red-v2.png"
-          alt=""
+          alt="Planète de lave rouge sillonnée de fissures, en pixel art"
           width={90}
           height={90}
           className="drop-shadow-[0_0_20px_rgba(255,107,44,0.2)]"
-          style={{ imageRendering: "pixelated" }}
         />
       </div>
 
@@ -78,7 +82,7 @@ export default function LandingPage() {
       {/* Content: fills the height below the navigation from lg up */}
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-col px-4 py-8 sm:px-6 sm:py-10 lg:min-h-[calc(100vh-4rem)]">
         {/* Hero, which takes the remaining space */}
-        <section className="flex flex-1 flex-col items-center justify-center py-8 text-center animate-fade-down">
+        <section className="flex flex-1 flex-col items-center justify-center py-8 text-center animate-slide-down">
           <BrandLogo
             size={128}
             priority
@@ -128,22 +132,25 @@ export default function LandingPage() {
         <section className="mx-auto grid w-full max-w-5xl shrink-0 grid-cols-1 gap-5 animate-fade-up md:grid-cols-3 lg:gap-6">
           <FeatureCard
             icon="/feature-courses-v2.png"
+            iconAlt="Terminal de mission vert en pixel art, symbole des cursus structurés"
             title="Cursus structurés"
             description="Des protocoles progressifs : HTML, CSS et JavaScript. Chaque chapitre est une mission."
           />
           <FeatureCard
             icon="/feature-badges-v2.png"
+            iconAlt="Médaille dorée en pixel art, symbole de l'XP et des badges"
             title="XP & badges"
             description="Gagne de l'expérience, débloque des badges, monte en grade. Ta progression est sauvegardée."
           />
           <FeatureCard
             icon="/feature-editor-v2.png"
+            iconAlt="Écran d'ordinateur affichant du code, symbole de l'éditeur intégré"
             title="Éditeur intégré"
             description="Code directement dans le navigateur avec un éditeur professionnel et un retour instantané."
           />
         </section>
 
-        <footer className="mt-6 mb-2 shrink-0 text-center font-tech text-[10px] uppercase tracking-[0.35em] text-nebula-text-dim sm:mt-8 sm:text-xs sm:tracking-[0.4em]">
+        <footer className="mt-6 mb-2 shrink-0 text-center font-tech text-[10px] uppercase tracking-[0.35em] text-nebula-text-secondary sm:mt-8 sm:text-xs sm:tracking-[0.4em]">
           © {new Date().getFullYear()} La Forge du Code
         </footer>
       </div>
@@ -153,28 +160,30 @@ export default function LandingPage() {
 
 function FeatureCard({
   icon,
+  iconAlt,
   title,
   description,
 }: {
   icon: string;
+  /** Read by search engines; hidden from screen readers, the title says it already. */
+  iconAlt: string;
   title: string;
   description: string;
 }) {
   return (
     <article className="rounded-sm border border-nebula-cyan/30 bg-nebula-bg-panel/90 p-5 backdrop-blur-md shadow-[0_0_20px_rgba(0,240,255,0.06)] transition-colors hover:border-nebula-cyan/60 lg:p-6">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center">
-        <Image
+      <div aria-hidden="true" className="mb-4 flex h-16 w-16 items-center justify-center">
+        <PixelImage
           src={icon}
-          alt=""
+          alt={iconAlt}
           width={64}
           height={64}
           className="h-full w-full object-contain"
-          style={{ imageRendering: "pixelated" }}
         />
       </div>
-      <h3 className="mb-2 font-tech text-base tracking-wider text-nebula-cyan lg:text-lg">
+      <h2 className="mb-2 font-tech text-base tracking-wider text-nebula-cyan lg:text-lg">
         {title}
-      </h3>
+      </h2>
       <p className="font-body text-sm leading-relaxed text-nebula-text-secondary">
         {description}
       </p>
