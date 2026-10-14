@@ -2,23 +2,23 @@ import { parse } from "acorn";
 import { simple } from "acorn-walk";
 
 /**
- * Protection des boucles du code de l'apprenant (audit EXE-02).
+ * Loop protection for the learner's code (audit EXE-02).
  *
- * Dans Chromium, l'iframe sandboxée qui exécute ce code peut partager le fil
- * d'exécution de la page : une boucle sans fin fige alors l'onglet entier, et
- * aucun délai posé par la page ne s'en remet. Un Web Worker n'est pas une
- * option : plusieurs chapitres manipulent le DOM.
+ * In Chromium, the sandboxed iframe that runs this code can share the page's
+ * thread: an infinite loop then freezes the whole tab, and no timeout set
+ * by the page can recover from it. A Web Worker is not an
+ * option: several chapters manipulate the DOM.
  *
- * On instrumente donc le code avant de l'exécuter, comme CodePen ou JSBin :
- * chaque corps de boucle commence par un appel à une garde, qui lève une
- * erreur quand le traitement synchrone en cours dépasse le délai.
+ * So we instrument the code before running it, like CodePen or JSBin do:
+ * every loop body starts with a call to a guard, which throws an
+ * error when the current synchronous task exceeds the timeout.
  *
- * La durée est remise à zéro par une microtâche, qui ne passe qu'une fois le
- * traitement synchrone terminé : une boucle sans fin finit donc par lever, et
- * un rendu React déclenché plus tard repart de zéro.
+ * The elapsed time is reset by a microtask, which only runs once the
+ * synchronous task has finished: an infinite loop therefore ends up throwing,
+ * and a React render triggered later starts from zero.
  */
 
-/** Délai au-delà duquel un traitement synchrone qui boucle est interrompu. */
+/** Timeout beyond which a looping synchronous task is interrupted. */
 export const LOOP_TIMEOUT_MS = 3000;
 
 const GUARD = "__gardeBoucle__";
@@ -49,10 +49,10 @@ interface LoopNode extends AstNode {
 }
 
 /**
- * Renvoie le code avec une garde au début de chaque corps de boucle, précédé
- * de la définition de la garde. Un code sans boucle est rendu tel quel. Un
- * code qui ne se lit pas (erreur de syntaxe) est rendu tel quel aussi :
- * l'exécution signalera l'erreur, et il n'y a pas de boucle à protéger.
+ * Returns the code with a guard at the start of every loop body, preceded
+ * by the guard's definition. Code without loops is returned unchanged.
+ * Unparsable code (syntax error) is returned unchanged too:
+ * running it will report the error, and there is no loop to guard.
  */
 export function guardLoops(code: string, options: { timeoutMs?: number } = {}): string {
   let ast;
@@ -72,7 +72,7 @@ export function guardLoops(code: string, options: { timeoutMs?: number } = {}): 
     if (body.type === "BlockStatement") {
       insertions.push({ position: body.start + 1, text: `${GUARD}();` });
     } else {
-      // Corps sans accolades (`while (x) y();`) : on l'entoure d'un bloc.
+      // Body without braces (`while (x) y();`): wrap it in a block.
       insertions.push({ position: body.start, text: `{${GUARD}();` });
       insertions.push({ position: body.end, text: "}" });
     }
@@ -87,8 +87,8 @@ export function guardLoops(code: string, options: { timeoutMs?: number } = {}): 
 
   if (insertions.length === 0) return code;
 
-  // De la fin vers le début : chaque insertion laisse intactes les positions
-  // qui restent à traiter.
+  // From the end to the start: each insertion leaves the positions still
+  // to be processed intact.
   insertions.sort((a, b) => b.position - a.position);
   let result = code;
   for (const { position, text } of insertions) {
@@ -102,9 +102,9 @@ const TYPE_DECLARE = /\btype\s*=/i;
 const TYPE_JAVASCRIPT = /\btype\s*=\s*["']?(?:text|application)\/javascript\b/i;
 
 /**
- * Protège les scripts en ligne d'un document HTML (aperçu du cursus HTML).
- * Les scripts externes (`src`) et ceux d'un autre type (JSON, gabarits,
- * modules) sont laissés tels quels.
+ * Guards the inline scripts of an HTML document (HTML curriculum preview).
+ * External scripts (`src`) and scripts of another type (JSON, templates,
+ * modules) are left unchanged.
  */
 export function guardHtmlScripts(html: string, options: { timeoutMs?: number } = {}): string {
   return html.replace(INLINE_SCRIPT, (match, openingTag: string, body: string, closingTag: string) => {

@@ -1,16 +1,16 @@
 /**
- * Origine dédiée du bac à sable (audit EXE-03).
+ * Dedicated sandbox origin (audit EXE-03).
  *
- * Le code des apprenants s'exécute sur une autre origine que l'application.
- * Cette origine porte seule la CSP permissive, et l'application garde une CSP
- * à nonce sans `'unsafe-inline'` ni `'unsafe-eval'`.
+ * Learners' code runs on a different origin from the application.
+ * Only this origin carries the permissive CSP, and the application keeps a
+ * nonce-based CSP without `'unsafe-inline'` or `'unsafe-eval'`.
  *
- * En production, c'est un sous-domaine (`bac-a-sable.laforgeducode.fr`). En
- * local, `localhost` et `127.0.0.1` sont deux origines distinctes servies par
- * le même serveur de dev, ce qui suffit à tester la séparation.
+ * In production, it is a subdomain (`bac-a-sable.laforgeducode.fr`).
+ * Locally, `localhost` and `127.0.0.1` are two distinct origins served by
+ * the same dev server, which is enough to test the separation.
  */
 
-/** Résout l'origine du bac à sable à partir de l'origine de l'application. */
+/** Resolves the sandbox origin from the application origin. */
 export function sandboxOriginFor(appOrigin: string): string {
   let url: URL;
   try {
@@ -19,7 +19,7 @@ export function sandboxOriginFor(appOrigin: string): string {
     return appOrigin;
   }
 
-  // Local : localhost <-> 127.0.0.1, même port.
+  // Local: localhost <-> 127.0.0.1, same port.
   if (url.hostname === "localhost") {
     url.hostname = "127.0.0.1";
     return url.origin;
@@ -29,18 +29,18 @@ export function sandboxOriginFor(appOrigin: string): string {
     return url.origin;
   }
 
-  // Production : `bac-a-sable.` sur le domaine nu, sans l'éventuel `www.`.
+  // Production: `bac-a-sable.` on the bare domain, without any `www.`.
   const bareHost = url.hostname.replace(/^www\./, "");
   url.hostname = `bac-a-sable.${bareHost}`;
   return url.origin;
 }
 
 /**
- * Inverse de `sandboxOriginFor` : les origines de l'application autorisées à
- * encadrer un document du bac à sable (`frame-ancestors`). En local, l'autre
- * hôte local ; en production, le domaine appHost et sa forme `www.`, le site
- * redirigeant l'un vers l'autre. Tableau vide si l'origine est illisible :
- * l'appelant émet alors `'none'`.
+ * Inverse of `sandboxOriginFor`: the application origins allowed to
+ * frame a sandbox document (`frame-ancestors`). Locally, the other
+ * local host; in production, the appHost domain and its `www.` form, since the
+ * site redirects one to the other. Empty array if the origin is unparsable:
+ * the caller then emits `'none'`.
  */
 export function appOriginsForSandbox(sandboxOrigin: string): string[] {
   let url: URL;
@@ -63,10 +63,10 @@ export function appOriginsForSandbox(sandboxOrigin: string): string[] {
 }
 
 /**
- * Origine publique d'une requête. Derrière un proxy (Vercel), `req.url` peut
- * différer de l'adresse vue par le navigateur : on lit d'abord
- * `x-forwarded-host` et `x-forwarded-proto` (comme Next et `lib/same-origin.ts`),
- * puis `host`, et enfin l'URL de la requête.
+ * Public origin of a request. Behind a proxy (Vercel), `req.url` may
+ * differ from the address the browser sees: we read
+ * `x-forwarded-host` and `x-forwarded-proto` first (like Next and `lib/same-origin.ts`),
+ * then `host`, and finally the request URL.
  */
 export function requestOrigin(req: { headers: Headers; url: string }): string {
   const firstValue = (value: string | null) => value?.split(",")[0]?.trim() || null;
@@ -83,11 +83,11 @@ export function requestOrigin(req: { headers: Headers; url: string }): string {
   return `${proto}://${host}`;
 }
 
-/** Chemin du document d'aperçu React sur l'origine dédiée. */
+/** Path of the React preview document on the dedicated origin. */
 export const SANDBOX_PATH = "/bac-a-sable";
 
-/** Chemin du document d'exécution JavaScript (headless) sur l'origine dédiée. */
+/** Path of the (headless) JavaScript execution document on the dedicated origin. */
 export const SANDBOX_JS_PATH = "/bac-a-sable/js";
 
-/** Chemin du document d'aperçu HTML sur l'origine dédiée. */
+/** Path of the HTML preview document on the dedicated origin. */
 export const SANDBOX_HTML_PATH = "/bac-a-sable/html";

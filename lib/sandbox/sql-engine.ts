@@ -1,9 +1,9 @@
 /**
- * Exécution SQL pure : une base en mémoire neuve, le `seed` de l'étape, le SQL
- * de l'apprenant, puis la requête `verify` qui relit l'état obtenu.
+ * Pure SQL execution: a fresh in-memory database, the step's `seed`, the
+ * learner's SQL, then the `verify` query that reads back the resulting state.
  *
- * Séparée de `run-sql.ts` pour tourner à l'identique dans un Web Worker (le
- * navigateur, cf. `sql.worker.ts`) et directement sous Node (les tests).
+ * Kept apart from `run-sql.ts` so it runs identically in a Web Worker (the
+ * browser, see `sql.worker.ts`) and directly under Node (the tests).
  */
 
 import type { SqlJsStatic } from "sql.js";
@@ -14,18 +14,18 @@ export interface SqlQueryResult {
 }
 
 export interface SqlRun {
-  /** Dernier jeu de résultats du SQL de l'apprenant (null pour un INSERT, par exemple). */
+  /** Last result set of the learner's SQL (null for an INSERT, for example). */
   result: SqlQueryResult | null;
-  /** État relu par la requête `verify` de l'étape, si elle existe. */
+  /** State read back by the step's `verify` query, if there is one. */
   verify: SqlQueryResult | null;
-  /** Message d'erreur si le SQL de l'apprenant a échoué, sinon null. */
+  /** Error message if the learner's SQL failed, otherwise null. */
   error: string | null;
 }
 
 export interface SqlRunOptions {
-  /** SQL exécuté avant celui de l'apprenant pour préparer les tables de l'étape. */
+  /** SQL run before the learner's to set up the step's tables. */
   seed?: string;
-  /** SQL exécuté après celui de l'apprenant pour relire l'état obtenu. */
+  /** SQL run after the learner's to read back the resulting state. */
   verify?: string;
 }
 

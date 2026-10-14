@@ -6,13 +6,13 @@ import { PREVIEW_MOUNT_NAME_RE } from "./react-preview";
 import { PREVIEW_EXEMPT } from "./preview-exemptions";
 
 /**
- * Chaque étape React a un `previewMount` valide, ou son chapitre est exempté
- * avec une reason écrite. Sans ce test, un oubli laisserait un aperçu vide.
+ * Every React step has a valid `previewMount`, or its chapter is exempted
+ * with a written reason. Without this test, an oversight would leave an empty preview.
  */
-describe("previewMount du cursus React", () => {
+describe("previewMount of the React curriculum", () => {
   const slugs = CHAPTER_SUMMARIES.react.map((c) => c.slug);
 
-  it("couvre chaque etape, ou l'exempte explicitement", () => {
+  it("covers every step, or exempts it explicitly", () => {
     for (const slug of slugs) {
       const exempt = PREVIEW_EXEMPT[`react/${slug}`];
       const data = getChapterData("react", slug);
@@ -34,10 +34,10 @@ describe("previewMount du cursus React", () => {
   });
 
   /**
-   * Un previewMount peut nommer un composant que l'étape ne déclare pas. Le
-   * `hint` étant la solution de référence, il doit contenir sa déclaration.
+   * A previewMount may name a component the step does not declare. Since the
+   * `hint` is the reference solution, it must contain its declaration.
    */
-  it("nomme un composant declare dans le hint de l'etape", () => {
+  it("names a component declared in the step's hint", () => {
     for (const slug of slugs) {
       if (PREVIEW_EXEMPT[`react/${slug}`]) continue;
       const data = getChapterData("react", slug)!;
@@ -55,7 +55,7 @@ describe("previewMount du cursus React", () => {
     }
   });
 
-  it("chaque exemption porte une raison non vide", () => {
+  it("every exemption has a non-empty reason", () => {
     for (const [key, reason] of Object.entries(PREVIEW_EXEMPT)) {
       expect(reason.trim().length, `${key} : raison vide`).toBeGreaterThan(20);
     }

@@ -1,10 +1,10 @@
 /**
- * Exécution des requêtes du cursus SQL avec sql.js (SQLite compilé en
- * WebAssembly), entièrement côté client. Le `.wasm` est servi depuis `/sql`, sans CDN.
+ * Runs the SQL curriculum's queries with sql.js (SQLite compiled to
+ * WebAssembly), entirely client-side. The `.wasm` is served from `/sql`, with no CDN.
  *
- * Dans le navigateur, la requête tourne dans un Web Worker que la page arrête
- * au-delà du délai : une requête sans fin ne fige pas l'onglet (audit EXE-02).
- * Sous Node (les tests), elle s'exécute directement.
+ * In the browser, the query runs in a Web Worker that the page terminates
+ * past the timeout: a never-ending query does not freeze the tab (audit EXE-02).
+ * Under Node (the tests), it runs directly.
  */
 
 import initSqlJs, { type SqlJsStatic } from "sql.js";
@@ -13,7 +13,7 @@ import { executeSql, type SqlRun, type SqlRunOptions } from "./sql-engine";
 
 export type { SqlQueryResult, SqlRun, SqlRunOptions } from "./sql-engine";
 
-/** Délai au-delà duquel une requête est interrompue (chargement du moteur compris). */
+/** Timeout beyond which a query is interrupted (engine loading included). */
 export const SQL_TIMEOUT_MS = 5000;
 
 export const SQL_INTERRUPTED_MESSAGE =
@@ -22,11 +22,11 @@ export const SQL_INTERRUPTED_MESSAGE =
 
 // --- Node (tests) -----------------------------------------------------------
 
-// Emplacement du wasm, modifiable pour que les tests Node visent node_modules.
+// Location of the wasm, overridable so Node tests can point at node_modules.
 let locateFile = (file: string): string => `/sql/${file}`;
 let sqlPromise: Promise<SqlJsStatic> | null = null;
 
-/** Pour les tests : change la résolution du wasm et réinitialise le moteur. */
+/** For tests: changes the wasm resolution and resets the engine. */
 export function _setSqlLocateFile(fn: (file: string) => string): void {
   locateFile = fn;
   sqlPromise = null;
@@ -39,10 +39,10 @@ function getSql(): Promise<SqlJsStatic> {
   return sqlPromise;
 }
 
-// --- Navigateur : Web Worker --------------------------------------------------
+// --- Browser: Web Worker -----------------------------------------------------
 
-// Un Worker réutilisé d'un déploiement à l'autre (le moteur reste chargé), et
-// recréé après une interruption : un Worker bloqué ne se débloque pas.
+// One Worker reused across deployments (the engine stays loaded), and
+// recreated after an interruption: a stuck Worker never gets unstuck.
 let worker: Worker | null = null;
 let nextId = 0;
 const pending = new Map<number, (run: SqlRun) => void>();
@@ -57,7 +57,7 @@ function failAll(error: string): void {
 
 function getWorker(): Worker {
   if (!worker) {
-    // Bundlé par scripts/build-sql-worker.mjs avant `dev` et `build`.
+    // Bundled by scripts/build-sql-worker.mjs before `dev` and `build`.
     worker = new Worker("/sql/sql-worker.js");
     worker.addEventListener("message", (event: MessageEvent<{ id: number; run: SqlRun }>) => {
       const settle = pending.get(event.data.id);
@@ -65,8 +65,8 @@ function getWorker(): Worker {
       pending.delete(event.data.id);
       settle(event.data.run);
     });
-    // Worker introuvable ou en erreur : on le dit tout de suite, plutôt que
-    // de laisser croire à une requête trop longue.
+    // Worker missing or failing: report it right away, rather than
+    // letting it look like a query that takes too long.
     worker.addEventListener("error", () => {
       failAll("Moteur SQL indisponible. Recharge la page et réessaie.");
     });

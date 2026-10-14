@@ -4,20 +4,20 @@ import { buildPreviewDocument } from "./preview-document";
 import { PREVIEW_MOUNT_NAME_RE } from "./react-preview";
 
 /**
- * Document d'aperçu React servi depuis l'origine dédiée (audit EXE-03). Il
- * n'hérite de rien du parent : il apprend son origine au lieu de la figer, et
- * charge son runtime par URL relative.
+ * React preview document served from the dedicated origin (audit EXE-03). It
+ * inherits nothing from the parent: it learns its origin instead of hardcoding
+ * it, and loads its runtime through a relative URL.
  */
 describe("buildPreviewDocument", () => {
   const html = buildPreviewDocument();
 
-  it("installe un conteneur de montage", () => {
+  it("sets up a mount container", () => {
     expect(html).toContain('id="racine"');
   });
 
-  it("charge le runtime par URL RELATIVE sur l'origine dédiée", () => {
-    // Le document a une vraie origine : l'URL relative résout contre l'origine
-    // dédiée, seule autorisée par sa CSP pour les scripts.
+  it("loads the runtime through a RELATIVE URL on the dedicated origin", () => {
+    // The document has a real origin: the relative URL resolves against the
+    // dedicated origin, the only one its CSP allows for scripts.
     const srcs = [...html.matchAll(/<script[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1]!);
     expect(srcs).toContain("/react-runtime/runtime.js");
     for (const src of srcs) {
@@ -25,42 +25,42 @@ describe("buildPreviewDocument", () => {
     }
   });
 
-  it("ne fige aucune origine de parent : il l'apprend au runtime", () => {
+  it("hardcodes no parent origin: it learns it at runtime", () => {
     expect(html).toContain('parent.postMessage(msg, parentOrigin || "*")');
     expect(html).toContain("parentOrigin = event.origin");
   });
 
-  it("n'adresse qu'au parent et refuse les autres origines une fois apprise", () => {
+  it("only talks to the parent and rejects other origins once learned", () => {
     expect(html).toContain("event.source !== parent");
     expect(html).toContain("event.origin !== parentOrigin");
   });
 
-  it("insère un saut de ligne avant le return injecté", () => {
-    // Sans ça, un code d'apprenant finissant par un commentaire `//` avale le
-    // `return` : le composant est déclaré introuvable alors qu'il est correct.
+  it("inserts a line break before the injected return", () => {
+    // Without it, learner code ending with a `//` comment swallows the
+    // `return`: the component is reported as not found even though it is correct.
     expect(html).toContain(String.raw`\n; return typeof`);
   });
 
-  it("valide le nom du composant avec la MÊME expression que le parent", () => {
-    // Injectée via JSON.stringify, jamais recopiée, pour que les deux
-    // expressions ne puissent pas diverger.
+  it("validates the component name with the SAME regex as the parent", () => {
+    // Injected through JSON.stringify, never copied, so the two
+    // regexes cannot drift apart.
     expect(html).toContain(JSON.stringify(PREVIEW_MOUNT_NAME_RE.source));
   });
 
-  it("installe les filets d'erreur hors cycle de rendu", () => {
+  it("installs error safety nets outside the render cycle", () => {
     expect(html).toContain("onerror");
     expect(html).toContain("unhandledrejection");
   });
 
-  it("récupère le message de l'objet error dans window.onerror", () => {
-    // Le bundle est chargé cross-origin par rapport à l'origine opaque de
-    // l'iframe : les exceptions signalées pendant son exécution deviennent
-    // "Script error." sans détail. L'objet error est le seul chemin utile.
+  it("reads the message from the error object in window.onerror", () => {
+    // The bundle is loaded cross-origin relative to the iframe's opaque
+    // origin: exceptions reported while it runs become
+    // "Script error." with no detail. The error object is the only useful path.
     expect(html).toMatch(/onerror\s*=\s*function\s*\([^)]*error[^)]*\)/);
     expect(html).toContain("error.message");
   });
 
-  it("dérive les globales de React au lieu de les énumérer", () => {
+  it("derives the React globals instead of listing them", () => {
     expect(html).toContain("Object.keys(React)");
     for (const hook of ["useState", "useRef", "useContext", "useMemo", "useEffect"]) {
       expect(html, `hook ${hook} énuméré en dur`).not.toContain(`"${hook}"`);
@@ -68,10 +68,10 @@ describe("buildPreviewDocument", () => {
     }
   });
 
-  it("produit un script inline syntaxiquement valide", () => {
-    // Attrape une interpolation qui produirait du JS invalide. Un backtick non
-    // échappé dans le template literal casse, lui, la compilation du module :
-    // ce fichier échoue alors dès le chargement.
+  it("produces a syntactically valid inline script", () => {
+    // Catches an interpolation that would produce invalid JS. An unescaped
+    // backtick in the template literal breaks module compilation instead:
+    // this file then fails as soon as it loads.
     const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]!);
     expect(scripts.length).toBeGreaterThan(0);
     for (const s of scripts) {

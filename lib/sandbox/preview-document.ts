@@ -1,15 +1,15 @@
 /**
- * Document d'aperçu React servi depuis l'origine dédiée du bac à sable (audit
+ * React preview document served from the sandbox's dedicated origin (audit
  * EXE-03).
  *
- * Il ne connaît pas l'origine du parent : la figer ferait poster la poignée de
- * main vers sa propre origine, et le navigateur la jetterait. Il l'apprend
- * donc : `preview:ready` est posté à `"*"` (aucun secret), puis l'origine du
- * premier `preview:render` reçu de `parent` est retenue et seule visée
- * ensuite. Tout message entrant est filtré par `event.source === parent`.
+ * It does not know the parent's origin: hardcoding it would post the
+ * handshake to its own origin, and the browser would drop it. So it learns
+ * it: `preview:ready` is posted to `"*"` (no secret), then the origin of the
+ * first `preview:render` received from `parent` is kept and is the only
+ * target afterwards. Every incoming message is filtered by `event.source === parent`.
  *
- * Le runtime React est chargé par URL relative : la même application le sert
- * sur l'origine dédiée.
+ * The React runtime is loaded through a relative URL: the same application
+ * serves it on the dedicated origin.
  */
 
 import { PREVIEW_MOUNT_NAME_RE } from "./react-preview";

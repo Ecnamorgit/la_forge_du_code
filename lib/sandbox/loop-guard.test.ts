@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { detectInfiniteLoop, infiniteLoopMessage } from "./loop-guard";
 
-describe("detecterBoucleInfinie", () => {
-  it("attrape les formes litterales courantes", () => {
+describe("detectInfiniteLoop", () => {
+  it("catches the common literal forms", () => {
     expect(detectInfiniteLoop("while (true) {}")).toBe("while (true)");
     expect(detectInfiniteLoop("while(true){}")).toBe("while (true)");
     expect(detectInfiniteLoop("while (1) {}")).toBe("while (1)");
@@ -12,7 +12,7 @@ describe("detecterBoucleInfinie", () => {
     expect(detectInfiniteLoop("for (let i = 0; true; i++) {}")).toBe("for (… ; true ; …)");
   });
 
-  it("attrape la boucle nichee dans un composant", () => {
+  it("catches a loop nested in a component", () => {
     const code = `function Reacteur() {
   while (true) {
     console.log("bloque");
@@ -22,30 +22,30 @@ describe("detecterBoucleInfinie", () => {
     expect(detectInfiniteLoop(code)).toBe("while (true)");
   });
 
-  it("laisse passer une boucle qui se termine", () => {
+  it("lets a terminating loop through", () => {
     expect(detectInfiniteLoop("for (let i = 0; i < 3; i++) {}")).toBeNull();
     expect(detectInfiniteLoop("while (n > 0) { n--; }")).toBeNull();
     expect(detectInfiniteLoop("items.map(function (x) { return x; })")).toBeNull();
   });
 
-  it("ne se laisse pas piéger par une chaine de caracteres", () => {
+  it("is not fooled by a string literal", () => {
     expect(detectInfiniteLoop('console.log("while (true)")')).toBeNull();
     expect(detectInfiniteLoop("const s = 'for (;;)';")).toBeNull();
     expect(detectInfiniteLoop("const s = `while (1)`;")).toBeNull();
   });
 
-  it("attrape la boucle meme si une chaine en contient une autre ailleurs", () => {
+  it("catches the loop even if a string elsewhere contains another one", () => {
     const code = 'console.log("for (;;)"); while (true) {}';
     expect(detectInfiniteLoop(code)).toBe("while (true)");
   });
 
-  it("accepte du code vide", () => {
+  it("accepts empty code", () => {
     expect(detectInfiniteLoop("")).toBeNull();
   });
 });
 
-describe("messageBoucleInfinie", () => {
-  it("nomme la forme detectee et explique la consequence", () => {
+describe("infiniteLoopMessage", () => {
+  it("names the detected form and explains the consequence", () => {
     const msg = infiniteLoopMessage("while (true)");
     expect(msg).toContain("while (true)");
     expect(msg).toMatch(/fige/i);
@@ -53,13 +53,13 @@ describe("messageBoucleInfinie", () => {
   });
 });
 
-describe("detecterBoucleInfinie — commentaires", () => {
-  it("ne se laisse pas piéger par un commentaire", () => {
+describe("detectInfiniteLoop — comments", () => {
+  it("is not fooled by a comment", () => {
     expect(detectInfiniteLoop("// evite le while (true)\nconst a = 1;")).toBeNull();
     expect(detectInfiniteLoop("/* pas de for (;;) ici */\nconst a = 1;")).toBeNull();
   });
 
-  it("attrape la boucle meme si un commentaire en mentionne une", () => {
+  it("catches the loop even if a comment mentions one", () => {
     expect(detectInfiniteLoop("// pas de for (;;)\nwhile (true) {}")).toBe("while (true)");
   });
 });

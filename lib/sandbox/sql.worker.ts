@@ -1,7 +1,7 @@
 /**
- * Web Worker d'exécution SQL (audit EXE-02). Une requête sans fin (CTE
- * récursive sans condition d'arrêt) ne bloque que ce Worker, que la page
- * termine au-delà du délai, au lieu de figer l'onglet.
+ * SQL execution Web Worker (audit EXE-02). A never-ending query (recursive
+ * CTE with no stop condition) only blocks this Worker, which the page
+ * terminates past the timeout, instead of freezing the tab.
  */
 
 import initSqlJs, { type SqlJsStatic } from "sql.js";
@@ -14,8 +14,8 @@ interface SqlRequest {
   options: SqlRunOptions;
 }
 
-// Le file est compilé avec les types du DOM : on type à la main les deux
-// membres du workerScope de Worker utilisés ici.
+// This file is compiled with the DOM types: we hand-type the two
+// members of the Worker's workerScope used here.
 const workerScope = self as unknown as {
   addEventListener(type: "message", listener: (event: MessageEvent<SqlRequest>) => void): void;
   postMessage(message: { id: number; run: SqlRun }): void;

@@ -1,15 +1,15 @@
 /**
- * Document d'exécution JavaScript (sans affichage), servi depuis l'origine
- * dédiée du bac à sable (audit EXE-03) : il porte seul la CSP permissive
- * qu'exige `new Function`, l'application gardant une CSP stricte.
+ * Headless JavaScript execution document, served from the sandbox's dedicated
+ * origin (audit EXE-03): it alone carries the permissive CSP that
+ * `new Function` requires, while the application keeps a strict CSP.
  *
- * Comme `preview-document.ts`, il apprend l'origine du parent au lieu de la
- * figer : `sandbox:ready` est posté à `"*"` (aucun secret), puis l'origine du
- * premier `sandbox:run` reçu de `parent` est retenue. Tout message entrant est
- * filtré par `event.source === parent`.
+ * Like `preview-document.ts`, it learns the parent's origin instead of
+ * hardcoding it: `sandbox:ready` is posted to `"*"` (no secret), then the origin
+ * of the first `sandbox:run` received from `parent` is kept. Every incoming
+ * message is filtered by `event.source === parent`.
  *
- * Le code arrive déjà instrumenté contre les boucles sans fin par le parent
- * (`protegerBoucles`) : acorn n'est pas chargé ici.
+ * The code arrives already instrumented against infinite loops by the parent
+ * (`guardLoops`): acorn is not loaded here.
  */
 
 export function buildJsRunnerDocument(): string {

@@ -1,8 +1,8 @@
 /**
- * Préparation SQL de chaque étape du cursus SQL, exécutée sur une base en
- * mémoire neuve. `seed` crée tables et données avant le SQL de l'apprenant ;
- * `verify` relit l'état ensuite, pour valider les étapes sans résultat visible
- * (INSERT, UPDATE, DELETE).
+ * SQL setup for each step of the SQL curriculum, run on a fresh in-memory
+ * database. `seed` creates tables and data before the learner's SQL;
+ * `verify` reads the state back afterwards, to validate steps with no visible
+ * result (INSERT, UPDATE, DELETE).
  */
 
 import type { SqlRunOptions } from "./run-sql";
@@ -18,16 +18,16 @@ const PILOTS_SHIPS_SEED =
   "CREATE TABLE vaisseaux (id INTEGER PRIMARY KEY, modele VARCHAR(50), pilote_id INTEGER);" +
   "INSERT INTO vaisseaux (id, modele, pilote_id) VALUES (1,'Falcon',1),(2,'Comet',1),(3,'Nova',3);";
 
-/** Par slug de chapitre, une entrée par étape, dans l'ordre des étapes. */
+/** Per chapter slug, one entry per step, in step order. */
 const SQL_STEP_CONFIG: Record<string, SqlRunOptions[]> = {
   "chapitre-1": [
-    // Étape 1 : CREATE TABLE + INSERT sur une base vide, puis relecture.
+    // Step 1: CREATE TABLE + INSERT on an empty database, then read back.
     { verify: "SELECT id, nom, niveau FROM pilotes ORDER BY id" },
-    // Étape 2 : SELECT sur une table préremplie.
+    // Step 2: SELECT on a prefilled table.
     { seed: PILOTS_SEED },
-    // Étape 3 : UPDATE + DELETE, puis relecture.
+    // Step 3: UPDATE + DELETE, then read back.
     { seed: PILOTS_SEED, verify: "SELECT id, niveau FROM pilotes ORDER BY id" },
-    // Étape 4 : INNER JOIN entre deux tables liées.
+    // Step 4: INNER JOIN between two related tables.
     { seed: PILOTS_SHIPS_SEED },
   ],
 };

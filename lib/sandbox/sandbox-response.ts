@@ -1,20 +1,20 @@
 /**
- * En-têtes communs aux documents du bac à sable (`/bac-a-sable`,
- * `/bac-a-sable/js`, `/bac-a-sable/html`), servis depuis l'origine dédiée
- * (audit EXE-03). Leur CSP permissive reste ainsi séparée de celle, stricte,
- * de l'application.
+ * Headers shared by the sandbox documents (`/bac-a-sable`,
+ * `/bac-a-sable/js`, `/bac-a-sable/html`), served from the dedicated origin
+ * (audit EXE-03). Their permissive CSP thus stays separate from the
+ * application's strict one.
  *
- * L'encadrement est régi par `frame-ancestors`, limité aux origines de
- * l'application : `X-Frame-Options` ne sait pas exprimer une liste d'origines.
- * Ces routes sont exclues des en-têtes globaux de `next.config.ts`.
+ * Framing is governed by `frame-ancestors`, restricted to the application's
+ * origins: `X-Frame-Options` cannot express a list of origins.
+ * These routes are excluded from the global headers in `next.config.ts`.
  */
 
 import { appOriginsForSandbox, requestOrigin } from "./sandbox-origin";
 
 /**
- * CSP d'un document du bac à sable. Les origines autorisées à l'encadrer sont
- * dérivées de la requête (`appOriginsForSandbox`) : aucune origine de
- * développement n'est livrée en production.
+ * CSP of a sandbox document. The origins allowed to frame it are
+ * derived from the request (`appOriginsForSandbox`): no development
+ * origin is shipped to production.
  */
 export function sandboxCsp(req: { headers: Headers; url: string }): string {
   const ancestors = appOriginsForSandbox(requestOrigin(req));
@@ -33,7 +33,7 @@ export function sandboxCsp(req: { headers: Headers; url: string }): string {
   ].join("; ");
 }
 
-/** Réponse HTML d'un document du bac à sable, avec sa CSP dédiée. */
+/** HTML response for a sandbox document, with its dedicated CSP. */
 export function sandboxResponse(html: string, req: { headers: Headers; url: string }): Response {
   return new Response(html, {
     headers: {
