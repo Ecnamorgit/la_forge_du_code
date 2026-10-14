@@ -7,7 +7,7 @@ export function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;");
 }
 
-/** Liste les ids de fiches référencés par des tokens [[doc:ID]] dans le contenu. */
+/** Lists the doc sheet ids referenced by [[doc:ID]] tokens in the content. */
 export function extractDocTokenIds(content: string): string[] {
   const ids: string[] = [];
   for (const m of content.matchAll(DOC_TOKEN_RE)) ids.push(m[1]);
@@ -19,8 +19,8 @@ interface RenderOpts {
 }
 
 /**
- * Rend le markdown maison des leçons et des fiches : titres `###`, listes,
- * gras, code et token [[doc:ID|texte]].
+ * Renders the in-house markdown used by lessons and doc sheets: `###` headings,
+ * lists, bold, code and the [[doc:ID|text]] token.
  */
 export function renderLessonMarkdown(
   content: string,
@@ -38,7 +38,7 @@ export function renderLessonMarkdown(
 
       let formatted = line;
 
-      // Token doc en pastille cliquable, traité avant le gras et le code.
+      // Doc token as a clickable chip, handled before bold and code.
       formatted = formatted.replace(DOC_TOKEN_RE, (_full, id, label) => {
         const text =
           label != null ? label : escapeHtml(opts.resolveDocTerm?.(id) ?? id);

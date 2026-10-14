@@ -14,17 +14,17 @@ import { useModalOverlay } from "@/lib/use-modal-overlay";
 
 interface CinematicPlayerProps {
   cinematic: Cinematic;
-  /** Quand false, rien n'est rendu. */
+  /** When false, nothing is rendered. */
   open: boolean;
-  /** Appelé à la fermeture : fin naturelle, « Passer » ou Échap. */
+  /** Called on close: natural end, « Passer » (skip) or Escape. */
   onClose: () => void;
-  /** En reduced-motion : texte affiché d'un bloc, pas d'auto-défilement ni d'effets. */
+  /** In reduced-motion: text shown all at once, no auto-advance and no effects. */
   reducedMotion?: boolean;
-  /** Libellé du bouton final (défaut : "Continuer ->"). */
+  /** Label of the final button (default: "Continuer ->"). */
   finalCtaLabel?: string;
 }
 
-/** Libellé et glyphe du locuteur ("system" n'est pas dans CHARACTERS). */
+/** Speaker label and glyph ("system" is not in CHARACTERS). */
 function speakerLabel(scene: CinematicScene): { glyph: string; name: string; title: string } {
   if (scene.speaker === "system") {
     return { glyph: "🛰️", name: "SYSTÈME", title: "Station Nebula" };
@@ -33,7 +33,7 @@ function speakerLabel(scene: CinematicScene): { glyph: string; name: string; tit
   return { glyph: c.glyph, name: c.name, title: c.title };
 }
 
-/** Classes du panneau visuel par variante (fond composé en CSS, pas d'asset). */
+/** Visual panel classes per variant (background built in CSS, no asset). */
 const VISUAL_CLASSES: Record<CinematicScene["visual"], string> = {
   briefing: "border-nebula-cyan/40 shadow-[0_0_30px_rgba(0,240,255,0.25)]",
   station: "border-nebula-cyan/40 shadow-[0_0_30px_rgba(0,240,255,0.25)]",
@@ -62,8 +62,8 @@ export default function CinematicPlayer({
   const tickRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  // Réinitialisation à chaque ouverture : le composant reste monté entre deux
-  // ouvertures.
+  // Reset on every open: the component stays mounted between two
+  // openings.
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) {
@@ -74,9 +74,9 @@ export default function CinematicPlayer({
 
   const finish = useCallback(() => onClose(), [onClose]);
 
-  // Auto-défilement (désactivé en reduced-motion). `index` en dep, pas
-  // d'updater fonctionnel : appeler finish() (setState parent) dans un updater
-  // pur déclencherait « Cannot update a component while rendering… ».
+  // Auto-advance (disabled in reduced-motion). `index` as a dep, not a
+  // functional updater: calling finish() (parent setState) inside a pure updater
+  // would trigger « Cannot update a component while rendering… ».
   useEffect(() => {
     if (!open || reducedMotion) return;
     clearTimeout(timerRef.current);
@@ -90,7 +90,7 @@ export default function CinematicPlayer({
     return () => clearTimeout(timerRef.current);
   }, [open, index, reducedMotion, finish, cinematic.scenes.length]);
 
-  // Horloge de la machine à écrire.
+  // Typewriter clock.
   useEffect(() => {
     if (!open || reducedMotion) return;
     clearInterval(tickRef.current);
@@ -98,8 +98,8 @@ export default function CinematicPlayer({
     return () => clearInterval(tickRef.current);
   }, [open, index, reducedMotion]);
 
-  // Son par scène, muet tant que le son global n'est pas activé
-  // (setSoundEnabled dans lib/audio).
+  // Per-scene sound, silent until global sound is enabled
+  // (setSoundEnabled in lib/audio).
   useEffect(() => {
     if (!open) return;
     if (index === cinematic.scenes.length - 1) playFanfare();
@@ -133,7 +133,7 @@ export default function CinematicPlayer({
       data-testid="cinematic-player"
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-nebula-bg-darkest outline-none"
     >
-      {/* « Passer » reste toujours visible. */}
+      {/* « Passer » (skip) always stays visible. */}
       <button
         onClick={finish}
         data-testid="cinematic-skip"
@@ -147,7 +147,7 @@ export default function CinematicPlayer({
         <div className={`pointer-events-none absolute inset-0 ${FX_CLASSES[scene.fx]}`} />
       )}
 
-      {/* Panneau visuel de la scène. */}
+      {/* Scene visual panel. */}
       <div
         key={reducedMotion ? "static" : index}
         className={`relative my-2 flex min-h-[160px] w-full max-w-2xl items-center justify-center rounded-md border px-4 py-10 ${
@@ -157,7 +157,7 @@ export default function CinematicPlayer({
         <span aria-hidden className="text-6xl">{speaker.glyph}</span>
       </div>
 
-      {/* Locuteur + narration. */}
+      {/* Speaker + narration. */}
       <p className="mt-4 font-tech text-xs uppercase tracking-widest text-nebula-text-secondary">
         {speaker.glyph} {speaker.name} — {speaker.title}
       </p>
@@ -165,7 +165,7 @@ export default function CinematicPlayer({
         aria-live="polite"
         className="mt-2 min-h-[4rem] max-w-xl px-6 text-center font-tech text-lg tracking-wide text-nebula-cyan sm:text-xl"
       >
-        {/* Le texte complet reste dans le DOM pour les lecteurs d'écran. */}
+        {/* The full text stays in the DOM for screen readers. */}
         <span className="sr-only">{scene.narration}</span>
         <span aria-hidden>{shownText}</span>
       </p>

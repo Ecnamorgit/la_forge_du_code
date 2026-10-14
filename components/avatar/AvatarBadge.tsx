@@ -4,15 +4,15 @@ import { getSpecies, getUniformColor } from "@/lib/avatar";
 interface AvatarBadgeProps {
   species: string | null;
   uniformColor: string | null;
-  /** Diamètre en pixels. */
+  /** Diameter in pixels. */
   size?: number;
-  /** Caractère affiché tant que l'espèce n'est pas choisie. */
+  /** Character shown until a species has been chosen. */
   fallbackChar?: string;
 }
 
 /**
- * Médaillon d'avatar (pixel art ou emoji), cerclé et éclairé à la couleur de
- * l'uniforme.
+ * Avatar medallion (pixel art or emoji), ringed and lit in the uniform's
+ * color.
  */
 export default function AvatarBadge({
   species,

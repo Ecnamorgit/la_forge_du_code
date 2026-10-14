@@ -1,8 +1,8 @@
 /**
- * Aperçu React, côté parent : contrôle des messages de l'iframe et validation
- * du nom de composant. `PREVIEW_MOUNT_NAME_RE` est injectée telle quelle dans
- * le document servi (`preview-document.ts`) pour que les deux côtés ne
- * divergent pas.
+ * React preview, parent side: checks the iframe's messages and validates
+ * the component name. `PREVIEW_MOUNT_NAME_RE` is injected as is into
+ * the served document (`preview-document.ts`) so the two sides cannot
+ * drift apart.
  */
 
 export type PreviewErrorKind = "transform" | "mount" | "runtime" | "boucle";
@@ -12,15 +12,15 @@ export type PreviewMessage =
   | { type: "error"; kind: PreviewErrorKind; message: string };
 
 /**
- * `previewMount` est interpolé dans un corps de `new Function`. Le bac à sable
- * exécutant déjà du code arbitraire, la validation sert surtout à signaler
- * clairement une coquille dans les données du cours.
+ * `previewMount` is interpolated into a `new Function` body. Since the sandbox
+ * already runs arbitrary code, the validation mainly serves to clearly
+ * flag a typo in the course data.
  */
 export const PREVIEW_MOUNT_NAME_RE = /^[A-Za-z_$][\w$]*$/;
 
 /**
- * Genres d'erreur que l'iframe peut émettre. `"transform"` et `"boucle"` sont
- * produits par le parent avant l'envoi : rien ne justifie de les accepter.
+ * Error kinds the iframe may emit. `"transform"` and `"boucle"` are
+ * produced by the parent before sending: there is no reason to accept them.
  */
 const INBOUND_ERROR_KINDS: readonly PreviewErrorKind[] = ["mount", "runtime"];
 

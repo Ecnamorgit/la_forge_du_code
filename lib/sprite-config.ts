@@ -1,15 +1,15 @@
 import type { SpriteSheet } from "@/components/ui/Sprite";
 
 /**
- * Registre des planches de sprites pixel art.
+ * Registry of pixel art sprite sheets.
  *
- * Chaque planche déclarée doit exister au chemin indiqué avec la disposition
- * annoncée. Tables des frames et palette : docs/PIXEL_ART_GUIDE.md.
+ * Each declared sheet must exist at the given path with the stated layout.
+ * Frame tables and palette: docs/PIXEL_ART_GUIDE.md.
  */
 
 /**
- * Interrupteurs par planche. Tant qu'un drapeau vaut `false`, les composants
- * affichent l'emoji de repli ; le passer à `true` une fois le PNG livré dans
+ * Per-sheet switches. While a flag is `false`, components show the fallback
+ * emoji; set it to `true` once the PNG is delivered in
  * public/sprites/.
  */
 export const SPRITE_SHEETS_READY = {
@@ -20,11 +20,11 @@ export const SPRITE_SHEETS_READY = {
 } as const;
 
 /**
- * Icônes de cursus. L'ordre des frames suit COURSES_CATALOG
- * (lib/courses-catalog.ts) : 0=html, 1=css, 2=javascript, 3=react,
+ * Course icons. Frame order follows COURSES_CATALOG
+ * (lib/courses-catalog.ts): 0=html, 1=css, 2=javascript, 3=react,
  * 4=typescript, 5=git, 6=sql, 7=nodejs, 8=tests, 9=devops, 10=mongodb,
- * 11=security, 12=python, 13=algo ; frames 14 à 31 réservées.
- * Planche : 8 colonnes × 4 lignes de 32×32 = 256×128.
+ * 11=security, 12=python, 13=algo; frames 14 to 31 reserved.
+ * Sheet: 8 columns × 4 rows of 32×32 = 256×128.
  */
 export const MISSION_ICONS: SpriteSheet = {
   src: "/sprites/mission-icons-v2.png",
@@ -34,8 +34,8 @@ export const MISSION_ICONS: SpriteSheet = {
 };
 
 /**
- * Icônes de bannière de victoire, une par archétype (docs/PIXEL_ART_GUIDE.md).
- * Planche : 4 colonnes × 4 lignes de 48×48 = 192×192.
+ * Victory banner icons, one per archetype (docs/PIXEL_ART_GUIDE.md).
+ * Sheet: 4 columns × 4 rows of 48×48 = 192×192.
  */
 export const BANNER_ICONS: SpriteSheet = {
   src: "/sprites/banner-icons.png",
@@ -45,8 +45,8 @@ export const BANNER_ICONS: SpriteSheet = {
 };
 
 /**
- * Icônes de badges. L'ordre des frames suit BADGES (lib/badges-catalog.ts).
- * Planche : 8 colonnes × N lignes de 64×64 (8×6 = 512×384 pour 48 badges).
+ * Badge icons. Frame order follows BADGES (lib/badges-catalog.ts).
+ * Sheet: 8 columns × N rows of 64×64 (8×6 = 512×384 for 48 badges).
  */
 export const BADGE_ICONS: SpriteSheet = {
   src: "/sprites/badges.png",
@@ -56,9 +56,9 @@ export const BADGE_ICONS: SpriteSheet = {
 };
 
 /**
- * Frames de la cinématique d'intro, une par scène dans l'ordre d'INTRO_SCENES
- * (lib/intro.ts). Planche : 5 colonnes × 1 ligne de 320×180 = 1600×180.
- * Pas encore livrée : SPRITE_SHEETS_READY.intro reste à false.
+ * Intro cutscene frames, one per scene in INTRO_SCENES order
+ * (lib/intro.ts). Sheet: 5 columns × 1 row of 320×180 = 1600×180.
+ * Not delivered yet: SPRITE_SHEETS_READY.intro stays false.
  */
 export const INTRO_CINEMATIC: SpriteSheet = {
   src: "/sprites/intro-cinematic.png",
@@ -67,13 +67,13 @@ export const INTRO_CINEMATIC: SpriteSheet = {
   columns: 5,
 };
 
-/** Fond de chapitre par cursus. */
+/** Chapter background per course. */
 export const BACKGROUND_BY_COURSE: Record<string, string> = {
-  // TODO : passer à /bg/html-chapter.png quand l'image sera livrée.
+  // TODO: switch to /bg/html-chapter.png once the image is delivered.
   html: "/chapter-1-bg.png",
-  // TODO : passer à /bg/css-chapter.png quand l'image sera livrée.
+  // TODO: switch to /bg/css-chapter.png once the image is delivered.
   css: "/chapter-1-bg.png",
-  // TODO : passer à /bg/js-chapter.png quand l'image sera livrée.
+  // TODO: switch to /bg/js-chapter.png once the image is delivered.
   javascript: "/chapter-1-bg.png",
 };
 

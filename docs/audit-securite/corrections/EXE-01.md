@@ -14,7 +14,7 @@ La validation des exercices se fait dans le navigateur. En cas de réussite, il 
 
 ## Démonstration
 
-Test [e2e/securite-progression.spec.ts](../../../e2e/securite-progression.spec.ts), commité seul, avant le correctif (commit `c710b61`). Un compte dédié appelle l'API directement, comme un script.
+Test [e2e/security-progress.spec.ts](../../../e2e/security-progress.spec.ts), commité seul, avant le correctif (commit `c710b61`). Un compte dédié appelle l'API directement, comme un script.
 
 | Tentative | Attendu | Avant correctif | Après correctif |
 |---|---|---|---|
@@ -53,7 +53,7 @@ Un invariant garantit que la règle d'ordre ne bloque jamais un apprenant honnê
 | `eslint` | 0 erreur | 0 erreur |
 | `next build` | OK | OK |
 
-La suite e2e comprend `html-parcours.spec.ts`, qui joue le chapitre 1 HTML dans l'interface : le code transmis par le navigateur y est accepté par le serveur.
+La suite e2e comprend `html-course.spec.ts`, qui joue le chapitre 1 HTML dans l'interface : le code transmis par le navigateur y est accepté par le serveur.
 
 ## Risque résiduel
 

@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { TYPEWRITER_CHARS_PER_SECOND, typewriterSlice } from "./typewriter";
 
 describe("typewriterSlice", () => {
-  it("révèle le texte progressivement au rythme configuré", () => {
+  it("reveals the text progressively at the configured rate", () => {
     const text = "SYSTEME EN LIGNE";
     expect(typewriterSlice(text, 0)).toBe("");
     const after500ms = typewriterSlice(text, 500);
@@ -13,11 +13,11 @@ describe("typewriterSlice", () => {
     expect(text.startsWith(after500ms)).toBe(true);
   });
 
-  it("plafonne au texte complet", () => {
+  it("caps at the full text", () => {
     expect(typewriterSlice("abc", 60_000)).toBe("abc");
   });
 
-  it("ne casse jamais sur un temps négatif", () => {
+  it("never breaks on a negative time", () => {
     expect(typewriterSlice("abc", -100)).toBe("");
   });
 });

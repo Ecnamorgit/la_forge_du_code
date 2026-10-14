@@ -1,15 +1,15 @@
 /**
- * Document d'aperçu React servi depuis l'origine dédiée du bac à sable (audit
+ * React preview document served from the sandbox's dedicated origin (audit
  * EXE-03).
  *
- * Il ne connaît pas l'origine du parent : la figer ferait poster la poignée de
- * main vers sa propre origine, et le navigateur la jetterait. Il l'apprend
- * donc : `preview:ready` est posté à `"*"` (aucun secret), puis l'origine du
- * premier `preview:render` reçu de `parent` est retenue et seule visée
- * ensuite. Tout message entrant est filtré par `event.source === parent`.
+ * It does not know the parent's origin: hardcoding it would post the
+ * handshake to its own origin, and the browser would drop it. So it learns
+ * it: `preview:ready` is posted to `"*"` (no secret), then the origin of the
+ * first `preview:render` received from `parent` is kept and is the only
+ * target afterwards. Every incoming message is filtered by `event.source === parent`.
  *
- * Le runtime React est chargé par URL relative : la même application le sert
- * sur l'origine dédiée.
+ * The React runtime is loaded through a relative URL: the same application
+ * serves it on the dedicated origin.
  */
 
 import { PREVIEW_MOUNT_NAME_RE } from "./react-preview";
@@ -27,109 +27,109 @@ export function buildPreviewDocument(): string {
     </style>
   </head>
   <body>
-    <div id="racine"></div>
+    <div id="root"></div>
     <script src="/react-runtime/runtime.js"></script>
     <script>
       (function () {
         "use strict";
-        // Origine du parent, apprise à la première réception (voir en-tête).
+        // Parent origin, learned on the first message received (see header).
         var parentOrigin = null;
-        var envoyer = function (msg) {
+        var send = function (msg) {
           parent.postMessage(msg, parentOrigin || "*");
         };
-        var lisible = function (v) {
+        var readable = function (v) {
           if (v == null) return "Erreur inconnue";
           if (typeof v === "string") return v;
           if (v.message) return v.message;
           try { return JSON.stringify(v); } catch (e) { return String(v); }
         };
-        var erreur = function (kind, message) {
-          envoyer({ type: "preview:error", kind: kind, message: lisible(message) });
+        var reportError = function (kind, message) {
+          send({ type: "preview:error", kind: kind, message: readable(message) });
         };
 
-        window.onerror = function (message, source, ligne, colonne, error) {
-          erreur("runtime", (error && error.message) || message);
+        window.onerror = function (message, source, line, column, error) {
+          reportError("runtime", (error && error.message) || message);
           return true;
         };
         window.addEventListener("unhandledrejection", function (e) {
-          erreur("runtime", e.reason);
+          reportError("runtime", e.reason);
         });
 
         if (!window.React || !window.ReactDOM) {
-          erreur("runtime", "Runtime React introuvable.");
+          reportError("runtime", "Runtime React introuvable.");
           return;
         }
 
         var React = window.React;
         var ReactDOM = window.ReactDOM;
-        var conteneur = document.getElementById("racine");
+        var container = document.getElementById("root");
         var root = null;
 
-        var Frontiere = class extends React.Component {
-          constructor(props) { super(props); this.state = { mort: false }; }
-          static getDerivedStateFromError() { return { mort: true }; }
-          componentDidCatch(err) { erreur("runtime", err && err.message ? err.message : err); }
-          render() { return this.state.mort ? null : this.props.children; }
+        var ErrorBoundary = class extends React.Component {
+          constructor(props) { super(props); this.state = { crashed: false }; }
+          static getDerivedStateFromError() { return { crashed: true }; }
+          componentDidCatch(err) { reportError("runtime", err && err.message ? err.message : err); }
+          render() { return this.state.crashed ? null : this.props.children; }
         };
 
-        var noms = Object.keys(React).filter(function (k) {
+        var hookNames = Object.keys(React).filter(function (k) {
           return /^use[A-Z]/.test(k) || k === "createContext" || k === "Fragment" || k === "memo";
         });
 
-        var monter = function (js, mount) {
+        var mountComponent = function (js, mount) {
           try {
-            var precedente = root;
+            var previous = root;
             root = null;
-            if (precedente) precedente.unmount();
-            conteneur.innerHTML = "";
+            if (previous) previous.unmount();
+            container.innerHTML = "";
 
-            // js est deja protege contre les boucles sans fin par le parent
-            // (ReactPreview, protegerBoucles) avant l'envoi : acorn n'existe
-            // pas ici, on ne le rejoue pas. (Pas de backtick dans ce commentaire :
-            // il vit dans un template literal.)
-            var corps = '"use strict";' + js +
+            // js is already guarded against infinite loops by the parent
+            // (ReactPreview, guardLoops) before it is sent: acorn does not exist
+            // here, so the guard is not run again. (No backtick in this comment:
+            // it lives in a template literal.)
+            var body = '"use strict";' + js +
               "\\n; return typeof " + mount + " !== 'undefined' ? " + mount + " : null;";
-            var fabrique = Function.apply(
+            var factory = Function.apply(
               null,
-              ["React", "ReactDOM"].concat(noms, [corps])
+              ["React", "ReactDOM"].concat(hookNames, [body])
             );
-            var Composant = fabrique.apply(
+            var Component = factory.apply(
               null,
-              [React, ReactDOM].concat(noms.map(function (k) { return React[k]; }))
+              [React, ReactDOM].concat(hookNames.map(function (k) { return React[k]; }))
             );
 
-            if (!Composant) {
-              erreur("mount", "Le composant " + mount + " n'a pas été trouvé. Vérifie son nom.");
+            if (!Component) {
+              reportError("mount", "Le composant " + mount + " n'a pas été trouvé. Vérifie son nom.");
               return;
             }
 
-            root = ReactDOM.createRoot(conteneur);
-            root.render(React.createElement(Frontiere, null, React.createElement(Composant)));
+            root = ReactDOM.createRoot(container);
+            root.render(React.createElement(ErrorBoundary, null, React.createElement(Component)));
           } catch (err) {
-            erreur("runtime", err && err.message ? err.message : err);
+            reportError("runtime", err && err.message ? err.message : err);
           }
         };
 
-        var reNomComposant = new RegExp(${mountNameRe});
+        var componentNameRe = new RegExp(${mountNameRe});
 
         window.addEventListener("message", function (event) {
           if (event.source !== parent) return;
           var data = event.data;
           if (!data || data.type !== "preview:render") return;
-          // Apprend l'origine du parent au premier message légitime.
+          // Learn the parent origin from the first legitimate message.
           if (parentOrigin === null) parentOrigin = event.origin;
           else if (event.origin !== parentOrigin) return;
           if (typeof data.js !== "string" || typeof data.mount !== "string") return;
-          if (!reNomComposant.test(data.mount)) {
-            erreur("mount", "Nom de composant invalide dans les données du cours : " + data.mount);
+          if (!componentNameRe.test(data.mount)) {
+            reportError("mount", "Nom de composant invalide dans les données du cours : " + data.mount);
             return;
           }
-          monter(data.js, data.mount);
+          mountComponent(data.js, data.mount);
         });
 
-        // Poignée de main : le parent ne connaît pas encore notre origine et
-        // nous ne connaissons pas la sienne, d'où "*". Elle ne porte rien.
-        envoyer({ type: "preview:ready" });
+        // Handshake: the parent does not know our origin yet and we do not
+        // know its origin, hence "*". It carries nothing.
+        send({ type: "preview:ready" });
       })();
     </script>
   </body>

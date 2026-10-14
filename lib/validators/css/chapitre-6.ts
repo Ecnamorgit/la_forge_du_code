@@ -2,15 +2,15 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasPropertyWithValue, ruleBody } from "./_utils";
 
 /**
- * Un décalage est-il posé ? `(?<![-\w])` plutôt que `\b` : sinon le `top` de
- * `padding-top` compterait comme un décalage de positionnement.
+ * Is an offset set? `(?<![-\w])` rather than `\b`: otherwise the `top` in
+ * `padding-top` would count as a positioning offset.
  */
 function hasOffset(body: string): boolean {
   return /(?<![-\w])(top|right|bottom|left)\s*:\s*[^;\s][^;]*/i.test(body);
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : .badge { position: relative } avec un décalage
+  // Step 1: .badge { position: relative } with an offset
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -23,7 +23,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Positionnement fin.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : .card en position relative, .ribbon en absolute avec un décalage
+  // Step 2: .card as position relative, .ribbon as absolute with an offset
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -39,7 +39,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Enfant verrouillé.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : .topbar { position: fixed; top: 0 }
+  // Step 3: .topbar { position: fixed; top: 0 }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -51,7 +51,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Barre verrouillée.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : .section-title { position: sticky } avec un top ou un bottom
+  // Step 4: .section-title { position: sticky } with a top or a bottom
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };

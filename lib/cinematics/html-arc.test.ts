@@ -4,13 +4,13 @@ import { HTML_CINEMATICS } from "@/data/courses/html/cinematics";
 import { listChapterSlugs } from "@/lib/courses-registry";
 import { getCinematic } from "./resolver";
 
-describe("arc HTML", () => {
-  it("chaque chapitre du cursus a une outro déclarée (pas de clé orpheline)", () => {
+describe("HTML arc", () => {
+  it("every chapter of the course has a declared outro (no orphan key)", () => {
     const slugs = listChapterSlugs("html");
     expect(Object.keys(HTML_CINEMATICS.chapterOutros).sort()).toEqual([...slugs].sort());
   });
 
-  it("respecte les tailles de la spec", () => {
+  it("respects the spec sizes", () => {
     expect(HTML_CINEMATICS.courseIntro.scenes.length).toBeGreaterThanOrEqual(3);
     expect(HTML_CINEMATICS.courseIntro.scenes.length).toBeLessThanOrEqual(4);
     for (const outro of Object.values(HTML_CINEMATICS.chapterOutros)) {
@@ -21,7 +21,7 @@ describe("arc HTML", () => {
     expect(HTML_CINEMATICS.courseFinale.scenes.length).toBeLessThanOrEqual(7);
   });
 
-  it("le résolveur sert l'arc HTML, pas le générique", () => {
+  it("the resolver serves the HTML arc, not the generic one", () => {
     expect(getCinematic("html", { kind: "intro" })).toBe(HTML_CINEMATICS.courseIntro);
     expect(getCinematic("html", { kind: "chapter", chapter: "chapitre-4" })).toBe(
       HTML_CINEMATICS.chapterOutros["chapitre-4"]
@@ -29,7 +29,7 @@ describe("arc HTML", () => {
     expect(getCinematic("html", { kind: "finale" })).toBe(HTML_CINEMATICS.courseFinale);
   });
 
-  it("ids stables et scènes numérotées séquentiellement", () => {
+  it("stable ids and sequentially numbered scenes", () => {
     expect(HTML_CINEMATICS.courseIntro.id).toBe("html:intro");
     expect(HTML_CINEMATICS.courseFinale.id).toBe("html:finale");
     for (const cine of [

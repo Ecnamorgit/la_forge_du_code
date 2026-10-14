@@ -1,15 +1,15 @@
 /**
- * Document d'exécution JavaScript (sans affichage), servi depuis l'origine
- * dédiée du bac à sable (audit EXE-03) : il porte seul la CSP permissive
- * qu'exige `new Function`, l'application gardant une CSP stricte.
+ * Headless JavaScript execution document, served from the sandbox's dedicated
+ * origin (audit EXE-03): it alone carries the permissive CSP that
+ * `new Function` requires, while the application keeps a strict CSP.
  *
- * Comme `preview-document.ts`, il apprend l'origine du parent au lieu de la
- * figer : `sandbox:ready` est posté à `"*"` (aucun secret), puis l'origine du
- * premier `sandbox:run` reçu de `parent` est retenue. Tout message entrant est
- * filtré par `event.source === parent`.
+ * Like `preview-document.ts`, it learns the parent's origin instead of
+ * hardcoding it: `sandbox:ready` is posted to `"*"` (no secret), then the origin
+ * of the first `sandbox:run` received from `parent` is kept. Every incoming
+ * message is filtered by `event.source === parent`.
  *
- * Le code arrive déjà instrumenté contre les boucles sans fin par le parent
- * (`protegerBoucles`) : acorn n'est pas chargé ici.
+ * The code arrives already instrumented against infinite loops by the parent
+ * (`guardLoops`): acorn is not loaded here.
  */
 
 export function buildJsRunnerDocument(): string {
@@ -20,10 +20,10 @@ export function buildJsRunnerDocument(): string {
       (function () {
         "use strict";
         var parentOrigin = null;
-        var envoyer = function (msg) { parent.postMessage(msg, parentOrigin || "*"); };
+        var send = function (msg) { parent.postMessage(msg, parentOrigin || "*"); };
 
-        // Bornes anti-emballement : un code buggé ou malicieux ne peut pas faire
-        // exploser la mémoire ou la taille du message avant le délai du parent.
+        // Runaway limits: buggy or malicious code cannot blow up memory or
+        // the message size before the parent's timeout.
         var MAX_LOGS = 1000;
         var MAX_LINE = 2000;
 
@@ -36,7 +36,7 @@ export function buildJsRunnerDocument(): string {
           try { return JSON.stringify(v); } catch (e) { return String(v); }
         };
 
-        var executer = function (code) {
+        var run = function (code) {
           var logs = [];
           var append = function () {
             if (logs.length >= MAX_LOGS) return;
@@ -47,10 +47,10 @@ export function buildJsRunnerDocument(): string {
           };
           var fakeConsole = { log: append, info: append, warn: append, error: append, debug: append };
 
-          // Polyfill localStorage : une iframe à origine opaque (sandbox sans
-          // allow-same-origin) n'a pas de vraie API Storage. Ce shim en mémoire
-          // permet aux chapitres qui l'enseignent de tourner ; il ne persiste
-          // pas d'une exécution à l'autre, ce qui est acceptable.
+          // localStorage polyfill: an opaque-origin iframe (sandbox without
+          // allow-same-origin) has no real Storage API. This in-memory shim
+          // lets the chapters that teach it run; it does not persist from
+          // one run to the next, which is acceptable.
           var __store = {};
           var fakeStorage = {
             getItem: function (key) { return Object.prototype.hasOwnProperty.call(__store, key) ? __store[key] : null; },
@@ -74,11 +74,11 @@ export function buildJsRunnerDocument(): string {
             error = err instanceof Error ? err.name + ": " + err.message : String(err);
           }
 
-          // Délai de 300 ms avant la réponse pour laisser un court travail async
-          // (setTimeout, promesses, async/await) vider ses logs. Le parent a un
-          // budget de 4 s, on reste large.
+          // 300 ms delay before replying so short async work (setTimeout,
+          // promises, async/await) can flush its logs. The parent allows 4 s,
+          // so there is plenty of margin.
           setTimeout(function () {
-            envoyer({
+            send({
               type: "sandbox:result",
               payload: { ok: !error, logs: logs, error: error, lastValue: lastValue }
             });
@@ -92,10 +92,10 @@ export function buildJsRunnerDocument(): string {
           if (parentOrigin === null) parentOrigin = event.origin;
           else if (event.origin !== parentOrigin) return;
           if (typeof data.code !== "string") return;
-          executer(data.code);
+          run(data.code);
         });
 
-        envoyer({ type: "sandbox:ready" });
+        send({ type: "sandbox:ready" });
       })();
     </script>
   </body>

@@ -13,16 +13,16 @@ import { crossOriginRefusal } from "@/lib/same-origin";
 import { filterTrialCinematics, filterTrialSteps } from "@/lib/trial-import";
 
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  // Clé sur l'utilisateur plutôt que sur l'IP, qui peut être partagée
-  // ("unknown" derrière certains proxys) ou changée par l'appelant.
+  // Keyed on the user rather than the IP, which can be shared
+  // ("unknown" behind some proxies) or changed by the caller.
   const limit = await rateLimit(`trial-import:${session.user.id}`, {
     limit: 10,
     windowMs: 15 * 60 * 1000,
@@ -50,9 +50,9 @@ export async function POST(req: Request) {
       );
       if (!result.alreadyDone) imported += 1;
     } catch (err) {
-      // Une étape refusée ne fait pas échouer l'onboarding. Les étapes
-      // arrivent triées : un refus d'ordre signale un trou dans la progression
-      // d'essai, et les suivantes seront refusées aussi.
+      // A rejected step does not fail the onboarding. Steps arrive
+      // sorted: an order rejection signals a gap in the trial progress,
+      // and the following ones will be rejected too.
       if (err instanceof InvalidStepError || err instanceof StepOrderError) continue;
       throw err;
     }
@@ -66,12 +66,12 @@ export async function POST(req: Request) {
     try {
       await markCinematicView(session.user.id, cinematicId);
     } catch {
-      /* non bloquant */
+      /* non-blocking */
     }
   }
 
-  // L'écart entre le nombre reçu et le nombre retenu par l'allowlist trahirait
-  // une tentative de sonder la route.
+  // A gap between the number received and the number kept by the allowlist
+  // would reveal an attempt to probe the route.
   const rawCount = Array.isArray(rawSteps) ? rawSteps.length : 0;
   logger.info("trial_import", {
     imported,

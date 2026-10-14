@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-6";
-import { chapitre6 } from "@/data/courses/react/chapitre-6";
+import { chapter6 } from "@/data/courses/react/chapitre-6";
 
-describe("React chapitre 6 — etape 1 (input controle, piege Spectre)", () => {
+describe("React chapter 6 — step 1 (controlled input, Spectre trap)", () => {
   const v = validators[0];
 
-  it("valide un input controle avec value + onChange appelant un setter", () => {
+  it("passes a controlled input with value + onChange calling a setter", () => {
     const code = `
       import { useState } from 'react';
       function ConsoleSaisie() {
@@ -16,7 +16,7 @@ describe("React chapitre 6 — etape 1 (input controle, piege Spectre)", () => {
     expect(v(code).ok).toBe(true);
   });
 
-  it("valide une variante bloc et guillemets simples", () => {
+  it("passes a block-body variant with single quotes", () => {
     const code = `
       import { useState } from 'react';
       function ConsoleSaisie() {
@@ -32,7 +32,7 @@ describe("React chapitre 6 — etape 1 (input controle, piege Spectre)", () => {
     expect(v(code).ok).toBe(true);
   });
 
-  it("echoue si l'input n'a pas d'onChange (le piege du Spectre)", () => {
+  it("fails if the input has no onChange (the Spectre trap)", () => {
     const code = `
       import { useState } from 'react';
       function ConsoleSaisie() {
@@ -45,7 +45,7 @@ describe("React chapitre 6 — etape 1 (input controle, piege Spectre)", () => {
     expect(r.msg).toMatch(/onChange/);
   });
 
-  it("echoue si onChange existe mais n'appelle aucun setter", () => {
+  it("fails if onChange exists but calls no setter", () => {
     const code = `
       import { useState } from 'react';
       function ConsoleSaisie() {
@@ -58,7 +58,7 @@ describe("React chapitre 6 — etape 1 (input controle, piege Spectre)", () => {
     expect(r.msg).toMatch(/setter|état|set/i);
   });
 
-  it("echoue si value est absent (input non controle)", () => {
+  it("fails if value is missing (uncontrolled input)", () => {
     const code = `
       import { useState } from 'react';
       function ConsoleSaisie() {
@@ -70,7 +70,7 @@ describe("React chapitre 6 — etape 1 (input controle, piege Spectre)", () => {
     expect(r.ok).toBe(false);
   });
 
-  it("valide un onChange qui delegue a un handler nomme appelant le setter (finding 2)", () => {
+  it("passes an onChange that delegates to a named handler calling the setter (finding 2)", () => {
     const code = `
       import { useState } from 'react';
       function ConsoleSaisie() {
@@ -84,10 +84,10 @@ describe("React chapitre 6 — etape 1 (input controle, piege Spectre)", () => {
   });
 });
 
-describe("React chapitre 6 — etape 2 (objet d'etat pour plusieurs champs)", () => {
+describe("React chapter 6 — step 2 (state object for several fields)", () => {
   const v = validators[1];
 
-  it("valide useState({...}) + spread + cle calculee", () => {
+  it("passes useState({...}) + spread + computed key", () => {
     const code = `
       import { useState } from 'react';
       function FormulaireContact() {
@@ -107,7 +107,7 @@ describe("React chapitre 6 — etape 2 (objet d'etat pour plusieurs champs)", ()
     expect(v(code).ok).toBe(true);
   });
 
-  it("valide une mise a jour fonctionnelle avec cle calculee", () => {
+  it("passes a functional update with a computed key", () => {
     const code = `
       const [formulaire, setFormulaire] = useState({ nom: '', email: '' });
       function handleChange(e) {
@@ -118,7 +118,7 @@ describe("React chapitre 6 — etape 2 (objet d'etat pour plusieurs champs)", ()
     expect(v(code).ok).toBe(true);
   });
 
-  it("valide deux champs geres separement (sans cle calculee) tant que le spread est present", () => {
+  it("passes two fields handled separately (no computed key) as long as the spread is present", () => {
     const code = `
       const [formulaire, setFormulaire] = useState({ nom: '', email: '' });
       function handleNomChange(e) {
@@ -131,7 +131,7 @@ describe("React chapitre 6 — etape 2 (objet d'etat pour plusieurs champs)", ()
     expect(v(code).ok).toBe(true);
   });
 
-  it("echoue si nom et email restent dans deux useState separes", () => {
+  it("fails if nom and email stay in two separate useState calls", () => {
     const code = `
       const [nom, setNom] = useState('');
       const [email, setEmail] = useState('');
@@ -141,7 +141,7 @@ describe("React chapitre 6 — etape 2 (objet d'etat pour plusieurs champs)", ()
     expect(r.msg).toMatch(/objet|useState/i);
   });
 
-  it("echoue si la mise a jour ecrase l'etat au lieu de le copier (pas de spread)", () => {
+  it("fails if the update overwrites the state instead of copying it (no spread)", () => {
     const code = `
       const [formulaire, setFormulaire] = useState({ nom: '', email: '' });
       function handleChange(e) {
@@ -154,7 +154,7 @@ describe("React chapitre 6 — etape 2 (objet d'etat pour plusieurs champs)", ()
     expect(r.msg).toMatch(/spread|copie|\.\.\./i);
   });
 
-  it("echoue si un appel setFormulaire ecrase l'etat meme quand un AUTRE appel utilise le spread (finding 1)", () => {
+  it("fails if one setFormulaire call overwrites the state even when ANOTHER call uses the spread (finding 1)", () => {
     const code = `
       const [formulaire, setFormulaire] = useState({ nom: '', email: '' });
       function handleNomChange(e) {
@@ -170,10 +170,10 @@ describe("React chapitre 6 — etape 2 (objet d'etat pour plusieurs champs)", ()
   });
 });
 
-describe("React chapitre 6 — etape 3 (soumission onSubmit + preventDefault)", () => {
+describe("React chapter 6 — step 3 (onSubmit submission + preventDefault)", () => {
   const v = validators[2];
 
-  it("valide onSubmit sur le form avec preventDefault (handler nomme)", () => {
+  it("passes onSubmit on the form with preventDefault (named handler)", () => {
     const code = `
       function FormulaireContact() {
         const [formulaire, setFormulaire] = useState({ nom: '', email: '' });
@@ -191,7 +191,7 @@ describe("React chapitre 6 — etape 3 (soumission onSubmit + preventDefault)", 
     expect(v(code).ok).toBe(true);
   });
 
-  it("valide un onSubmit inline avec preventDefault", () => {
+  it("passes an inline onSubmit with preventDefault", () => {
     const code = `
       function FormulaireContact() {
         return (
@@ -204,7 +204,7 @@ describe("React chapitre 6 — etape 3 (soumission onSubmit + preventDefault)", 
     expect(v(code).ok).toBe(true);
   });
 
-  it("echoue si le handler est sur le bouton (onClick) au lieu du form", () => {
+  it("fails if the handler is on the button (onClick) instead of the form", () => {
     const code = `
       function FormulaireContact() {
         function handleSubmit(e) {
@@ -223,7 +223,7 @@ describe("React chapitre 6 — etape 3 (soumission onSubmit + preventDefault)", 
     expect(r.msg).toMatch(/form|onSubmit/i);
   });
 
-  it("echoue si onSubmit est present mais sans preventDefault", () => {
+  it("fails if onSubmit is present but without preventDefault", () => {
     const code = `
       function FormulaireContact() {
         function handleSubmit() {
@@ -241,7 +241,7 @@ describe("React chapitre 6 — etape 3 (soumission onSubmit + preventDefault)", 
     expect(r.msg).toMatch(/preventDefault/);
   });
 
-  it("echoue si le form est absent", () => {
+  it("fails if the form is missing", () => {
     const code = `
       function FormulaireContact() {
         return <button type="submit">Envoyer</button>;
@@ -252,10 +252,10 @@ describe("React chapitre 6 — etape 3 (soumission onSubmit + preventDefault)", 
   });
 });
 
-describe("React chapitre 6 — etape 4 (disabled derive de l'etat)", () => {
+describe("React chapter 6 — step 4 (disabled derived from state)", () => {
   const v = validators[3];
 
-  it("valide disabled calcule a partir de l'etat formulaire", () => {
+  it("passes disabled computed from the formulaire state", () => {
     const code = `
       function FormulaireContact() {
         const [formulaire, setFormulaire] = useState({ nom: '', email: '' });
@@ -273,7 +273,7 @@ describe("React chapitre 6 — etape 4 (disabled derive de l'etat)", () => {
     expect(r.final).toBe(true);
   });
 
-  it("valide une variante avec validation email", () => {
+  it("passes a variant with email validation", () => {
     const code = `
       function FormulaireContact() {
         const [formulaire, setFormulaire] = useState({ nom: '', email: '' });
@@ -286,7 +286,7 @@ describe("React chapitre 6 — etape 4 (disabled derive de l'etat)", () => {
     expect(v(code).ok).toBe(true);
   });
 
-  it("echoue si disabled={false} (valeur figee)", () => {
+  it("fails if disabled={false} (fixed value)", () => {
     const code = `
       function FormulaireContact() {
         return <button type="submit" disabled={false}>Envoyer</button>;
@@ -297,7 +297,7 @@ describe("React chapitre 6 — etape 4 (disabled derive de l'etat)", () => {
     expect(r.msg).toMatch(/figé|état/i);
   });
 
-  it("echoue si disabled est absent", () => {
+  it("fails if disabled is missing", () => {
     const code = `
       function FormulaireContact() {
         return <button type="submit">Envoyer</button>;
@@ -307,7 +307,7 @@ describe("React chapitre 6 — etape 4 (disabled derive de l'etat)", () => {
     expect(r.ok).toBe(false);
   });
 
-  it("echoue si disabled ne derive pas de l'etat formulaire (valeur arbitraire)", () => {
+  it("fails if disabled does not derive from the formulaire state (arbitrary value)", () => {
     const code = `
       function FormulaireContact() {
         const pret = true;
@@ -319,11 +319,11 @@ describe("React chapitre 6 — etape 4 (disabled derive de l'etat)", () => {
   });
 });
 
-describe("React chapitre 6 — hints valides par leur propre validateur", () => {
-  it("chaque hint passe son propre validateur", () => {
-    chapitre6.steps.forEach((step, i) => {
+describe("React chapter 6 — hints pass their own validator", () => {
+  it("each hint passes its own validator", () => {
+    chapter6.steps.forEach((step, i) => {
       const r = validators[i](step.hint);
-      expect(r.ok, `hint etape ${i + 1} rejete : ${!r.ok ? r.msg : ""}`).toBe(true);
+      expect(r.ok, `hint for step ${i + 1} rejected: ${!r.ok ? r.msg : ""}`).toBe(true);
     });
   });
 });

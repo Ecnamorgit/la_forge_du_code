@@ -1,42 +1,42 @@
 /**
- * Content-Security-Policy de l'application, à nonce (audit EXE-03).
+ * The application's nonce-based Content-Security-Policy (audit EXE-03).
  *
- * Le code des apprenants s'exécute depuis une origine dédiée (`/bac-a-sable*`,
- * voir `lib/sandbox/sandbox-response.ts`) qui porte seule sa CSP permissive :
- * le `script-src` de l'application se passe donc de `'unsafe-inline'` et de
+ * Learners' code runs from a dedicated origin (`/bac-a-sable*`,
+ * see `lib/sandbox/sandbox-response.ts`) which alone carries its permissive CSP:
+ * the application's `script-src` can therefore do without `'unsafe-inline'` and
  * `'unsafe-eval'`.
  *
- * La politique change à chaque requête : `proxy.ts` génère le nonce et pose
- * l'en-tête, et Next l'applique à ses scripts d'amorçage. Les pages sont donc
- * rendues dynamiquement (`force-dynamic` dans `app/layout.tsx`).
+ * The policy changes on every request: `proxy.ts` generates the nonce and sets
+ * the header, and Next applies it to its bootstrap scripts. Pages are therefore
+ * rendered dynamically (`force-dynamic` in `app/layout.tsx`).
  */
 
-/** Options de construction de la politique. */
+/** Options for building the policy. */
 export interface CspOptions {
-  /** Nonce unique de la requête, injecté dans `script-src`. */
+  /** The request's unique nonce, injected into `script-src`. */
   nonce: string;
   /**
-   * Ajoute `'unsafe-eval'`, que React utilise en développement pour ses
-   * messages de débogage. Jamais en production.
+   * Adds `'unsafe-eval'`, which React uses in development for its
+   * debugging messages. Never in production.
    */
   isDev?: boolean;
   /**
-   * Origine des documents du bac à sable, seule autorisée dans `frame-src` en
-   * plus de `'self'`. Dérivée de la requête par `sandboxOriginFor` : le
-   * sous-domaine dédié en production, l'autre hôte local en développement et
-   * en CI, jamais les deux, pour ne livrer aucune origine de développement.
+   * Origin of the sandbox documents, the only one allowed in `frame-src`
+   * besides `'self'`. Derived from the request by `sandboxOriginFor`: the
+   * dedicated subdomain in production, the other local host in development and
+   * in CI, never both, so that no development origin is ever shipped.
    */
   sandboxOrigin: string;
 }
 
 /**
- * Directive `script-src`, vérifiée par `csp.test.ts`. Le nonce couvre les
- * scripts d'amorçage de Next ; `'strict-dynamic'` étend leur confiance aux
- * scripts qu'ils chargent (le loader Monaco) ; `'wasm-unsafe-eval'` permet à
- * sql.js d'instancier sa WebAssembly sans autoriser `eval` ; `'self'` sert de
- * repli aux navigateurs sans `'strict-dynamic'`.
+ * The `script-src` directive, checked by `csp.test.ts`. The nonce covers
+ * Next's bootstrap scripts; `'strict-dynamic'` extends their trust to the
+ * scripts they load (the Monaco loader); `'wasm-unsafe-eval'` lets
+ * sql.js instantiate its WebAssembly without allowing `eval`; `'self'` is a
+ * fallback for browsers without `'strict-dynamic'`.
  *
- * `'unsafe-inline'` et `'unsafe-eval'` doivent en être absents en production.
+ * `'unsafe-inline'` and `'unsafe-eval'` must be absent from it in production.
  */
 export function scriptSrc({ nonce, isDev = false }: CspOptions): string {
   return [
@@ -49,7 +49,7 @@ export function scriptSrc({ nonce, isDev = false }: CspOptions): string {
   ].join(" ");
 }
 
-/** Les directives, dans l'ordre d'émission. */
+/** The directives, in emission order. */
 export function cspDirectives(options: CspOptions): string[] {
   return [
     "default-src 'self'",
@@ -58,32 +58,32 @@ export function cspDirectives(options: CspOptions): string[] {
     "frame-ancestors 'none'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
-    // `'unsafe-inline'` reste toléré pour les styles : beaucoup de composants
-    // posent des styles en ligne, et le risque XSS y est marginal.
+    // `'unsafe-inline'` is still tolerated for styles: many components
+    // set inline styles, and the XSS risk there is marginal.
     "style-src 'self' 'unsafe-inline'",
     scriptSrc(options),
     "connect-src 'self'",
     "worker-src 'self' blob:",
     "child-src 'self' blob:",
-    // Les aperçus (React, JS, HTML) sont encadrés depuis l'origine dédiée.
+    // The previews (React, JS, HTML) are framed from the dedicated origin.
     `frame-src 'self' ${options.sandboxOrigin}`,
     "form-action 'self'",
     "upgrade-insecure-requests",
   ];
 }
 
-/** La valeur de l'en-tête `Content-Security-Policy` pour une requête. */
+/** The value of the `Content-Security-Policy` header for a request. */
 export function buildCsp(options: CspOptions): string {
   return cspDirectives(options).join("; ");
 }
 
 /**
- * Jetons d'une directive, sans son nom (tableau vide si elle est absente).
- * Chercher dans la chaîne entière confondrait les directives :
- * `'unsafe-inline'` figure dans `style-src`.
+ * A directive's tokens, without its name (empty array if it is absent).
+ * Searching the whole string would mix up the directives:
+ * `'unsafe-inline'` appears in `style-src`.
  */
-export function tokensDeDirective(directives: string[], nom: string): string[] {
-  const directive = directives.find((d) => d === nom || d.startsWith(`${nom} `));
+export function directiveTokens(directives: string[], directiveName: string): string[] {
+  const directive = directives.find((d) => d === directiveName || d.startsWith(`${directiveName} `));
   if (directive === undefined) return [];
   return directive.split(/\s+/).slice(1);
 }

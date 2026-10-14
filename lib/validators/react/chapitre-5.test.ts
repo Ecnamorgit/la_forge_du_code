@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-5";
 
-describe("React chapitre 5 — etape 1 (.map() sur un tableau)", () => {
+describe("React chapter 5 — step 1 (.map() on an array)", () => {
   const v = validators[0];
 
-  it("valide un .map() qui retourne un element JSX", () => {
+  it("passes a .map() that returns a JSX element", () => {
     const code = `
       const flotte = [{ id: 1, nom: 'Aigle' }, { id: 2, nom: 'Faucon' }];
       function ListeFlotte() {
@@ -18,7 +18,7 @@ describe("React chapitre 5 — etape 1 (.map() sur un tableau)", () => {
     expect(v(code).ok).toBe(true);
   });
 
-  it("valide un .map() avec un corps de bloc et un return JSX", () => {
+  it("passes a .map() with a block body and a JSX return", () => {
     const code = `
       function ListeFlotte() {
         return <ul>{flotte.map((v) => { return <li>{v.nom}</li>; })}</ul>;
@@ -27,7 +27,7 @@ describe("React chapitre 5 — etape 1 (.map() sur un tableau)", () => {
     expect(v(code).ok).toBe(true);
   });
 
-  it("echoue si la liste reste codee en dur (pas de .map())", () => {
+  it("fails if the list stays hard-coded (no .map())", () => {
     const code = `
       function ListeFlotte() {
         return (
@@ -44,7 +44,7 @@ describe("React chapitre 5 — etape 1 (.map() sur un tableau)", () => {
     expect(r.msg).toMatch(/\.map\(\)/);
   });
 
-  it("echoue si .map() ne retourne pas de JSX", () => {
+  it("fails if .map() does not return JSX", () => {
     const code = `
       function ListeFlotte() {
         return <ul>{flotte.map(v => v.nom)}</ul>;
@@ -55,9 +55,9 @@ describe("React chapitre 5 — etape 1 (.map() sur un tableau)", () => {
     expect(r.msg).toMatch(/JSX/);
   });
 
-  it("echoue si un composant sans rapport retourne du JSX mais que .map() ne le fait pas (regression Finding 3)", () => {
-    // Le composant Debug renvoie du JSX hors du callback de map : cette
-    // correspondance ailleurs dans le fichier ne doit pas suffire.
+  it("fails if an unrelated component returns JSX but .map() does not (regression Finding 3)", () => {
+    // The Debug component returns JSX outside the map callback: this
+    // match elsewhere in the file must not be enough.
     const code = `
       const Debug = () => <span>debug</span>;
       function ListeFlotte() {
@@ -70,10 +70,10 @@ describe("React chapitre 5 — etape 1 (.map() sur un tableau)", () => {
   });
 });
 
-describe("React chapitre 5 — etape 2 (la prop key)", () => {
+describe("React chapter 5 — step 2 (the key prop)", () => {
   const v = validators[1];
 
-  it("valide une key basee sur un identifiant stable", () => {
+  it("passes a key based on a stable id", () => {
     const code = `
       function ListeFlotte() {
         return <ul>{flotte.map(v => <li key={v.id}>{v.nom}</li>)}</ul>;
@@ -82,7 +82,7 @@ describe("React chapitre 5 — etape 2 (la prop key)", () => {
     expect(v(code).ok).toBe(true);
   });
 
-  it("echoue si la prop key est absente (l'erreur la plus courante)", () => {
+  it("fails if the key prop is missing (the most common mistake)", () => {
     const code = `
       function ListeFlotte() {
         return <ul>{flotte.map(v => <li>{v.nom}</li>)}</ul>;
@@ -93,7 +93,7 @@ describe("React chapitre 5 — etape 2 (la prop key)", () => {
     expect(r.msg).toMatch(/key/);
   });
 
-  it("echoue si key={index} (piege classique de l'index comme cle)", () => {
+  it("fails if key={index} (classic index-as-key trap)", () => {
     const code = `
       function ListeFlotte() {
         return <ul>{flotte.map((v, index) => <li key={index}>{v.nom}</li>)}</ul>;
@@ -104,7 +104,7 @@ describe("React chapitre 5 — etape 2 (la prop key)", () => {
     expect(r.msg).toMatch(/index/);
   });
 
-  it("echoue si key={i} (variante courte de l'index)", () => {
+  it("fails if key={i} (short variant of the index)", () => {
     const code = `
       function ListeFlotte() {
         return <ul>{flotte.map((v, i) => <li key={i}>{v.nom}</li>)}</ul>;
@@ -114,10 +114,10 @@ describe("React chapitre 5 — etape 2 (la prop key)", () => {
   });
 });
 
-describe("React chapitre 5 — etape 3 (filtrer avant de rendre)", () => {
+describe("React chapter 5 — step 3 (filter before rendering)", () => {
   const v = validators[2];
 
-  it("valide un .filter() chaine avant .map()", () => {
+  it("passes a .filter() chained before .map()", () => {
     const code = `
       function ListeFlotte() {
         return (
@@ -130,7 +130,7 @@ describe("React chapitre 5 — etape 3 (filtrer avant de rendre)", () => {
     expect(v(code).ok).toBe(true);
   });
 
-  it("echoue si .filter() est absent (tous les vaisseaux s'affichent)", () => {
+  it("fails if .filter() is missing (all ships are displayed)", () => {
     const code = `
       function ListeFlotte() {
         return <ul>{flotte.map(v => <li key={v.id}>{v.nom}</li>)}</ul>;
@@ -141,7 +141,7 @@ describe("React chapitre 5 — etape 3 (filtrer avant de rendre)", () => {
     expect(r.msg).toMatch(/filter/);
   });
 
-  it("echoue si .map() est chaine avant .filter() (mauvais ordre)", () => {
+  it("fails if .map() is chained before .filter() (wrong order)", () => {
     const code = `
       function ListeFlotte() {
         return <ul>{flotte.map(v => <li key={v.id}>{v.nom}</li>).filter(el => el)}</ul>;
@@ -151,9 +151,9 @@ describe("React chapitre 5 — etape 3 (filtrer avant de rendre)", () => {
     expect(r.ok).toBe(false);
   });
 
-  it("valide un filter->map correct meme precede d'un .map() sans rapport (regression Finding 1)", () => {
-    // Un .map() antérieur et sans lien avec le rendu ne doit pas faire échouer
-    // la détection de la vraie chaîne filter -> map plus bas.
+  it("passes a correct filter->map even when preceded by an unrelated .map() (regression Finding 1)", () => {
+    // An earlier .map() unrelated to rendering must not break detection
+    // of the real filter -> map chain further down.
     const code = `
       function ListeFlotte() {
         const ids = flotte.map(v => v.id);
@@ -165,10 +165,10 @@ describe("React chapitre 5 — etape 3 (filtrer avant de rendre)", () => {
   });
 });
 
-describe("React chapitre 5 — etape 4 (liste vide)", () => {
+describe("React chapter 5 — step 4 (empty list)", () => {
   const v = validators[3];
 
-  it("valide un if precoce qui retourne un message quand la liste est vide", () => {
+  it("passes an early if that returns a message when the list is empty", () => {
     const code = `
       function ListeFlotte() {
         const operationnels = flotte.filter(v => v.statut === 'operationnel');
@@ -183,7 +183,7 @@ describe("React chapitre 5 — etape 4 (liste vide)", () => {
     expect(r.final).toBe(true);
   });
 
-  it("valide une variante ternaire avec message alternatif", () => {
+  it("passes a ternary variant with a fallback message", () => {
     const code = `
       function ListeFlotte() {
         const operationnels = flotte.filter(v => v.statut === 'operationnel');
@@ -199,7 +199,7 @@ describe("React chapitre 5 — etape 4 (liste vide)", () => {
     expect(v(code).ok).toBe(true);
   });
 
-  it("echoue si le cas vide n'est jamais teste (liste muette)", () => {
+  it("fails if the empty case is never checked (silent list)", () => {
     const code = `
       function ListeFlotte() {
         const operationnels = flotte.filter(v => v.statut === 'operationnel');
@@ -211,7 +211,7 @@ describe("React chapitre 5 — etape 4 (liste vide)", () => {
     expect(r.msg).toMatch(/length/);
   });
 
-  it("echoue si length est teste mais rien n'est rendu a la place (return null)", () => {
+  it("fails if length is checked but nothing is rendered instead (return null)", () => {
     const code = `
       function ListeFlotte() {
         const operationnels = flotte.filter(v => v.statut === 'operationnel');
@@ -225,9 +225,9 @@ describe("React chapitre 5 — etape 4 (liste vide)", () => {
     expect(r.ok).toBe(false);
   });
 
-  it("echoue si length est teste sur le tableau source flotte, pas sur operationnels (regression Finding 2)", () => {
-    // `flotte` n'est jamais vide dans cet exercice : ce test ne peut jamais se
-    // déclencher.
+  it("fails if length is checked on the source array flotte, not on operationnels (regression Finding 2)", () => {
+    // `flotte` is never empty in this exercise: this check can never
+    // trigger.
     const code = `
       function ListeFlotte() {
         const operationnels = flotte.filter(v => v.statut === 'operationnel');

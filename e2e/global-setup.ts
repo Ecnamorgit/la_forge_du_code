@@ -6,15 +6,15 @@ import bcrypt from "bcryptjs";
 import { assertLocalAppUnderTest, assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
- * Session authentifiée partagée par toutes les specs : `auth.ts` limite les
- * connexions à 10 par tranche de 5 minutes et par IP, seuil que la suite
- * dépasserait si chaque spec se connectait elle-même.
+ * Authenticated session shared by all specs: `auth.ts` limits logins
+ * to 10 per 5-minute window per IP, a threshold the suite would
+ * exceed if each spec logged in by itself.
  */
 export const STORAGE_STATE = path.join(process.cwd(), "playwright", ".auth", "e2e-user.json");
 
 /**
- * Identifiants de l'utilisateur de test, déjà vérifié (emailVerified non null),
- * pour exercer le parcours authentifié sans dépendre d'un vrai email.
+ * Credentials of the test user, already verified (emailVerified not null),
+ * to exercise the authenticated flow without depending on a real email.
  */
 export const E2E_USER = {
   id: "e2e-test-user",
@@ -24,18 +24,18 @@ export const E2E_USER = {
 };
 
 /**
- * Crée (ou réinitialise) l'utilisateur de test directement en base avant la
- * suite e2e. Utilise `pg` brut pour éviter d'importer la couche `server-only`.
+ * Creates (or resets) the test user directly in the database before the
+ * e2e suite. Uses raw `pg` to avoid importing the `server-only` layer.
  */
 export default async function globalSetup(config: FullConfig): Promise<void> {
   const url = process.env.DATABASE_URL;
 
-  // Avant toute connexion : ce fichier efface et recrée des lignes de User, et
-  // le `.env` du dépôt pointe sur la base de production.
+  // Before any connection: this file deletes and recreates User rows, and
+  // the repo's `.env` points at the production database.
   assertTestDatabaseUrl(url);
 
-  // Une cible distante (E2E_BASE_URL) parlerait à une base non ensemencée.
-  // Un serveur local déjà lancé et réutilisé n'est pas détecté ici.
+  // A remote target (E2E_BASE_URL) would talk to an unseeded database.
+  // An already running local server being reused is not detected here.
   assertLocalAppUnderTest(process.env.E2E_BASE_URL);
 
   const client = new Client({ connectionString: url });
@@ -43,8 +43,8 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
   try {
     const hash = await bcrypt.hash(E2E_USER.password, 10);
     await client.query('DELETE FROM "User" WHERE id = $1', [E2E_USER.id]);
-    // emailVerified + onboardedAt non null : utilisateur prêt, sans overlay
-    // d'onboarding qui pourrait masquer l'éditeur dans les tests.
+    // emailVerified + onboardedAt not null: user is ready, with no onboarding
+    // overlay that could hide the editor in the tests.
     await client.query(
       `INSERT INTO "User" (id, email, username, password, "emailVerified", "onboardedAt", "lastVisit")
        VALUES ($1, $2, $3, $4, NOW(), NOW(), '')
@@ -56,21 +56,21 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
     await client.end();
   }
 
-  await enregistrerSessionPartagee(config);
+  await saveSharedSession(config);
 }
 
 /**
- * Se connecte une fois et écrit l'état de session sur disque, repris par les
- * specs qui déclarent `storageState: STORAGE_STATE`.
+ * Logs in once and writes the session state to disk, picked up by the
+ * specs that declare `storageState: STORAGE_STATE`.
  */
-async function enregistrerSessionPartagee(config: FullConfig): Promise<void> {
+async function saveSharedSession(config: FullConfig): Promise<void> {
   const baseURL =
     config.projects[0]?.use?.baseURL ?? process.env.E2E_BASE_URL ?? "http://localhost:3000";
 
-  const navigateur = await chromium.launch();
+  const browser = await chromium.launch();
   try {
-    const contexte = await navigateur.newContext({ baseURL });
-    const page = await contexte.newPage();
+    const browserContext = await browser.newContext({ baseURL });
+    const page = await browserContext.newPage();
 
     await page.goto("/login");
     await page.locator("#email").fill(E2E_USER.email);
@@ -80,8 +80,8 @@ async function enregistrerSessionPartagee(config: FullConfig): Promise<void> {
     try {
       await page.waitForURL(/\/dashboard/, { timeout: 30_000 });
     } catch {
-      // Le compte vient d'être créé dans la base validée par la garde : un
-      // échec ici signifie que l'application parle à une autre base.
+      // The account was just created in the database the guard approved: a
+      // failure here means the app is talking to another database.
       throw new Error(
         [
           `Connexion impossible avec le compte de test sur ${baseURL}.`,
@@ -100,8 +100,8 @@ async function enregistrerSessionPartagee(config: FullConfig): Promise<void> {
       );
     }
 
-    await contexte.storageState({ path: STORAGE_STATE });
+    await browserContext.storageState({ path: STORAGE_STATE });
   } finally {
-    await navigateur.close();
+    await browser.close();
   }
 }

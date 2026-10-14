@@ -1,9 +1,9 @@
 /**
- * Chapitres sans aperçu, avec la raison de l'exemption.
+ * Chapters without a preview, with the reason for the exemption.
  *
- * Clé : `<cursus>/<slug de chapitre>`. `preview-mounts.test.ts` exige que toute
- * étape sans `previewMount` appartienne à un chapitre listé ici, pour
- * distinguer une exclusion voulue d'un oubli.
+ * Key: `<curriculum>/<chapter slug>`. `preview-mounts.test.ts` requires every
+ * step without a `previewMount` to belong to a chapter listed here, to
+ * tell an intentional exclusion apart from an oversight.
  */
 export const PREVIEW_EXEMPT: Record<string, string> = {
   "react/chapitre-4":

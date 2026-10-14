@@ -28,7 +28,7 @@ Sorties : [avant correctif](annexes/INF-01-demonstration-avant.txt), [après cor
 
 ## Correctif
 
-La commande de build appelle [scripts/migrer-si-production.mjs](../../../scripts/migrer-si-production.mjs) au lieu de `prisma migrate deploy` :
+La commande de build appelle [scripts/migrate-if-production.mjs](../../../scripts/migrate-if-production.mjs) au lieu de `prisma migrate deploy` :
 
 - `VERCEL_ENV=production` : les migrations sont appliquées, comme avant ;
 - préversion ou développement : elles sont ignorées, avec un message dans le journal de build ;

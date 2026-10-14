@@ -20,17 +20,17 @@ import {
 import { useModalOverlay } from "@/lib/use-modal-overlay";
 
 interface IntroCinematicProps {
-  /** Quand false, rien n'est rendu. */
+  /** When false, nothing is rendered. */
   open: boolean;
-  /** Appelé à la fermeture : bouton « Fermer », fin ou Échap. */
+  /** Called on close: « Fermer » (close) button, end, or Escape. */
   onClose: () => void;
-  /** En reduced-motion : scènes fixes, sans auto-défilement ni animation. */
+  /** In reduced-motion: static scenes, no auto-advance and no animation. */
   reducedMotion?: boolean;
 }
 
 /**
- * Rend le visuel d'une scène : mini-cinématique three.js pixelisée par-dessus
- * l'image pixel art (IntroSceneCanvas), ou l'image seule en reduced-motion.
+ * Renders a scene's visual: a pixelated three.js mini-cinematic on top of
+ * the pixel art image (IntroSceneCanvas), or the image alone in reduced-motion.
  */
 function SceneVisual({
   scene,
@@ -75,21 +75,21 @@ export default function IntroCinematic({
     onClose();
   }, [onClose]);
 
-  // Retour à la première scène à chaque ouverture : le composant reste monté
-  // entre deux ouvertures. Le crawl, lui, est joué sur la landing
-  // (IntroCinematicMount), jamais ici.
+  // Back to the first scene on every open: the component stays mounted
+  // between two openings. The crawl, for its part, plays on the landing page
+  // (IntroCinematicMount), never here.
   if (open !== prevOpen) {
     setPrevOpen(open);
     if (open) setIndex(0);
   }
 
-  // Auto-défilement des scènes (désactivé en reduced-motion).
+  // Scene auto-advance (disabled in reduced-motion).
   useEffect(() => {
     if (!open || reducedMotion) return;
     clearTimeout(timerRef.current);
-    // `index` vient des deps : pas d'updater fonctionnel, car appeler
-    // `finish()` (setState du parent) dans un updater, censé être pur,
-    // déclenche « Cannot update a component while rendering… ».
+    // `index` comes from the deps: no functional updater, because calling
+    // `finish()` (the parent's setState) inside an updater, which must be pure,
+    // triggers « Cannot update a component while rendering… ».
     timerRef.current = setTimeout(() => {
       if (index >= INTRO_SCENES.length - 1) finish();
       else setIndex(index + 1);
@@ -97,15 +97,15 @@ export default function IntroCinematic({
     return () => clearTimeout(timerRef.current);
   }, [open, index, reducedMotion, finish]);
 
-  // Cue sonore par scène (uniquement si le son est activé).
+  // Per-scene sound cue (only when sound is enabled).
   useEffect(() => {
     if (!open || !soundOn) return;
     if (index === INTRO_SCENES.length - 1) playFanfare();
     else playDeployBip();
   }, [open, index, soundOn]);
 
-  // Échap ferme, Tab reste piégé dans l'overlay et le focus initial va au
-  // conteneur (voir use-modal-overlay).
+  // Escape closes, Tab stays trapped in the overlay and initial focus goes to
+  // the container (see use-modal-overlay).
   useModalOverlay(dialogRef, { open, onClose: finish });
 
   if (!open) return null;
@@ -167,7 +167,7 @@ export default function IntroCinematic({
         {scene.narration}
       </p>
 
-      {/* Navigation manuelle entre les scènes */}
+      {/* Manual navigation between scenes */}
       <div className="mt-4 flex items-center justify-center gap-4 z-20">
         {index > 0 && (
           <button

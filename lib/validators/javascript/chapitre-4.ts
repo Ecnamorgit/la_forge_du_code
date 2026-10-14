@@ -6,7 +6,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : un tableau d'au moins 3 éléments, affiché
+  // Step 1: an array of at least 3 elements, printed
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -45,7 +45,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Étape 2 : push, puis affiche la nouvelle longueur (4)
+  // Step 2: push, then print the new length (4)
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -66,7 +66,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Étape 3 : boucle for, au moins 4 lignes affichées
+  // Step 3: for loop, at least 4 lines printed
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -87,7 +87,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Étape 4 : boucle for dont la somme affichée vaut 860
+  // Step 4: for loop whose printed sum is 860
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);

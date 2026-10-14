@@ -3,15 +3,15 @@ import { stripLineComments, fail, pass, findCallBody, isFollowedByCall, hasEmpty
 
 const strip = (code: string) => stripLineComments(code, "//");
 
-// Callback de .map() qui retourne du JSX, en flèche directe (`v => <li>...`)
-// ou en bloc avec return (`v => { ... return <li>...; }`).
+// .map() callback that returns JSX, as a concise arrow (`v => <li>...`)
+// or as a block with return (`v => { ... return <li>...; }`).
 const arrowJsxRe = /=>\s*\(?\s*<[A-Za-z]/;
 const blockReturnJsxRe = /=>\s*\{[\s\S]*?return\s*\(?\s*<[A-Za-z]/;
 
 /**
- * Vrai si au moins un appel `.map(...)` du code a un callback qui retourne du
- * JSX. Tous les appels sont examinés : un `.map()` sans rapport avec le rendu
- * ne doit pas masquer le bon.
+ * True if at least one `.map(...)` call in the code has a callback that returns
+ * JSX. Every call is examined: a `.map()` unrelated to rendering must not hide
+ * the right one.
  */
 function findMapCallbackReturningJsx(code: string): boolean {
   let match = findCallBody(code, "map");
@@ -25,21 +25,21 @@ function findMapCallbackReturningJsx(code: string): boolean {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : flotte.map(...) dont le callback retourne du JSX
+  // Step 1: flotte.map(...) whose callback returns JSX
   (code) => {
     const c = strip(code);
     if (!findCallBody(c, "map")) {
       return fail("Utilise .map() sur le tableau flotte pour générer la liste, au lieu de recopier chaque <li> à la main.");
     }
-    // Seuls les callbacks de .map() comptent : un composant sans rapport qui
-    // retourne du JSX (`const Debug = () => <span/>`) ne doit pas faire passer un
-    // .map() qui ne retourne que du texte.
+    // Only .map() callbacks count: an unrelated component that returns JSX
+    // (`const Debug = () => <span/>`) must not let through a .map() that
+    // returns only text.
     if (!findMapCallbackReturningJsx(c)) {
       return fail("Le callback de .map() doit retourner un élément JSX, par exemple v => <li>{v.nom}</li>.");
     }
     return pass("Flotte affichée dynamiquement.", ["o1a", "o1b"]);
   },
-  // Étape 2 : une prop key={...} qui n'est pas simplement l'index
+  // Step 2: a key={...} prop that is not just the index
   (code) => {
     const c = strip(code);
     const keyMatches = [...c.matchAll(/key=\{([^}]*)\}/g)];
@@ -54,8 +54,8 @@ export const validators: Validator[] = [
     }
     return pass("Chaque vaisseau garde une identité stable.", ["o2a", "o2b"]);
   },
-  // Étape 3 : .map() chaîné directement après un .filter(...), pas seulement
-  // présent plus loin dans le fichier.
+  // Step 3: .map() chained directly after a .filter(...), not merely
+  // present further down in the file.
   (code) => {
     const c = strip(code);
     let filterMatch = findCallBody(c, "filter");
@@ -75,19 +75,19 @@ export const validators: Validator[] = [
     }
     return pass("Flotte filtrée puis affichée.", ["o3a", "o3b"]);
   },
-  // Étape 4 : test de longueur sur la collection filtrée (`operationnels`) et
-  // branche JSX alternative.
+  // Step 4: length check on the filtered collection (`operationnels`) and
+  // an alternative JSX branch.
   (code) => {
     const c = strip(code);
-    // `operationnels` est le nom imposé par le startCode et les objectifs de
-    // l'étape. Accepter un test sur n'importe quelle variable (`flotte`, jamais
-    // vide ici) validerait une branche qui ne se déclenche jamais.
+    // `operationnels` is the name required by the startCode and the step's
+    // objectives. Accepting a check on any variable (`flotte`, never empty
+    // here) would pass a branch that never triggers.
     const hasLengthTest = hasEmptyLengthCheck(c, "operationnels");
     if (!hasLengthTest) {
       return fail("Teste la longueur du tableau (ex: operationnels.length === 0) pour détecter une liste vide.");
     }
-    // La branche vide doit afficher un message, pas un simple `return null` :
-    // on cherche un élément court (p, div, span, hN) qui contient du texte.
+    // The empty branch must display a message, not just `return null`:
+    // look for a short element (p, div, span, hN) that contains text.
     const hasMessageJsx = /<(p|div|span|h[1-6])\b[^>]*>[^<]*[A-Za-z][^<]*<\/\1>/.test(c);
     if (!hasMessageJsx) {
       return fail(

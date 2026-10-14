@@ -4,7 +4,7 @@ import { stripLineComments, countMatches, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Étape 1 : function Radar() qui renvoie <div>Scan en cours</div>
+  // Step 1: function Radar() that returns <div>Scan en cours</div>
   (code) => {
     const c = strip(code);
     if (!/(function\s+Radar\s*\(|const\s+Radar\s*=)/.test(c)) {
@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     }
     return pass("Composant initialisé.", ["o1a", "o1b"]);
   },
-  // Étape 2 : paramètre props et {props.cible}
+  // Step 2: props parameter and {props.cible}
   (code) => {
     const c = strip(code);
     if (!/function\s+Radar\s*\(\s*(props|\{)/.test(c)) {
@@ -26,7 +26,7 @@ export const validators: Validator[] = [
     }
     return pass("Props reçues.", ["o2a", "o2b"]);
   },
-  // Étape 3 : condition (ternaire ou &&) et <span>ALERTE</span>
+  // Step 3: condition (ternary or &&) and <span>ALERTE</span>
   (code) => {
     const c = strip(code);
     if (!/menace\s*(\?|&&)/.test(c)) {
@@ -37,7 +37,7 @@ export const validators: Validator[] = [
     }
     return pass("Logique intégrée.", ["o3a", "o3b"]);
   },
-  // Étape 4 : TableauDeBord compose deux <Radar /> avec des props
+  // Step 4: TableauDeBord composes two <Radar /> with props
   (code) => {
     const c = strip(code);
     if (!/(function\s+TableauDeBord\s*\(|const\s+TableauDeBord\s*=)/.test(c)) {

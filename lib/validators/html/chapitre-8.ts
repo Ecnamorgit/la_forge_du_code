@@ -5,7 +5,7 @@ function stripHtmlComments(code: string): string {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : <video> avec l'attribut controls
+  // Step 1: <video> with the controls attribute
   (code) => {
     const clean = stripHtmlComments(code);
     const m = clean.match(/<video\b[^>]*>[\s\S]*?<\/video>/i);
@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Flux vidéo actif.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : <audio> avec l'attribut controls
+  // Step 2: <audio> with the controls attribute
   (code) => {
     const clean = stripHtmlComments(code);
     const m = clean.match(/<audio\b[^>]*>[\s\S]*?<\/audio>/i);
@@ -25,7 +25,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Transmission radio ouverte.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : <img> avec srcset et sizes
+  // Step 3: <img> with srcset and sizes
   (code) => {
     const clean = stripHtmlComments(code);
     const m = clean.match(/<img\b[^>]*>/i);
@@ -38,7 +38,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Bande passante optimisée.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : <picture> avec au moins 2 <source> et un <img> de repli
+  // Step 4: <picture> with at least 2 <source> and a fallback <img>
   (code) => {
     const clean = stripHtmlComments(code);
     const m = clean.match(/<picture\b[^>]*>([\s\S]*?)<\/picture>/i);

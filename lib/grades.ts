@@ -1,7 +1,7 @@
 /**
- * Échelle de grades de la Coalition. Les seuils ont été calibrés pour un
- * parcours complet de 9 312 XP ; Amiral est placé au-dessus, le dernier grade
- * demandant d'avoir tout terminé et d'avoir été régulier.
+ * The Coalition's grade ladder. Thresholds were calibrated for a full
+ * 9,312 XP path; Amiral sits above it, so the last grade requires
+ * having finished everything and having been consistent.
  */
 
 export interface Grade {
@@ -20,7 +20,7 @@ export const GRADES: Grade[] = [
   { id: "amiral", label: "Amiral", threshold: 10000 },
 ];
 
-/** Grade courant pour un total d'XP. Jamais null : Cadet est à 0. */
+/** Current grade for an XP total. Never null: Cadet is at 0. */
 export function gradeFromXp(xp: number): Grade {
   let found = GRADES[0];
   for (const g of GRADES) {
@@ -30,14 +30,14 @@ export function gradeFromXp(xp: number): Grade {
   return found;
 }
 
-/** Grade suivant, ou null si le cadet est au sommet. */
+/** Next grade, or null if the cadet is at the top. */
 export function nextGrade(xp: number): Grade | null {
   return GRADES.find((g) => g.threshold > xp) ?? null;
 }
 
 /**
- * Avancée dans le grade courant, pour une barre de progression.
- * Au dernier grade, current === span (barre pleine).
+ * Progress within the current grade, for a progress bar.
+ * At the last grade, current === span (full bar).
  */
 export function xpIntoGrade(xp: number): { current: number; span: number } {
   const grade = gradeFromXp(xp);
@@ -46,7 +46,7 @@ export function xpIntoGrade(xp: number): { current: number; span: number } {
   return { current: xp - grade.threshold, span: next.threshold - grade.threshold };
 }
 
-/** Niveau chiffré en racine carrée : il monte vite au début puis ralentit. */
+/** Numeric level based on a square root: it rises quickly at first, then slows. */
 export function levelFromXp(xp: number): number {
   return Math.floor(Math.sqrt(Math.max(0, xp) / 16)) + 1;
 }

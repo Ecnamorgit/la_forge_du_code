@@ -13,7 +13,7 @@ Deux points aggravants :
 
 ## Démonstration
 
-Test [e2e/securite-connexion.spec.ts](../../../e2e/securite-connexion.spec.ts), commité seul, avant le correctif (commit `85690c9`), avec un compte dédié.
+Test [e2e/security-login.spec.ts](../../../e2e/security-login.spec.ts), commité seul, avant le correctif (commit `85690c9`), avec un compte dédié.
 
 Les IP multiples sont simulées avec l'en-tête `X-Forwarded-For`. En local, sans proxy devant le serveur, c'est le client qui le fournit. En production, Vercel pose lui-même cet en-tête avec la vraie adresse. La simulation représente donc un attaquant aux IP multiples, pas une faille de l'en-tête.
 

@@ -6,7 +6,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : greet(name) renvoie "Bonjour, <name>", appelée avec "Cadet"
+  // Step 1: greet(name) returns "Bonjour, <name>", called with "Cadet"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -33,7 +33,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Étape 2 : addXp(120, 50) renvoie 170
+  // Step 2: addXp(120, 50) returns 170
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -59,24 +59,24 @@ export const validators: Validator[] = [
     ) {
       return { ok: false, msg: "La logique de addXp doit additionner les 2 valeurs." };
     }
-    // La fonction doit retourner la somme, l'appelant l'affiche. Chaque forme de
-    // corps a son exigence : un corps entre accolades contient toujours un `+`
-    // ici, il ne doit donc pas profiter de la tolérance de l'arrow concise, sinon
-    // `{ console.log(a + b); }` passerait.
-    const corpsAccolades =
+    // The function must return the sum; the caller prints it. Each body form
+    // has its own requirement: a braced body always contains a `+` here, so it
+    // must not benefit from the concise arrow's leniency, otherwise
+    // `{ console.log(a + b); }` would pass.
+    const braceBody =
       stripped.match(/\bfunction\s+addXp\s*\([^)]*\)\s*\{([\s\S]*?)\}/) ||
       stripped.match(/\baddXp\s*=\s*(?:function\s*\([^)]*\)|\([^)]*\)\s*=>)\s*\{([\s\S]*?)\}/);
 
-    const manqueLeRetour = corpsAccolades
-      ? // Corps entre accolades : le `return` doit être écrit.
-        !/\breturn\b/.test(corpsAccolades[1])
-      : // Arrow concise (`=> base + bonus`) : return implicite, l'addition doit
-        // être la valeur de l'expression.
+    const missingReturn = braceBody
+      ? // Braced body: the `return` must be written out.
+        !/\breturn\b/.test(braceBody[1])
+      : // Concise arrow (`=> base + bonus`): implicit return, the addition must
+        // be the value of the expression.
         !/\+/.test(
           stripped.match(/\baddXp\s*=\s*\([^)]*\)\s*=>\s*([^;\n]+)/)?.[1] ?? ""
         );
 
-    if (manqueLeRetour) {
+    if (missingReturn) {
       return {
         ok: false,
         msg: "addXp doit retourner la somme avec return (ne pas seulement faire console.log à l'intérieur).",
@@ -94,7 +94,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Étape 3 : arrow function, double(7) affiche 14
+  // Step 3: arrow function, double(7) prints 14
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -118,7 +118,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Étape 4 : status(7) renvoie "Pilote"
+  // Step 4: status(7) returns "Pilote"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -133,8 +133,8 @@ export const validators: Validator[] = [
     if (!/\bif\s*\(/.test(stripped)) {
       return { ok: false, msg: "Utilise au moins un if à l'intérieur." };
     }
-    // Seuils avec la variable à gauche (`level < 5`, `level < 10`, ou `<=`) ;
-    // les formes inversées comme `5 < x` sont refusées.
+    // Thresholds with the variable on the left (`level < 5`, `level < 10`, or `<=`);
+    // reversed forms such as `5 < x` are rejected.
     const lhs5 = /\bif\s*\(\s*\w+\s*<=?\s*5\b/.test(stripped);
     const lhs10 = /\bif\s*\(\s*\w+\s*<=?\s*10\b/.test(stripped);
     if (!lhs5 || !lhs10) {
@@ -149,8 +149,8 @@ export const validators: Validator[] = [
         msg: 'La console doit afficher exactement "Pilote".',
       };
     }
-    // Contre une sortie codée en dur (`return "Pilote"` sans condition) : les
-    // trois rangs doivent figurer en littéraux, comme dans la solution du cours.
+    // Guards against hard-coded output (`return "Pilote"` with no condition): the
+    // three ranks must appear as literals, as in the course solution.
     if (!/['"`]Cadet['"`]/.test(stripped) || !/['"`]Capitaine['"`]/.test(stripped)) {
       return {
         ok: false,

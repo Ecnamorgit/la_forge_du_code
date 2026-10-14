@@ -1,47 +1,47 @@
 /**
- * Briefing du jour : trois ordres de mission tirés chaque jour.
+ * Daily briefing: three mission orders drawn each day.
  *
- * Le tirage est déterministe (graine = userId + date) : stable toute la
- * journée sans être stocké, et non rejouable en rechargeant la page.
+ * The draw is deterministic (seed = userId + date): stable all day without
+ * being stored, and it cannot be rerolled by reloading the page.
  *
- * La faisabilité est évaluée sur l'état d'avant aujourd'hui (`past`), jamais
- * sur le travail du jour (`today`), qui ne sert qu'à la progression. Sinon un
- * ordre pourrait disparaître à cause du travail qu'il demandait.
+ * Feasibility is evaluated on the state before today (`past`), never on
+ * today's work (`today`), which only drives progress. Otherwise an order
+ * could disappear because of the very work it asked for.
  *
- * Tout se calcule depuis StepCompletion.
+ * Everything is computed from StepCompletion.
  */
 
 import type { ChapterMeta } from "./user-store";
 
 export type QuestSlot = "reprise" | "effort" | "curiosite";
 
-/** Barème. Avec le bonus de clôture, le total journalier plafonne à 60 XP. */
+/** Scoring table. With the completion bonus, the daily total caps at 60 XP. */
 export const QUEST_XP: Record<QuestSlot, number> = {
   reprise: 10,
   effort: 20,
   curiosite: 15,
 };
 
-/** Bonus versé quand tous les ordres émis sont accomplis. */
+/** Bonus paid when every issued order is fulfilled. */
 export const CLOSING_XP = 15;
 
-/** Jours d'inactivité au-delà desquels un cursus est « dormant ». */
+/** Days of inactivity after which a course is "dormant". */
 const DORMANT_DAYS = 7;
 
 export interface CompletionRecord {
   course: string;
   chapter: string;
   stepIndex: number;
-  /** ISO 8601 complet (avec l'heure). */
+  /** Full ISO 8601 (with the time). */
   completedAt: string;
 }
 
 export interface QuestContext {
   userId: string;
   todayIso: string;
-  /** Complétions strictement antérieures à aujourd'hui 00:00 UTC. */
+  /** Completions strictly before today 00:00 UTC. */
   past: CompletionRecord[];
-  /** Complétions du jour courant. */
+  /** Completions from the current day. */
   today: CompletionRecord[];
   chaptersByCourse: Record<string, ChapterMeta[]>;
 }
@@ -53,7 +53,7 @@ export interface Quest {
   progress: number;
   target: number;
   done: boolean;
-  /** Cursus visé, pour le lien « aller y faire ». Null si l'ordre est global. */
+  /** Target course, for the "go do it" link. Null if the order is global. */
   course: string | null;
   chapter: string | null;
   xp: number;
@@ -62,11 +62,11 @@ export interface Quest {
 export interface Briefing {
   dateIso: string;
   quests: Quest[];
-  /** Vrai quand tous les ordres émis sont accomplis (bonus de clôture dû). */
+  /** True when every issued order is fulfilled (completion bonus due). */
   complete: boolean;
 }
 
-/** Découpe une liste de complétions en « avant aujourd'hui » / « aujourd'hui ». */
+/** Splits a list of completions into "before today" / "today". */
 export function splitCompletions(
   all: CompletionRecord[],
   todayIso: string
@@ -80,13 +80,13 @@ export function splitCompletions(
   return { past, today };
 }
 
-// Utilitaires d'état
+// State helpers
 
 interface Params {
   course: string | null;
   chapter: string | null;
   target: number;
-  /** Fragment inséré dans le libellé. */
+  /** Fragment inserted into the label. */
   name: string;
 }
 
@@ -114,13 +114,13 @@ function daysSince(dayIso: string, todayIso: string): number {
   return Math.round((to - from) / 86_400_000);
 }
 
-/** Chapitres entamés mais non terminés, triés pour un ordre stable. */
+/** Chapters started but not finished, sorted for a stable order. */
 function chaptersInProgress(
   ctx: QuestContext
 ): { course: string; chapter: string; done: number; total: number }[] {
   const out: { course: string; chapter: string; done: number; total: number }[] = [];
-  for (const [course, chapitres] of Object.entries(ctx.chaptersByCourse)) {
-    for (const ch of chapitres) {
+  for (const [course, courseChapters] of Object.entries(ctx.chaptersByCourse)) {
+    for (const ch of courseChapters) {
       const done = stepsDone(ctx.past, course, ch.slug);
       if (done > 0 && done < ch.totalSteps) {
         out.push({ course, chapter: ch.slug, done, total: ch.totalSteps });
@@ -131,12 +131,12 @@ function chaptersInProgress(
   return out;
 }
 
-// Archétypes d'ordres
+// Order archetypes
 
 interface Archetype {
   id: string;
   slot: QuestSlot;
-  /** Retourne les paramètres si l'ordre est faisable aujourd'hui, sinon null. */
+  /** Returns the parameters if the order is feasible today, otherwise null. */
   feasible(ctx: QuestContext): Params | null;
   label(p: Params): string;
   progress(p: Params, today: CompletionRecord[]): number;
@@ -161,13 +161,13 @@ const ARCHETYPES: Archetype[] = [
     id: "boucler-chapitre",
     slot: "effort",
     feasible: (ctx) => {
-      const cible = chaptersInProgress(ctx).find((c) => c.done / c.total >= 0.5);
-      if (!cible) return null;
+      const target = chaptersInProgress(ctx).find((c) => c.done / c.total >= 0.5);
+      if (!target) return null;
       return {
-        course: cible.course,
-        chapter: cible.chapter,
-        target: cible.total - cible.done,
-        name: cible.chapter.replace("chapitre-", "chapitre "),
+        course: target.course,
+        chapter: target.chapter,
+        target: target.total - target.done,
+        name: target.chapter.replace("chapitre-", "chapitre "),
       };
     },
     label: (p) => `Boucle le ${p.name} de ${p.course?.toUpperCase()}`,
@@ -185,13 +185,13 @@ const ARCHETYPES: Archetype[] = [
     id: "serie-chapitre",
     slot: "effort",
     feasible: (ctx) => {
-      const cible = chaptersInProgress(ctx).find((c) => c.total - c.done >= 3);
-      if (!cible) return null;
+      const target = chaptersInProgress(ctx).find((c) => c.total - c.done >= 3);
+      if (!target) return null;
       return {
-        course: cible.course,
-        chapter: cible.chapter,
+        course: target.course,
+        chapter: target.chapter,
         target: 3,
-        name: cible.chapter.replace("chapitre-", "chapitre "),
+        name: target.chapter.replace("chapitre-", "chapitre "),
       };
     },
     label: (p) => `3 étapes dans le ${p.name} de ${p.course?.toUpperCase()}`,
@@ -216,9 +216,9 @@ const ARCHETYPES: Archetype[] = [
         .map((course) => ({ course, last: lastDayOfCourse(ctx.past, course) }))
         .filter((c) => c.last !== null && daysSince(c.last, ctx.todayIso) >= DORMANT_DAYS)
         .sort((a, b) => a.course.localeCompare(b.course));
-      const cible = dormants[0];
-      if (!cible) return null;
-      return { course: cible.course, chapter: null, target: 1, name: cible.course.toUpperCase() };
+      const target = dormants[0];
+      if (!target) return null;
+      return { course: target.course, chapter: null, target: 1, name: target.course.toUpperCase() };
     },
     label: (p) => `Reprends ${p.name}, délaissé depuis une semaine`,
     progress: (p, today) => today.filter((r) => r.course === p.course).length,
@@ -227,21 +227,21 @@ const ARCHETYPES: Archetype[] = [
     id: "premiere-fois",
     slot: "curiosite",
     feasible: (ctx) => {
-      const touches = coursesTouched(ctx.past);
-      const vierge = Object.keys(ctx.chaptersByCourse)
-        .filter((c) => !touches.has(c))
+      const touched = coursesTouched(ctx.past);
+      const untouched = Object.keys(ctx.chaptersByCourse)
+        .filter((c) => !touched.has(c))
         .sort()[0];
-      if (!vierge) return null;
-      return { course: vierge, chapter: null, target: 1, name: vierge.toUpperCase() };
+      if (!untouched) return null;
+      return { course: untouched, chapter: null, target: 1, name: untouched.toUpperCase() };
     },
     label: (p) => `Ouvre le cursus ${p.name}`,
     progress: (p, today) => today.filter((r) => r.course === p.course).length,
   },
 ];
 
-// Tirage déterministe
+// Deterministic draw
 
-/** FNV-1a 32 bits, suffisant pour choisir un index. */
+/** 32-bit FNV-1a, enough to pick an index. */
 function hash(seed: string): number {
   let h = 0x811c9dc5;
   for (let i = 0; i < seed.length; i++) {
@@ -254,21 +254,21 @@ function hash(seed: string): number {
 const SLOTS: QuestSlot[] = ["reprise", "effort", "curiosite"];
 
 /**
- * Construit le briefing du jour. Peut rendre moins de trois ordres si un
- * emplacement n'a aucun archétype faisable.
+ * Builds the daily briefing. May return fewer than three orders if a slot
+ * has no feasible archetype.
  */
 export function buildBriefing(ctx: QuestContext): Briefing {
   const quests: Quest[] = [];
 
   for (const slot of SLOTS) {
-    const candidats = ARCHETYPES.filter((a) => a.slot === slot)
+    const candidates = ARCHETYPES.filter((a) => a.slot === slot)
       .map((a) => ({ a, p: a.feasible(ctx) }))
       .filter((c): c is { a: Archetype; p: Params } => c.p !== null);
 
-    if (candidats.length === 0) continue;
+    if (candidates.length === 0) continue;
 
-    const index = hash(`${ctx.userId}:${ctx.todayIso}:${slot}`) % candidats.length;
-    const { a, p } = candidats[index];
+    const index = hash(`${ctx.userId}:${ctx.todayIso}:${slot}`) % candidates.length;
+    const { a, p } = candidates[index];
     const progress = Math.min(a.progress(p, ctx.today), p.target);
 
     quests.push({
@@ -291,13 +291,13 @@ export function buildBriefing(ctx: QuestContext): Briefing {
   };
 }
 
-// Versement du briefing
+// Briefing payout
 
 /**
- * Bit du masque `User.dailyClaimed` réservé à chaque emplacement. Il tient à
- * l'emplacement et non à la position dans le tableau : `buildBriefing` peut
- * rendre moins de trois ordres, et la curiosité arrivée en tête ne doit pas
- * réutiliser le bit de la reprise.
+ * Bit of the `User.dailyClaimed` mask reserved for each slot. It is tied to
+ * the slot, not to the position in the array: `buildBriefing` may return
+ * fewer than three orders, and a curiosite order that lands first must not
+ * reuse the reprise bit.
  */
 const SLOT_BIT: Record<QuestSlot, number> = {
   reprise: 0,
@@ -305,51 +305,51 @@ const SLOT_BIT: Record<QuestSlot, number> = {
   curiosite: 2,
 };
 
-/** Bit du bonus de clôture, jamais utilisé par un ordre. */
+/** Bit for the completion bonus, never used by an order. */
 export const CLOSING_BIT = 3;
 
 export interface BriefingPayoutState {
-  /** Masque des ordres déjà payés, tel qu'il est en base. */
+  /** Mask of the orders already paid out, as stored in the database. */
   claimedMask: number;
-  /** Jour auquel ce masque se rapporte (`User.lastDailyMission`), "" si jamais. */
+  /** Day this mask refers to (`User.lastDailyMission`), "" if never. */
   claimedDay: string;
-  /** Briefings complets d'affilée. */
+  /** Complete briefings in a row. */
   perfectRun: number;
-  /** Jour du dernier briefing complet, "" si jamais. */
+  /** Day of the last complete briefing, "" if never. */
   lastPerfectDay: string;
 }
 
 export interface BriefingPayout {
-  /** XP à ajouter au total. Zéro si tout était déjà payé. */
+  /** XP to add to the total. Zero if everything was already paid out. */
   bonusXp: number;
-  /** Masque à écrire en base, à associer à `todayIso`. */
+  /** Mask to write to the database, paired with `todayIso`. */
   nextMask: number;
-  /** Ordres payés à cet instant, clôture non comprise. */
+  /** Orders paid out right now, completion bonus excluded. */
   questsPaid: number;
-  /** Libellés des ordres payés à cet instant, à annoncer. */
+  /** Labels of the orders paid out right now, to announce. */
   paidLabels: string[];
   perfectRun: number;
   lastPerfectDay: string;
 }
 
 /**
- * Calcule ce que vaut le briefing à cet instant : XP due, masque à écrire,
- * ordres à annoncer, série de briefings parfaits.
+ * Computes what the briefing is worth right now: XP due, mask to write,
+ * orders to announce, perfect briefing streak.
  *
- * Idempotente : chaque bit du masque paie une seule fois. Un masque d'un autre
- * jour est ignoré, sinon un cadet revenu après trois jours garderait le masque
- * plein de sa dernière session et ne serait pas payé.
+ * Idempotent: each mask bit pays out only once. A mask from another day is
+ * ignored, otherwise a cadet returning after three days would keep the full
+ * mask from their last session and would not get paid.
  *
- * Le plafond de 60 XP par jour découle du barème (10 + 20 + 15 + 15) et de
- * l'unicité des bits ; le plafond de compte (`MAX_XP`) revient à l'appelant.
- * Fonction pure : le jour courant est un paramètre.
+ * The 60 XP daily cap follows from the scoring table (10 + 20 + 15 + 15) and
+ * from bit uniqueness; the account cap (`MAX_XP`) is up to the caller.
+ * Pure function: the current day is a parameter.
  */
 export function applyBriefingPayout(
   briefing: Briefing,
   state: BriefingPayoutState,
   todayIso: string
 ): BriefingPayout {
-  // Un masque qui ne se rapporte pas à aujourd'hui ne vaut rien.
+  // A mask that does not refer to today is worth nothing.
   let nextMask = state.claimedDay === todayIso ? state.claimedMask : 0;
 
   let bonusXp = 0;
@@ -372,8 +372,8 @@ export function applyBriefingPayout(
   if (briefing.complete && (nextMask & closingBit) === 0) {
     bonusXp += CLOSING_XP;
     nextMask |= closingBit;
-    // La série continue si le dernier briefing complet date d'hier, sinon
-    // elle repart à 1.
+    // The streak continues if the last complete briefing was yesterday,
+    // otherwise it restarts at 1.
     perfectRun =
       lastPerfectDay && daysSince(lastPerfectDay, todayIso) === 1 ? perfectRun + 1 : 1;
     lastPerfectDay = todayIso;

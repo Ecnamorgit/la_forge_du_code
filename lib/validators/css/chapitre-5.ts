@@ -2,8 +2,8 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasProperty, hasPropertyWithValue, ruleBody } from "./_utils";
 
 /**
- * Découpe sur les espaces de premier niveau : un groupe parenthésé (calc(...),
- * repeat(...), minmax(...), var(...)) reste un seul jeton, même imbriqué.
+ * Splits on top-level whitespace: a parenthesized group (calc(...),
+ * repeat(...), minmax(...), var(...)) stays a single token, even when nested.
  */
 function topLevelTokens(value: string): string[] {
   const tokens: string[] = [];
@@ -30,9 +30,9 @@ function topLevelTokens(value: string): string[] {
 }
 
 /**
- * Compte les pistes d'une grille. `repeat(N, ...)` vaut N fois le nombre de
- * pistes de ses arguments ; tout autre jeton (`1fr`, `auto`, `minmax(...)`...)
- * compte pour une piste.
+ * Counts the tracks of a grid. `repeat(N, ...)` is worth N times the number of
+ * tracks in its arguments; any other token (`1fr`, `auto`, `minmax(...)`...)
+ * counts as one track.
  */
 function countGridTracks(value: string): number {
   let count = 0;
@@ -50,7 +50,7 @@ function countGridTracks(value: string): number {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : .grid { display: grid }
+  // Step 1: .grid { display: grid }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -68,7 +68,7 @@ export const validators: Validator[] = [
       objList: ["o1a"],
     };
   },
-  // Étape 2 : grid-template-columns avec au moins 3 pistes
+  // Step 2: grid-template-columns with at least 3 tracks
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -99,7 +99,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Étape 3 : gap (ou row-gap / column-gap) sur .grid
+  // Step 3: gap (or row-gap / column-gap) on .grid
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -121,7 +121,7 @@ export const validators: Validator[] = [
       objList: ["o3a"],
     };
   },
-  // Étape 4 : grid-template-rows sur .grid
+  // Step 4: grid-template-rows on .grid
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {

@@ -1,10 +1,10 @@
 import type { NextAuthConfig } from "next-auth";
 
-// Configuration sans Prisma ni bcrypt, chargée par `proxy.ts`. Les providers
-// et l'adaptateur sont dans `auth.ts`.
+// Configuration without Prisma or bcrypt, loaded by `proxy.ts`. The providers
+// and the adapter are in `auth.ts`.
 export const authConfig = {
-  // 7 jours au lieu des 30 par défaut, pour qu'une session volée expire
-  // d'elle-même (audit SRV-03). La révocation immédiate est dans `auth.ts`.
+  // 7 days instead of the default 30, so a stolen session expires on its
+  // own (audit SRV-03). Immediate revocation lives in `auth.ts`.
   session: { strategy: "jwt", maxAge: 7 * 24 * 60 * 60 },
   pages: {
     signIn: "/login",

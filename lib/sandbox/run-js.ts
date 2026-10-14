@@ -1,21 +1,21 @@
 /**
- * Exécution du JavaScript de l'apprenant dans une iframe cachée, sandboxée
- * (`allow-scripts` seul, donc origine opaque) : le code n'accède ni au
- * `window`, ni aux stockages, ni aux cookies de l'application. L'iframe charge
- * `/bac-a-sable/js` et reçoit le code par message après sa poignée de main.
+ * Runs the learner's JavaScript in a hidden, sandboxed iframe
+ * (`allow-scripts` only, hence an opaque origin): the code cannot reach the
+ * application's `window`, storage or cookies. The iframe loads
+ * `/bac-a-sable/js` and receives the code by message after its handshake.
  */
 
-import { protegerBoucles } from "./loop-protect";
+import { guardLoops } from "./loop-protect";
 import { SANDBOX_JS_PATH, sandboxOriginFor } from "./sandbox-origin";
 
 export interface JsRunResult {
-  /** Vrai si le code s'est exécuté sans lever d'erreur. */
+  /** True if the code ran without throwing an error. */
   ok: boolean;
-  /** Lignes capturées de la console, dans l'ordre. */
+  /** Captured console lines, in order. */
   logs: string[];
-  /** Message d'erreur, ou null si l'exécution a réussi. */
+  /** Error message, or null if the run succeeded. */
   error: string | null;
-  /** Valeur renvoyée par le code (`return` de premier niveau). */
+  /** Value returned by the code (top-level `return`). */
   lastValue: unknown;
 }
 
@@ -31,12 +31,12 @@ export function runJs(code: string): Promise<JsRunResult> {
       return;
     }
 
-    // Avant l'envoi : l'iframe peut partager le fil de la page, et le délai
-    // ci-dessous ne peut rien contre une boucle synchrone (audit EXE-02).
-    const codeProtege = protegerBoucles(code);
+    // Before sending: the iframe may share the page's thread, and the timeout
+    // below can do nothing against a synchronous loop (audit EXE-02).
+    const guardedCode = guardLoops(code);
 
-    // Origine dédiée : le document y porte sa propre CSP permissive au lieu
-    // d'hériter de celle, stricte, de l'application (audit EXE-03).
+    // Dedicated origin: there the document carries its own permissive CSP instead
+    // of inheriting the application's strict one (audit EXE-03).
     const sandboxSrc = sandboxOriginFor(window.location.origin) + SANDBOX_JS_PATH;
 
     const iframe = document.createElement("iframe");
@@ -58,15 +58,15 @@ export function runJs(code: string): Promise<JsRunResult> {
 
     const onMessage = (event: MessageEvent) => {
       if (event.source !== iframe.contentWindow) return;
-      // Iframe sandboxée sans allow-same-origin : origine littérale "null".
+      // Sandboxed iframe without allow-same-origin: literal origin "null".
       if (event.origin !== "null") return;
       const data = event.data as { type?: string; payload?: JsRunResult };
 
-      // Origine opaque : "*" est la seule cible possible. La charge utile n'est
-      // pas un secret, et le document vérifie `event.source === parent`.
+      // Opaque origin: "*" is the only possible target. The payload is not
+      // a secret, and the document checks `event.source === parent`.
       if (data?.type === "sandbox:ready") {
         iframe.contentWindow?.postMessage(
-          { type: "sandbox:run", code: codeProtege },
+          { type: "sandbox:run", code: guardedCode },
           "*"
         );
         return;
@@ -76,9 +76,9 @@ export function runJs(code: string): Promise<JsRunResult> {
       finish(data.payload);
     };
 
-    // Filet pour un code asynchrone qui ne répond jamais ou une iframe qui ne
-    // démarre pas. Plus long que la garde de loop-protect.ts (3 s), pour laisser
-    // s'afficher son message, plus précis.
+    // Safety net for async code that never responds or an iframe that never
+    // starts. Longer than the loop-protect.ts guard (3 s), so its more precise
+    // message gets shown first.
     const timeout = setTimeout(() => {
       finish({
         ok: false,

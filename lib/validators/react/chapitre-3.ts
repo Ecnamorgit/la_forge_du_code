@@ -4,7 +4,7 @@ import { stripLineComments, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Étape 1 : import de useEffect, log au montage avec [] en dépendances
+  // Step 1: useEffect import, log on mount with [] as dependencies
   (code) => {
     const c = strip(code);
     if (!/import\s*\{[^}]*\buseEffect\b[^}]*\}\s*from\s*['"]react['"]/.test(c)) {
@@ -18,7 +18,7 @@ export const validators: Validator[] = [
     }
     return pass("Effet initial.", ["o1a", "o1b"]);
   },
-  // Étape 2 : document.title dans un useEffect, count en dépendance
+  // Step 2: document.title in a useEffect, count as a dependency
   (code) => {
     const c = strip(code);
     if (!/document\.title\s*=/.test(c)) {
@@ -29,7 +29,7 @@ export const validators: Validator[] = [
     }
     return pass("Synchronisation.", ["o2a", "o2b"]);
   },
-  // Étape 3 : setInterval et cleanup par clearInterval
+  // Step 3: setInterval and cleanup with clearInterval
   (code) => {
     const c = strip(code);
     if (!/setInterval\s*\(/.test(c)) {
@@ -40,7 +40,7 @@ export const validators: Validator[] = [
     }
     return pass("Fuite évitée.", ["o3a", "o3b"]);
   },
-  // Étape 4 : fetch au montage et affichage conditionnel du chargement
+  // Step 4: fetch on mount and conditional loading display
   (code) => {
     const c = strip(code);
     if (!/useEffect\s*\(/.test(c) || !/fetch\s*\(/.test(c)) {

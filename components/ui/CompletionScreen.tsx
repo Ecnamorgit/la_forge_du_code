@@ -12,15 +12,15 @@ interface CompletionScreenProps {
   totalXp: number;
   badgeIcon: string;
   badgeLabel: string;
-  /** Case dans /sprites/badges.png ; à défaut, `badgeIcon` est affiché. */
+  /** Cell in /sprites/badges.png; if missing, `badgeIcon` is shown. */
   badgeFrame?: number;
-  /** Id du badge : s'il est fourni, un bouton de partage génère une carte publique. */
+  /** Badge id: when provided, a share button generates a public card. */
   badgeId?: string;
-  /** Libellés des ordres du jour accomplis par cette étape. */
+  /** Labels of the daily orders completed by this step. */
   completedQuests?: string[];
-  /** Ids des badges de conduite obtenus par cette étape (catalogue lib/conduct-badges.ts). */
+  /** Ids of the conduct badges earned by this step (catalog in lib/conduct-badges.ts). */
   newConductBadges?: string[];
-  /** Message de liaison ponctuel (relais consommé, rupture). */
+  /** One-off liaison message (relay used, streak broken). */
   notice?: string | null;
   onClose?: () => void;
   href?: string;

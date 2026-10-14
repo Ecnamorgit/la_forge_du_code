@@ -4,7 +4,7 @@ import { stripLineComments, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "#");
 
 export const validators: Validator[] = [
-  // Étape 1 : trois variables et un print en f-string
+  // Step 1: three variables and a print with an f-string
   (code) => {
     const c = strip(code);
     const vars =
@@ -19,21 +19,21 @@ export const validators: Validator[] = [
     }
     return pass("Python initialisé.", ["o1a", "o1b"]);
   },
-  // Étape 2 : def calculer_xp, appel et print
+  // Step 2: def calculer_xp, a call and print
   (code) => {
     const c = strip(code);
     if (!/def\s+calculer_xp\s*\(\s*niveau\s*,\s*bonus\s*\)\s*:/.test(c)) {
       return fail("Déclare la fonction : def calculer_xp(niveau, bonus):");
     }
-    // On retire la déclaration avant de chercher un appel : elle contient
-    // elle-même « calculer_xp( » et validerait une fonction jamais appelée.
-    const sansDeclaration = c.replace(/def\s+calculer_xp\s*\([^)]*\)\s*:/, "");
-    if (!/calculer_xp\s*\(/.test(sansDeclaration) || !/print\s*\(/.test(c)) {
+    // Remove the declaration before looking for a call: it contains
+    // "calculer_xp(" itself and would validate a function that is never called.
+    const withoutDeclaration = c.replace(/def\s+calculer_xp\s*\([^)]*\)\s*:/, "");
+    if (!/calculer_xp\s*\(/.test(withoutDeclaration) || !/print\s*\(/.test(c)) {
       return fail("Appelle calculer_xp(5, 20) et affiche le resultat avec print.");
     }
     return pass("Fonction créée.", ["o2a", "o2b"]);
   },
-  // Étape 3 : liste et for ... in enumerate
+  // Step 3: list and for ... in enumerate
   (code) => {
     const c = strip(code);
     if (!/pilotes\s*=\s*\[[^\]]*Lia[^\]]*Max[^\]]*Eva[^\]]*\]/.test(c)) {
@@ -44,7 +44,7 @@ export const validators: Validator[] = [
     }
     return pass("Itération maîtrisée.", ["o3a", "o3b"]);
   },
-  // Étape 4 : dict, lecture d'une valeur, ajout d'une clé et boucle .items()
+  // Step 4: dict, reading a value, adding a key and a .items() loop
   (code) => {
     const c = strip(code);
     if (!/pilote\s*=\s*\{[^}]*['"]nom['"]\s*:/.test(c) || !/pilote\s*\[\s*['"]niveau['"]\s*\]/.test(c)) {

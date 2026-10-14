@@ -1,5 +1,5 @@
 /**
- * Cinématiques génériques, utilisées tant qu'un cursus n'a pas d'arc écrit
+ * Generic cinematics, used until a course has a written arc
  * (`data/courses/<slug>/cinematics.ts`).
  */
 
@@ -41,8 +41,8 @@ export function genericIntro(course: string): Cinematic {
 }
 
 /**
- * Paires de scènes d'outro, choisies par rang de chapitre : le choix est
- * déterministe et deux chapitres consécutifs ne se répètent pas.
+ * Pairs of outro scenes, picked by chapter rank: the choice is
+ * deterministic and two consecutive chapters never repeat.
  */
 const GENERIC_OUTROS: ReadonlyArray<readonly [string, string]> = [
   [
@@ -59,7 +59,7 @@ const GENERIC_OUTROS: ReadonlyArray<readonly [string, string]> = [
   ],
 ];
 
-/** Rang du chapitre extrait de son slug ("chapitre-3" → 3), 0 si inconnu. */
+/** Chapter rank parsed from its slug ("chapitre-3" → 3), 0 if unknown. */
 function chapterRank(chapterSlug: string): number {
   const m = /(\d+)$/.exec(chapterSlug);
   return m ? Number(m[1]) : 0;
@@ -70,7 +70,7 @@ export function genericChapterOutro(course: string, chapterSlug: string): Cinema
     GENERIC_OUTROS[chapterRank(chapterSlug) % GENERIC_OUTROS.length];
   const scenes: CinematicScene[] = [
     { id: 0, speaker: "system", narration: systemLine, visual: "station", fx: "victory" },
-    // `helpLine` porte déjà ses guillemets : ne pas l'encadrer à nouveau.
+    // `helpLine` already includes its quotation marks: do not wrap it again.
     { id: 1, speaker: "help", narration: helpLine, visual: "briefing" },
   ];
   return { id: cinematicId(course, { kind: "chapter", chapter: chapterSlug }), scenes };

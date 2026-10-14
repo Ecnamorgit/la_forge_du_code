@@ -1,7 +1,7 @@
 import type { DocEntry } from "../types";
 
-export const tableaux: DocEntry = {
-  id: "js/tableaux",
+export const arrays: DocEntry = {
+  id: "js/arrays",
   domain: "js",
   term: "Array",
   title: "Tableaux & boucles",
@@ -22,6 +22,6 @@ Boucle \`for\` classique, ou \`for...of\` pour itérer les valeurs. Méthodes ut
     "Le premier élément a l'index 0, le dernier length - 1.",
     "flotte[flotte.length] est toujours undefined (hors bornes).",
   ],
-  related: ["js/array-methods", "js/objets"],
+  related: ["js/array-methods", "js/objects"],
   official: { label: "MDN — Array", url: "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Array" },
 };

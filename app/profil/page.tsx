@@ -19,13 +19,13 @@ import CourseIcon from "@/components/ui/CourseIcon";
 import Sprite from "@/components/ui/Sprite";
 import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 
-// L'index d'une vignette dans badges.png est sa position dans ce tableau.
+// A thumbnail's index in badges.png is its position in this array.
 const ALL_BADGES = BADGES;
 
-// `state.badges` mêle badges de cursus et badges de conduite
-// (lib/conduct-badges.ts) : le compteur ne retient que les premiers, rapportés
-// à leur propre total.
-const CURSUS_BADGE_IDS = new Set(ALL_BADGES.map((b) => b.id));
+// `state.badges` mixes course badges and conduct badges
+// (lib/conduct-badges.ts): the counter only keeps the former, measured
+// against their own total.
+const COURSE_BADGE_IDS = new Set(ALL_BADGES.map((b) => b.id));
 
 const COURSES_LIST = COURSES_CATALOG.map((c) => ({
   slug: c.slug,
@@ -61,7 +61,7 @@ function getCourseSlugByBadgeId(id: string): string {
   return "html";
 }
 
-export default function ProfilPage() {
+export default function ProfilePage() {
   const { state, hydrated, renameUser, reset } = useUser();
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState("");
@@ -74,10 +74,10 @@ export default function ProfilPage() {
   const totalXp = state.totalXp;
   const level = levelFromXp(totalXp);
   const rank = gradeFromXp(totalXp).label;
-  // Source unique du compteur de liaison côté client : `state.liaison`.
+  // Single client-side source for the liaison counter: `state.liaison`.
   const streak = state.liaison.streak || 1;
   const joined = state.joinedAt || "—";
-  const cursusBadgeCount = state.badges.filter((id) => CURSUS_BADGE_IDS.has(id)).length;
+  const courseBadgeCount = state.badges.filter((id) => COURSE_BADGE_IDS.has(id)).length;
 
   const computeProgress = (course: string, chapters: ChapterMetaFull[]) => {
     const totalSteps = chapters.reduce((s, c) => s + c.totalSteps, 0);
@@ -159,7 +159,7 @@ export default function ProfilPage() {
           ← Retour au pont
         </Link>
 
-        {/* En-tête */}
+        {/* Header */}
         <section className="mb-10 rounded-sm border border-nebula-cyan/40 bg-nebula-bg-panel/85 p-5 backdrop-blur-md sm:p-8 shadow-[0_0_40px_rgba(0,240,255,0.08)] animate-fade-down">
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:flex-wrap sm:gap-8">
             <div className="relative shrink-0">
@@ -266,7 +266,7 @@ export default function ProfilPage() {
           </div>
         </section>
 
-        {/* Statistiques */}
+        {/* Statistics */}
         <section className="mb-10 animate-fade-up">
           <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
             {"> "}Statistiques
@@ -276,14 +276,14 @@ export default function ProfilPage() {
             <BigStat label="Rang" value={rank} accent="orange" />
             <BigStat
               label="Badges"
-              value={`${cursusBadgeCount}/${ALL_BADGES.length}`}
+              value={`${courseBadgeCount}/${ALL_BADGES.length}`}
               accent="blue"
             />
             <BigStat label="Liaison" value={`${streak}j`} accent="green" />
           </div>
         </section>
 
-        {/* Progression par cursus */}
+        {/* Progress per course */}
         <section className="mb-10 animate-fade-up">
           <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
             {"> "}Progression des cursus
@@ -417,7 +417,7 @@ export default function ProfilPage() {
           </div>
         </section>
 
-        {/* Personnalisation */}
+        {/* Customization */}
         <section className="mb-10 animate-fade-up">
           <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
             {"> "}Personnalisation
@@ -458,7 +458,7 @@ export default function ProfilPage() {
           </div>
         </section>
 
-        {/* Paramètres */}
+        {/* Settings */}
         <section className="mb-10 animate-fade-up">
           <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
             {"> "}Préférences
@@ -468,7 +468,7 @@ export default function ProfilPage() {
           </div>
         </section>
 
-        {/* Données personnelles (RGPD) */}
+        {/* Personal data (GDPR) */}
         <section className="mb-10 animate-fade-up">
           <h2 className="mb-5 font-tech text-xl uppercase tracking-widest text-nebula-cyan">
             {"> "}Mes données (RGPD)
@@ -502,7 +502,7 @@ export default function ProfilPage() {
 
 function DangerZone() {
   const router = useRouter();
-  // Le serveur exige le mot de passe pour supprimer le compte (audit SRV-09).
+  // The server requires the password to delete the account (audit SRV-09).
   const [confirming, setConfirming] = useState(false);
   const [password, setPassword] = useState("");
   const [deleting, setDeleting] = useState(false);

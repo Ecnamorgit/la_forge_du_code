@@ -84,8 +84,8 @@ export default function LevelNodeComponent({
     return isComplete ? "completed" : "available";
   }, [node.slug, course, state, chaptersMeta]);
 
-  // En essai, les chapitres hors périmètre restent verrouillés quelle que soit
-  // la progression locale.
+  // In trial mode, out-of-scope chapters stay locked regardless of the
+  // local progress.
   const trialLocked = isTrial && !TRIAL_CHAPTERS.includes(node.slug);
 
   const isLocked = trialLocked || status === "locked";

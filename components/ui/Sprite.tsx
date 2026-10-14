@@ -1,25 +1,25 @@
 /**
- * Affiche une case d'une planche de sprites pixel art par background-position,
- * sans lissage. Les dimensions de la planche sont celles de la source ;
- * `displaySize` fixe la taille à l'écran.
+ * Displays one cell of a pixel art sprite sheet via background-position,
+ * without smoothing. The sheet dimensions are those of the source;
+ * `displaySize` sets the on-screen size.
  */
 
 export interface SpriteSheet {
-  /** URL publique de la planche. */
+  /** Public URL of the sheet. */
   src: string;
-  /** Largeur d'une case, en pixels source. */
+  /** Width of a cell, in source pixels. */
   frameWidth: number;
-  /** Hauteur d'une case, en pixels source. */
+  /** Height of a cell, in source pixels. */
   frameHeight: number;
-  /** Nombre de cases par ligne. */
+  /** Number of cells per row. */
   columns: number;
 }
 
 interface SpriteProps {
   sheet: SpriteSheet;
-  /** Index de la case à partir de 0, de gauche à droite puis de haut en bas. */
+  /** 0-based cell index, left to right then top to bottom. */
   frame: number;
-  /** Côté du carré dans lequel la case est affichée. */
+  /** Side of the square in which the cell is displayed. */
   displaySize?: number;
   className?: string;
   title?: string;
@@ -39,10 +39,10 @@ export default function Sprite({
   const size = displaySize ?? Math.max(frameWidth, frameHeight);
   const scaleX = size / frameWidth;
   const scaleY = size / frameHeight;
-  // La plus petite échelle, pour que la case tienne dans `size` x `size`.
+  // The smaller scale, so the cell fits within `size` x `size`.
   const rawScale = Math.min(scaleX, scaleY);
-  // En agrandissement, échelle entière pour garder des pixels nets ; en
-  // réduction, l'échelle reste fractionnaire.
+  // When upscaling, use an integer scale to keep pixels crisp; when
+  // downscaling, the scale stays fractional.
   const scale = rawScale >= 1 ? Math.floor(rawScale) : rawScale;
 
   return (

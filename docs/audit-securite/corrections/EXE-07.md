@@ -28,7 +28,7 @@ Relevé sur la production le 2026-09-14 :
 
 ## Démonstration
 
-Test [e2e/sql-moteur.spec.ts](../../../e2e/sql-moteur.spec.ts), commité seul, avant le correctif (commit `c1d311a`). Il saisit la solution de la première étape (celle de l'indice) et la déploie.
+Test [e2e/sql-engine.spec.ts](../../../e2e/sql-engine.spec.ts), commité seul, avant le correctif (commit `c1d311a`). Il saisit la solution de la première étape (celle de l'indice) et la déploie.
 
 | Contrôle | Avant correctif | Après correctif |
 |---|---|---|

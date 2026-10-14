@@ -14,47 +14,47 @@ afterEach(() => {
 });
 
 describe("getClientIp", () => {
-  it("prend la dernière entrée XFF (ajoutée par le proxy de confiance) par défaut", () => {
-    // Le client a préfixé une IP falsifiée ; le proxy a ajouté la vraie à droite.
+  it("takes the last XFF entry (added by the trusted proxy) by default", () => {
+    // The client prepended a forged IP; the proxy appended the real one on the right.
     delete process.env.TRUSTED_PROXY_HOPS;
     const ip = getClientIp(reqWith({ "x-forwarded-for": "1.2.3.4, 203.0.113.7" }));
     expect(ip).toBe("203.0.113.7");
   });
 
-  it("ignore une IP spoofée en tête de chaîne", () => {
+  it("ignores a spoofed IP at the start of the chain", () => {
     delete process.env.TRUSTED_PROXY_HOPS;
     const spoofed = getClientIp(reqWith({ "x-forwarded-for": "9.9.9.9" }));
-    // Une seule entrée : c'est celle ajoutée par le proxy, donc légitime.
+    // A single entry: it is the one added by the proxy, so it is legitimate.
     expect(spoofed).toBe("9.9.9.9");
-    // Mais préfixer ne change pas la clé si le proxy ajoute la vraie IP.
+    // But prepending does not change the key if the proxy appends the real IP.
     const withRealHop = getClientIp(
       reqWith({ "x-forwarded-for": "9.9.9.9, 203.0.113.7" })
     );
     expect(withRealHop).toBe("203.0.113.7");
   });
 
-  it("respecte TRUSTED_PROXY_HOPS pour plusieurs proxys de confiance", () => {
+  it("honors TRUSTED_PROXY_HOPS for several trusted proxies", () => {
     process.env.TRUSTED_PROXY_HOPS = "2";
     const ip = getClientIp(
       reqWith({ "x-forwarded-for": "spoof, 203.0.113.7, 10.0.0.1" })
     );
-    // Deux proxys de confiance à droite : on remonte à l'IP client réelle.
+    // Two trusted proxies on the right: we walk back to the real client IP.
     expect(ip).toBe("203.0.113.7");
   });
 
-  it("borne les hops à la longueur de la chaîne", () => {
+  it("clamps the hops to the chain length", () => {
     process.env.TRUSTED_PROXY_HOPS = "5";
     const ip = getClientIp(reqWith({ "x-forwarded-for": "203.0.113.7" }));
     expect(ip).toBe("203.0.113.7");
   });
 
-  it("retombe sur x-real-ip puis 'unknown'", () => {
+  it("falls back to x-real-ip then 'unknown'", () => {
     delete process.env.TRUSTED_PROXY_HOPS;
     expect(getClientIp(reqWith({ "x-real-ip": "203.0.113.9" }))).toBe("203.0.113.9");
     expect(getClientIp(reqWith({}))).toBe("unknown");
   });
 
-  it("ignore une valeur XFF vide ou composée de virgules", () => {
+  it("ignores an XFF value that is empty or made of commas", () => {
     delete process.env.TRUSTED_PROXY_HOPS;
     expect(getClientIp(reqWith({ "x-forwarded-for": "  , ,", "x-real-ip": "203.0.113.9" }))).toBe(
       "203.0.113.9"

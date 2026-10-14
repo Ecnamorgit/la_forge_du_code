@@ -3,33 +3,33 @@
 import { useEffect, type RefObject } from "react";
 
 interface UseModalOverlayOptions {
-  /** Vrai quand l'overlay est affiché. */
+  /** True when the overlay is shown. */
   open: boolean;
-  /** Appelé à la fermeture (Échap, ou tout autre déclencheur du site appelant). */
+  /** Called on close (Escape, or any other trigger from the calling site). */
   onClose: () => void;
   /**
-   * Élément qui reçoit le focus à l'ouverture. Par défaut, l'overlay lui-même
-   * (nœud pointé par `ref`, qui doit alors porter `tabIndex={-1}`) ; à fournir
-   * quand un contrôle précis, comme le bouton « Passer », doit le recevoir.
+   * Element that receives focus on open. Defaults to the overlay itself
+   * (the node `ref` points to, which must then have `tabIndex={-1}`); provide
+   * it when a specific control, such as the "Passer" button, should get it.
    */
   getInitialFocusTarget?: () => HTMLElement | null;
 }
 
 /**
- * Comportement modal des overlays plein écran (cinématique post-inscription,
- * crawl d'accueil). Échap déclenche `onClose`. Tab reste piégé dans l'overlay :
- * la page dessous reste dans le DOM pour les robots et les aperçus de lien,
- * mais ne doit pas être navigable au clavier. Le focus entre dans l'overlay à
- * l'ouverture et revient à l'élément déclencheur à la fermeture.
+ * Modal behavior for full-screen overlays (post-signup cutscene, welcome
+ * crawl). Escape triggers `onClose`. Tab stays trapped in the overlay: the
+ * page underneath stays in the DOM for crawlers and link previews, but must
+ * not be keyboard-navigable. Focus moves into the overlay on open and returns
+ * to the triggering element on close.
  *
- * Les attributs ARIA (`role="dialog"`, `aria-modal`, `aria-label`) restent à
- * la charge de l'appelant.
+ * ARIA attributes (`role="dialog"`, `aria-modal`, `aria-label`) are up to
+ * the caller.
  */
 export function useModalOverlay(
   ref: RefObject<HTMLElement | null>,
   { open, onClose, getInitialFocusTarget }: UseModalOverlayOptions
 ) {
-  // Échap ferme ; Tab reste dans l'overlay, comme l'exige aria-modal.
+  // Escape closes; Tab stays in the overlay, as aria-modal requires.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -58,8 +58,8 @@ export function useModalOverlay(
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose, ref]);
 
-  // Focus initial à l'ouverture, rendu à l'élément déclencheur (bouton
-  // « Revoir l'intro », par exemple) à la fermeture.
+  // Initial focus on open, returned to the triggering element (the
+  // "Revoir l'intro" button, for example) on close.
   useEffect(() => {
     if (!open) return;
     const previouslyFocused = document.activeElement as HTMLElement | null;
@@ -68,6 +68,6 @@ export function useModalOverlay(
     return () => {
       previouslyFocused?.focus?.();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `getInitialFocusTarget` n'est volontairement pas une dep : le rappeler à chaque render déclencherait la ré-exécution de l'effet.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `getInitialFocusTarget` is deliberately not a dep: calling it on every render would re-run the effect.
   }, [open, ref]);
 }

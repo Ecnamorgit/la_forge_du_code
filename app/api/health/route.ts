@@ -5,7 +5,7 @@ import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
-/** Sonde de santé : `200` si la base répond, `503` sinon. */
+/** Health probe: `200` if the database responds, `503` otherwise. */
 export async function GET() {
   try {
     await prisma.$queryRaw`SELECT 1`;

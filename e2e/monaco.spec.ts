@@ -2,11 +2,11 @@ import { test, expect } from "@playwright/test";
 
 import { STORAGE_STATE } from "./global-setup";
 
-// Session partagée écrite par global-setup (limite de connexions par IP).
+// Shared session written by global-setup (per-IP login limit).
 test.use({ storageState: STORAGE_STATE });
 
-/** CF-15 et CF-16 : Monaco se charge depuis les assets self-hébergés (/monaco/vs). */
-test("Monaco se charge en local, sans le CDN jsdelivr", async ({ page }) => {
+/** CF-15 and CF-16: Monaco loads from the self-hosted assets (/monaco/vs). */
+test("Monaco loads locally, without the jsdelivr CDN", async ({ page }) => {
   const cdnHits: string[] = [];
   page.on("request", (req) => {
     if (req.url().includes("cdn.jsdelivr.net")) cdnHits.push(req.url());
@@ -19,6 +19,6 @@ test("Monaco se charge en local, sans le CDN jsdelivr", async ({ page }) => {
 
   expect(
     cdnHits,
-    `Requêtes inattendues vers jsdelivr : ${cdnHits.join(", ")}`
+    `Unexpected requests to jsdelivr: ${cdnHits.join(", ")}`
   ).toEqual([]);
 });

@@ -17,9 +17,10 @@ interface CourseCinematicsMountProps {
 }
 
 /**
- * Cinématiques de la page cursus. L'intro se joue automatiquement à la
- * première visite seulement ; « Revoir le briefing » est toujours proposé et
- * « Revoir la finale » apparaît une fois la finale vue (cursus terminé).
+ * Cinematics for the course page. The intro plays automatically on the
+ * first visit only; « Revoir le briefing » (replay briefing) is always offered
+ * and « Revoir la finale » (replay finale) appears once the finale has been
+ * seen (course completed).
  */
 export default function CourseCinematicsMount({
   course,
@@ -33,17 +34,17 @@ export default function CourseCinematicsMount({
   const introId = cinematicId(course, { kind: "intro" });
   const finaleId = cinematicId(course, { kind: "finale" });
 
-  // Lecture automatique de l'intro : une seule décision par montage.
+  // Intro autoplay: a single decision per mount.
   useEffect(() => {
     if (!loaded || autoChecked) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- decision d'auto-lecture ponctuelle au montage
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off autoplay decision on mount
     setAutoChecked(true);
     if (!seen.has(introId)) setPlaying("intro");
   }, [loaded, autoChecked, seen, introId]);
 
-  // Référence stable : `CinematicPlayer` remet à zéro son minuteur de scène
-  // quand `onClose` change d'identité, ce qu'un rendu parent quelconque
-  // provoquerait avec une flèche inline.
+  // Stable reference: `CinematicPlayer` resets its scene timer when
+  // `onClose` changes identity, which any parent render would cause
+  // with an inline arrow.
   const close = useCallback(() => {
     if (playing) mark(playing === "intro" ? introId : finaleId);
     setPlaying(null);

@@ -1,27 +1,27 @@
 /**
- * Source unique du lore de la Coalition Nebula, hors du JSX, pour que tous les
- * textes nomment la menace de la même façon (vérifié par `lib/lore.test.ts`).
- * Son nom canonique est SPECTRE.
+ * Single source for the Coalition Nebula lore, outside JSX, so that every
+ * text names the threat the same way (checked by `lib/lore.test.ts`).
+ * Its canonical name is SPECTRE.
  */
 
 export interface LoreSection {
-  /** Ancre stable pour les liens profonds vers le Codex. */
+  /** Stable anchor for deep links into the Codex. */
   id: string;
   title: string;
-  /** Paragraphes. */
+  /** Paragraphs. */
   body: string[];
 }
 
 export interface CrawlLine {
-  /** "title" est rendu en gros, "body" en texte courant. */
+  /** "title" renders large, "body" as regular text. */
   kind: "title" | "body";
   text: string;
 }
 
-/** Budget de mots du crawl : au-delà, les 15 s d'animation ne suffisent plus. */
+/** Crawl word budget: beyond it, the 15 s animation is no longer long enough. */
 export const CRAWL_WORD_BUDGET = 130;
 
-/** Version condensée, lue par l'overlay d'arrivée (~15 s). */
+/** Condensed version, read by the arrival overlay (~15 s). */
 export const CRAWL_LINES: CrawlLine[] = [
   { kind: "title", text: "I. La Coalition Nebula" },
   {
@@ -40,7 +40,7 @@ export const CRAWL_LINES: CrawlLine[] = [
   },
 ];
 
-/** Version complète, rendue par la page /codex. */
+/** Full version, rendered by the /codex page. */
 export const LORE_SECTIONS: LoreSection[] = [
   {
     id: "coalition",

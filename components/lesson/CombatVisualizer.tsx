@@ -1,11 +1,11 @@
 "use client";
 
 /**
- * Traduit un résultat de validation en courte séquence de combat spatial, en
- * CSS pur dans l'esthétique 16 bits. La séquence de succès dépend du thème du
- * cursus (tourelle, réparation, champ) ; celle d'erreur (contre-attaque
- * ennemie) est commune. Purement décoratif (aria-hidden), ne bloque jamais la
- * progression. Les animations sont coupées sous prefers-reduced-motion.
+ * Turns a validation result into a short space-combat sequence, in
+ * pure CSS with a 16-bit look. The success sequence depends on the course
+ * theme (turret, repair, field); the error one (enemy counter-attack)
+ * is shared. Purely decorative (aria-hidden), never blocks
+ * progress. Animations are disabled under prefers-reduced-motion.
  */
 
 import EnemySprite from "@/components/ui/EnemySprite";
@@ -15,9 +15,9 @@ export type CombatOutcome = "fly" | "explode" | "none";
 
 interface CombatVisualizerProps {
   outcome: CombatOutcome;
-  /** À incrémenter pour (re)jouer la séquence. */
+  /** Increment to (re)play the sequence. */
   trigger: number;
-  /** Thème du cursus pour la séquence de succès (tourelle laser par défaut). */
+  /** Course theme for the success sequence (laser turret by default). */
   theme?: CombatTheme;
 }
 
@@ -36,7 +36,7 @@ export default function CombatVisualizer({
       aria-hidden="true"
       className="pointer-events-none absolute inset-y-0 left-0 right-0 z-10 overflow-hidden"
     >
-      {/* Émetteur du joueur, à gauche ; il ne se charge qu'avec le thème tourelle. */}
+      {/* Player's emitter, on the left; it only charges up with the turret theme. */}
       <div
         className={`absolute left-1 top-1/2 ${
           isSuccess && theme === "turret" ? "animate-emitter-charge" : ""
@@ -46,7 +46,7 @@ export default function CombatVisualizer({
         <div className="combat-emitter" />
       </div>
 
-      {/* Séquence de succès, selon le thème. */}
+      {/* Success sequence, depending on the theme. */}
       {isSuccess && theme === "turret" && (
         <div
           className="animate-laser-fire absolute left-5 top-1/2 h-[3px] w-[55%] bg-gradient-to-r from-nebula-cyan via-nebula-cyan to-transparent"
@@ -70,7 +70,7 @@ export default function CombatVisualizer({
         </div>
       )}
 
-      {/* Drone ennemi : explose en cas de succès, traverse l'écran en cas d'erreur. */}
+      {/* Enemy drone: explodes on success, flies across the screen on error. */}
       <EnemySprite type={outcome} trigger={trigger} />
     </div>
   );

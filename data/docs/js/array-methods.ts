@@ -23,6 +23,6 @@ Aucune ne modifie le tableau d'origine.
     "map garde toujours le même nombre d'éléments ; filter en garde ≤.",
     "reduce a besoin d'une valeur initiale (le 2e argument) pour être sûr.",
   ],
-  related: ["js/tableaux", "js/fonctions"],
+  related: ["js/arrays", "js/functions"],
   official: { label: "MDN — Array.map", url: "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Array/map" },
 };

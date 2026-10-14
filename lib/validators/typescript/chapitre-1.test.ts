@@ -2,39 +2,39 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * TypeScript chapitre 1 — étapes 2 à 4.
+ * TypeScript chapter 1 — steps 2 to 4.
  *
- * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
+ * Step 1 is already covered by `lib/validators/all-chapter-1.test.ts`.
  */
 
-describe("TypeScript — etape 2 (typer une fonction)", () => {
-  const valider = validators[1];
+describe("TypeScript — step 2 (typing a function)", () => {
+  const validate = validators[1];
 
-  it("accepte des parametres et un retour types", () => {
+  it("accepts typed parameters and a typed return value", () => {
     const code = `function calculerXp(niveau: number, bonus: number): number {
   return niveau * 100 + bonus;
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse des parametres types sans type de retour", () => {
-    // Échec ciblé : l'étape demande les deux.
+  it("rejects typed parameters without a return type", () => {
+    // Targeted failure: the step asks for both.
     const code = `function calculerXp(niveau: number, bonus: number) {
   return niveau * 100 + bonus;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un parametre laisse sans type", () => {
+  it("rejects a parameter left untyped", () => {
     const code = `function calculerXp(niveau: number, bonus): number {
   return niveau * 100 + bonus;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("TypeScript — etape 3 (interface et constante typee)", () => {
-  const valider = validators[2];
+describe("TypeScript — step 3 (interface and typed constant)", () => {
+  const validate = validators[2];
 
   const INTERFACE = `interface Pilote {
   id: number;
@@ -43,57 +43,57 @@ describe("TypeScript — etape 3 (interface et constante typee)", () => {
   actif: boolean;
 }`;
 
-  it("accepte une interface complete et une constante typee", () => {
+  it("accepts a complete interface and a typed constant", () => {
     const code = `${INTERFACE}
 const lia: Pilote = { id: 1, nom: 'Lia', niveau: 5, actif: true };`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse une constante non annotee", () => {
-    // Échec ciblé : l'interface existe, la constante ne s'y rattache pas.
+  it("rejects an unannotated constant", () => {
+    // Targeted failure: the interface exists, but the constant is not tied to it.
     const code = `${INTERFACE}
 const lia = { id: 1, nom: 'Lia', niveau: 5, actif: true };`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse une interface a laquelle il manque un champ", () => {
+  it("rejects an interface that is missing a field", () => {
     const code = `interface Pilote {
   id: number;
   nom: string;
   niveau: number;
 }
 const lia: Pilote = { id: 1, nom: 'Lia', niveau: 5 };`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("TypeScript — etape 4 (type union)", () => {
-  const valider = validators[3];
+describe("TypeScript — step 4 (union type)", () => {
+  const validate = validators[3];
 
   const UNION = `type Statut = 'en_vol' | 'en_base' | 'detruit';`;
 
-  it("accepte une union de trois litteraux et un parametre type", () => {
+  it("accepts a union of three literals and a typed parameter", () => {
     const code = `${UNION}
 function afficher(statut: Statut) {
   console.log(statut);
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse une union amputee d'un litteral", () => {
+  it("rejects a union missing one literal", () => {
     const code = `type Statut = 'en_vol' | 'en_base';
 function afficher(statut: Statut) {
   console.log(statut);
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un parametre type string au lieu de l'union", () => {
-    // Échec ciblé : c'est le typage du paramètre qui donne sa valeur à l'union.
+  it("rejects a parameter typed string instead of the union", () => {
+    // Targeted failure: typing the parameter is what gives the union its value.
     const code = `${UNION}
 function afficher(statut: string) {
   console.log(statut);
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });

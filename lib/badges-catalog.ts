@@ -1,15 +1,15 @@
 /**
- * Catalogue ordonné des badges de chapitre. L'ordre fixe l'index de frame dans
- * /sprites/badges.png : le badge en position `i` utilise la frame `i`
+ * Ordered catalog of chapter badges. The order sets the frame index in
+ * /sprites/badges.png: the badge at position `i` uses frame `i`
  * (docs/PIXEL_ART_GUIDE.md §3C).
  *
- * À garder aligné sur BADGE_BY_CHAPTER (lib/courses-meta.ts), qui attribue les
- * badges : chaque `id` doit exister des deux côtés.
+ * Keep in sync with BADGE_BY_CHAPTER (lib/courses-meta.ts), which awards the
+ * badges: every `id` must exist on both sides.
  */
 
 export interface BadgeDef {
   id: string;
-  /** Emoji de repli quand la planche de sprites n'est pas utilisée. */
+  /** Fallback emoji when the sprite sheet is not used. */
   icon: string;
   label: string;
   description: string;
@@ -62,7 +62,7 @@ export const BADGES: BadgeDef[] = [
   { id: "react-forms", icon: "🎛", label: "Opérateur de Console", description: "Formulaires controles" },
   { id: "react-hooks", icon: "🔧", label: "Forgeron de Hooks", description: "Hooks personnalises" },
   { id: "react-context", icon: "📡", label: "Coordinateur de Flotte", description: "Contexte et useReducer" },
-  // Cursus à un seul chapitre
+  // Single-chapter courses
   { id: "ts-shield", icon: "🛡", label: "Ingénieur Types", description: "TypeScript et typage statique" },
   { id: "git-archivist", icon: "🗂", label: "Archiviste du Code", description: "Git et versioning" },
   { id: "sql-keeper", icon: "🗃", label: "Gardien des Bases", description: "SQL et bases relationnelles" },
@@ -79,7 +79,7 @@ const FRAME_BY_ID: Record<string, number> = Object.fromEntries(
   BADGES.map((b, i) => [b.id, i])
 );
 
-/** Index de frame d'un badge, ou null s'il est inconnu. */
+/** Frame index of a badge, or null if it is unknown. */
 export function badgeFrameById(id: string): number | null {
   return FRAME_BY_ID[id] ?? null;
 }

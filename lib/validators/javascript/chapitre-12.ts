@@ -1,11 +1,11 @@
 import type { Validator } from "@/data/courses/html/types";
 import { stripLineComments, fail, pass } from "../_static-utils";
 
-// Validation statique : l'hôte REST fictif ne répond jamais dans le bac à sable.
+// Static validation: the fictional REST host never responds in the sandbox.
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Étape 1 : GET /vaisseaux (sans options), response.ok et log
+  // Step 1: GET /vaisseaux (no options), response.ok and log
   (code) => {
     const c = strip(code);
     if (!/fetch\s*\(\s*['"]https:\/\/api\.codeforge\.space\/vaisseaux['"]\s*\)/.test(c)) {
@@ -16,7 +16,7 @@ export const validators: Validator[] = [
     }
     return pass("Flotte recensée.", ["o1a", "o1b"]);
   },
-  // Étape 2 : POST avec method, headers et body en JSON.stringify
+  // Step 2: POST with method, headers and a JSON.stringify body
   (code) => {
     const c = strip(code);
     if (!/method\s*:\s*['"]POST['"]/i.test(c) || !/headers\s*:/.test(c) || !/body\s*:/.test(c)) {
@@ -27,7 +27,7 @@ export const validators: Validator[] = [
     }
     return pass("Vaisseau enregistré.", ["o2a", "o2b"]);
   },
-  // Étape 3 : PUT /vaisseaux/42 avec method et body
+  // Step 3: PUT /vaisseaux/42 with method and body
   (code) => {
     const c = strip(code);
     if (!/\/vaisseaux\/42/.test(c)) {
@@ -38,7 +38,7 @@ export const validators: Validator[] = [
     }
     return pass("Dossier actualisé.", ["o3a", "o3b"]);
   },
-  // Étape 4 : DELETE /vaisseaux/13, response.ok et message de succès
+  // Step 4: DELETE /vaisseaux/13, response.ok and success message
   (code) => {
     const c = strip(code);
     if (!/method\s*:\s*['"]DELETE['"]/i.test(c) || !/\/vaisseaux\/13\b/.test(c)) {

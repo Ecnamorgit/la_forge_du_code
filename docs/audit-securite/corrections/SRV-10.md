@@ -40,7 +40,7 @@ La page applique la même règle que le proxy, avec la même source de vérité 
 
 Un premier passage de `vitest run`, lancé pendant que la suite e2e compilait en parallèle, a vu `lib/sandbox/jsx-transform.test.ts` dépasser son délai de 5 s (13,9 s pour le premier appel à Sucrase). Relancé seul (6 / 6 en 0,8 s), puis toute la suite sur une machine au repos (1454 / 1454) : l'échec venait de la charge, pas du correctif.
 
-La suite e2e comprend `trial-etendu.spec.ts` (« un chapitre protégé redirige vers la connexion ») et les parcours des chapitres d'essai et des chapitres connectés : la garde ne bloque aucun accès légitime.
+La suite e2e comprend `trial-extended.spec.ts` (« un chapitre protégé redirige vers la connexion ») et les parcours des chapitres d'essai et des chapitres connectés : la garde ne bloque aucun accès légitime.
 
 ## Risque résiduel
 

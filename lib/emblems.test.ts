@@ -5,22 +5,22 @@ import { CONDUCT_BADGES } from "./conduct-badges";
 import { EMBLEM_OPTIONS, getEmblem } from "./emblems";
 
 describe("EMBLEM_OPTIONS", () => {
-  it("couvre les deux catalogues de badges", () => {
+  it("covers both badge catalogs", () => {
     expect(EMBLEM_OPTIONS).toHaveLength(BADGES.length + CONDUCT_BADGES.length);
   });
 
-  it("a des identifiants uniques", () => {
+  it("has unique identifiers", () => {
     const ids = EMBLEM_OPTIONS.map((o) => o.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("donne une frame de sprite aux badges de cursus", () => {
+  it("gives course badges a sprite frame", () => {
     for (const b of BADGES) {
       expect(getEmblem(b.id)?.frame).toBe(BADGES.indexOf(b));
     }
   });
 
-  it("laisse les badges de conduite sans frame — ils se rendent en emoji", () => {
+  it("leaves conduct badges without a frame — they render as emoji", () => {
     for (const b of CONDUCT_BADGES) {
       const opt = getEmblem(b.id);
       expect(opt?.frame).toBeNull();
@@ -30,16 +30,16 @@ describe("EMBLEM_OPTIONS", () => {
 });
 
 describe("getEmblem", () => {
-  it("résout un badge de cursus", () => {
+  it("resolves a course badge", () => {
     expect(getEmblem("selene")?.label).toBe("Ingénieur Séléné");
   });
 
-  it("résout un badge de conduite — le cas qui faisait disparaître la pastille", () => {
+  it("resolves a conduct badge — the case that made the badge chip disappear", () => {
     expect(getEmblem("sprint")?.label).toBe("Sprinteur");
     expect(getEmblem("veilleur")?.label).toBe("Veilleur");
   });
 
-  it("rend null sur un id inconnu ou absent", () => {
+  it("returns null for an unknown or missing id", () => {
     expect(getEmblem("nawak")).toBeNull();
     expect(getEmblem(null)).toBeNull();
   });

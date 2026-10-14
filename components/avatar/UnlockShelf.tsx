@@ -5,7 +5,7 @@ import { EMBLEM_OPTIONS } from "@/lib/emblems";
 import Sprite from "@/components/ui/Sprite";
 import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 
-const TITRES: Record<UnlockAxis, string> = {
+const AXIS_TITLES: Record<UnlockAxis, string> = {
   frame: "Cadres",
   title: "Titres",
   uniform: "Uniformes",
@@ -15,27 +15,27 @@ const TITRES: Record<UnlockAxis, string> = {
 interface UnlockShelfProps {
   axis: UnlockAxis;
   ctx: UnlockContext;
-  /** Id porté actuellement. */
+  /** Id currently equipped. */
   selected: string | null;
   onSelect: (id: string) => void;
 }
 
 /**
- * Rayon d'objets déblocables pour un axe. Les objets non obtenus restent
- * visibles, grisés, avec leur condition et la distance restante. Un objet
- * obtenu ne redevient jamais verrouillé : `ctx.owned` (`UserState.unlocks`)
- * le garantit même quand le streak retombe.
+ * Shelf of unlockable items for one axis. Items not yet earned stay
+ * visible, greyed out, with their condition and how far there is to go. An
+ * earned item never becomes locked again: `ctx.owned` (`UserState.unlocks`)
+ * guarantees it even when the streak drops.
  */
 export default function UnlockShelf({ axis, ctx, selected, onSelect }: UnlockShelfProps) {
-  const objets = evaluateUnlocks(ctx).filter((u) => u.def.axis === axis);
+  const items = evaluateUnlocks(ctx).filter((u) => u.def.axis === axis);
 
   return (
     <section className="mb-8">
       <h3 className="mb-3 font-tech text-sm uppercase tracking-widest text-nebula-cyan">
-        {TITRES[axis]}
+        {AXIS_TITLES[axis]}
       </h3>
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-        {objets.map(({ def, unlocked, remaining }) => (
+        {items.map(({ def, unlocked, remaining }) => (
           <button
             key={def.id}
             type="button"
@@ -66,16 +66,16 @@ export default function UnlockShelf({ axis, ctx, selected, onSelect }: UnlockShe
 }
 
 interface EmblemShelfProps {
-  /** Ids des badges possédés (cursus + conduite confondus). */
+  /** Ids of the badges owned (course and conduct badges combined). */
   badges: string[];
   selected: string | null;
   onSelect: (id: string) => void;
 }
 
 /**
- * L'axe emblème n'est pas dans le catalogue des déblocables : il se choisit
- * parmi les badges obtenus. Les badges non obtenus restent visibles, grisés,
- * avec leur description en guise de condition.
+ * The emblem axis is not in the unlockables catalog: it is picked from the
+ * earned badges. Badges not yet earned stay visible, greyed out, with their
+ * description serving as the condition.
  */
 export function EmblemShelf({ badges, selected, onSelect }: EmblemShelfProps) {
   return (

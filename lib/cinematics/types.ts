@@ -1,39 +1,39 @@
 /**
- * Types des mini-cinématiques narratives : intro de cursus, outro de chapitre
- * et finale.
+ * Types for the narrative mini-cinematics: course intro, chapter outro
+ * and finale.
  */
 
 import type { CharacterId } from "@/lib/characters";
 
-/** Voix d'une scène : un personnage de la bible, ou le « système » neutre. */
+/** Voice of a scene: a character from the story bible, or the neutral "system". */
 export type CinematicSpeaker = CharacterId | "system";
 
-/** Effet visuel thématique appliqué à la scène. */
+/** Themed visual effect applied to the scene. */
 export type CinematicFx = "none" | "alert" | "glitch" | "victory";
 
-/** Fond visuel de la scène (composé en CSS, pas d'asset dédié requis). */
+/** Visual background of the scene (built in CSS, no dedicated asset needed). */
 export type CinematicVisual = "briefing" | "station" | "spectre" | "victory";
 
 export interface CinematicScene {
-  /** Index stable dans la cinématique. */
+  /** Stable index within the cinematic. */
   id: number;
   speaker: CinematicSpeaker;
-  /** Texte de la scène, lisible par les lecteurs d'écran. */
+  /** Scene text, readable by screen readers. */
   narration: string;
   visual: CinematicVisual;
   fx?: CinematicFx;
 }
 
 export interface Cinematic {
-  /** Identifiant persisté : "html:intro", "html:chapter:chapitre-3", "html:finale". */
+  /** Persisted identifier: "html:intro", "html:chapter:chapitre-3", "html:finale". */
   id: string;
   scenes: CinematicScene[];
 }
 
-/** Cinématiques déclarées par un cursus (data/courses/<slug>/cinematics.ts). */
+/** Cinematics declared by a course (data/courses/<slug>/cinematics.ts). */
 export interface CourseCinematics {
   courseIntro: Cinematic;
-  /** Clé = slug de chapitre. Un chapitre absent retombe sur le générique. */
+  /** Key = chapter slug. A missing chapter falls back to the generic one. */
   chapterOutros: Record<string, Cinematic>;
   courseFinale: Cinematic;
 }
@@ -43,10 +43,10 @@ export type CinematicMoment =
   | { kind: "chapter"; chapter: string }
   | { kind: "finale" };
 
-/** Durée d'affichage d'une scène avant auto-défilement (alignée sur l'intro). */
+/** How long a scene is shown before auto-advancing (matches the intro). */
 export const CINEMATIC_SCENE_DURATION_MS = 4500;
 
-/** Identifiant stable d'une cinématique (clé de persistance CinematicView). */
+/** Stable identifier of a cinematic (CinematicView persistence key). */
 export function cinematicId(course: string, moment: CinematicMoment): string {
   if (moment.kind === "chapter") return `${course}:chapter:${moment.chapter}`;
   return `${course}:${moment.kind}`;

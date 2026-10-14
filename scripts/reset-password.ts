@@ -1,12 +1,12 @@
 /**
- * Réinitialise directement en base le mot de passe d'un utilisateur, sans
- * passer par l'e-mail, marque son adresse comme vérifiée et déconnecte ses
- * sessions ouvertes.
+ * Resets a user's password directly in the database, without going
+ * through email, marks their address as verified and signs out their
+ * open sessions.
  *
- * Usage :
+ * Usage:
  *   npx tsx scripts/reset-password.ts <email> <newPassword>
  *
- * Nécessite DATABASE_URL dans .env.
+ * Requires DATABASE_URL in .env.
  */
 import "dotenv/config";
 import bcrypt from "bcryptjs";
@@ -32,7 +32,7 @@ async function main(): Promise<void> {
     data: {
       password: hashed,
       emailVerified: new Date(),
-      // Révoque les sessions ouvertes, comme la route de réinitialisation
+      // Revokes open sessions, like the reset route
       // (audit SRV-03).
       sessionVersion: { increment: 1 },
     },

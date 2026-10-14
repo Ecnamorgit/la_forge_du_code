@@ -9,7 +9,7 @@
   --bg-editor: #050a14;
   --border: #1a2744;
   --border-glow: #0e4d8f;
-  /* Contour des champs de saisie : >= 3:1 sur --bg-panel (WCAG 1.4.11). */
+  /* Input field border: >= 3:1 on --bg-panel (WCAG 1.4.11). */
   --border-input: #50668c;
   --cyan: #00f0ff;
   --cyan-dim: #004d55;
@@ -22,13 +22,13 @@
   --green: #00ff88;
   --green-dim: #004d28;
   --green-faint: rgba(0, 255, 136, 0.05);
-  /* Le Spectre (antagoniste) — violet glitch, distinct du rouge "erreur systeme". */
+  /* The Spectre (antagonist) — glitch purple, distinct from the "system error" red. */
   --spectre: #b26bff;
   --blue: #3d7eff;
   --blue-dim: #1a3366;
   --text: #c8d6e5;
-  /* Contrastes mesurés sur --bg-panel : secondary ~6:1 (texte informatif),
-     dim ~3,5:1 (décor, état désactivé — pas pour un texte à lire). */
+  /* Contrast measured on --bg-panel: secondary ~6:1 (informative text),
+     dim ~3.5:1 (decoration, disabled state — not for text meant to be read). */
   --text-secondary: #8395b3;
   --text-dim: #5a6d8c;
 }
@@ -441,10 +441,10 @@
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-10px); /* La planète monte de 10px */
+    transform: translateY(-10px); /* The planet rises by 10px */
   }
   100% {
-    transform: translateY(0px); /* Elle revient à sa place */
+    transform: translateY(0px); /* It returns to its place */
   }
 }
 
@@ -663,7 +663,7 @@
       -1 * var(--planet-frame-size) * var(--planet-frame-count)
     );
   }
-} /* Wrapper commun ── taille display × 4 = background-size */
+} /* Shared wrapper ── display size × 4 = background-size */
 .sprite-planet {
   background-repeat: no-repeat;
   image-rendering: pixelated;
@@ -671,7 +671,7 @@
 }
 
 /* ──────────────────────────────────────────────────────────
-   Combat visualizer (chantier 4) — CSS-driven sequences.
+   Combat visualizer (workstream 4) — CSS-driven sequences.
    Player emitter (left) fires a laser at the enemy (right) on success;
    on error the console takes a hit and shakes. Pure CSS so it stays light
    and in the 16-bit aesthetic. See components/lesson/CombatVisualizer.tsx.
@@ -761,7 +761,7 @@
   filter: drop-shadow(0 0 4px var(--cyan, #00f0ff));
 }
 
-/* HTML "repair" : un segment de structure s'assemble avec un flash de soudure vert. */
+/* HTML "repair": a structure segment assembles with a green welding flash. */
 @keyframes combat-repair {
   0%   { opacity: 0; transform: translateY(-50%) scale(0.3); filter: brightness(1); }
   40%  { opacity: 1; transform: translateY(-50%) scale(1.15); filter: brightness(2.4) drop-shadow(0 0 10px var(--green, #00ff88)); }
@@ -770,7 +770,7 @@
 .animate-combat-repair {
   animation: combat-repair 0.55s ease-out forwards;
 }
-/* Segment structurel vert. */
+/* Green structural segment. */
 .combat-brick {
   width: 14px;
   height: 14px;
@@ -778,7 +778,7 @@
   box-shadow: 0 0 6px var(--green, #00ff88);
 }
 
-/* CSS "field" : un dôme d'énergie cyan se déploie autour de l'émetteur. */
+/* CSS "field": a cyan energy dome unfolds around the emitter. */
 @keyframes combat-field {
   0%   { opacity: 0; transform: translateY(-50%) scale(0.2); }
   50%  { opacity: 0.9; transform: translateY(-50%) scale(1.1); }
@@ -787,7 +787,7 @@
 .animate-combat-field {
   animation: combat-field 0.6s ease-out forwards;
 }
-/* Dôme d'énergie cyan translucide. */
+/* Translucent cyan energy dome. */
 .combat-field {
   width: 44px;
   height: 44px;
@@ -797,16 +797,16 @@
   box-shadow: 0 0 12px var(--cyan, #00f0ff);
 }
 
-/* Cinématique d'intro */
+/* Intro cinematic */
 @keyframes intro-scene-in {
   from { opacity: 0; transform: scale(1.04); }
   to   { opacity: 1; transform: scale(1); }
 }
 .animate-intro-scene-in { animation: intro-scene-in 0.6s ease-out both; }
 
-/* Dérives caméra des mini-cinématiques (IntroSceneCanvas) — appliquées au
-   wrapper image+effets pour que tout bouge d'un bloc. Légère sur-échelle de
-   base pour ne jamais révéler les bords. */
+/* Camera drifts for the mini-cinematics (IntroSceneCanvas) — applied to the
+   image+effects wrapper so everything moves as one block. Slight base
+   over-scale so the edges are never revealed. */
 @keyframes intro-cam-pan {
   from { transform: scale(1.07) translateX(-1.4%); }
   to   { transform: scale(1.07) translateX(1.4%); }
@@ -854,7 +854,7 @@
 .starwars-crawl-content {
   transform: rotateX(16deg);
   transform-origin: 50% 100%;
-  /* Durée pilotée par le composant via --crawl-duration (défaut : teaser). */
+  /* Duration driven by the component via --crawl-duration (default: teaser). */
   animation: starwars-crawl var(--crawl-duration, 15s) linear forwards;
 }
 @keyframes starwars-crawl {

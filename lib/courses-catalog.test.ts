@@ -7,29 +7,29 @@ import {
 import { CHAPTER_SUMMARIES } from "./chapter-summaries";
 
 describe("getCourseStatus", () => {
-  it("classe un cursus avec assez de chapitres comme complet", () => {
+  it("classifies a course with enough chapters as complete", () => {
     expect(getCourseStatus("html")).toBe("complete");
     expect(getCourseStatus("javascript")).toBe("complete");
   });
 
-  it("classe un cursus pilote (peu de chapitres) comme aperçu", () => {
+  it("classifies a pilot course (few chapters) as preview", () => {
     expect(getCourseStatus("git")).toBe("preview");
     expect(getCourseStatus("python")).toBe("preview");
   });
 
-  it("traite un slug inconnu comme aperçu (0 chapitre)", () => {
+  it("treats an unknown slug as preview (0 chapters)", () => {
     expect(getCourseStatus("inconnu")).toBe("preview");
   });
 
-  it("utilise le seuil exporté comme frontière (>= seuil => complet)", () => {
+  it("uses the exported threshold as the boundary (>= threshold => complete)", () => {
     expect(COURSE_COMPLETE_MIN_CHAPTERS).toBe(4);
-    // Aucun cursus ne frôle le seuil : les cursus pilotes (dont typescript)
-    // ont un chapitre, les cursus complets (dont react) au moins huit.
+    // No course sits near the threshold: pilot courses (including typescript)
+    // have one chapter, complete courses (including react) at least eight.
     expect(getCourseStatus("typescript")).toBe("preview");
     expect(getCourseStatus("react")).toBe("complete");
   });
 
-  it("expose au moins un cursus complet et un cursus aperçu dans le catalogue", () => {
+  it("exposes at least one complete course and one preview course in the catalog", () => {
     const statuses = COURSES_CATALOG.map((c) => getCourseStatus(c.slug));
     expect(statuses).toContain("complete");
     expect(statuses).toContain("preview");
@@ -37,43 +37,43 @@ describe("getCourseStatus", () => {
 });
 
 /**
- * Un chapitre React peut exister dans data/courses sans être branché dans
- * courses-registry, ses validateurs ou son résumé : le catalogue le compterait
- * sans que la page s'ouvre.
+ * A React chapter can exist in data/courses without being wired into
+ * courses-registry, its validators or its summary: the catalog would count it
+ * while the page fails to open.
  */
-describe("integrite du cursus React", () => {
-  it("resout tous les chapitres declares, avec leurs validateurs et leur badge", async () => {
+describe("React course integrity", () => {
+  it("resolves every declared chapter, with its validators and badge", async () => {
     const { getChapterData } = await import("./courses-registry");
     const { VALIDATORS_BY_CHAPTER } = await import("./validators/react");
     const { getBadgeForChapter } = await import("./courses-meta");
     const { getBadge } = await import("./badges-catalog");
 
-    // Nombre de chapitres tiré de CHAPTER_SUMMARIES.react : un chapitre ajouté
-    // sera couvert sans modifier ce test.
+    // Chapter count taken from CHAPTER_SUMMARIES.react: an added chapter
+    // will be covered without changing this test.
     const reactChapterCount = CHAPTER_SUMMARIES.react.length;
     expect(reactChapterCount).toBeGreaterThan(0);
 
     for (let n = 1; n <= reactChapterCount; n++) {
       const slug = `chapitre-${n}`;
       const data = getChapterData("react", slug);
-      expect(data, `${slug} absent du registre`).not.toBeNull();
-      expect(data!.steps.length, `${slug} n'a pas 4 etapes`).toBe(4);
+      expect(data, `${slug} missing from the registry`).not.toBeNull();
+      expect(data!.steps.length, `${slug} does not have 4 steps`).toBe(4);
 
       const validators = VALIDATORS_BY_CHAPTER[slug];
-      expect(validators, `${slug} sans validateurs`).toBeDefined();
-      expect(validators!.length, `${slug} : un validateur par etape`).toBe(
+      expect(validators, `${slug} has no validators`).toBeDefined();
+      expect(validators!.length, `${slug}: one validator per step`).toBe(
         data!.steps.length
       );
 
       const badgeId = getBadgeForChapter("react", slug);
-      expect(badgeId, `${slug} sans badge declare`).not.toBeNull();
-      expect(getBadge(badgeId!), `badge ${badgeId} absent du catalogue`).toBeDefined();
+      expect(badgeId, `${slug} has no declared badge`).not.toBeNull();
+      expect(getBadge(badgeId!), `badge ${badgeId} missing from the catalog`).toBeDefined();
     }
 
-    // Le cursus React doit rester « complet » au sens du catalogue.
+    // The React course must stay "complete" as the catalog defines it.
     expect(reactChapterCount).toBeGreaterThanOrEqual(COURSE_COMPLETE_MIN_CHAPTERS);
-    // Délai explicite : l'import dynamique de `courses-registry` charge le
-    // contenu de tous les chapitres, ce qui frôle les 5 s par défaut de vitest
-    // sous la charge de la suite complète.
+    // Explicit timeout: the dynamic import of `courses-registry` loads the
+    // content of every chapter, which comes close to vitest's default 5 s
+    // under the load of the full suite.
   }, 20_000);
 });

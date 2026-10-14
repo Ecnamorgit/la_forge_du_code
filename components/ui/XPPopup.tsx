@@ -2,8 +2,8 @@ interface XPPopupProps {
   show: boolean;
   label: string;
   /**
-   * Décale la pastille vers le bas quand elle s'affiche en même temps que le
-   * popup XP principal (ordre accompli, badge de conduite, message de liaison).
+   * Shifts the pill down when it is shown at the same time as the
+   * main XP popup (order completed, conduct badge, liaison message).
    */
   secondary?: boolean;
 }

@@ -1,9 +1,9 @@
 /**
- * Contrôle des validateurs statiques : pour chaque étape, l'indice `hint` (la
- * solution attendue) doit passer et le `startCode` initial doit échouer.
+ * Checks the static validators: for each step, the `hint` (the expected
+ * solution) must pass and the initial `startCode` must fail.
  *
- * Usage : npx tsx scripts/verify-validators.ts
- * Code de sortie non nul au moindre écart.
+ * Usage: npx tsx scripts/verify-validators.ts
+ * Non-zero exit code on the slightest mismatch.
  */
 import { getChapterData } from "@/lib/courses-registry";
 import { getValidators } from "@/lib/validators";
@@ -51,7 +51,7 @@ for (const [course, chapters] of TARGETS) {
         return;
       }
 
-      // L'indice (solution attendue) doit passer.
+      // The hint (expected solution) must pass.
       checks++;
       const hintRes = validate(step.hint);
       if (!hintRes.ok) {
@@ -61,7 +61,7 @@ for (const [course, chapters] of TARGETS) {
         );
       }
 
-      // Le startCode initial, incomplet, doit échouer.
+      // The initial startCode, which is incomplete, must fail.
       checks++;
       const startRes = validate(step.startCode);
       if (startRes.ok) {

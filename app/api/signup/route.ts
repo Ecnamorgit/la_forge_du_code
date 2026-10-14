@@ -26,8 +26,8 @@ const signupSchema = z.object({
     .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre"),
 });
 
-/** Même réponse que l'adresse soit libre ou déjà inscrite (audit SRV-05). */
-function reponseInscription(mail: { ok: boolean; error?: string }) {
+/** Same response whether the address is free or already registered (audit SRV-05). */
+function signupResponse(mail: { ok: boolean; error?: string }) {
   return NextResponse.json({
     ok: true,
     emailSent: mail.ok,
@@ -36,10 +36,10 @@ function reponseInscription(mail: { ok: boolean; error?: string }) {
 }
 
 export async function POST(request: Request) {
-  const refus = crossOriginRefusal(request);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(request);
+  if (rejection) return rejection;
 
-  // Limite par IP contre les inscriptions en masse.
+  // Per-IP limit against mass sign-ups.
   const limit = await rateLimit(`signup:${getClientIp(request)}`, {
     limit: 5,
     windowMs: 60 * 60 * 1000,
@@ -65,43 +65,44 @@ export async function POST(request: Request) {
   const { email, username, password } = parsed.data;
   const emailLower = email.toLowerCase();
 
-  // Adresse déjà inscrite : le titulaire reçoit un e-mail « tu as déjà un
-  // compte » et la réponse est celle d'une inscription réussie. Le hachage est
-  // calculé quand même pour que le temps de réponse ne trahisse rien.
-  const dejaInscrit = await prisma.user.findUnique({
+  // Address already registered: the owner gets a "tu as déjà un compte"
+  // (you already have an account) email and the response is that of a
+  // successful sign-up. The hash is still computed so the response time
+  // gives nothing away.
+  const existingUser = await prisma.user.findUnique({
     where: { email: emailLower },
     select: { id: true },
   });
-  if (dejaInscrit) {
+  if (existingUser) {
     await bcrypt.hash(password, 12);
-    // Au plus 3 avis par adresse et par jour, pour ne pas inonder la boîte
-    // d'un tiers. La clé est une empreinte : l'adresse n'apparaît pas dans le
-    // limiteur.
-    const empreinte = crypto.createHash("sha256").update(emailLower).digest("hex");
-    const avis = await rateLimit(`signup-exists:${empreinte}`, {
+    // At most 3 notices per address per day, so as not to flood a third
+    // party's inbox. The key is a hash: the address does not appear in the
+    // limiter.
+    const emailHash = crypto.createHash("sha256").update(emailLower).digest("hex");
+    const notice = await rateLimit(`signup-exists:${emailHash}`, {
       limit: 3,
       windowMs: 24 * 60 * 60 * 1000,
     });
-    const mailRes = avis.ok ? await sendAccountExistsEmail({ to: emailLower }) : { ok: true };
-    logger.info("signup_existing_email", { noticeSent: avis.ok });
-    return reponseInscription(mailRes);
+    const mailRes = notice.ok ? await sendAccountExistsEmail({ to: emailLower }) : { ok: true };
+    logger.info("signup_existing_email", { noticeSent: notice.ok });
+    return signupResponse(mailRes);
   }
 
-  // Les pseudos sont publics (classement) : dire qu'un pseudo est pris ne
-  // révèle rien.
-  const pseudoPris = await prisma.user.findUnique({
+  // Usernames are public (leaderboard): saying a username is taken reveals
+  // nothing.
+  const usernameTaken = await prisma.user.findUnique({
     where: { username },
     select: { id: true },
   });
-  if (pseudoPris) {
+  if (usernameTaken) {
     return NextResponse.json(
       { error: "Ce pseudo est déjà pris", field: "username" },
       { status: 409 }
     );
   }
 
-  // Coût 12, valeur recommandée en 2026 (aussi enseignée dans le cours de
-  // sécurité).
+  // Cost 12, the recommended value in 2026 (also taught in the security
+  // course).
   const hashed = await bcrypt.hash(password, 12);
 
   const user = await prisma.user.create({
@@ -110,9 +111,9 @@ export async function POST(request: Request) {
       username,
       password: hashed,
       name: username,
-      // Pas de `lastVisit` : le champ désigne le dernier jour actif, et
-      // s'inscrire n'en est pas un. Le semer fausserait la liaison affichée
-      // après la première étape.
+      // No `lastVisit`: the field means the last active day, and signing up
+      // is not one. Seeding it would skew the liaison shown after the first
+      // step.
     },
     select: { id: true, email: true },
   });
@@ -120,8 +121,8 @@ export async function POST(request: Request) {
   const token = await createToken({ userId: user.id, kind: "email_verify" });
   const mailRes = await sendVerificationEmail({ to: user.email, token });
 
-  // Comptage anonyme, qui ne doit pas faire échouer l'inscription.
+  // Anonymous counting, which must not make the sign-up fail.
   await prisma.trackEvent.create({ data: { name: "inscription" } }).catch(() => {});
 
-  return reponseInscription(mailRes);
+  return signupResponse(mailRes);
 }

@@ -6,58 +6,58 @@ import { PREVIEW_MOUNT_NAME_RE } from "./react-preview";
 import { PREVIEW_EXEMPT } from "./preview-exemptions";
 
 /**
- * Chaque étape React a un `previewMount` valide, ou son chapitre est exempté
- * avec une raison écrite. Sans ce test, un oubli laisserait un aperçu vide.
+ * Every React step has a valid `previewMount`, or its chapter is exempted
+ * with a written reason. Without this test, an oversight would leave an empty preview.
  */
-describe("previewMount du cursus React", () => {
+describe("previewMount of the React curriculum", () => {
   const slugs = CHAPTER_SUMMARIES.react.map((c) => c.slug);
 
-  it("couvre chaque etape, ou l'exempte explicitement", () => {
+  it("covers every step, or exempts it explicitly", () => {
     for (const slug of slugs) {
       const exempt = PREVIEW_EXEMPT[`react/${slug}`];
       const data = getChapterData("react", slug);
-      expect(data, `${slug} absent du registre`).not.toBeNull();
+      expect(data, `${slug} missing from the registry`).not.toBeNull();
 
       data!.steps.forEach((step, i) => {
-        const ref = `react/${slug} etape ${i + 1}`;
+        const ref = `react/${slug} step ${i + 1}`;
         if (exempt) {
-          expect(step.previewMount, `${ref} : chapitre exempte, previewMount inattendu`).toBeUndefined();
+          expect(step.previewMount, `${ref}: exempt chapter, unexpected previewMount`).toBeUndefined();
           return;
         }
-        expect(step.previewMount, `${ref} : previewMount manquant`).toBeDefined();
+        expect(step.previewMount, `${ref}: missing previewMount`).toBeDefined();
         expect(
           PREVIEW_MOUNT_NAME_RE.test(step.previewMount!),
-          `${ref} : « ${step.previewMount} » n'est pas un identifiant valide`
+          `${ref}: "${step.previewMount}" is not a valid identifier`
         ).toBe(true);
       });
     }
   });
 
   /**
-   * Un previewMount peut nommer un composant que l'étape ne déclare pas. Le
-   * `hint` étant la solution de référence, il doit contenir sa déclaration.
+   * A previewMount may name a component the step does not declare. Since the
+   * `hint` is the reference solution, it must contain its declaration.
    */
-  it("nomme un composant declare dans le hint de l'etape", () => {
+  it("names a component declared in the step's hint", () => {
     for (const slug of slugs) {
       if (PREVIEW_EXEMPT[`react/${slug}`]) continue;
       const data = getChapterData("react", slug)!;
 
       data.steps.forEach((step, i) => {
-        const nom = step.previewMount!;
+        const mountName = step.previewMount!;
         const declare = new RegExp(
-          `(?:function\\s+${nom}\\s*\\(|(?:const|let|var)\\s+${nom}\\s*=)`
+          `(?:function\\s+${mountName}\\s*\\(|(?:const|let|var)\\s+${mountName}\\s*=)`
         ).test(step.hint);
         expect(
           declare,
-          `react/${slug} etape ${i + 1} : « ${nom} » n'est pas declare dans le hint`
+          `react/${slug} step ${i + 1}: "${mountName}" is not declared in the hint`
         ).toBe(true);
       });
     }
   });
 
-  it("chaque exemption porte une raison non vide", () => {
-    for (const [cle, raison] of Object.entries(PREVIEW_EXEMPT)) {
-      expect(raison.trim().length, `${cle} : raison vide`).toBeGreaterThan(20);
+  it("every exemption has a non-empty reason", () => {
+    for (const [key, reason] of Object.entries(PREVIEW_EXEMPT)) {
+      expect(reason.trim().length, `${key}: empty reason`).toBeGreaterThan(20);
     }
   });
 });

@@ -4,22 +4,22 @@ import { useCallback, useEffect, useState } from "react";
 
 import { readLocalSeen, writeLocalSeen } from "./local-seen";
 
-/** Source de vérité de l'état « cinématiques vues » pour `useCinematicSeen`. */
+/** Source of truth for the "seen cinematics" state used by `useCinematicSeen`. */
 export type CinematicSeenMode = "server" | "local" | "off";
 
 /**
- * État « cinématiques vues » d'un cursus, côté client.
+ * Client-side "seen cinematics" state for a course.
  *
- * Tant que `loaded` est false (lecture en échec ou impossible), l'appelant ne
- * lance aucune cinématique automatiquement : mieux vaut en sauter une que
- * l'imposer. `mark` n'attend pas de réponse ; un échec d'écriture est
- * silencieux, la cinématique se rejouera au pire.
+ * While `loaded` is false (read failed or impossible), the caller does not
+ * auto-play any cinematic: better to skip one than to force it.
+ * `mark` does not wait for a response; a write failure is silent, and at
+ * worst the cinematic will play again.
  *
- * `mode` : `"server"` (défaut) passe par l'API authentifiée
- * (`/api/me/cinematic`), `"local"` par localStorage (essai sans compte).
- * `"off"` sert quand l'appelant sait qu'il n'y a pas de session (l'API
- * répondrait 401) : aucune requête, `loaded` reste false et `mark` ne touche
- * que l'état en mémoire.
+ * `mode`: `"server"` (default) goes through the authenticated API
+ * (`/api/me/cinematic`), `"local"` through localStorage (trial without account).
+ * `"off"` is for when the caller knows there is no session (the API would
+ * return 401): no request, `loaded` stays false and `mark` only touches
+ * in-memory state.
  */
 export function useCinematicSeen(
   course: string,
@@ -37,9 +37,9 @@ export function useCinematicSeen(
 
     if (mode === "local") {
       if (typeof window === "undefined") return;
-      // Une seule directive suffit : la règle ne signale que le premier
-      // setState du bloc.
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture synchrone ponctuelle de localStorage au montage
+      // A single directive is enough: the rule only flags the first
+      // setState in the block.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off synchronous localStorage read on mount
       setSeen(new Set(readLocalSeen()));
       setLoaded(true);
       return;
@@ -54,7 +54,7 @@ export function useCinematicSeen(
         setLoaded(true);
       })
       .catch(() => {
-        /* loaded reste false : pas de lecture automatique */
+        /* loaded stays false: no auto-play */
       });
     return () => {
       cancelled = true;
@@ -69,9 +69,9 @@ export function useCinematicSeen(
         next.add(id);
         return next;
       });
-      // Hors de l'updater, qui doit rester pur (React peut le rejouer). On
-      // relit `readLocalSeen()` plutôt que de capturer `seen`, qui pourrait
-      // être périmé.
+      // Outside the updater, which must stay pure (React may replay it). We
+      // re-read `readLocalSeen()` rather than capture `seen`, which could
+      // be stale.
       if (mode === "local") {
         writeLocalSeen([...new Set([...readLocalSeen(), id])]);
         return;
@@ -82,7 +82,7 @@ export function useCinematicSeen(
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cinematicId: id }),
       }).catch(() => {
-        /* au pire, la cinématique se rejouera */
+        /* at worst, the cinematic will play again */
       });
     },
     [mode]

@@ -79,3 +79,22 @@ graph TD
 4. **Revue de code** : La PR doit être revue par au moins un autre membre de l'équipe. Les tests de la CI doivent tous être au vert.
 5. **Fusion dans `dev`** : Une fois approuvée, la PR est fusionnée dans `dev` (de préférence via un Squash & Merge pour conserver un historique propre).
 6. **Release vers `main`** : Régulièrement, après validation globale de la branche `dev`, celle-ci est fusionnée dans `main` (via une PR dédiée) afin de déclencher le déploiement de production.
+
+---
+
+## 4. Langue du code
+
+Le code est écrit en anglais, l'interface en français. On ne mélange pas les deux dans une même ligne de code.
+
+| Élément | Langue | Exemple |
+|---|---|---|
+| Variables, fonctions, types, constantes, props | Anglais | `isSessionValid`, `recordLoginFailure`, `LOOP_TIMEOUT_MS` |
+| Commentaires et JSDoc | Anglais | `// Constant-time comparison to avoid leaking the hash.` |
+| Titres des tests (`describe`, `it`, `test`) | Anglais | `it("rejects an expired token")` |
+| Textes affichés à l'utilisateur, e-mails, messages d'erreur renvoyés par l'API | Français | `"Email ou mot de passe invalide"` |
+| Contenu pédagogique (énoncés, indices, documentation des chapitres) | Français | `data/courses/*`, `data/docs/*` |
+| Documentation du projet (`docs/`, `README`) et messages de commit | Français ou anglais, au choix de l'équipe | |
+
+Quelques valeurs de données restent en français parce qu'elles sont enregistrées en base ou visibles dans l'URL : les identifiants de rôle (`pilote`, `ingenieur`, `tacticien`, `explorateur`), les créneaux de quêtes quotidiennes (`reprise`, `effort`, `curiosite`) et les slugs de chapitres. Les renommer demanderait une migration ; elles sont traitées comme des données, pas comme des noms de variables.
+
+En revue de code, un identifiant ou un commentaire en français est une demande de modification.

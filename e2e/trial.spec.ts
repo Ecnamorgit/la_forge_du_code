@@ -2,14 +2,14 @@ import { expect, test, type Page } from "@playwright/test";
 
 import { E2E_USER } from "./global-setup";
 
-/** Passe l'overlay du crawl s'il est présent. */
+/** Skips the crawl overlay if it is present. */
 async function skipIntro(page: Page) {
   const skip = page.getByRole("button", { name: /passer|continuer/i });
   if (await skip.isVisible().catch(() => false)) await skip.click();
 }
 
-test.describe("essai sans compte", () => {
-  test("un visiteur atteint le chapitre d'essai depuis la landing", async ({ page }) => {
+test.describe("trial without an account", () => {
+  test("a visitor reaches the trial chapter from the landing page", async ({ page }) => {
     await page.goto("/");
     await skipIntro(page);
 
@@ -18,7 +18,7 @@ test.describe("essai sans compte", () => {
     await expect(page.getByText(/mode essai/i)).toBeVisible();
   });
 
-  test("le mur tient sur les autres chapitres", async ({ page }) => {
+  test("the wall holds on the other chapters", async ({ page }) => {
     await page.goto("/learn/html/chapitre-4");
     await expect(page).toHaveURL(/\/login/);
 
@@ -26,7 +26,7 @@ test.describe("essai sans compte", () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
-  test("la progression d'essai survit à un rechargement", async ({ page }) => {
+  test("trial progress survives a reload", async ({ page }) => {
     await page.goto("/learn/html/chapitre-1");
     await expect(page.getByText(/mode essai/i)).toBeVisible();
 
@@ -48,8 +48,8 @@ test.describe("essai sans compte", () => {
 });
 
 /**
- * Import de la progression d'essai vers un compte (CF-9), déclenché à
- * l'arrivée sur /avatar. On réutilise E2E_USER plutôt que de créer un compte.
+ * Import of trial progress into an account (CF-9), triggered on
+ * arriving at /avatar. We reuse E2E_USER rather than creating an account.
  */
 
 async function login(page: Page): Promise<void> {
@@ -65,25 +65,25 @@ interface MeState {
   completedSteps: Record<string, number[]>;
 }
 
-/** État serveur de l'utilisateur connecté, lu par l'API. */
+/** Server state of the logged-in user, read through the API. */
 async function readMe(page: Page): Promise<MeState> {
   const res = await page.request.get("/api/me");
   expect(res.ok()).toBeTruthy();
   return res.json();
 }
 
-test.describe("import de la progression d'essai vers un compte", () => {
-  test("la progression d'essai est importée à l'arrivée sur /avatar", async ({
+test.describe("import of trial progress into an account", () => {
+  test("trial progress is imported on arriving at /avatar", async ({
     page,
   }) => {
     await login(page);
 
-    // Le compte partagé a pu valider ces étapes dans une autre spec
-    // (html-parcours.spec.ts) : on vérifie l'état final plutôt qu'un delta.
+    // The shared account may have validated these steps in another spec
+    // (html-course.spec.ts): we check the final state rather than a delta.
     const seededSteps = [0, 1, 2];
 
-    // Chapitre d'essai terminé avant inscription. La valeur `xp` importe peu :
-    // le serveur recalcule l'XP à partir du barème.
+    // Trial chapter finished before sign-up. The `xp` value hardly matters:
+    // the server recomputes XP from the scoring scale.
     await page.evaluate(() => {
       window.localStorage.setItem(
         "nc_trial_state",
@@ -101,18 +101,18 @@ test.describe("import de la progression d'essai vers un compte", () => {
     expect(res.status()).toBe(200);
 
     const body = (await res.json()) as { imported: number };
-    // Les étapes déjà validées ne sont pas recomptées : seule une borne est sûre.
+    // Already validated steps are not counted again: only a bound is certain.
     expect(body.imported).toBeGreaterThanOrEqual(0);
     expect(body.imported).toBeLessThanOrEqual(seededSteps.length);
 
-    // L'état est relu sur le serveur, pas dans le localStorage seedé ici.
+    // The state is read back from the server, not from the localStorage seeded here.
     const after = await readMe(page);
     const completed = new Set(after.completedSteps["html/chapitre-1"] ?? []);
     for (const step of seededSteps) {
       expect(completed.has(step)).toBe(true);
     }
 
-    // Le storage local est purgé après un import réussi.
+    // Local storage is cleared after a successful import.
     const stored = await page.evaluate(() =>
       window.localStorage.getItem("nc_trial_state")
     );

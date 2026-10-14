@@ -5,8 +5,8 @@ import { auth } from "@/auth";
 import { listCinematicViews, markCinematicView } from "@/lib/me-server";
 import { crossOriginRefusal } from "@/lib/same-origin";
 
-// "<cursus>:intro", "<cursus>:finale" ou "<cursus>:chapter:<slug>" (voir
-// lib/cinematics/types) : tout autre identifiant est refusé.
+// "<course>:intro", "<course>:finale" or "<course>:chapter:<slug>" (see
+// lib/cinematics/types): any other identifier is rejected.
 const postSchema = z.object({
   cinematicId: z
     .string()
@@ -27,8 +27,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   const session = await auth();
   if (!session?.user?.id) {

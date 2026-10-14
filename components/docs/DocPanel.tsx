@@ -30,7 +30,7 @@ export default function DocPanel({ entryId, onClose, onOpen }: DocPanelProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
-  // Déplace le focus dans le panneau à l'ouverture, et le restaure à la fermeture.
+  // Moves focus into the panel on open, and restores it on close.
   useEffect(() => {
     if (!open) return;
     previouslyFocusedRef.current =
@@ -47,7 +47,7 @@ export default function DocPanel({ entryId, onClose, onOpen }: DocPanelProps) {
     };
   }, [open, entryId]);
 
-  // Piège le focus (Tab / Shift+Tab) à l'intérieur du panneau pendant qu'il est ouvert.
+  // Traps focus (Tab / Shift+Tab) inside the panel while it is open.
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -82,7 +82,7 @@ export default function DocPanel({ entryId, onClose, onOpen }: DocPanelProps) {
 
   return (
     <>
-      {/* Voile */}
+      {/* Backdrop */}
       <div
         aria-hidden={!open}
         onClick={onClose}
@@ -90,7 +90,7 @@ export default function DocPanel({ entryId, onClose, onOpen }: DocPanelProps) {
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
-      {/* Panneau : drawer bas sur mobile, latéral droit sur lg */}
+      {/* Panel: bottom drawer on mobile, right side panel on lg */}
       <aside
         ref={panelRef}
         data-testid="doc-panel"

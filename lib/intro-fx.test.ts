@@ -3,12 +3,12 @@ import { describe, it, expect } from "vitest";
 import { INTRO_FX, type Fx } from "./intro-fx";
 import { INTRO_SCENES } from "./intro";
 
-/** Vrai si la coordonnée normalisée est dans [0,1]. */
+/** True if the normalized coordinate is within [0,1]. */
 function inUnit(v: number): boolean {
   return v >= 0 && v <= 1;
 }
 
-/** Points/zones d'un effet, pour vérifier qu'ils restent dans l'image. */
+/** Points/areas of an effect, to check that they stay inside the image. */
 function fxBounds(fx: Fx): Array<[number, number]> {
   switch (fx.kind) {
     case "flicker":
@@ -30,21 +30,21 @@ function fxBounds(fx: Fx): Array<[number, number]> {
 }
 
 describe("INTRO_FX", () => {
-  it("couvre exactement les scènes de INTRO_SCENES", () => {
+  it("covers exactly the scenes of INTRO_SCENES", () => {
     const ids = Object.keys(INTRO_FX).map(Number).sort();
     expect(ids).toEqual(INTRO_SCENES.map((s) => s.id));
   });
 
-  it("a au moins un effet et une caméra par scène", () => {
+  it("has at least one effect and a camera per scene", () => {
     for (const scene of Object.values(INTRO_FX)) {
       expect(scene.effects.length).toBeGreaterThan(0);
       expect(scene.camera.amount).toBeGreaterThan(0);
-      // Les dérives restent subtiles (moins de 10 % de l'image).
+      // Camera drifts stay subtle (less than 10% of the image).
       expect(scene.camera.amount).toBeLessThan(0.1);
     }
   });
 
-  it("garde toutes les positions dans l'image ([0,1])", () => {
+  it("keeps every position inside the image ([0,1])", () => {
     for (const scene of Object.values(INTRO_FX)) {
       for (const fx of scene.effects) {
         for (const [x, y] of fxBounds(fx)) {
@@ -55,7 +55,7 @@ describe("INTRO_FX", () => {
     }
   });
 
-  it("a des périodes strictement positives et des couleurs hex", () => {
+  it("has strictly positive periods and hex colors", () => {
     for (const scene of Object.values(INTRO_FX)) {
       for (const fx of scene.effects) {
         expect(fx.period).toBeGreaterThan(0);
@@ -64,7 +64,7 @@ describe("INTRO_FX", () => {
     }
   });
 
-  it("donne des flux de particules bornés (perf)", () => {
+  it("keeps particle streams bounded (perf)", () => {
     for (const scene of Object.values(INTRO_FX)) {
       for (const fx of scene.effects) {
         if (fx.kind === "particles") {

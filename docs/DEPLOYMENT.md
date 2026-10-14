@@ -61,7 +61,7 @@ pnpm prisma migrate deploy
 - `migrate deploy` applique **uniquement** les migrations existantes (aucune génération, aucun prompt) — c'est la commande adaptée à la CI/prod. Il s'arrête en erreur si une migration échoue (transactionnel par fichier).
 - Migrations versionnées : voir `prisma/migrations/` (dont `hash_one_time_tokens`, qui purge les tokens en clair, cf. CF-1).
 - Sur Vercel, la commande de build est versionnée dans `vercel.json` :
-  `pnpm prisma generate && node scripts/migrer-si-production.mjs && pnpm build`.
+  `pnpm prisma generate && node scripts/migrate-if-production.mjs && pnpm build`.
   Rien à régler dans le dashboard : les déploiements de production appliquent
   les migrations, les préversions non (voir § 4).
 - **Rollback** : Prisma n'a pas de `down` automatique. En cas de problème, restaurer depuis un backup (cf. ticket CF-19) ou écrire une migration corrective.
@@ -77,7 +77,7 @@ pnpm build   # next build (Turbopack) — doit finir sans erreur
 pnpm start   # test local du bundle de prod avant de pousser
 ```
 
-Le build chez Vercel est défini par `vercel.json` : `prisma generate`, puis les migrations **seulement en production** (`scripts/migrer-si-production.mjs`, constat INF-01), puis `pnpm build`. Renseigner les variables d'env (étape 1) **avant** le premier build.
+Le build chez Vercel est défini par `vercel.json` : `prisma generate`, puis les migrations **seulement en production** (`scripts/migrate-if-production.mjs`, constat INF-01), puis `pnpm build`. Renseigner les variables d'env (étape 1) **avant** le premier build.
 
 ### Déployer en production
 
@@ -99,7 +99,7 @@ npx vercel link
 
 ```bash
 # Une fois la PR fusionnée et `main` à jour :
-node scripts/deployer-production.mjs
+node scripts/deploy-production.mjs
 ```
 
 Le script refuse de partir si `main` local diffère de `origin/main` (on déploie ce qui est fusionné, rien d'autre). Le build tourne chez Vercel, avec `vercel.json` et les variables du projet, comme un déploiement déclenché par git. `vercel link` crée un `.env.local` (jeton `VERCEL_OIDC_TOKEN`) et peut ajouter des lignes à `.gitignore` : les deux sont inutiles ici, on peut les retirer.
@@ -130,7 +130,7 @@ Vérifier ensuite (étape 6), et pour les changements de sécurité : `curl -sI 
 - [x] **Headers de sécurité** dans `next.config.ts` : HSTS, X-Frame-Options: DENY, X-Content-Type-Options, Referrer-Policy, Permissions-Policy ; `X-Powered-By` désactivé.
 - [x] **CSP à nonce** posée par `proxy.ts` (`lib/security/csp.ts`) : `script-src` sans `'unsafe-inline'` ni `'unsafe-eval'` en production (cf. EXE-03).
 
-> **À vérifier en navigateur avant de déployer** : la CSP n'est active qu'en production. Lance `pnpm build && pnpm start`, ouvre une mission (ex. `/learn/javascript/chapitre-1`) avec la console DevTools, et confirme que l'éditeur Monaco se charge, que « Déployer » exécute le code, et qu'il n'y a aucune erreur `Content-Security-Policy`. La suite e2e le vérifie aussi contre un build de production (`E2E_PROD=1 pnpm test:e2e`, dont `e2e/csp-stricte.spec.ts`). Si Monaco est bloqué, ajuster `script-src`/`worker-src` dans `lib/security/csp.ts`.
+> **À vérifier en navigateur avant de déployer** : la CSP n'est active qu'en production. Lance `pnpm build && pnpm start`, ouvre une mission (ex. `/learn/javascript/chapitre-1`) avec la console DevTools, et confirme que l'éditeur Monaco se charge, que « Déployer » exécute le code, et qu'il n'y a aucune erreur `Content-Security-Policy`. La suite e2e le vérifie aussi contre un build de production (`E2E_PROD=1 pnpm test:e2e`, dont `e2e/strict-csp.spec.ts`). Si Monaco est bloqué, ajuster `script-src`/`worker-src` dans `lib/security/csp.ts`.
 
 > **Rate limiting** (CF-7) : `lib/rate-limit.ts` est enfichable. Par défaut il compte en mémoire (suffisant en **mono-instance**). Sur un déploiement **serverless/multi-instance** (Vercel), relie une base Upstash au projet (intégration Vercel : `KV_REST_API_URL` + `KV_REST_API_TOKEN`, ou `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`) : les compteurs sont alors partagés et la limite est respectée à travers les instances. Sur Vercel, `lib/env.ts` refuse de démarrer sans ces variables (constat SRV-01). Hors Vercel, le fallback mémoire reste actif ; en cas de panne Redis, on bascule en mémoire (fail-open).
 

@@ -1,7 +1,7 @@
 /**
- * Arc narratif du cursus HTML : reconstruction de la base lunaire Selene
- * (docs/conception_storytelling.md). Nombre de scènes par cinématique (intro
- * 3-4, outro 2-3, finale 5-7) vérifié par lib/cinematics/html-arc.test.ts.
+ * Narrative arc of the HTML course: rebuilding the Selene lunar base
+ * (docs/conception_storytelling.md). Scene count per cinematic (intro
+ * 3-4, outro 2-3, finale 5-7) is checked by lib/cinematics/html-arc.test.ts.
  */
 
 import { cinematicId, type CourseCinematics } from "@/lib/cinematics/types";

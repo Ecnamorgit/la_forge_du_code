@@ -2,92 +2,92 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-6";
 
 /**
- * HTML chapitre 6 — sémantique et accessibilité.
+ * HTML chapter 6 — semantics and accessibility.
  */
 
-describe("HTML chapitre 6 — etape 1 (plan de page)", () => {
-  const valider = validators[0];
+describe("HTML chapter 6 — step 1 (page outline)", () => {
+  const validate = validators[0];
 
-  it("accepte header, main et footer", () => {
+  it("accepts header, main and footer", () => {
     const code = "<header>H</header><main>M</main><footer>F</footer>";
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse une page sans main", () => {
-    expect(valider("<header>H</header><footer>F</footer>").ok).toBe(false);
+  it("rejects a page without main", () => {
+    expect(validate("<header>H</header><footer>F</footer>").ok).toBe(false);
   });
 
-  it("refuse des div a la place des reperes semantiques", () => {
-    // Échec ciblé : c'est la sémantique qu'enseigne l'étape, pas la mise en page.
+  it("rejects divs instead of semantic landmarks", () => {
+    // Targeted failure: the step teaches semantics, not layout.
     const code = '<div class="header">H</div><div class="main">M</div><div class="footer">F</div>';
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("HTML chapitre 6 — etape 2 (navigation dans l'en-tete)", () => {
-  const valider = validators[1];
+describe("HTML chapter 6 — step 2 (navigation in the header)", () => {
+  const validate = validators[1];
 
-  it("accepte une nav de trois liens placee dans le header", () => {
+  it("accepts a three-link nav placed in the header", () => {
     const code = `<header><nav>
       <a href="/">Accueil</a><a href="/missions">Missions</a><a href="/contact">Contact</a>
     </nav></header><main>M</main>`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse une nav placee hors du header", () => {
-    // Échec ciblé : l'emplacement fait partie de l'exigence.
+  it("rejects a nav placed outside the header", () => {
+    // Targeted failure: the placement is part of the requirement.
     const code = `<header>H</header><nav>
       <a href="/">Accueil</a><a href="/missions">Missions</a><a href="/contact">Contact</a>
     </nav>`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse une nav de deux liens seulement", () => {
+  it("rejects a nav with only two links", () => {
     const code = `<header><nav>
       <a href="/">Accueil</a><a href="/missions">Missions</a>
     </nav></header>`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("HTML chapitre 6 — etape 3 (article et section)", () => {
-  const valider = validators[2];
+describe("HTML chapter 6 — step 3 (article and section)", () => {
+  const validate = validators[2];
 
-  it("accepte une section imbriquee dans un article, lui-meme dans main", () => {
+  it("accepts a section nested in an article, itself inside main", () => {
     const code = "<main><article><section>Contenu</section></article></main>";
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un article sans section interne", () => {
-    expect(valider("<main><article>Contenu</article></main>").ok).toBe(false);
+  it("rejects an article without an inner section", () => {
+    expect(validate("<main><article>Contenu</article></main>").ok).toBe(false);
   });
 
-  it("refuse un article place hors de main", () => {
-    // Échec ciblé : l'imbrication est précisément ce qui est enseigné.
+  it("rejects an article placed outside main", () => {
+    // Targeted failure: the nesting is precisely what is being taught.
     const code = "<article><section>Contenu</section></article><main>M</main>";
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("HTML chapitre 6 — etape 4 (accessibilite)", () => {
-  const valider = validators[3];
+describe("HTML chapter 6 — step 4 (accessibility)", () => {
+  const validate = validators[3];
 
-  it("accepte une image decrite et un lien courant marque", () => {
+  it("accepts a described image and a marked current link", () => {
     const code = `<img src="/logo.png" alt="Logo de la station">
       <nav><a href="/" aria-current="page">Accueil</a></nav>`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un alt vide", () => {
+  it("rejects an empty alt", () => {
     const code = `<img src="/logo.png" alt="">
       <nav><a href="/" aria-current="page">Accueil</a></nav>`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse une page sans aria-current", () => {
-    // Échec ciblé : rien n'indique à un lecteur d'écran où l'on se trouve.
+  it("rejects a page without aria-current", () => {
+    // Targeted failure: nothing tells a screen reader where the user is.
     const code = `<img src="/logo.png" alt="Logo de la station">
       <nav><a href="/">Accueil</a></nav>`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });

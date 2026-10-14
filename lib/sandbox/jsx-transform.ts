@@ -1,13 +1,13 @@
 /**
- * Transformation JSX vers JS, côté navigateur.
+ * JSX to JS transformation, in the browser.
  *
- * Sucrase plutôt que Babel standalone : il couvre JSX, TypeScript et les
- * modules, soit le besoin du cursus, pour environ un dixième du poids. Importé
- * dynamiquement pour rester hors du bundle initial : seul un chapitre React le
- * charge, au premier déploiement.
+ * Sucrase rather than Babel standalone: it covers JSX, TypeScript and
+ * modules, which is all the curriculum needs, for about a tenth of the size.
+ * Imported dynamically to stay out of the initial bundle: only a React chapter
+ * loads it, on the first deployment.
  *
- * Le transform JSX classique produit des `React.createElement`, `React` étant
- * global dans l'iframe d'aperçu.
+ * The classic JSX transform emits `React.createElement` calls, since `React`
+ * is a global in the preview iframe.
  */
 
 export type JsxTransformResult =
@@ -24,8 +24,8 @@ export async function transformJsx(code: string): Promise<JsxTransformResult> {
     });
     return { ok: true, js };
   } catch (err) {
-    // Syntaxe invalide : le message est rendu à l'appelant, qui l'affiche à
-    // l'apprenant.
+    // Invalid syntax: the message is returned to the caller, which shows it to
+    // the learner.
     return {
       ok: false,
       error: err instanceof Error ? err.message : String(err),

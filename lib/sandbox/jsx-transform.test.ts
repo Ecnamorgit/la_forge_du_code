@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { transformJsx } from "./jsx-transform";
 
 describe("transformJsx", () => {
-  it("transforme du JSX en appels React.createElement", async () => {
+  it("transforms JSX into React.createElement calls", async () => {
     const r = await transformJsx("const a = <div>salut</div>;");
     expect(r.ok).toBe(true);
     if (!r.ok) return;
@@ -11,7 +11,7 @@ describe("transformJsx", () => {
     expect(r.js).not.toContain("<div>");
   });
 
-  it("transforme un composant complet avec hooks", async () => {
+  it("transforms a full component with hooks", async () => {
     const code = `function Reacteur() {
   const [n, setN] = useState(0);
   return <button onClick={() => setN(n + 1)}>Poussee : {n}</button>;
@@ -23,26 +23,26 @@ describe("transformJsx", () => {
     expect(r.js).toContain("useState");
   });
 
-  it("transforme un fragment court", async () => {
+  it("transforms a short fragment", async () => {
     const r = await transformJsx("const a = <><span/></>;");
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.js).toContain("React.Fragment");
   });
 
-  it("porte l'erreur au lieu de lever, sur du JSX casse", async () => {
+  it("returns the error instead of throwing, on broken JSX", async () => {
     const r = await transformJsx("const a = <div>pas ferme;");
     expect(r.ok).toBe(false);
     if (r.ok) return;
     expect(r.error.length).toBeGreaterThan(0);
   });
 
-  it("porte l'erreur sur une syntaxe JS invalide", async () => {
+  it("returns the error on invalid JS syntax", async () => {
     const r = await transformJsx("function ( {{{");
     expect(r.ok).toBe(false);
   });
 
-  it("accepte du code vide sans lever", async () => {
+  it("accepts empty code without throwing", async () => {
     const r = await transformJsx("");
     expect(r.ok).toBe(true);
   });

@@ -10,23 +10,23 @@ export interface CompleteStepResponse {
   awardedXp: number;
   newBadge: string | null;
   alreadyDone: boolean;
-  /** XP versée par les ordres du jour, incluse dans awardedXp. */
+  /** XP paid out by the daily orders, included in awardedXp. */
   questXp: number;
   completedQuests: string[];
   newConductBadges: string[];
   newUnlocks: string[];
-  /** Message de liaison à afficher une fois (relais consommé, rupture). */
+  /** Liaison message to show once (relay consumed, streak broken). */
   notice: string | null;
 }
 
 export interface UseUserReturn {
   state: UserState;
   hydrated: boolean;
-  /** Relit l'état depuis le serveur (après un changement externe, par exemple). */
+  /** Rereads the state from the server (after an external change, for example). */
   refresh: () => Promise<void>;
   /**
-   * Validation d'étape côté serveur. `code` est la soumission qui vient de
-   * passer ; le serveur rejoue le validateur dessus (lib/step-proof.ts).
+   * Server-side step completion. `code` is the submission that just passed;
+   * the server replays the validator on it (lib/step-proof.ts).
    */
   completeStep: (
     course: string,
@@ -34,19 +34,19 @@ export interface UseUserReturn {
     stepIndex: number,
     code?: string
   ) => Promise<CompleteStepResponse>;
-  /** Renomme l'utilisateur. Lève si le nom est invalide ou déjà pris. */
+  /** Renames the user. Throws if the name is invalid or already taken. */
   renameUser: (newUsername: string) => Promise<UserState>;
-  /** Efface toute la progression (XP, badges, étapes, liaison). */
+  /** Erases all progress (XP, badges, steps, liaison). */
   reset: () => Promise<UserState>;
-  /** Mémorise la fermeture du briefing de première connexion. */
+  /** Records that the first-login briefing was closed. */
   markOnboarded: () => Promise<UserState>;
-  /** Enregistre l'avatar (espèce, couleur d'uniforme, rôle). */
+  /** Saves the avatar (species, uniform color, role). */
   setAvatar: (choices: {
     species: string;
     uniformColor: string;
     role: string;
   }) => Promise<UserState>;
-  /** Enregistre les cosmétiques portés. Le serveur refuse ce qui n'est pas débloqué. */
+  /** Saves the equipped cosmetics. The server rejects anything not unlocked. */
   setCosmetics: (choices: {
     frame?: string;
     title?: string;
@@ -55,8 +55,8 @@ export interface UseUserReturn {
     uniform?: string;
   }) => Promise<UserState>;
   /**
-   * Mémorise le cursus en cours, à l'ouverture d'une page de chapitre. Les
-   * erreurs sont ignorées : ce n'est qu'un confort d'interface.
+   * Remembers the current course when a chapter page opens. Errors are
+   * ignored: it is only a UI convenience.
    */
   markCourseVisited: (course: string) => Promise<void>;
 }
@@ -79,8 +79,8 @@ async function readJson<T>(res: Response): Promise<T> {
 }
 
 /**
- * État utilisateur adossé à la base : hydraté depuis `/api/me` une fois
- * authentifié, avec les mutations dont l'interface a besoin.
+ * Database-backed user state: hydrated from `/api/me` once authenticated,
+ * with the mutations the UI needs.
  */
 export function useUser(): UseUserReturn {
   const { status } = useSession();
@@ -97,8 +97,8 @@ export function useUser(): UseUserReturn {
       try {
         const res = await fetch("/api/me", { cache: "no-store" });
         if (res.status === 401) {
-          // JWT valide mais compte supprimé en base : déconnexion pour
-          // effacer le cookie périmé et revenir à /login.
+          // Valid JWT but account deleted from the database: sign out to
+          // clear the stale cookie and go back to /login.
           setState(DEFAULT_USER);
           void signOut({ callbackUrl: "/login" });
           return;
@@ -276,7 +276,7 @@ export function useUser(): UseUserReturn {
       const next = await readJson<UserState>(res);
       setState(next);
     } catch {
-      // Sans conséquence : erreurs réseau ou serveur ignorées.
+      // Harmless: network or server errors are ignored.
     }
   }, []);
 

@@ -1,6 +1,6 @@
 import type { ChapterData } from "@/data/courses/html/types";
 
-export const chapitre2: ChapterData = {
+export const chapter2: ChapterData = {
   slug: "chapitre-2",
   tag: "MISSION : CHROMATIQUE",
   title: "PALETTE\nTACTIQUE",
@@ -41,7 +41,7 @@ Un même élément peut porter une **class** (étiquette) ajoutee dans le HTML :
         { id: "o1a", label: "Utiliser un sélecteur de classe (.alert)" },
         { id: "o1b", label: "Appliquer une propriété color" },
       ],
-      docRefs: ["css/selecteurs"],
+      docRefs: ["css/selectors"],
       missionIcon: "🏷",
       missionTag: "PROTOCOLE 01",
       missionTtl: "CIBLAGE PRÉCIS",

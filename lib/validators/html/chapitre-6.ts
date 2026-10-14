@@ -16,7 +16,7 @@ function tagInner(code: string, tag: string): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : header, main et footer
+  // Step 1: header, main and footer
   (code) => {
     const clean = stripHtmlComments(code);
     if (!hasTag(clean, "header")) return { ok: false, msg: "Encadre l'en-tête dans une balise <header>." };
@@ -24,7 +24,7 @@ export const validators: Validator[] = [
     if (!hasTag(clean, "footer")) return { ok: false, msg: "Ajoute un <footer> en bas de la page." };
     return { ok: true, msg: "Plan de station posé.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : une <nav> d'au moins 3 <a> dans le <header>
+  // Step 2: a <nav> with at least 3 <a> inside the <header>
   (code) => {
     const clean = stripHtmlComments(code);
     const header = tagInner(clean, "header");
@@ -37,7 +37,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Routes balisées.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : une <section> dans un <article>, lui-même dans <main>
+  // Step 3: a <section> inside an <article>, itself inside <main>
   (code) => {
     const clean = stripHtmlComments(code);
     const main = tagInner(clean, "main");
@@ -49,7 +49,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Blocs délimités.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : alt sur l'image et aria-current="page" sur un lien
+  // Step 4: alt on the image and aria-current="page" on a link
   (code) => {
     const clean = stripHtmlComments(code);
     const imgWithAlt = /<img\b[^>]*\balt\s*=\s*["'][^"']+["'][^>]*>/i.test(clean);

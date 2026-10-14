@@ -25,6 +25,6 @@ On ajoute \`:etat\` au sélecteur. Le style s'applique seulement quand l'état e
     "Ne jamais retirer l'outline de :focus sans alternative : c'est un repère d'accessibilité.",
     ":hover ne fonctionne pas au toucher sur mobile — prévoir un état :active.",
   ],
-  related: ["css/selecteurs", "css/transition"],
+  related: ["css/selectors", "css/transition"],
   official: { label: "MDN — Pseudo-classes", url: "https://developer.mozilla.org/fr/docs/Web/CSS/Pseudo-classes" },
 };
