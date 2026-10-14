@@ -16,7 +16,7 @@ export default function LandingPage() {
       {/* Anonymous view counting */}
       <TrackLandingView />
 
-      {/* Fond */}
+      {/* Background */}
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-bg" />
       <div className="fixed inset-0 z-0 pointer-events-none bg-nebula-stars opacity-30" />
       <div className="fixed inset-0 z-0 pointer-events-none bg-[rgba(3,6,13,0.55)]" />
