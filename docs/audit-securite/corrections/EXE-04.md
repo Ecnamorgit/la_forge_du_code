@@ -14,7 +14,7 @@ Les deux autres `dangerouslySetInnerHTML` du site (texte de la leçon dans `Chap
 
 ## Démonstration
 
-Test [e2e/securite-indices.spec.ts](../../../e2e/securite-indices.spec.ts), commité seul, avant le correctif (commit `14029ac`). Il ouvre le chapitre 2 HTML, clique sur « 💡 Indice » et regarde la page.
+Test [e2e/security-hints.spec.ts](../../../e2e/security-hints.spec.ts), commité seul, avant le correctif (commit `14029ac`). Il ouvre le chapitre 2 HTML, clique sur « 💡 Indice » et regarde la page.
 
 | Contrôle | Avant correctif | Après correctif |
 |---|---|---|

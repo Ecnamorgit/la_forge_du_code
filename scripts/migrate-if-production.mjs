@@ -1,11 +1,11 @@
-// Applique les migrations Prisma au seul déploiement de production Vercel,
-// depuis la commande de build de vercel.json (audit INF-01). Les préversions
-// partagent la base de production : elles n'y appliquent pas leurs migrations.
+// Applies the Prisma migrations only on the Vercel production deployment,
+// from the build command in vercel.json (audit INF-01). Preview deployments
+// share the production database: they do not apply their migrations to it.
 //
-// Sur Vercel sans VERCEL_ENV, le build échoue plutôt que de laisser la
-// production avec un schéma en retard sur le code.
+// On Vercel without VERCEL_ENV, the build fails rather than leaving
+// production with a schema that lags behind the code.
 //
-// --simulation : affiche la décision sans lancer Prisma (tests).
+// --simulation: prints the decision without running Prisma (tests).
 import { execSync } from "node:child_process";
 
 const { VERCEL, VERCEL_ENV } = process.env;

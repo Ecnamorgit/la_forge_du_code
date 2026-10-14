@@ -1,8 +1,8 @@
 import type { ErrorTone, ValidationResult } from "@/data/courses/html/types";
 
 /**
- * Utilitaires des validateurs statiques : le code saisi n'est pas exécuté, il
- * est analysé par motifs (git, python, react, typescript, nodejs...).
+ * Utilities for the static validators: the typed code is not executed, it is
+ * analysed by pattern matching (git, python, react, typescript, nodejs...).
  */
 
 function escapeRegExp(s: string): string {
@@ -10,10 +10,10 @@ function escapeRegExp(s: string): string {
 }
 
 /**
- * Retire les lignes entièrement commentées qui commencent par `marker` ("//",
- * "#", "--"). Les commentaires de fin de ligne sont conservés pour ne pas
- * tronquer une URL `https://...`. Les consignes en commentaire du `startCode`
- * ne peuvent ainsi jamais satisfaire un motif.
+ * Removes full-line comments that start with `marker` ("//", "#", "--").
+ * End-of-line comments are kept so that a `https://...` URL is not
+ * truncated. This way, instructions written as comments in the `startCode`
+ * can never satisfy a pattern.
  */
 export function stripLineComments(code: string, marker: string): string {
   const re = new RegExp(`^\\s*${escapeRegExp(marker)}.*$`, "gm");
@@ -37,13 +37,13 @@ export function pass(
   return final ? { ok: true, msg, objList, final: true } : { ok: true, msg, objList };
 }
 
-/** Une occurrence de `.methodName(...)` localisée par `findCallBody`. */
+/** One occurrence of `.methodName(...)` located by `findCallBody`. */
 export interface CallMatch {
-  /** Le texte entre les parenthèses de l'appel (l'argument brut). */
+  /** The text between the call's parentheses (the raw argument). */
   body: string;
-  /** Index du "." qui ouvre l'appel (`.methodName`). */
+  /** Index of the "." that opens the call (`.methodName`). */
   start: number;
-  /** Index juste après la parenthèse fermante de l'appel. */
+  /** Index just after the call's closing parenthesis. */
   end: number;
 }
 
@@ -61,13 +61,13 @@ function skipStringLiteral(code: string, start: number, quote: string): number {
 }
 
 /**
- * Trouve l'index du délimiteur fermant qui correspond à celui ouvert en
- * `openIdx` (`(`, `{` ou `[`), en ignorant le contenu des chaînes '...',
- * "..." et `...`. Renvoie -1 si le délimiteur n'est pas équilibré ou si
- * `openIdx` ne pointe pas sur un délimiteur ouvrant.
+ * Finds the index of the closing delimiter that matches the one opened at
+ * `openIdx` (`(`, `{` or `[`), ignoring the contents of '...', "..." and
+ * `...` strings. Returns -1 if the delimiter is unbalanced or if
+ * `openIdx` does not point to an opening delimiter.
  *
- * Simple compteur de profondeur : les délimiteurs d'une regex littérale ne
- * sont pas reconnus.
+ * Plain depth counter: delimiters inside a regex literal are not
+ * recognised.
  */
 export function matchClosing(code: string, openIdx: number): number {
   const pairs: Record<string, string> = { "(": ")", "{": "}", "[": "]" };
@@ -93,13 +93,13 @@ export function matchClosing(code: string, openIdx: number): number {
 }
 
 /**
- * Renvoie l'indice de fin (exclu) de l'expression qui commence à `fromIdx` :
- * le premier `;` de profondeur zéro, ou le premier délimiteur fermant qui
- * ferait passer la profondeur sous zéro (fin du bloc englobant). Ignore le
- * contenu des chaînes.
+ * Returns the end index (exclusive) of the expression starting at `fromIdx`:
+ * the first `;` at depth zero, or the first closing delimiter that would
+ * take the depth below zero (end of the enclosing block). Ignores the
+ * contents of strings.
  *
- * Sert à isoler la valeur d'un `return X` même quand X contient des
- * parenthèses, accolades ou crochets (ex. `return { ...etat };`).
+ * Used to isolate the value of a `return X` even when X contains
+ * parentheses, braces or brackets (e.g. `return { ...etat };`).
  */
 export function statementEnd(code: string, fromIdx: number): number {
   let depth = 0;
@@ -121,13 +121,13 @@ export function statementEnd(code: string, fromIdx: number): number {
 }
 
 /**
- * Cherche le prochain appel `.methodName(...)` à partir de `fromIndex` et
- * renvoie le contenu de ses parenthèses, profondeur équilibrée. Rappeler avec
- * `fromIndex = match.end` pour parcourir toutes les occurrences, par exemple
- * quand un `.map()` sans rapport précède celui du rendu JSX.
+ * Looks for the next `.methodName(...)` call starting at `fromIndex` and
+ * returns the contents of its parentheses, with balanced depth. Call again with
+ * `fromIndex = match.end` to walk through every occurrence, for example
+ * when an unrelated `.map()` comes before the one in the JSX render.
  *
- * Scanner heuristique, pas un parseur : les parenthèses d'une regex littérale
- * ou d'un commentaire de fin de ligne faussent le comptage.
+ * Heuristic scanner, not a parser: parentheses in a regex literal or in an
+ * end-of-line comment throw off the count.
  */
 export function findCallBody(
   code: string,
@@ -142,7 +142,7 @@ export function findCallBody(
     let cursor = dotIdx + marker.length;
     while (cursor < code.length && /\s/.test(code[cursor])) cursor++;
     if (code[cursor] !== "(") {
-      // Par exemple `.methodNameAutre(` : on reprend la recherche juste après.
+      // For example `.methodNameAutre(`: resume the search just after it.
       searchFrom = dotIdx + marker.length;
       continue;
     }
@@ -157,9 +157,9 @@ export function findCallBody(
 }
 
 /**
- * Vérifie qu'un appel `.methodName(` est chaîné juste après `index` (espaces
- * et retours à la ligne admis), comme dans `.filter(...).map(...)`. `index`
- * est en général le `match.end` renvoyé par `findCallBody`.
+ * Checks that a `.methodName(` call is chained right after `index` (spaces
+ * and line breaks allowed), as in `.filter(...).map(...)`. `index`
+ * is usually the `match.end` returned by `findCallBody`.
  */
 export function isFollowedByCall(code: string, index: number, methodName: string): boolean {
   let i = index;
@@ -168,13 +168,13 @@ export function isFollowedByCall(code: string, index: number, methodName: string
 }
 
 /**
- * Teste si la longueur de `varName` est comparée à zéro (`varName.length === 0`,
- * `varName.length < 1` ou `!varName.length`). L'ancrage sur le nom évite
- * d'accepter un test sur la collection source, jamais vide, au lieu du tableau
- * filtré visé par l'exercice.
+ * Tests whether the length of `varName` is compared to zero (`varName.length === 0`,
+ * `varName.length < 1` or `!varName.length`). Anchoring on the name avoids
+ * accepting a check on the source collection, which is never empty, instead of
+ * the filtered array the exercise targets.
  *
- * Recherche textuelle : les alias (`const x = varName; x.length === 0`) ne
- * sont pas résolus.
+ * Text search: aliases (`const x = varName; x.length === 0`) are
+ * not resolved.
  */
 export function hasEmptyLengthCheck(code: string, varName: string): boolean {
   const v = escapeRegExp(varName);
@@ -185,14 +185,14 @@ export function hasEmptyLengthCheck(code: string, varName: string): boolean {
   );
 }
 
-// Helpers JSX et appels de fonction directs (props d'une balise, indirection
-// vers une fonction nommée), utilisés par les chapitres React 6 à 8.
+// Helpers for JSX and direct function calls (a tag's props, indirection
+// to a named function), used by React chapters 6 to 8.
 
 /**
- * Localise une balise JSX `<tagName ...>` (ouvrante ou auto-fermante) et
- * renvoie le texte de ses attributs. Les accolades sont équilibrées et les
- * chaînes ignorées, pour qu'un `>` dans une flèche (`onChange={(e) => ...}`)
- * ne ferme pas la balise trop tôt.
+ * Locates a JSX tag `<tagName ...>` (opening or self-closing) and
+ * returns the text of its attributes. Braces are balanced and strings
+ * ignored, so that a `>` in an arrow function (`onChange={(e) => ...}`)
+ * does not close the tag too early.
  */
 export function findJsxTagAttrs(
   code: string,
@@ -222,9 +222,9 @@ export function findJsxTagAttrs(
 }
 
 /**
- * Extrait le contenu entre accolades d'une prop JSX `attrName={ ... }`, en
- * équilibrant les accolades internes (flèche à corps bloc, objet littéral...).
- * Renvoie null si la prop est absente de `tagBody`.
+ * Extracts the brace-delimited contents of a JSX prop `attrName={ ... }`,
+ * balancing inner braces (block-bodied arrow function, object literal...).
+ * Returns null if the prop is missing from `tagBody`.
  */
 export function extractAttrValue(tagBody: string, attrName: string): string | null {
   const marker = new RegExp(`\\b${escapeRegExp(attrName)}\\s*=\\s*\\{`);
@@ -247,10 +247,10 @@ export function extractAttrValue(tagBody: string, attrName: string): string | nu
 }
 
 /**
- * Trouve le prochain appel de fonction direct `fnName(...)`, comme
- * `setFormulaire(...)` ou `useReducer(...)`, et renvoie son argument complet
- * (parenthèses équilibrées, chaînes ignorées). Rappeler avec
- * `fromIndex = match.end` pour itérer, comme pour `findCallBody`.
+ * Finds the next direct function call `fnName(...)`, such as
+ * `setFormulaire(...)` or `useReducer(...)`, and returns its full argument
+ * (balanced parentheses, strings ignored). Call again with
+ * `fromIndex = match.end` to iterate, as with `findCallBody`.
  */
 export function findBareCallBody(
   code: string,
@@ -293,13 +293,13 @@ export function findBareCallBody(
 }
 
 /**
- * Renvoie le corps d'une fonction nommée (`function nom(...) {}`,
- * `const nom = (...) => {}` ou `const nom = function (...) {}`), accolades
- * équilibrées. Sert à suivre une indirection JSX comme
- * `onSubmit={handleSubmit}` jusqu'à la définition du handler.
+ * Returns the body of a named function (`function nom(...) {}`,
+ * `const nom = (...) => {}` or `const nom = function (...) {}`), with balanced
+ * braces. Used to follow a JSX indirection such as
+ * `onSubmit={handleSubmit}` to the handler's definition.
  *
- * Un seul niveau d'indirection ; un corps sans accolades
- * (`const f = (e) => e.preventDefault()`) n'est pas reconnu.
+ * Only one level of indirection; a body without braces
+ * (`const f = (e) => e.preventDefault()`) is not recognised.
  */
 export function findNamedFunctionBody(code: string, name: string): string | null {
   const n = escapeRegExp(name);

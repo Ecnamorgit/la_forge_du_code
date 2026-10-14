@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
-import { compteVerrouille, hashFactice, noterEchecConnexion } from "@/lib/login-guard";
+import { isAccountLocked, dummyHash, recordLoginFailure } from "@/lib/login-guard";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { crossOriginRefusal } from "@/lib/same-origin";
 
@@ -13,11 +13,11 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
-  // Même compteur que la connexion : cette route confirme un mot de passe
-  // correct, et un compteur séparé doublerait le budget de force brute.
+  // Same counter as login: this route confirms a correct password, and a
+  // separate counter would double the brute-force budget.
   const limit = await rateLimit(`login:${getClientIp(req)}`, {
     limit: 10,
     windowMs: 5 * 60 * 1000,
@@ -38,10 +38,10 @@ export async function POST(req: Request) {
 
   const { email, password } = parsed.data;
 
-  // Même verrou par compte que la connexion (audit SRV-07), sinon cette route
-  // permettrait d'essayer des mots de passe sur un compte verrouillé.
-  if (await compteVerrouille(email)) {
-    await bcrypt.compare(password, await hashFactice());
+  // Same per-account lock as login (audit SRV-07); otherwise this route would
+  // allow trying passwords against a locked account.
+  if (await isAccountLocked(email)) {
+    await bcrypt.compare(password, await dummyHash());
     return NextResponse.json({ unverified: false });
   }
 
@@ -51,18 +51,18 @@ export async function POST(req: Request) {
   });
 
   if (!user || !user.password) {
-    // Comparaison factice : le temps de réponse ne trahit pas l'existence de
-    // l'adresse.
-    await bcrypt.compare(password, await hashFactice());
+    // Dummy comparison: the response time does not reveal whether the
+    // address exists.
+    await bcrypt.compare(password, await dummyHash());
     return NextResponse.json({ unverified: false });
   }
 
   const passOk = await bcrypt.compare(password, user.password);
   if (!passOk) {
-    // La page de connexion appelle cette route après un échec déjà compté par
-    // `authorize` : on ne compte que le cas où la réponse apprend quelque chose
-    // (compte non vérifié).
-    if (!user.emailVerified) await noterEchecConnexion(email);
+    // The login page calls this route after a failure already counted by
+    // `authorize`: only count the case where the response reveals something
+    // (unverified account).
+    if (!user.emailVerified) await recordLoginFailure(email);
     return NextResponse.json({ unverified: false });
   }
 

@@ -17,14 +17,14 @@ const bodySchema = z.object({
   course: z.string().min(1).max(32),
   chapter: z.string().min(1).max(64),
   stepIndex: z.number().int().min(0).max(999),
-  // Code validé dans le navigateur, que le serveur rejoue (lib/step-proof.ts).
-  // Facultatif pour les étapes jugées sur exécution.
+  // Code validated in the browser, which the server replays (lib/step-proof.ts).
+  // Optional for steps judged on execution.
   code: z.string().max(MAX_CODE_LENGTH).optional(),
 });
 
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   const session = await auth();
   if (!session?.user?.id) {
@@ -32,8 +32,8 @@ export async function POST(req: Request) {
   }
   const userId = session.user.id;
 
-  // Par compte, avant la lecture du corps, pour compter chaque appel (audit
-  // EXE-01). 20 par minute ne gênent qu'un script.
+  // Per account, before reading the body, so every call counts (audit
+  // EXE-01). 20 per minute only hinders a script.
   const limit = await rateLimit(`step:${userId}`, { limit: 20, windowMs: 60_000 });
   if (!limit.ok) return tooManyRequests(limit.retryAfter);
 
@@ -53,11 +53,11 @@ export async function POST(req: Request) {
   }
   const { course, chapter, stepIndex, code } = parsed.data;
 
-  // Une étape ne se déclare pas : il faut la solution qui la valide.
-  const preuve = verifyStepProof(course, chapter, stepIndex, code);
-  if (!preuve.ok) {
+  // A step cannot just be claimed: it takes the solution that validates it.
+  const proof = verifyStepProof(course, chapter, stepIndex, code);
+  if (!proof.ok) {
     logger.warn("step_refused", { reason: "proof", course, chapter, stepIndex });
-    return NextResponse.json({ error: preuve.reason }, { status: 422 });
+    return NextResponse.json({ error: proof.reason }, { status: 422 });
   }
 
   try {

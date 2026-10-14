@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent } from "./_utils";
 
 export const validators: Validator[] = [
-  // Étape 1 : --color-primary défini dans :root
+  // Step 1: --color-primary defined in :root
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -11,8 +11,8 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Variable en place.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : var(--color-primary) utilisé au moins 3 fois, et plus aucun
-  // #00b8d4 en dur hors de :root
+  // Step 2: var(--color-primary) used at least 3 times, and no hard-coded
+  // #00b8d4 left outside :root
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -26,8 +26,8 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Couleur centralisée.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : une variable --space-* ou --radius*, utilisée via var() pour
-  // padding ou border-radius
+  // Step 3: a --space-* or --radius* variable, used through var() for
+  // padding or border-radius
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -39,7 +39,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Système cohérent.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : un bloc [data-theme="..."] qui redéfinit une propriété personnalisée
+  // Step 4: a [data-theme="..."] block that redefines a custom property
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };

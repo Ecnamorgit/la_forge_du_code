@@ -11,63 +11,63 @@ import {
 } from "./public-routes";
 
 describe("isPublicRoute", () => {
-  it("ouvre le chapitre d'essai", () => {
+  it("opens the trial chapter", () => {
     expect(isPublicRoute("/learn/html/chapitre-1")).toBe(true);
   });
 
-  it("tolère un slash final", () => {
+  it("tolerates a trailing slash", () => {
     expect(isPublicRoute("/learn/html/chapitre-1/")).toBe(true);
   });
 
-  it("ferme le chapitre suivant l'essai", () => {
+  it("closes the chapter after the trial", () => {
     expect(isPublicRoute("/learn/html/chapitre-4")).toBe(false);
   });
 
-  // Un match par préfixe ouvrirait chapitre-10 dès que HTML dépasserait neuf
-  // chapitres.
-  it("ferme chapitre-10 (pas de match par préfixe)", () => {
+  // A prefix match would open chapitre-10 as soon as HTML had more than nine
+  // chapters.
+  it("closes chapitre-10 (no prefix match)", () => {
     expect(isPublicRoute("/learn/html/chapitre-10")).toBe(false);
     expect(isPublicRoute("/learn/html/chapitre-11")).toBe(false);
   });
 
-  it("ferme le même numéro de chapitre dans un autre cursus", () => {
+  it("closes the same chapter number in another course", () => {
     expect(isPublicRoute("/learn/css/chapitre-1")).toBe(false);
     expect(isPublicRoute("/learn/javascript/chapitre-1")).toBe(false);
   });
 
-  it("ferme les sous-chemins du chapitre d'essai", () => {
+  it("closes subpaths of the trial chapter", () => {
     expect(isPublicRoute("/learn/html/chapitre-1/solution")).toBe(false);
   });
 
-  it("ferme la liste des cursus", () => {
+  it("closes the course list", () => {
     expect(isPublicRoute("/learn")).toBe(false);
   });
 
-  it("expose le cursus et les chapitres d'essai", () => {
+  it("exposes the trial course and chapters", () => {
     expect(TRIAL_COURSE).toBe("html");
     expect(TRIAL_CHAPTERS[0]).toBe("chapitre-1");
   });
 
-  // L'égalité stricte ferme toute variante du chemin (slash surnuméraire,
-  // casse différente).
-  it("ferme les slashes finaux multiples", () => {
+  // Strict equality closes every variant of the path (extra slash,
+  // different case).
+  it("closes multiple trailing slashes", () => {
     expect(isPublicRoute("/learn/html/chapitre-1//")).toBe(false);
   });
 
-  it("ferme les variantes de casse", () => {
+  it("closes case variants", () => {
     expect(isPublicRoute("/learn/HTML/chapitre-1")).toBe(false);
     expect(isPublicRoute("/learn/html/Chapitre-1")).toBe(false);
     expect(isPublicRoute("/LEARN/html/chapitre-1")).toBe(false);
   });
 });
 
-describe("essai étendu", () => {
-  it("la carte du cursus d'essai est publique", () => {
+describe("extended trial", () => {
+  it("the trial course map is public", () => {
     expect(isPublicRoute("/learn/html")).toBe(true);
     expect(isPublicRoute("/learn/html/")).toBe(true);
   });
 
-  it("les chapitres 1 à 3 sont publics, pas les suivants", () => {
+  it("chapters 1 to 3 are public, the following ones are not", () => {
     expect(isPublicRoute("/learn/html/chapitre-1")).toBe(true);
     expect(isPublicRoute("/learn/html/chapitre-2")).toBe(true);
     expect(isPublicRoute("/learn/html/chapitre-3")).toBe(true);
@@ -75,60 +75,60 @@ describe("essai étendu", () => {
     expect(isPublicRoute("/learn/html/chapitre-8")).toBe(false);
   });
 
-  it("jamais de match par préfixe", () => {
+  it("never matches by prefix", () => {
     expect(isPublicRoute("/learn/html/chapitre-10")).toBe(false);
     expect(isPublicRoute("/learn/htmlx")).toBe(false);
     expect(isPublicRoute("/learn/css")).toBe(false);
   });
 
-  it("TRIAL_CHAPTERS est ordonné et TRIAL_LAST_CHAPTER en est le dernier", () => {
+  it("TRIAL_CHAPTERS is ordered and TRIAL_LAST_CHAPTER is its last item", () => {
     expect(TRIAL_CHAPTERS).toEqual(["chapitre-1", "chapitre-2", "chapitre-3"]);
     expect(TRIAL_LAST_CHAPTER).toBe("chapitre-3");
   });
 });
 
 /**
- * Cohérence entre ce que `proxy.ts` protège et ce qu'on déclare aux moteurs :
- * une page protégée déclarée au sitemap ferait buter les robots sur une
- * redirection vers /login.
+ * Consistency between what `proxy.ts` protects and what we declare to search
+ * engines: a protected page listed in the sitemap would make crawlers hit a
+ * redirect to /login.
  */
-describe("cohérence sitemap / robots / middleware", () => {
-  it("ne déclare au sitemap que des routes réellement atteignables sans compte", () => {
+describe("sitemap / robots / middleware consistency", () => {
+  it("only lists routes in the sitemap that are actually reachable without an account", () => {
     for (const route of INDEXABLE_ROUTES) {
       const isUnderProtectedPrefix = PROTECTED_PREFIXES.some(
         (p) => route === p || route.startsWith(`${p}/`)
       );
-      // Une route sous préfixe protégé n'est admise que si la liste blanche l'ouvre.
+      // A route under a protected prefix is only allowed if the allowlist opens it.
       if (isUnderProtectedPrefix) {
-        expect(isPublicRoute(route), `${route} est protégé et hors allowlist`).toBe(true);
+        expect(isPublicRoute(route), `${route} is protected and not in the allowlist`).toBe(true);
       }
     }
   });
 
-  it("déclare la carte et les chapitres d'essai au sitemap", () => {
+  it("lists the trial map and chapters in the sitemap", () => {
     expect(INDEXABLE_ROUTES).toContain(`/learn/${TRIAL_COURSE}`);
     for (const chapter of TRIAL_CHAPTERS) {
       expect(INDEXABLE_ROUTES).toContain(`/learn/${TRIAL_COURSE}/${chapter}`);
     }
   });
 
-  it("déclare la landing et le codex au sitemap", () => {
+  it("lists the landing page and the codex in the sitemap", () => {
     expect(INDEXABLE_ROUTES).toContain("/");
     expect(INDEXABLE_ROUTES).toContain("/codex");
   });
 
-  it("n'interdit aucune route du sitemap via les préfixes non indexables", () => {
+  it("does not disallow any sitemap route through the non-indexable prefixes", () => {
     for (const route of INDEXABLE_ROUTES) {
       for (const prefix of NON_INDEXABLE_PREFIXES) {
         expect(
           route === prefix || route.startsWith(`${prefix}/`),
-          `${route} est déclaré au sitemap mais interdit par ${prefix}`
+          `${route} is in the sitemap but disallowed by ${prefix}`
         ).toBe(false);
       }
     }
   });
 
-  it("protège toujours les espaces authentifiés", () => {
+  it("always protects the authenticated areas", () => {
     for (const prefix of ["/dashboard", "/profil", "/avatar", "/leaderboard"]) {
       expect(PROTECTED_PREFIXES).toContain(prefix);
     }

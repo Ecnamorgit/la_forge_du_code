@@ -1,6 +1,6 @@
 import type { ChapterData } from "@/data/courses/html/types";
 
-export const chapitre4: ChapterData = {
+export const chapter4: ChapterData = {
   slug: "chapitre-4",
   tag: "MISSION : INVENTAIRE TACTIQUE",
   title: "TABLEAUX\n& BOUCLES",
@@ -44,7 +44,7 @@ Avec un **index commencant a 0** :
         { id: "o1a", label: "Déclarer un tableau (au moins 3 éléments)" },
         { id: "o1b", label: "L'afficher avec console.log" },
       ],
-      docRefs: ["js/tableaux"],
+      docRefs: ["js/arrays"],
       missionIcon: "📦",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIER INVENTAIRE",

@@ -1,26 +1,26 @@
 /**
- * Configuration des mini-cinématiques de l'intro : chaque scène (PNG en décor)
- * reçoit une dérive de caméra et une liste d'effets animés. Positions en
- * coordonnées normalisées de l'image (x vers la droite, y vers le bas, dans
- * [0,1]). Sans dépendance DOM ni three : le moteur (IntroSceneCanvas) consomme
- * cette configuration, qui reste testable sous node.
+ * Configuration of the intro mini-cinematics: each scene (PNG backdrop)
+ * gets a camera drift and a list of animated effects. Positions are in
+ * normalized image coordinates (x to the right, y downward, within
+ * [0,1]). No DOM or three dependency: the engine (IntroSceneCanvas) consumes
+ * this configuration, which stays testable under node.
  */
 
-/** Dérive de caméra sur la durée d'une scène (amplitudes très faibles). */
+/** Camera drift over the duration of a scene (very small amplitudes). */
 export type CameraMove =
-  | { kind: "pan"; amount: number } // translation horizontale lente
-  | { kind: "sway"; amount: number } // balancement respiration
+  | { kind: "pan"; amount: number } // slow horizontal translation
+  | { kind: "sway"; amount: number } // breathing sway
   | { kind: "zoom-in"; amount: number }
   | { kind: "zoom-out"; amount: number };
 
 interface FxCommon {
-  /** Couleur hex CSS de l'effet. */
+  /** CSS hex color of the effect. */
   color: string;
-  /** Période du cycle en secondes (> 0). */
+  /** Cycle period in seconds (> 0). */
   period: number;
 }
 
-/** Plan additif qui clignote façon glitch sur une zone. */
+/** Additive layer that flickers glitch-style over an area. */
 export interface FlickerFx extends FxCommon {
   kind: "flicker";
   x: number;
@@ -29,55 +29,55 @@ export interface FlickerFx extends FxCommon {
   h: number;
 }
 
-/** Halo doux qui respire autour d'un point. */
+/** Soft halo that breathes around a point. */
 export interface PulseFx extends FxCommon {
   kind: "pulse";
   x: number;
   y: number;
-  /** Rayon normalisé (fraction de la hauteur de l'image). */
+  /** Normalized radius (fraction of the image height). */
   r: number;
 }
 
-/** Gerbe brève de particules à un point, répétée à chaque période. */
+/** Short burst of particles at a point, repeated every period. */
 export interface SparksFx extends FxCommon {
   kind: "sparks";
   x: number;
   y: number;
 }
 
-/** Flux continu de particules dans une zone, direction constante. */
+/** Continuous stream of particles in an area, constant direction. */
 export interface ParticlesFx extends FxCommon {
   kind: "particles";
   x: number;
   y: number;
   w: number;
   h: number;
-  /** Direction normalisée du flux (dx, dy). */
+  /** Normalized stream direction (dx, dy). */
   dir: [number, number];
-  /** Vitesse en fractions d'image par seconde. */
+  /** Speed in image fractions per second. */
   speed: number;
   count: number;
 }
 
-/** Faisceau lumineux pulsant entre deux points. */
+/** Pulsing light beam between two points. */
 export interface BeamFx extends FxCommon {
   kind: "beam";
   from: [number, number];
   to: [number, number];
 }
 
-/** Sprite sombre qui dérive lentement dans une zone (épaves). */
+/** Dark sprite that drifts slowly within an area (wreckage). */
 export interface DriftFx extends FxCommon {
   kind: "drift";
   x: number;
   y: number;
   w: number;
   h: number;
-  /** Taille du sprite (fraction de la hauteur de l'image). */
+  /** Sprite size (fraction of the image height). */
   size: number;
 }
 
-/** Bande de scanlines animée sur une zone (hologramme). */
+/** Animated band of scanlines over an area (hologram). */
 export interface ScanlinesFx extends FxCommon {
   kind: "scanlines";
   x: number;
@@ -86,7 +86,7 @@ export interface ScanlinesFx extends FxCommon {
   h: number;
 }
 
-/** Balayage lumineux périodique sur une zone (panneau). */
+/** Periodic light sweep over an area (panel). */
 export interface SweepFx extends FxCommon {
   kind: "sweep";
   x: number;
@@ -117,9 +117,9 @@ const GREEN = "#00ff88";
 const GOLD = "#ffc844";
 const STAR = "#c8d6e5";
 
-/** Une entrée par scène de `INTRO_SCENES` (ids 0..4). */
+/** One entry per scene of `INTRO_SCENES` (ids 0..4). */
 export const INTRO_FX: Record<number, SceneFx> = {
-  // Scène 0 : station attaquée par le Spectre.
+  // Scene 0: station under attack by the Spectre.
   0: {
     camera: { kind: "pan", amount: 0.03 },
     effects: [
@@ -141,7 +141,7 @@ export const INTRO_FX: Record<number, SceneFx> = {
       },
     ],
   },
-  // Scène 1 : cockpit du cadet, alerte en cours.
+  // Scene 1: the cadet's cockpit, alert in progress.
   1: {
     camera: { kind: "sway", amount: 0.012 },
     effects: [
@@ -161,7 +161,7 @@ export const INTRO_FX: Record<number, SceneFx> = {
       },
     ],
   },
-  // Scène 2 : KIRA se présente en hologramme.
+  // Scene 2: KIRA introduces herself as a hologram.
   2: {
     camera: { kind: "zoom-in", amount: 0.045 },
     effects: [
@@ -179,7 +179,7 @@ export const INTRO_FX: Record<number, SceneFx> = {
       { kind: "flicker", x: 0.85, y: 0.3, w: 0.14, h: 0.3, color: RED, period: 1.7 },
     ],
   },
-  // Scène 3 : réparation, lasers de code verts vers le vaisseau.
+  // Scene 3: repair, green code lasers aimed at the ship.
   3: {
     camera: { kind: "zoom-in", amount: 0.045 },
     effects: [
@@ -198,7 +198,7 @@ export const INTRO_FX: Record<number, SceneFx> = {
       },
     ],
   },
-  // Scène 4 : système stable, portail de personnalisation.
+  // Scene 4: system stable, customization portal.
   4: {
     camera: { kind: "zoom-out", amount: 0.04 },
     effects: [

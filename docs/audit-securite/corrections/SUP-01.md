@@ -8,7 +8,7 @@ Le site ne publiait pas de fichier `/.well-known/security.txt`. L'audit initial 
 
 ## Démonstration
 
-Test [e2e/securite-security-txt.spec.ts](../../../e2e/securite-security-txt.spec.ts), commité seul, avant le correctif (commit `5d866fd`).
+Test [e2e/security-txt.spec.ts](../../../e2e/security-txt.spec.ts), commité seul, avant le correctif (commit `5d866fd`).
 
 | Contrôle | Avant correctif | Après correctif |
 |---|---|---|

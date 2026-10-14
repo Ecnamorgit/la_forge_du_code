@@ -1,19 +1,19 @@
 /**
- * Document coquille de l'aperçu HTML, servi depuis l'origine dédiée du bac à
- * sable (audit EXE-03).
+ * Shell document for the HTML preview, served from the sandbox's dedicated
+ * origin (audit EXE-03).
  *
- * La coquille rend le HTML de l'apprenant dans une iframe imbriquée, via son
- * `srcdoc` : cette scène hérite de la CSP permissive de la coquille, pas de
- * celle de l'application. Les scripts en ligne de l'apprenant s'exécutent donc
- * sans affaiblir la CSP du site.
+ * The shell renders the learner's HTML in a nested iframe, through its
+ * `srcdoc`: that scene inherits the shell's permissive CSP, not the
+ * application's. The learner's inline scripts therefore run without
+ * weakening the site's CSP.
  *
- * Comme les autres documents du bac à sable, la coquille apprend l'origine du
- * parent : `html:ready` est posté à `"*"`, puis l'origine du premier
- * `html:render` reçu de `parent` est retenue. Tout message entrant est filtré
- * par `event.source === parent`.
+ * Like the other sandbox documents, the shell learns the parent's origin:
+ * `html:ready` is posted to `"*"`, then the origin of the first
+ * `html:render` received from `parent` is kept. Every incoming message is
+ * filtered by `event.source === parent`.
  *
- * Le HTML arrive déjà instrumenté contre les boucles sans fin par le parent
- * (`protegerScriptsHtml`).
+ * The HTML arrives already instrumented against infinite loops by the parent
+ * (`guardHtmlScripts`).
  */
 
 export function buildHtmlPreviewDocument(): string {
@@ -40,12 +40,12 @@ export function buildHtmlPreviewDocument(): string {
           if (parentOrigin === null) parentOrigin = event.origin;
           else if (event.origin !== parentOrigin) return;
           if (typeof data.html !== "string") return;
-          // La scène imbriquée est un srcdoc : elle hérite de la CSP de CETTE
-          // coquille (permissive), pas de celle de l'application.
+          // The nested scene is a srcdoc: it inherits the CSP of THIS
+          // shell (permissive), not the application's.
           scene.srcdoc = data.html;
         });
-        // Poignée de main : ni la coquille ni le parent ne connaissent encore
-        // l'origine de l'autre, d'où "*". Elle ne porte rien.
+        // Handshake: neither the shell nor the parent knows the other's
+        // origin yet, hence "*". It carries nothing.
         parent.postMessage({ type: "html:ready" }, "*");
       })();
     </script>

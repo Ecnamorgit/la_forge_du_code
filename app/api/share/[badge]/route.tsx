@@ -3,9 +3,9 @@ import { getBadge } from "@/lib/badges-catalog";
 import { sanitizeShareName, parseShareXp } from "@/lib/share";
 
 /**
- * Image OG publique de la carte de réussite partageable. Le badge est vérifié
- * dans le catalogue et les paramètres sont nettoyés, pour que la route ne serve
- * pas de générateur d'images libre. Aucune donnée personnelle hormis le pseudo.
+ * Public OG image for the shareable achievement card. The badge is checked
+ * against the catalog and the parameters are sanitized, so the route does not
+ * serve as an open image generator. No personal data apart from the username.
  */
 
 export const dynamic = "force-dynamic";
@@ -23,7 +23,7 @@ export async function GET(
   }
 
   const url = new URL(req.url);
-  const pseudo = sanitizeShareName(url.searchParams.get("u"));
+  const shareName = sanitizeShareName(url.searchParams.get("u"));
   const xp = parseShareXp(url.searchParams.get("xp"));
 
   return new ImageResponse(
@@ -46,7 +46,7 @@ export async function GET(
           <div style={{ fontSize: 30, letterSpacing: 6, color: "#00f0ff" }}>
             LA FORGE DU CODE
           </div>
-          <div style={{ fontSize: 26, color: "#7c8aa0" }}>{pseudo}</div>
+          <div style={{ fontSize: 26, color: "#7c8aa0" }}>{shareName}</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>

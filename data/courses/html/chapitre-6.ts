@@ -1,6 +1,6 @@
 import type { ChapterData } from "./types";
 
-export const chapitre6: ChapterData = {
+export const chapter6: ChapterData = {
   slug: "chapitre-6",
   tag: "DOCK D'ORBITE : ACCESSIBILITÉ",
   title: "ACCESSIBILITÉ :\nALT ET ARIA",

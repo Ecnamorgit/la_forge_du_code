@@ -22,6 +22,6 @@ Seules des strings sont stockées : \`JSON.stringify\` avant, \`JSON.parse\` en 
     "Tout est stocké en string ; un number ressort en string.",
     "getItem renvoie null (pas undefined) quand la clé n'existe pas.",
   ],
-  related: ["js/objets", "js/fetch"],
+  related: ["js/objects", "js/fetch"],
   official: { label: "MDN — localStorage", url: "https://developer.mozilla.org/fr/docs/Web/API/Window/localStorage" },
 };

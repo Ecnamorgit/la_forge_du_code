@@ -5,7 +5,7 @@ import { decideUserMode, type UserModeState } from "./user-context";
 const fresh: UserModeState = { everAuthenticated: false };
 
 describe("decideUserMode", () => {
-  it("visiteur jamais connecté : mode essai, pas de redirection", () => {
+  it("visitor never signed in: trial mode, no redirect", () => {
     const decision = decideUserMode("unauthenticated", fresh);
     expect(decision).toEqual({
       everAuthenticated: false,
@@ -14,14 +14,14 @@ describe("decideUserMode", () => {
     });
   });
 
-  it("chargement initial : ni essai, ni expiré, ni jamais authentifié", () => {
+  it("initial loading: not trial, not expired, never authenticated", () => {
     const decision = decideUserMode("loading", fresh);
     expect(decision.isTrial).toBe(false);
     expect(decision.sessionExpired).toBe(false);
     expect(decision.everAuthenticated).toBe(false);
   });
 
-  it("connexion active : mémorise everAuthenticated, jamais en mode essai", () => {
+  it("active session: records everAuthenticated, never in trial mode", () => {
     const decision = decideUserMode("authenticated", fresh);
     expect(decision).toEqual({
       everAuthenticated: true,
@@ -30,9 +30,9 @@ describe("decideUserMode", () => {
     });
   });
 
-  // Un utilisateur déjà authentifié dont la session expire (JWT expiré,
-  // relecture au focus) est redirigé vers /login, jamais basculé en essai.
-  it("expiration en cours d'usage : redirige, ne bascule jamais en essai", () => {
+  // An already authenticated user whose session expires (expired JWT,
+  // re-read on focus) is redirected to /login, never switched to trial.
+  it("expiry during use: redirects, never switches to trial", () => {
     const decision = decideUserMode("unauthenticated", { everAuthenticated: true });
     expect(decision).toEqual({
       everAuthenticated: true,
@@ -41,14 +41,14 @@ describe("decideUserMode", () => {
     });
   });
 
-  it("everAuthenticated reste vrai une fois acquis, même en repassant par 'loading'", () => {
+  it("everAuthenticated stays true once set, even when going back through 'loading'", () => {
     const decision = decideUserMode("loading", { everAuthenticated: true });
     expect(decision.everAuthenticated).toBe(true);
     expect(decision.isTrial).toBe(false);
     expect(decision.sessionExpired).toBe(false);
   });
 
-  it("authenticated est idempotent sur everAuthenticated déjà vrai", () => {
+  it("authenticated is idempotent when everAuthenticated is already true", () => {
     const decision = decideUserMode("authenticated", { everAuthenticated: true });
     expect(decision).toEqual({
       everAuthenticated: true,
@@ -57,8 +57,8 @@ describe("decideUserMode", () => {
     });
   });
 
-  // Parcours complet simulant le montage : jamais connecté -> essai stable.
-  it("séquence visiteur : loading -> unauthenticated reste en essai", () => {
+  // Full sequence simulating mount: never signed in -> stable trial.
+  it("visitor sequence: loading -> unauthenticated stays in trial", () => {
     let state: UserModeState = { everAuthenticated: false };
     let decision = decideUserMode("loading", state);
     state = decision;
@@ -67,8 +67,8 @@ describe("decideUserMode", () => {
     expect(decision.sessionExpired).toBe(false);
   });
 
-  // Parcours complet : connecté, puis session expirée.
-  it("séquence session expirée : loading -> authenticated -> unauthenticated redirige", () => {
+  // Full sequence: signed in, then session expired.
+  it("expired session sequence: loading -> authenticated -> unauthenticated redirects", () => {
     let state: UserModeState = { everAuthenticated: false };
     state = decideUserMode("loading", state);
     state = decideUserMode("authenticated", state);

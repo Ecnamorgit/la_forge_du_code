@@ -1,6 +1,6 @@
 "use client";
 
-/** Frontière d'erreur des routes : message générique, sans trace de pile. */
+/** Route error boundary: generic message, no stack trace. */
 export default function Error({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-nebula-bg-darkest px-6 text-center text-nebula-text">

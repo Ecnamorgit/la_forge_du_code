@@ -10,7 +10,7 @@ export default function TrackLandingView() {
       body: JSON.stringify({ name: "landing_vue" }),
       keepalive: true,
     }).catch(() => {
-      /* le comptage ne doit jamais casser la page */
+      /* counting must never break the page */
     });
   }, []);
 

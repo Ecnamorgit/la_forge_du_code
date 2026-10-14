@@ -3,25 +3,25 @@
 import { useEffect, useState } from "react";
 
 interface LevelUpOverlayProps {
-  /** Incrémenté à chaque célébration à afficher. */
+  /** Incremented for each celebration to display. */
   trigger: number;
-  /** Niveau tout juste atteint ; ignoré si `unlockLabel` est fourni. */
+  /** Level just reached; ignored if `unlockLabel` is provided. */
   level: number;
   /**
-   * Libellé du cosmétique tout juste débloqué. S'il est fourni, l'overlay
-   * annonce ce déblocage au lieu d'une montée de niveau.
+   * Label of the cosmetic just unlocked. When provided, the overlay
+   * announces this unlock instead of a level-up.
    */
   unlockLabel?: string;
 }
 
 /**
- * Célébration plein écran (montée de niveau ou déblocage), masquée après
- * 2,4 s. En `pointer-events-none`, elle n'intercepte aucun clic et n'a donc
- * pas besoin de bouton de fermeture.
+ * Full-screen celebration (level-up or unlock), hidden after
+ * 2.4 s. Being `pointer-events-none`, it intercepts no clicks and so
+ * needs no close button.
  */
 export default function LevelUpOverlay({ trigger, level, unlockLabel }: LevelUpOverlayProps) {
-  // `show` est dérivé de `trigger` : l'effet ne modifie que `dismissed`, et
-  // seulement depuis le minuteur.
+  // `show` is derived from `trigger`: the effect only changes `dismissed`, and
+  // only from the timer.
   const [dismissed, setDismissed] = useState(0);
 
   useEffect(() => {

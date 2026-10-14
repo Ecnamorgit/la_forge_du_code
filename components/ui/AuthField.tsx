@@ -8,10 +8,10 @@ type AuthFieldProps = {
 } & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange" | "value" | "id">;
 
 /**
- * Champ libellé des pages d'authentification (inscription, connexion,
- * mot de passe oublié, réinitialisation). Un seul endroit pour le style :
- * libellé `text-secondary` en 12 px (contraste ≥ 4,5:1) et bordure
- * `border-input` (≥ 3:1), lisibles sur le panneau sombre.
+ * Labeled field for the auth pages (sign-up, login,
+ * forgot password, reset). A single place for the styling:
+ * `text-secondary` label at 12 px (contrast ≥ 4.5:1) and
+ * `border-input` border (≥ 3:1), readable on the dark panel.
  */
 export default function AuthField({ label, id, value, onChange, ...rest }: AuthFieldProps) {
   return (

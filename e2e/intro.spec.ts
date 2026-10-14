@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("intro d'arrivée", () => {
-  test("joue le crawl à la première visite et le laisse passer", async ({ page }) => {
+test.describe("landing intro", () => {
+  test("plays the crawl on the first visit and lets it be skipped", async ({ page }) => {
     await page.goto("/");
     const overlay = page.getByRole("dialog", { name: /transmission/i });
     await expect(overlay).toBeVisible();
@@ -15,7 +15,7 @@ test.describe("intro d'arrivée", () => {
     ).toBeVisible();
   });
 
-  test("ne rejoue pas le crawl à la visite suivante", async ({ page }) => {
+  test("does not replay the crawl on the next visit", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: /passer|continuer/i }).click();
 

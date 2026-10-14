@@ -1,15 +1,15 @@
 <#
-  Ferme les issues CF-1 à CF-19 (#2 à #20), livrées par la PR #22 : ajoute un
-  commentaire de référence puis clôt chaque issue avec le motif « completed ».
-  Via l'API REST GitHub, sans dépendance à `gh`.
+  Closes issues CF-1 to CF-19 (#2 to #20), delivered by PR #22: adds a
+  reference comment, then closes each issue with the "completed" reason.
+  Uses the GitHub REST API, with no dependency on `gh`.
 
-  Prérequis :
-    $env:GH_TOKEN = "ghp_..."   # token classic avec le scope `repo`
+  Prerequisites:
+    $env:GH_TOKEN = "ghp_..."   # classic token with the `repo` scope
 
-  Utilisation :
+  Usage:
     powershell -ExecutionPolicy Bypass -File scripts\close-issues.ps1
 
-  Relançable, mais chaque exécution ajoute de nouveau le commentaire.
+  Can be rerun, but each run adds the comment again.
 #>
 
 $ErrorActionPreference = "Stop"
@@ -38,12 +38,12 @@ function Invoke-GH {
   return Invoke-RestMethod -Method $Method -Uri $Url -Headers $Headers -Body $json -ContentType "application/json"
 }
 
-# Issues #2 à #20 : CF-1 à CF-19.
+# Issues #2 to #20: CF-1 to CF-19.
 $issueNumbers = 2..20
 
 foreach ($n in $issueNumbers) {
   try {
-    # Commentaire de traçabilité.
+    # Traceability comment.
     Invoke-GH POST "$ApiBase/issues/$n/comments" @{
       body = "Implémenté et mergé via #$PrNumber. CI verte (lint, typecheck, tests unitaires, build, e2e). Clôture."
     } | Out-Null

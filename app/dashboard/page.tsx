@@ -53,7 +53,7 @@ export default function DashboardPage() {
     [state]
   );
 
-  // Premier passage : cinématique d'intro, puis création de l'avatar.
+  // First visit: intro cinematic, then avatar creation.
 
   if (!hydrated || !hasAvatar(state)) {
     return (
@@ -75,7 +75,7 @@ export default function DashboardPage() {
 
   const username = session?.user?.username || state.username || "Cadet";
   const totalXp = state.totalXp;
-  // Source unique du compteur de liaison côté client : `state.liaison`.
+  // Single client-side source for the liaison counter: `state.liaison`.
   const streak = state.liaison.streak || 1;
 
   const courseProgress = getCourseProgress(state, activeCourseSlug, chaptersMeta);
@@ -83,8 +83,8 @@ export default function DashboardPage() {
 
   const courseTitle = activeCourse?.title ?? activeCourseSlug.toUpperCase();
 
-  // Bouton unique de la carte : prochaine étape du cursus actif, ou sa carte
-  // s'il est terminé.
+  // The card's single button: next step of the active course, or its map
+  // if it is finished.
   const resumeHref = nextStep
     ? `/learn/${activeCourseSlug}/${nextStep.chapterSlug}`
     : `/learn/${activeCourseSlug}`;
@@ -94,7 +94,7 @@ export default function DashboardPage() {
       : "Continuer la mission"
     : "Voir la carte du cursus";
 
-  // Un ordre sans cursus ciblé mène à la même étape que le bouton principal.
+  // An order with no target course leads to the same step as the main button.
   const hrefForQuest = (course: string | null, chapter: string | null): string => {
     if (course && chapter) return `/learn/${course}/${chapter}`;
     if (course) return `/learn/${course}`;
@@ -114,7 +114,7 @@ export default function DashboardPage() {
       <main className="relative z-10 mx-auto max-w-6xl px-4 py-6 lg:px-6 lg:py-10">
         <LiaisonBanner liaison={state.liaison} />
 
-        {/* Accueil */}
+        {/* Welcome */}
         <section className="mb-8 flex flex-col items-start gap-4 animate-fade-down sm:flex-row sm:items-start sm:gap-6 lg:mb-10">
           <BrandLogo
             size={80}
@@ -135,9 +135,9 @@ export default function DashboardPage() {
           </SpeechBubble>
         </section>
 
-        {/* Deux colonnes */}
+        {/* Two columns */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-          {/* Colonne principale */}
+          {/* Main column */}
           <div>
             <section className="animate-fade-up">
               <BriefingCard
@@ -162,7 +162,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Colonne latérale */}
+          {/* Sidebar column */}
           <div className="animate-fade-up">
             <CadetCard
               username={username}

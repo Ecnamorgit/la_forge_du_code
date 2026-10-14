@@ -1,10 +1,10 @@
 /**
- * Helpers des validateurs JS : vérifications statiques du code source et
- * vérifications de l'exécution (logs, erreur, dernière valeur).
+ * Helpers for the JS validators: static checks on the source code and
+ * checks on the run (logs, error, last value).
  */
 
 export function stripComments(code: string): string {
-  // Un mot-clé cité en commentaire ne doit pas compter.
+  // A keyword mentioned in a comment must not count.
   return code
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\/\/[^\n]*/g, "");
@@ -21,12 +21,12 @@ export function hasConsoleLog(code: string): boolean {
   );
 }
 
-/** Vrai si une ligne de log vaut `text` (espaces de bord ignorés). */
+/** True if a log line equals `text` (leading/trailing whitespace ignored). */
 export function logsInclude(logs: string[], text: string): boolean {
   return logs.some((l) => l.trim() === text.trim());
 }
 
-/** Vrai si une ligne de log contient `substring`. */
+/** True if a log line contains `substring`. */
 export function logsContain(logs: string[], substring: string): boolean {
   return logs.some((l) => l.includes(substring));
 }

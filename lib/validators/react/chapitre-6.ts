@@ -12,11 +12,11 @@ import {
 const strip = (code: string) => stripLineComments(code, "//");
 
 /**
- * Renvoie le code à inspecter pour une prop handler JSX (onChange, onSubmit...).
- * Un identifiant nu (`handleSubmit`) ou une flèche qui délègue à un nom
- * (`(e) => handleSubmit(e)`) mène au corps de la fonction nommée ; sinon, ou si
- * ce nom n'est pas une fonction trouvable (un setter comme `setNom`), la valeur
- * est renvoyée telle quelle.
+ * Returns the code to inspect for a JSX handler prop (onChange, onSubmit...).
+ * A bare identifier (`handleSubmit`) or an arrow that delegates to a name
+ * (`(e) => handleSubmit(e)`) leads to the body of the named function; otherwise,
+ * or if that name is not a function we can find (a setter such as `setNom`),
+ * the value is returned as is.
  */
 function resolveHandlerSource(code: string, attrValue: string): string {
   const identMatch = /^\s*([A-Za-z_$][\w$]*)\s*$/.exec(attrValue);
@@ -30,8 +30,8 @@ function resolveHandlerSource(code: string, attrValue: string): string {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : <input value={...} onChange={...}> dont le handler appelle un
-  // setter (pas seulement value= et onChange= présents dans le fichier).
+  // Step 1: <input value={...} onChange={...}> whose handler calls a
+  // setter (not just value= and onChange= present somewhere in the file).
   (code) => {
     const c = strip(code);
     const tag = findJsxTagAttrs(c, "input");
@@ -46,9 +46,9 @@ export const validators: Validator[] = [
         "Le Spectre a coupé l'écoute du clavier : ajoute onChange={(e) => setNom(e.target.value)} sur l'input."
       );
     }
-    // onChange peut aussi désigner un handler nommé (`onChange={handleChange}`),
-    // la forme enseignée à l'étape 2 : on suit cette indirection avant de
-    // chercher l'appel au setter.
+    // onChange can also point to a named handler (`onChange={handleChange}`),
+    // the form taught in step 2: follow that indirection before looking
+    // for the setter call.
     const handlerSource = resolveHandlerSource(c, onChangeValue);
     if (!/\bset[A-Z]\w*\s*\(/.test(handlerSource)) {
       return fail(
@@ -58,13 +58,13 @@ export const validators: Validator[] = [
     return pass("Console de saisie restaurée.", ["o1a", "o1b"]);
   },
 
-  // Étape 2 : état objet mis à jour par spread, avec une clé calculée
-  // ([name]: value) ou les deux champs gérés séparément.
+  // Step 2: object state updated with spread, with a computed key
+  // ([name]: value) or both fields handled separately.
   //
-  // Chaque appel à setFormulaire(...) est jugé séparément : un seul appel sans
-  // spread perd des données, même si un autre est correct. La couverture des
-  // champs, elle, se lit sur l'ensemble des appels (nom et email peuvent avoir
-  // chacun leur handler).
+  // Each setFormulaire(...) call is judged on its own: a single call without
+  // spread loses data, even if another one is correct. Field coverage, on the
+  // other hand, is read across all calls (nom and email can each have their
+  // own handler).
   (code) => {
     const c = strip(code);
     if (!/useState\s*\(\s*\{/.test(c)) {
@@ -84,7 +84,7 @@ export const validators: Validator[] = [
     while (match) {
       const spread = /\.\.\.\s*[A-Za-z_$][\w$]*/.test(match.body);
       if (!spread) {
-        // Cet appel écrase l'état, quels que soient les autres.
+        // This call overwrites the state, whatever the others do.
         hasBadCall = true;
       } else {
         if (/\[\s*[\w.]+\s*\]\s*:/.test(match.body)) hasComputedKey = true;
@@ -107,8 +107,8 @@ export const validators: Validator[] = [
     return pass("État regroupé dans un seul objet.", ["o2a", "o2b"]);
   },
 
-  // Étape 3 : onSubmit sur le <form> (pas onClick sur le bouton), et le
-  // handler désigné doit appeler e.preventDefault().
+  // Step 3: onSubmit on the <form> (not onClick on the button), and the
+  // designated handler must call e.preventDefault().
   (code) => {
     const c = strip(code);
     const formTag = findJsxTagAttrs(c, "form");
@@ -118,9 +118,9 @@ export const validators: Validator[] = [
       );
     }
     const onSubmitValue = extractAttrValue(formTag.body, "onSubmit") ?? "";
-    // Suit une référence nue (onSubmit={handleSubmit}) comme une flèche qui
-    // délègue (onSubmit={(e) => handleSubmit(e)}) : le preventDefault peut vivre
-    // dans la fonction nommée.
+    // Follows a bare reference (onSubmit={handleSubmit}) as well as a delegating
+    // arrow (onSubmit={(e) => handleSubmit(e)}): the preventDefault can live
+    // in the named function.
     const handlerSource = resolveHandlerSource(c, onSubmitValue);
     if (!/\.preventDefault\s*\(\s*\)/.test(handlerSource)) {
       return fail(
@@ -130,8 +130,8 @@ export const validators: Validator[] = [
     return pass("Transmission maîtrisée.", ["o3a", "o3b"]);
   },
 
-  // Étape 4 : disabled doit dériver de l'état du formulaire, pas d'une valeur
-  // figée.
+  // Step 4: disabled must derive from the form state, not from a fixed
+  // value.
   (code) => {
     const c = strip(code);
     const buttonTag = findJsxTagAttrs(c, "button");

@@ -6,7 +6,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : un objet d'au moins 3 propriétés, affiché
+  // Step 1: an object with at least 3 properties, printed
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -40,7 +40,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Étape 2 : lecture de .name et modification de .level
+  // Step 2: reading .name and changing .level
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -67,7 +67,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Étape 3 : .toUpperCase() et .length
+  // Step 3: .toUpperCase() and .length
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -97,13 +97,13 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Étape 4 : méthode greet() qui renvoie "Salut <name>"
+  // Step 4: greet() method that returns "Salut <name>"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
     if (err) return { ok: false, msg: err };
     const stripped = stripComments(code);
-    // Forme raccourcie `greet() {}`, ou `greet` affectée à une fonction.
+    // Shorthand form `greet() {}`, or `greet` assigned to a function.
     if (
       !/\bgreet\s*\(\s*\)\s*\{/.test(stripped) &&
       !/\bgreet\s*[:=]\s*function/.test(stripped) &&

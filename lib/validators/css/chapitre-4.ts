@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasProperty, hasPropertyWithValue } from "./_utils";
 
 export const validators: Validator[] = [
-  // Étape 1 : .container { display: flex }
+  // Step 1: .container { display: flex }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -20,7 +20,7 @@ export const validators: Validator[] = [
       objList: ["o1a"],
     };
   },
-  // Étape 2 : justify-content sur .container
+  // Step 2: justify-content on .container
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -38,7 +38,7 @@ export const validators: Validator[] = [
       objList: ["o2a"],
     };
   },
-  // Étape 3 : align-items sur .container
+  // Step 3: align-items on .container
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -56,7 +56,7 @@ export const validators: Validator[] = [
       objList: ["o3a"],
     };
   },
-  // Étape 4 : gap sur .container
+  // Step 4: gap on .container
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {

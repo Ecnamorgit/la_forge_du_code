@@ -13,14 +13,14 @@ const bodySchema = z.object({
 });
 
 /**
- * Renvoie l'e-mail de vérification. La réponse est la même que l'adresse
- * existe, soit déjà vérifiée ou non, pour ne pas révéler les comptes.
+ * Resends the verification email. The response is the same whether the address
+ * exists, is already verified or not, so as not to reveal accounts.
  */
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
-  // Contre l'envoi massif d'e-mails de vérification.
+  // Guards against mass sending of verification emails.
   const limit = await rateLimit(`resend:${getClientIp(req)}`, {
     limit: 5,
     windowMs: 15 * 60 * 1000,
@@ -46,13 +46,13 @@ export async function POST(req: Request) {
   });
 
   if (user && !user.emailVerified) {
-    // Après la réponse, pour que son délai ne révèle pas le compte. Une erreur
-    // d'envoi n'est pas remontée au client.
+    // After the response, so its delay does not reveal the account. A sending
+    // error is not reported to the client.
     after(async () => {
       try {
         const token = await createToken({ userId: user.id, kind: "email_verify" });
-        const envoi = await sendVerificationEmail({ to: user.email, token });
-        if (!envoi.ok) logger.warn("resend-verification: échec de l'envoi", { error: envoi.error });
+        const sendResult = await sendVerificationEmail({ to: user.email, token });
+        if (!sendResult.ok) logger.warn("resend-verification: échec de l'envoi", { error: sendResult.error });
       } catch (err) {
         logger.error("resend-verification: échec de la création du jeton", {
           error: err instanceof Error ? err.message : String(err),

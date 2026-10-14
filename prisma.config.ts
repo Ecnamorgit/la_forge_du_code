@@ -7,8 +7,8 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // La CLI (migrate, generate) préfère DIRECT_URL, connexion Supabase qui
-    // accepte les requêtes préparées. L'application lit DATABASE_URL (lib/db.ts).
+    // The CLI (migrate, generate) prefers DIRECT_URL, a Supabase connection that
+    // accepts prepared statements. The application reads DATABASE_URL (lib/db.ts).
     url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"],
   },
 });

@@ -5,10 +5,10 @@ import { getBadge } from "@/lib/badges-catalog";
 import { sanitizeShareName, parseShareXp } from "@/lib/share";
 
 /**
- * Page publique d'une carte de réussite partagée : elle porte les métadonnées
- * OG et Twitter de l'image dynamique (app/api/share/[badge]/route.tsx) et
- * invite le visiteur sur l'application. Aucune donnée personnelle hormis le
- * pseudo.
+ * Public page for a shared achievement card: it carries the OG and Twitter
+ * metadata for the dynamic image (app/api/share/[badge]/route.tsx) and
+ * invites the visitor to the application. No personal data apart from the
+ * username.
  */
 
 type Params = Promise<{ badge: string }>;
@@ -18,8 +18,8 @@ function appBase(): string {
   return process.env.APP_URL ?? "http://localhost:3000";
 }
 
-function imageUrl(badge: string, pseudo: string, xp: number): string {
-  const params = new URLSearchParams({ u: pseudo, xp: String(xp) });
+function imageUrl(badge: string, shareName: string, xp: number): string {
+  const params = new URLSearchParams({ u: shareName, xp: String(xp) });
   return `${appBase()}/api/share/${badge}?${params.toString()}`;
 }
 
@@ -35,10 +35,10 @@ export async function generateMetadata({
   if (!def) return { title: "Badge inconnu — La Forge du Code" };
 
   const sp = await searchParams;
-  const pseudo = sanitizeShareName(sp.u);
+  const shareName = sanitizeShareName(sp.u);
   const xp = parseShareXp(sp.xp);
-  const title = `${pseudo} a débloqué « ${def.label} » sur La Forge du Code`;
-  const image = imageUrl(badge, pseudo, xp);
+  const title = `${shareName} a débloqué « ${def.label} » sur La Forge du Code`;
+  const image = imageUrl(badge, shareName, xp);
 
   return {
     title,
@@ -69,7 +69,7 @@ export default async function SharePage({
   if (!def) notFound();
 
   const sp = await searchParams;
-  const pseudo = sanitizeShareName(sp.u);
+  const shareName = sanitizeShareName(sp.u);
   const xp = parseShareXp(sp.xp);
 
   return (
@@ -84,7 +84,7 @@ export default async function SharePage({
         </h1>
         <p className="mt-2 font-body text-nebula-text-secondary">{def.description}</p>
         <p className="mt-4 font-tech text-sm tracking-wider text-nebula-green">
-          {pseudo}
+          {shareName}
           {xp > 0 ? ` · +${xp} XP` : ""}
         </p>
         <Link

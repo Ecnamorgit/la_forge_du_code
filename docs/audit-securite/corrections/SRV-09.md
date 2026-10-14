@@ -9,7 +9,7 @@
 
 ## Démonstration
 
-Test [e2e/securite-csrf-suppression.spec.ts](../../../e2e/securite-csrf-suppression.spec.ts), commité seul, avant le correctif (commit `c42b65c`), avec un compte dédié recréé à chaque exécution. La requête « d'une autre origine » est simulée avec l'en-tête `Origin` qu'enverrait un navigateur depuis ce sous-domaine, et la session du compte.
+Test [e2e/security-csrf-deletion.spec.ts](../../../e2e/security-csrf-deletion.spec.ts), commité seul, avant le correctif (commit `c42b65c`), avec un compte dédié recréé à chaque exécution. La requête « d'une autre origine » est simulée avec l'en-tête `Origin` qu'enverrait un navigateur depuis ce sous-domaine, et la session du compte.
 
 | Contrôle | Attendu | Avant correctif | Après correctif |
 |---|---|---|---|

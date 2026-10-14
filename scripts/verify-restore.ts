@@ -1,20 +1,20 @@
 /**
- * Vérifie qu'une base restaurée est exploitable (CF-19, runbook de
+ * Checks that a restored database is usable (CF-19, runbook in
  * `docs/DEPLOYMENT.md`).
  *
- * Usage :
- *   npx tsx scripts/verify-restore.ts "postgresql://user:pass@hote:5432/base"
+ * Usage:
+ *   npx tsx scripts/verify-restore.ts "postgresql://user:pass@host:5432/db"
  *
- * L'URL est obligatoire et jamais lue depuis .env : le DATABASE_URL de
- * l'environnement viserait la production.
+ * The URL is required and never read from .env: the environment's
+ * DATABASE_URL would target production.
  *
- * Affiche le volume de chaque table puis un verdict ; code de sortie 0 si la
- * base est exploitable, 1 sinon.
+ * Prints the row count of each table then a verdict; exit code 0 if the
+ * database is usable, 1 otherwise.
  */
 import { Client } from "pg";
 
-/** Tables dont la présence conditionne le fonctionnement de l'application. */
-const TABLES_ATTENDUES = [
+/** Tables the application needs in order to work. */
+const EXPECTED_TABLES = [
   "User",
   "OneTimeToken",
   "Account",
@@ -26,10 +26,10 @@ const TABLES_ATTENDUES = [
 ] as const;
 
 /**
- * Tables qui doivent contenir au moins une ligne. Seulement `User` : une base
- * restaurée peut n'avoir ni badge ni progression, mais pas zéro compte.
+ * Tables that must contain at least one row. Only `User`: a restored database
+ * may have no badges and no progress, but not zero accounts.
  */
-const TABLES_NON_VIDES = ["User"] as const;
+const NON_EMPTY_TABLES = ["User"] as const;
 
 async function main(): Promise<void> {
   const url = process.argv[2];
@@ -53,23 +53,23 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const manquantes: string[] = [];
-  const vides: string[] = [];
-  const volumes: Array<{ table: string; lignes: number | null }> = [];
+  const missingTables: string[] = [];
+  const emptyTables: string[] = [];
+  const volumes: Array<{ table: string; rows: number | null }> = [];
 
   try {
-    for (const table of TABLES_ATTENDUES) {
+    for (const table of EXPECTED_TABLES) {
       try {
-        // Guillemets requis : Prisma nomme les tables avec des majuscules.
+        // Quotes required: Prisma names tables with capital letters.
         const r = await client.query(`SELECT COUNT(*)::int AS n FROM "${table}"`);
-        const lignes = r.rows[0].n as number;
-        volumes.push({ table, lignes });
-        if (lignes === 0 && (TABLES_NON_VIDES as readonly string[]).includes(table)) {
-          vides.push(table);
+        const rows = r.rows[0].n as number;
+        volumes.push({ table, rows });
+        if (rows === 0 && (NON_EMPTY_TABLES as readonly string[]).includes(table)) {
+          emptyTables.push(table);
         }
       } catch {
-        manquantes.push(table);
-        volumes.push({ table, lignes: null });
+        missingTables.push(table);
+        volumes.push({ table, rows: null });
       }
     }
   } finally {
@@ -77,32 +77,32 @@ async function main(): Promise<void> {
   }
 
   console.table(
-    volumes.map(({ table, lignes }) => ({
+    volumes.map(({ table, rows }) => ({
       table,
-      lignes: lignes === null ? "TABLE ABSENTE" : lignes,
+      rows: rows === null ? "TABLE ABSENTE" : rows,
     }))
   );
 
-  if (manquantes.length > 0) {
+  if (missingTables.length > 0) {
     console.error(
-      `\nEchec : ${manquantes.length} table(s) absente(s) — ${manquantes.join(", ")}.\n` +
+      `\nEchec : ${missingTables.length} table(s) absente(s) — ${missingTables.join(", ")}.\n` +
         "La restauration est incomplete, ou le dump provient d'un autre schema."
     );
     process.exit(1);
   }
 
-  if (vides.length > 0) {
+  if (emptyTables.length > 0) {
     console.error(
-      `\nEchec : ${vides.join(", ")} ne contient aucune ligne.\n` +
+      `\nEchec : ${emptyTables.join(", ")} ne contient aucune ligne.\n` +
         "Le schema est la mais les donnees ne le sont pas — c'est une migration\n" +
         "a blanc, pas une restauration."
     );
     process.exit(1);
   }
 
-  const total = volumes.reduce((s, v) => s + (v.lignes ?? 0), 0);
+  const total = volumes.reduce((s, v) => s + (v.rows ?? 0), 0);
   console.log(
-    `\nBase exploitable : ${TABLES_ATTENDUES.length} tables presentes, ${total} lignes au total.\n` +
+    `\nBase exploitable : ${EXPECTED_TABLES.length} tables presentes, ${total} lignes au total.\n` +
       "Il reste a demarrer l'application contre cette base et a se connecter avec\n" +
       "un compte reel — ce script prouve la structure et le volume, pas le vecu."
   );

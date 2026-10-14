@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasProperty, ruleBody } from "./_utils";
 
 export const validators: Validator[] = [
-  // Étape 1 : max-width sur .container, sans width: 800px en dur
+  // Step 1: max-width on .container, without a hard-coded width: 800px
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -10,14 +10,14 @@ export const validators: Validator[] = [
       return { ok: false, msg: "Utilise max-width sur .container." };
     }
     const body = ruleBody(css, ".container");
-    // `(?<![-\w])` plutôt que `\b` : sinon le `max-width: 800px` de la solution
-    // du cours serait pris pour un width en dur.
+    // `(?<![-\w])` rather than `\b`: otherwise the `max-width: 800px` from the
+    // course solution would be mistaken for a hard-coded width.
     if (body && /(?<![-\w])width\s*:\s*800px\b/i.test(body)) {
       return { ok: false, msg: "Retire width: 800px en dur (max-width suffit, ou utilise width: 100%)." };
     }
     return { ok: true, msg: "Fluidité active.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : une @media qui redéfinit le font-size de h1
+  // Step 2: an @media that redefines the font-size of h1
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -32,7 +32,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Typographie adaptative.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : une @media qui passe .grid à grid-template-columns: 1fr
+  // Step 3: an @media that switches .grid to grid-template-columns: 1fr
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -53,7 +53,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Disposition reconfigurée.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : font-size de h1 en clamp() avec une unité vw
+  // Step 4: h1 font-size as clamp() with a vw unit
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };

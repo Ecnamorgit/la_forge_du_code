@@ -4,28 +4,28 @@ import { safeInternalPath } from "./safe-redirect";
 
 describe("safeInternalPath", () => {
   it.each(["/dashboard", "/profil", "/learn/html/chapitre-2", "/profil?onglet=badges#cadre"])(
-    "garde le chemin interne %s",
-    (chemin) => {
-      expect(safeInternalPath(chemin)).toBe(chemin);
+    "keeps the internal path %s",
+    (inputPath) => {
+      expect(safeInternalPath(inputPath)).toBe(inputPath);
     }
   );
 
   it.each([
-    ["absent", null],
-    ["vide", ""],
-    ["relatif", "dashboard"],
-    ["URL absolue", "https://piege.example/connexion"],
-    ["URL sans protocole", "//piege.example"],
-    ["antislash lu comme slash", "/\\piege.example"],
-    ["double antislash", "\\\\piege.example"],
-    ["tabulation qui reforme //", "/\t/piege.example"],
-    ["retour à la ligne qui reforme //", "/\n/piege.example"],
-    ["schéma javascript", "javascript:alert(1)"],
-  ])("rejette %s", (_cas, valeur) => {
-    expect(safeInternalPath(valeur)).toBe("/dashboard");
+    ["missing", null],
+    ["empty", ""],
+    ["relative", "dashboard"],
+    ["absolute URL", "https://evil.example/connexion"],
+    ["protocol-relative URL", "//evil.example"],
+    ["backslash read as a slash", "/\\evil.example"],
+    ["double backslash", "\\\\evil.example"],
+    ["tab that rebuilds //", "/\t/evil.example"],
+    ["newline that rebuilds //", "/\n/evil.example"],
+    ["javascript scheme", "javascript:alert(1)"],
+  ])("rejects %s", (_label, value) => {
+    expect(safeInternalPath(value)).toBe("/dashboard");
   });
 
-  it("utilise la destination de repli fournie", () => {
-    expect(safeInternalPath("https://piege.example", "/profil")).toBe("/profil");
+  it("uses the provided fallback destination", () => {
+    expect(safeInternalPath("https://evil.example", "/profil")).toBe("/profil");
   });
 });

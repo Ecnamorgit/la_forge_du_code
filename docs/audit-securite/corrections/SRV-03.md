@@ -13,7 +13,7 @@ Les sessions sont des JWT signés, non stockés côté serveur (`auth.config.ts`
 
 ## Démonstration
 
-Test [e2e/securite-session.spec.ts](../../../e2e/securite-session.spec.ts), commité avec la migration mais **avant** la logique de révocation (commit `b17f3df`). Un compte se connecte, obtient une session (`GET /api/me` → 200), puis on incrémente `sessionVersion` en base — ce que fera une réinitialisation.
+Test [e2e/security-session.spec.ts](../../../e2e/security-session.spec.ts), commité avec la migration mais **avant** la logique de révocation (commit `b17f3df`). Un compte se connecte, obtient une session (`GET /api/me` → 200), puis on incrémente `sessionVersion` en base — ce que fera une réinitialisation.
 
 | Contrôle | Avant correctif | Après correctif |
 |---|---|---|
@@ -39,18 +39,18 @@ Le contrôle de révocation vit dans `auth.ts` (Node), pas dans `auth.config.ts`
 | Contrôle | Avant | Après |
 |---|---|---|
 | Démonstration e2e | 1 contrôle sur 2 en échec | 2 sur 2 réussis |
-| Suite e2e complète (base locale, sans e-mail réel, `--retries=1` comme en CI) | — | 42 réussis, 1 flake rejoué et réussi (budget de connexion partagé, cf. ci-dessous), seul échec dur `trial-etendu` (antérieur à l'audit) |
+| Suite e2e complète (base locale, sans e-mail réel, `--retries=1` comme en CI) | — | 42 réussis, 1 flake rejoué et réussi (budget de connexion partagé, cf. ci-dessous), seul échec dur `trial-extended` (antérieur à l'audit) |
 | `vitest run` | 1492 / 1492 | 1492 / 1492 |
 | `tsc --noEmit` | OK | OK |
 | `eslint` | 0 erreur | 0 erreur |
 | Migration | additive, `migrate deploy` sur la base locale : OK | |
 
-La suite e2e comprend `securite-connexion.spec.ts` et `global-setup` (connexions) : la version de session n'empêche aucune connexion légitime.
+La suite e2e comprend `security-login.spec.ts` et `global-setup` (connexions) : la version de session n'empêche aucune connexion légitime.
 
-Note sur `securite-session.spec.ts` : il s'authentifie par l'API avec une adresse IP dédiée (`x-forwarded-for`), et non par le formulaire. Le formulaire partage un budget de débit par IP (`login:unknown` en local) avec toutes les autres specs ; une connexion de plus l'aurait fait déborder et aurait fait échouer une spec de connexion plus tardive. Ce budget partagé est une fragilité connue du banc de test — la CI la neutralise avec `retries: 1`.
+Note sur `security-session.spec.ts` : il s'authentifie par l'API avec une adresse IP dédiée (`x-forwarded-for`), et non par le formulaire. Le formulaire partage un budget de débit par IP (`login:unknown` en local) avec toutes les autres specs ; une connexion de plus l'aurait fait déborder et aurait fait échouer une spec de connexion plus tardive. Ce budget partagé est une fragilité connue du banc de test — la CI la neutralise avec `retries: 1`.
 
 ## Risque résiduel
 
 - **Le middleware ne révoque pas.** Il ne lit pas la base (edge). Une session révoquée franchit encore le middleware, mais est refusée dès qu'une route ou une page appelle `auth()` — c'est-à-dire à tout accès réel à des données. Aucun contenu sensible n'est servi sur le seul passage du middleware (voir SRV-10).
-- **Coût** : chaque vérification de session fait une lecture indexée par clé primaire. En cas de panne de base, `sessionEstValide` répond `true` (fail-open) : la révocation est différée le temps de la panne, plutôt que de déconnecter tout le monde.
+- **Coût** : chaque vérification de session fait une lecture indexée par clé primaire. En cas de panne de base, `isSessionValid` répond `true` (fail-open) : la révocation est différée le temps de la panne, plutôt que de déconnecter tout le monde.
 - **La suppression de compte** (`DELETE /api/me`) supprime la ligne `User` : la session suivante trouve un compte absent et reçoit 401.

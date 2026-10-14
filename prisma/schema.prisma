@@ -1,4 +1,4 @@
-// Schéma Prisma de La Forge du Code (PostgreSQL). L'URL est configurée dans
+// Prisma schema for La Forge du Code (PostgreSQL). The URL is configured in
 // prisma.config.ts.
 
 generator client {
@@ -10,7 +10,7 @@ datasource db {
   provider = "postgresql"
 }
 
-// Modèles requis par l'adaptateur Prisma d'Auth.js
+// Models required by the Auth.js Prisma adapter
 
 model User {
   id            String    @id @default(cuid())
@@ -19,37 +19,37 @@ model User {
   name          String?
   image         String?
 
-  // Champs propres à l'application
+  // Application-specific fields
   username     String    @unique
-  password     String? // haché ; null pour un compte OAuth seul
-  // Incrémentée à chaque réinitialisation de mot de passe pour révoquer les
-  // sessions JWT émises avant (audit SRV-03) : le jeton porte la version lue à
-  // la connexion, et une divergence invalide la session.
+  password     String? // hashed; null for an OAuth-only account
+  // Incremented on every password reset to revoke the JWT sessions
+  // issued before (audit SRV-03): the token carries the version read at
+  // sign-in, and a mismatch invalidates the session.
   sessionVersion Int      @default(0)
   joinedAt     DateTime  @default(now())
   totalXp      Int       @default(0)
   streak       Int       @default(1)
-  lastVisit         String    @default("") // date ISO (yyyy-mm-dd) du dernier jour actif (travail réel, pas simple visite)
-  lastDailyMission  String    @default("") // date ISO du jour auquel se rapporte dailyClaimed
-  lastVisitedCourse String? // slug du dernier cursus pratiqué
-  onboardedAt       DateTime? // null tant que le briefing de première connexion n'est pas terminé
+  lastVisit         String    @default("") // ISO date (yyyy-mm-dd) of the last active day (real work, not just a visit)
+  lastDailyMission  String    @default("") // ISO date of the day dailyClaimed refers to
+  lastVisitedCourse String? // slug of the last course practiced
+  onboardedAt       DateTime? // null until the first-sign-in briefing is finished
 
-  // Boucle quotidienne
-  bestStreak        Int     @default(1) // record permanent de liaison
-  streakShields     Int     @default(0) // relais de secours détenus (max 2)
-  shieldEverGranted Boolean @default(false) // le relais offert du 3e jour n'est donné qu'une fois
-  questsCompleted   Int     @default(0) // total d'ordres validés (badges de conduite)
-  perfectBriefingRun Int    @default(0) // briefings complets d'affilée
-  lastPerfectDay    String  @default("") // date ISO du dernier briefing complet
-  dailyClaimed      Int     @default(0) // masque de bits : 0-2 = les 3 ordres, 3 = clôture
+  // Daily loop
+  bestStreak        Int     @default(1) // all-time liaison record
+  streakShields     Int     @default(0) // backup relays held (max 2)
+  shieldEverGranted Boolean @default(false) // the free relay on day 3 is only given once
+  questsCompleted   Int     @default(0) // total orders completed (conduct badges)
+  perfectBriefingRun Int    @default(0) // complete briefings in a row
+  lastPerfectDay    String  @default("") // ISO date of the last complete briefing
+  dailyClaimed      Int     @default(0) // bitmask: 0-2 = the 3 orders, 3 = wrap-up
 
-  // Cosmétiques déblocables (null = valeur par défaut du catalogue)
+  // Unlockable cosmetics (null = catalog default)
   frame  String?
   title  String?
   emblem String?
   cardBg String?
 
-  // Avatar, purement cosmétique : null jusqu'à la première configuration sur /avatar.
+  // Avatar, purely cosmetic: null until the first setup on /avatar.
   species      String? // "humain" | "cyborg" | "synthetique" | "hybride" | "inconnue"
   uniformColor String? // "cyan" | "orange" | "green" | "purple" | "gold"
   role         String? // "pilote" | "ingenieur" | "tacticien" | "explorateur"
@@ -63,8 +63,8 @@ model User {
   cinematicViews  CinematicView[]
 }
 
-// Jetons à usage unique (vérification d'e-mail, réinitialisation du mot de
-// passe) : `kind` en donne l'usage, `usedAt` empêche la réutilisation.
+// One-time tokens (email verification, password reset): `kind` gives
+// their purpose, `usedAt` prevents reuse.
 model OneTimeToken {
   id        String    @id @default(cuid())
   token     String    @unique
@@ -115,7 +115,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Progression
+// Progress
 
 model UserBadge {
   id         String   @id @default(cuid())
@@ -165,9 +165,9 @@ model CinematicView {
   @@index([userId])
 }
 
-/// Comptage agrégé du tunnel d'acquisition. Aucune donnée personnelle :
-/// pas d'IP, pas d'identifiant de visiteur, seulement un nom d'évènement
-/// et une date.
+/// Aggregated count of the acquisition funnel. No personal data:
+/// no IP, no visitor identifier, only an event name
+/// and a date.
 model TrackEvent {
   id        String   @id @default(cuid())
   name      String

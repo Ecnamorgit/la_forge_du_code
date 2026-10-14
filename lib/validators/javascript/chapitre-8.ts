@@ -6,7 +6,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : addEventListener('click'), "PEW" affiché au moins 2 fois
+  // Step 1: addEventListener('click'), "PEW" printed at least 2 times
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -21,7 +21,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Réaction installée.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : 3 boutons dont le listener affiche l'id ; un clic sur b2 affiche "b2"
+  // Step 2: 3 buttons whose listener prints the id; a click on b2 prints "b2"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -35,7 +35,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Ennemi identifié.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : listener input, affiche "Salut Luna"
+  // Step 3: input listener, prints "Salut Luna"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -49,7 +49,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Frappe suivie.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : listener submit avec preventDefault, log contenant "secret"
+  // Step 4: submit listener with preventDefault, log containing "secret"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);

@@ -1,16 +1,16 @@
 /**
- * Personnages : identité affichée (nom, glyphe), alignée sur
- * docs/conception_storytelling.md §2. Kira Vesper porte les briefings,
- * H.E.L.P. les indices de l'éditeur ; le Spectre est réservé aux pièges et
- * aux erreurs (lib/narrative-feedback.ts).
+ * Characters: displayed identity (name, glyph), aligned with
+ * docs/conception_storytelling.md §2. Kira Vesper delivers the briefings,
+ * H.E.L.P. the editor hints; the Spectre is reserved for traps and
+ * errors (lib/narrative-feedback.ts).
  */
 
 export interface Character {
-  /** Nom affiché au cadet. */
+  /** Name shown to the cadet. */
   name: string;
-  /** Rôle ou titre court affiché à côté du nom. */
+  /** Role or short title shown next to the name. */
   title: string;
-  /** Glyphe décoratif devant le nom de l'interlocuteur. */
+  /** Decorative glyph in front of the speaker's name. */
   glyph: string;
 }
 

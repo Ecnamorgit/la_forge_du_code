@@ -4,7 +4,7 @@ import { stripLineComments, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Étape 1 : textContent au lieu d'innerHTML (anti-XSS)
+  // Step 1: textContent instead of innerHTML (anti-XSS)
   (code) => {
     const c = strip(code);
     if (!/\.(textContent|innerText)\s*=/.test(c)) {
@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     }
     return pass("Injection bloquée.", ["o1a", "o1b"]);
   },
-  // Étape 2 : requête paramétrée plutôt que concaténation
+  // Step 2: parameterised query rather than concatenation
   (code) => {
     const c = strip(code);
     if (/\$\{[^}]*\}/.test(c)) {
@@ -29,7 +29,7 @@ export const validators: Validator[] = [
     }
     return pass("Base protégée.", ["o2a", "o2b"]);
   },
-  // Étape 3 : bcrypt.hash, et stockage du hash plutôt que du mot de passe
+  // Step 3: bcrypt.hash, and storing the hash rather than the password
   (code) => {
     const c = strip(code);
     if (!/bcrypt\.hash\s*\(\s*password/.test(c)) {
@@ -40,7 +40,7 @@ export const validators: Validator[] = [
     }
     return pass("Secrets protégés.", ["o3a", "o3b"]);
   },
-  // Étape 4 : CORS avec une origine précise, jamais '*'
+  // Step 4: CORS with a specific origin, never '*'
   (code) => {
     const c = strip(code);
     if (/origin\s*:\s*['"]\*['"]/.test(c)) {

@@ -1,45 +1,45 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Parcours d'essai sans compte (pas de storageState) : carte publique,
- * chapitres 1 à 3 jouables avec cinématiques, inscription requise au-delà.
+ * Trial flow without an account (no storageState): public map,
+ * chapters 1 to 3 playable with cinematics, sign-up required beyond that.
  */
 
-test("la carte HTML est publique, avec verrous d'inscription au-delà du chapitre 3", async ({
+test("the HTML map is public, with sign-up locks beyond chapter 3", async ({
   page,
 }) => {
   await page.goto("/learn/html");
-  // Pas de redirection vers /login.
+  // No redirect to /login.
   await expect(page).toHaveURL(/\/learn\/html$/);
 
-  // L'intro se lance seule à la première visite.
+  // The intro starts by itself on the first visit.
   await expect(page.getByTestId("cinematic-player")).toBeVisible({ timeout: 15_000 });
   await page.getByTestId("cinematic-skip").click();
   await expect(page.getByTestId("cinematic-player")).toHaveCount(0);
 
-  // Nœuds hors essai : liens vers l'inscription, signalés dans l'info-bulle
-  // qui s'affiche au survol. Le lien enveloppe un bloc positionné en absolu
-  // et n'a pas de taille propre : on survole ce bloc.
-  const chapitre4 = page.getByRole("link", { name: /\bCH\.4\b/ });
-  await expect(chapitre4).toHaveAttribute("href", "/signup");
-  await chapitre4.locator(":scope > div").hover();
-  await expect(chapitre4.getByText("Inscription requise")).toBeVisible();
+  // Nodes outside the trial: links to sign-up, flagged in the tooltip
+  // shown on hover. The link wraps an absolutely positioned block
+  // and has no size of its own: we hover that block.
+  const chapter4Link = page.getByRole("link", { name: /\bCH\.4\b/ });
+  await expect(chapter4Link).toHaveAttribute("href", "/signup");
+  await chapter4Link.locator(":scope > div").hover();
+  await expect(chapter4Link.getByText("Inscription requise")).toBeVisible();
 
-  // Une fois vue (nc_cine_seen), elle ne se relance pas au rechargement.
+  // Once seen (nc_cine_seen), it does not start again on reload.
   await page.reload();
   await expect(page.getByTestId("replay-intro")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByTestId("cinematic-player")).toHaveCount(0);
 });
 
-test("un chapitre protégé redirige vers la connexion", async ({ page }) => {
+test("a protected chapter redirects to login", async ({ page }) => {
   await page.goto("/learn/html/chapitre-4");
   await expect(page).toHaveURL(/\/login/, { timeout: 15_000 });
 });
 
-test("le chapitre 1 en essai joue l'outro puis propose le chapitre suivant", async ({
+test("chapter 1 in trial mode plays the outro then offers the next chapter", async ({
   page,
 }) => {
-  // Marque l'intro comme vue pour ne tester ici que l'outro.
+  // Mark the intro as seen so only the outro is tested here.
   await page.goto("/learn/html/chapitre-1");
   await page.evaluate(() => {
     window.localStorage.setItem("nc_cine_seen", JSON.stringify(["html:intro"]));
@@ -64,7 +64,7 @@ test("le chapitre 1 en essai joue l'outro puis propose le chapitre suivant", asy
     await bannerBtn.click();
   }
 
-  // L'outro du chapitre 1 mène au chapitre 2.
+  // The chapter 1 outro leads to chapter 2.
   const player = page.getByTestId("cinematic-player");
   await expect(player).toBeVisible({ timeout: 10_000 });
   await page.getByRole("button", { name: /Chapitre suivant/ }).click();

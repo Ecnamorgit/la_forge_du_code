@@ -5,9 +5,9 @@ import { getDocEntry } from "@/data/docs";
 const EXPECTED: Record<string, string> = {
   "chapitre-1": "js/console",
   "chapitre-2": "js/conditions",
-  "chapitre-3": "js/fonctions",
-  "chapitre-4": "js/tableaux",
-  "chapitre-5": "js/objets",
+  "chapitre-3": "js/functions",
+  "chapitre-4": "js/arrays",
+  "chapitre-5": "js/objects",
   "chapitre-6": "js/array-methods",
   "chapitre-7": "js/dom",
   "chapitre-8": "js/events",
@@ -17,9 +17,9 @@ const EXPECTED: Record<string, string> = {
   "chapitre-12": "js/rest",
 };
 
-describe("docRefs du cursus JS", () => {
+describe("JS course docRefs", () => {
   for (const [chapter, docId] of Object.entries(EXPECTED)) {
-    it(`${chapter} : l'étape 1 référence ${docId} et il résout`, () => {
+    it(`${chapter}: step 1 references ${docId} and it resolves`, () => {
       const data = getChapterData("javascript", chapter);
       expect(data).not.toBeNull();
       const refs = data!.steps[0].docRefs ?? [];

@@ -48,7 +48,7 @@ export async function GET() {
     isMe: u.id === myId,
   }));
 
-  // Hors du top, l'utilisateur est chargé à part avec son rang global.
+  // Outside the top, the user is loaded separately with their global rank.
   let me: LeaderboardEntry | null = topMapped.find((e) => e.isMe) ?? null;
   if (!me) {
     const myRow = await prisma.user.findUnique({

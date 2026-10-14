@@ -19,7 +19,7 @@ export async function GET() {
 
   const state = await getUserState(session.user.id);
   if (!state) {
-    // Le jeton désigne un compte supprimé : on force une reconnexion.
+    // The token points to a deleted account: force a new sign-in.
     return NextResponse.json(
       { error: "Compte introuvable. Reconnecte-toi." },
       { status: 401 }
@@ -32,12 +32,12 @@ export async function GET() {
 const deleteSchema = z.object({ password: z.string().min(1).max(128) });
 
 /**
- * Suppression définitive du compte (RGPD). Le mot de passe est redemandé pour
- * qu'une session volée ne suffise pas à effacer le compte (audit SRV-09).
+ * Permanent account deletion (GDPR). The password is asked again so that a
+ * stolen session is not enough to erase the account (audit SRV-09).
  */
 export async function DELETE(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   const session = await auth();
   if (!session?.user?.id) {
@@ -45,7 +45,7 @@ export async function DELETE(req: Request) {
   }
   const userId = session.user.id;
 
-  // Borne les essais de mot de passe par cette route.
+  // Caps password attempts through this route.
   const limit = await rateLimit(`delete-account:${userId}`, {
     limit: 5,
     windowMs: 15 * 60 * 1000,
@@ -56,7 +56,7 @@ export async function DELETE(req: Request) {
   try {
     raw = await req.json();
   } catch {
-    // Corps absent ou illisible : traité comme un mot de passe manquant.
+    // Missing or unreadable body: treated as a missing password.
   }
   const parsed = deleteSchema.safeParse(raw);
   if (!parsed.success) {

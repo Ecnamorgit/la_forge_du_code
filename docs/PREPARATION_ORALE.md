@@ -170,7 +170,7 @@ Et le serveur n'exécute **jamais** le code de l'apprenant. »
 « 1 525 tests unitaires dans 114 fichiers. 22 scénarios end-to-end, dont 9 nés de l'audit : chacun a été commité **rouge** — il démontrait la faille — puis est passé **vert** avec le correctif, et reste dans la suite. CI : lint, typecheck, tests, build ; puis un PostgreSQL, les migrations, les e2e. Rouge = fusion bloquée. »
 
 ### Slide 33 — Déploiement documenté (CP8)
-« Vercel région Paris, Supabase, Resend, domaine laforgeducode.fr. Secrets chez l'hébergeur, validés au démarrage. Constat INF-01, découvert pendant l'audit : les préversions Vercel — une par branche poussée — partageaient la base de production et y appliquaient les migrations. Le script `migrer-si-production.mjs` ne migre plus qu'en production, et fait échouer le build si la variable manque plutôt que de sauter en silence. Domaine d'envoi vérifié : DKIM, SPF, DMARC. Procédure complète dans docs/DEPLOYMENT.md. »
+« Vercel région Paris, Supabase, Resend, domaine laforgeducode.fr. Secrets chez l'hébergeur, validés au démarrage. Constat INF-01, découvert pendant l'audit : les préversions Vercel — une par branche poussée — partageaient la base de production et y appliquaient les migrations. Le script `migrate-if-production.mjs` ne migre plus qu'en production, et fait échouer le build si la variable manque plutôt que de sauter en silence. Domaine d'envoi vérifié : DKIM, SPF, DMARC. Procédure complète dans docs/DEPLOYMENT.md. »
 
 ---
 

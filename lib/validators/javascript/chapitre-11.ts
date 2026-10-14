@@ -1,12 +1,12 @@
 import type { Validator } from "@/data/courses/html/types";
 import { stripLineComments, countMatches, fail, pass } from "../_static-utils";
 
-// Les requêtes réseau n'aboutissent pas dans l'iframe du bac à sable (hôte
-// d'API fictif) : ces étapes sont validées statiquement, sur le code écrit.
+// Network requests never complete in the sandbox iframe (fictional API
+// host): these steps are validated statically, on the code as written.
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Étape 1 : fetch(.../ping).then(...) qui affiche la réponse
+  // Step 1: fetch(.../ping).then(...) that prints the response
   (code) => {
     const c = strip(code);
     if (!/fetch\s*\(\s*['"]https:\/\/api\.codeforge\.space\/ping['"]\s*\)/.test(c)) {
@@ -17,7 +17,7 @@ export const validators: Validator[] = [
     }
     return pass("Signal envoyé.", ["o1a", "o1b"]);
   },
-  // Étape 2 : fetch, res.json() dans un premier then, log dans un second
+  // Step 2: fetch, res.json() in a first then, log in a second one
   (code) => {
     const c = strip(code);
     if (!/fetch\s*\(\s*['"]https:\/\/api\.codeforge\.space\/vaisseau['"]/.test(c)) {
@@ -31,7 +31,7 @@ export const validators: Validator[] = [
     }
     return pass("Données décodées.", ["o2a", "o2b"]);
   },
-  // Étape 3 : fonction async, await fetch et await .json()
+  // Step 3: async function, await fetch and await .json()
   (code) => {
     const c = strip(code);
     if (!/async\s+function\s+\w+|const\s+\w+\s*=\s*async|async\s*\(\s*\)\s*=>/.test(c)) {
@@ -42,7 +42,7 @@ export const validators: Validator[] = [
     }
     return pass("Code modernisé.", ["o3a", "o3b"]);
   },
-  // Étape 4 : try/catch, test de response.ok et log de l'erreur
+  // Step 4: try/catch, response.ok check and logging the error
   (code) => {
     const c = strip(code);
     if (!/try\s*\{/.test(c) || !/\.ok\b/.test(c)) {

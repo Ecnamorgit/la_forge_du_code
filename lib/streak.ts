@@ -1,18 +1,18 @@
 /**
- * Liaison : le streak comme objet de jeu. Elle n'avance que sur travail réel
- * (première étape validée du jour), et un jour manqué ne la rompt pas si le
- * cadet détient un relais de secours.
+ * Liaison: the streak as a game object. It only advances on real work
+ * (first step completed in the day), and a missed day does not break it if
+ * the cadet holds a backup relay.
  *
- * Fonction pure : le jour courant est un paramètre.
+ * Pure function: the current day is a parameter.
  */
 
-/** Plafond de relais détenus, pour que l'absence garde un coût. */
+/** Cap on relays held, so that being away still has a cost. */
 export const MAX_SHIELDS = 2;
 
-/** Série rompue à partir de laquelle le badge « Le Retour » est mérité. */
+/** Broken streak length from which the "Le Retour" badge is earned. */
 const RETURN_THRESHOLD = 7;
 
-/** Jour de liaison auquel le premier relais est offert. */
+/** Liaison day on which the first relay is granted. */
 const FIRST_SHIELD_AT = 3;
 
 export interface LiaisonState {
@@ -20,22 +20,22 @@ export interface LiaisonState {
   bestStreak: number;
   shields: number;
   shieldEverGranted: boolean;
-  /** Date ISO (aaaa-mm-jj) du dernier jour actif ; "" si jamais actif. */
+  /** ISO date (yyyy-mm-dd) of the last active day; "" if never active. */
   lastActiveDay: string;
 }
 
 export interface LiaisonTransition {
   next: LiaisonState;
-  /** Faux quand la journée était déjà comptée (rien à écrire en base). */
+  /** False when the day was already counted (nothing to write to the database). */
   changed: boolean;
   shieldsConsumed: number;
   broken: boolean;
-  /** Rupture d'une série d'au moins 7 jours : badge « Le Retour ». */
+  /** Break of a streak of at least 7 days: "Le Retour" badge. */
   earnedReturn: boolean;
   shieldEarned: boolean;
 }
 
-/** Nombre de jours calendaires entre deux dates ISO (aaaa-mm-jj). */
+/** Number of calendar days between two ISO dates (yyyy-mm-dd). */
 export function daysBetweenIso(fromIso: string, toIso: string): number {
   const from = Date.parse(`${fromIso}T00:00:00Z`);
   const to = Date.parse(`${toIso}T00:00:00Z`);
@@ -43,14 +43,14 @@ export function daysBetweenIso(fromIso: string, toIso: string): number {
 }
 
 /**
- * Fait avancer la liaison. À appeler quand le cadet valide une étape (voir
- * `completeStep`), jamais à la simple visite ; idempotente sur la journée.
+ * Advances the liaison. Call it when the cadet completes a step (see
+ * `completeStep`), never on a mere visit; idempotent within a day.
  */
 export function advanceLiaison(
   current: LiaisonState,
   todayIso: string
 ): LiaisonTransition {
-  const inchange: LiaisonTransition = {
+  const unchanged: LiaisonTransition = {
     next: current,
     changed: false,
     shieldsConsumed: 0,
@@ -59,8 +59,8 @@ export function advanceLiaison(
     shieldEarned: false,
   };
 
-  if (!todayIso) return inchange;
-  if (current.lastActiveDay === todayIso) return inchange;
+  if (!todayIso) return unchanged;
+  if (current.lastActiveDay === todayIso) return unchanged;
 
   let streak: number;
   let shields = current.shields;
@@ -72,14 +72,14 @@ export function advanceLiaison(
     streak = 1;
   } else {
     const gap = daysBetweenIso(current.lastActiveDay, todayIso);
-    if (gap <= 0) return inchange; // horloge incohérente : ne rien casser
+    if (gap <= 0) return unchanged; // inconsistent clock: do not break anything
     if (gap === 1) {
       streak = current.streak + 1;
     } else {
-      const manques = gap - 1;
-      if (manques <= shields) {
-        shields -= manques;
-        shieldsConsumed = manques;
+      const missed = gap - 1;
+      if (missed <= shields) {
+        shields -= missed;
+        shieldsConsumed = missed;
         streak = current.streak + 1;
       } else {
         broken = true;
@@ -89,7 +89,7 @@ export function advanceLiaison(
     }
   }
 
-  // Relais offert au 3e jour, une seule fois dans la vie du compte.
+  // Relay granted on day 3, only once in the account's lifetime.
   let shieldEverGranted = current.shieldEverGranted;
   let shieldEarned = false;
   if (streak === FIRST_SHIELD_AT && !shieldEverGranted) {
@@ -97,9 +97,9 @@ export function advanceLiaison(
     shieldEverGranted = true;
     shieldEarned = true;
   } else if (streak > 0 && streak % 7 === 0) {
-    const avant = shields;
+    const before = shields;
     shields = Math.min(shields + 1, MAX_SHIELDS);
-    shieldEarned = shields > avant;
+    shieldEarned = shields > before;
   }
 
   return {

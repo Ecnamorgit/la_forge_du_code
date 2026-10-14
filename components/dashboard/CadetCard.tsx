@@ -12,31 +12,31 @@ import { cardBgImage, nextUnlock, UNLOCKS, type UnlockContext } from "@/lib/unlo
 interface CadetCardProps {
   username: string;
   totalXp: number;
-  /** Ids des badges possédés (compteur et calcul des déblocables). */
+  /** Ids of the badges owned (counter and unlockables computation). */
   badges: string[];
   streak: number;
   questsCompleted: number;
   coursesComplete: number;
   chaptersComplete: number;
   /**
-   * Ids des cosmétiques possédés (`UserState.unlocks`). Sans eux, le
-   * « prochain déblocable » reproposerait un objet obtenu puis perdu (les
-   * paliers de liaison sont réversibles).
+   * Ids of the cosmetics owned (`UserState.unlocks`). Without them, the
+   * « prochain déblocable » (next unlockable) would re-offer an item earned
+   * then lost (liaison tiers are reversible).
    */
   unlocks: string[];
   species: string | null;
   uniformColor: string | null;
-  /** Cosmétiques portés, null tant que le cadet n'a rien choisi. */
+  /** Equipped cosmetics, null until the cadet has picked something. */
   frame: string | null;
   title: string | null;
   emblem: string | null;
-  /** Fond de carte porté ; le catalogue en déclare un par défaut. */
+  /** Equipped card background; the catalog declares a default one. */
   cardBg: string | null;
 }
 
 /**
- * Anneaux de cadre en CSS pur (voir lib/unlocks.ts). `standard`, le défaut,
- * n'ajoute rien : le médaillon garde son anneau à la couleur de l'uniforme.
+ * Pure-CSS frame rings (see lib/unlocks.ts). `standard`, the default,
+ * adds nothing: the medallion keeps its ring in the uniform's color.
  */
 const FRAME_RING: Partial<Record<string, string>> = {
   double: "outline outline-2 outline-offset-2 outline-nebula-cyan/50",
@@ -75,7 +75,7 @@ export default function CadetCard({
     chaptersComplete,
     owned: unlocks,
   };
-  const prochain = nextUnlock(unlockCtx);
+  const nextItem = nextUnlock(unlockCtx);
 
   const titleLabel = title
     ? (UNLOCKS.find((u) => u.id === title && u.axis === "title")?.label ?? null)
@@ -85,7 +85,7 @@ export default function CadetCard({
 
   return (
     <aside className="relative overflow-hidden rounded-sm border border-nebula-border/80 bg-nebula-bg-panel/85 p-6 shadow-[0_0_30px_rgba(0,240,255,0.06)] backdrop-blur-md">
-      {/* Fond de carte débloqué, purement décoratif. */}
+      {/* Unlocked card background, purely decorative. */}
       <Image
         src={cardBgImage(cardBg)}
         alt=""
@@ -97,7 +97,7 @@ export default function CadetCard({
       />
 
       <div className="relative">
-        {/* Avatar et nom */}
+        {/* Avatar and name */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="relative mb-3">
             <div className={`inline-flex rounded-full ${frameClass}`}>
@@ -145,25 +145,25 @@ export default function CadetCard({
           </Link>
         </div>
 
-        {/* Statistiques en grille 2x2 */}
+        {/* Stats in a 2x2 grid */}
         <div className="grid grid-cols-2 gap-3">
           <Stat label="Total XP" value={totalXp} accent="cyan" />
           <Stat label="Rang" value={rank} accent="orange" />
           <Stat label="Badges" value={badges.length} accent="blue" />
-          {/* « Liaison » plutôt que « Streak » : c'est le terme du bandeau,
-              de l'armurerie et des déblocables. */}
+          {/* « Liaison » rather than « Streak »: it is the term used by the
+              banner, the armory and the unlockables. */}
           <Stat label="Liaison" value={`${streak}j`} accent="green" />
         </div>
 
-        {/* Prochain déblocable */}
-        {prochain && (
+        {/* Next unlockable */}
+        {nextItem && (
           <div className="mt-4 rounded-sm border border-nebula-orange/40 bg-nebula-bg-darkest/50 px-3 py-2.5">
             <div className="font-tech text-[10px] uppercase tracking-widest text-nebula-text-dim">
               Prochain déblocable
             </div>
-            <div className="font-tech text-sm text-nebula-orange">{prochain.def.label}</div>
+            <div className="font-tech text-sm text-nebula-orange">{nextItem.def.label}</div>
             <div className="font-tech text-[10px] tracking-wider text-nebula-text-secondary">
-              {prochain.remaining}
+              {nextItem.remaining}
             </div>
           </div>
         )}

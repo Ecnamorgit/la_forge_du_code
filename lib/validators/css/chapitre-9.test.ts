@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-9";
 
 /**
- * Chapitre 9 — transitions, transforms et animations.
+ * Chapter 9 — transitions, transforms and animations.
  */
 
-/** Page complète avec le CSS donné. */
+/** Full page with the given CSS. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -24,83 +24,83 @@ function page(css: string): string {
 </html>`;
 }
 
-describe("CSS chapitre 9 — etape 1 (transition avec duree)", () => {
-  const valider = validators[0];
+describe("CSS chapter 9 — step 1 (transition with a duration)", () => {
+  const validate = validators[0];
 
-  it("accepte une transition avec une duree en secondes", () => {
-    expect(valider(page(".btn { transition: all 0.3s ease; }")).ok).toBe(true);
+  it("accepts a transition with a duration in seconds", () => {
+    expect(validate(page(".btn { transition: all 0.3s ease; }")).ok).toBe(true);
   });
 
-  it("refuse une transition sans duree", () => {
-    // Échec ciblé : la propriété est là, la durée manque.
-    expect(valider(page(".btn { transition: all; }")).ok).toBe(false);
+  it("rejects a transition without a duration", () => {
+    // Targeted failure: the property is there, the duration is missing.
+    expect(validate(page(".btn { transition: all; }")).ok).toBe(false);
   });
 
-  it("refuse une duree en millisecondes, non couverte par l'enonce", () => {
-    expect(valider(page(".btn { transition: all 300ms ease; }")).ok).toBe(false);
-  });
-});
-
-describe("CSS chapitre 9 — etape 2 (transform au survol)", () => {
-  const valider = validators[1];
-
-  it("accepte transform: scale au survol de .card", () => {
-    expect(valider(page(".card:hover { transform: scale(1.05); }")).ok).toBe(true);
-  });
-
-  it("refuse un survol qui ne transforme pas", () => {
-    expect(valider(page(".card:hover { background: #111; }")).ok).toBe(false);
-  });
-
-  it("refuse un transform pose hors du survol", () => {
-    expect(valider(page(".card { transform: scale(1.05); }")).ok).toBe(false);
+  it("rejects a duration in milliseconds, not covered by the instructions", () => {
+    expect(validate(page(".btn { transition: all 300ms ease; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 9 — etape 3 (@keyframes appliquee)", () => {
-  const valider = validators[2];
+describe("CSS chapter 9 — step 2 (transform on hover)", () => {
+  const validate = validators[1];
 
-  it("accepte une @keyframes appliquee a .pulse", () => {
+  it("accepts transform: scale on .card hover", () => {
+    expect(validate(page(".card:hover { transform: scale(1.05); }")).ok).toBe(true);
+  });
+
+  it("rejects a hover that does not transform", () => {
+    expect(validate(page(".card:hover { background: #111; }")).ok).toBe(false);
+  });
+
+  it("rejects a transform set outside the hover", () => {
+    expect(validate(page(".card { transform: scale(1.05); }")).ok).toBe(false);
+  });
+});
+
+describe("CSS chapter 9 — step 3 (@keyframes applied)", () => {
+  const validate = validators[2];
+
+  it("accepts an @keyframes applied to .pulse", () => {
     const css = `@keyframes battement { 0% { opacity: 1; } 100% { opacity: 0.4; } }
       .pulse { animation: battement 2s infinite; }`;
-    expect(valider(page(css)).ok).toBe(true);
+    expect(validate(page(css)).ok).toBe(true);
   });
 
-  it("refuse une @keyframes definie mais jamais appliquee", () => {
+  it("rejects an @keyframes defined but never applied", () => {
     const css = `@keyframes battement { 0% { opacity: 1; } 100% { opacity: 0.4; } }
       .pulse { color: white; }`;
-    expect(valider(page(css)).ok).toBe(false);
+    expect(validate(page(css)).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 9 — etape 4 (rotation infinie)", () => {
-  const valider = validators[3];
+describe("CSS chapter 9 — step 4 (infinite rotation)", () => {
+  const validate = validators[3];
 
   const KEYFRAMES = `@keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`;
 
-  it("accepte le mot-cle infinite dans la propriete raccourcie animation", () => {
-    // Forme enseignée par le cours.
+  it("accepts the infinite keyword in the animation shorthand property", () => {
+    // Form taught by the course.
     const css = `${KEYFRAMES}
       .icon { animation: rotation 2s linear infinite; }`;
-    expect(valider(page(css)).ok).toBe(true);
+    expect(validate(page(css)).ok).toBe(true);
   });
 
-  it("accepte animation-iteration-count: infinite", () => {
+  it("accepts animation-iteration-count: infinite", () => {
     const css = `${KEYFRAMES}
       .icon { animation: rotation 2s linear; animation-iteration-count: infinite; }`;
-    expect(valider(page(css)).ok).toBe(true);
+    expect(validate(page(css)).ok).toBe(true);
   });
 
-  it("refuse une animation qui ne tourne qu'une fois", () => {
-    // Échec ciblé : tout est correct sauf le caractère infini.
+  it("rejects an animation that runs only once", () => {
+    // Targeted failure: everything is correct except the infinite repetition.
     const css = `${KEYFRAMES}
       .icon { animation: rotation 2s linear; }`;
-    expect(valider(page(css)).ok).toBe(false);
+    expect(validate(page(css)).ok).toBe(false);
   });
 
-  it("refuse une @keyframes qui ne fait pas tourner", () => {
+  it("rejects an @keyframes that does not rotate", () => {
     const css = `@keyframes fondu { from { opacity: 0; } to { opacity: 1; } }
       .icon { animation: fondu 2s linear infinite; }`;
-    expect(valider(page(css)).ok).toBe(false);
+    expect(validate(page(css)).ok).toBe(false);
   });
 });

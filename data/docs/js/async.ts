@@ -22,6 +22,6 @@ Dans une fonction \`async\`, \`await\` suspend jusqu'à la résolution, puis ren
     "await n'est utilisable que dans une fonction async.",
     "Oublier .catch (ou try/catch) laisse une erreur non gérée.",
   ],
-  related: ["js/fetch", "js/fonctions"],
+  related: ["js/fetch", "js/functions"],
   official: { label: "MDN — async/await", url: "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Statements/async_function" },
 };

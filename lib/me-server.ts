@@ -24,7 +24,7 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-/** Métadonnées de chapitres par cursus, calculées une fois. */
+/** Chapter metadata per course, computed once. */
 const CHAPTERS_BY_COURSE: Record<string, { slug: string; totalSteps: number }[]> =
   Object.fromEntries(
     COURSES_CATALOG.map((c) => [
@@ -35,9 +35,9 @@ const CHAPTERS_BY_COURSE: Record<string, { slug: string; totalSteps: number }[]>
 
 interface RawUserBundle {
   /**
-   * Graine du tirage du briefing. Le pseudo est renommable : s'en servir
-   * changerait les ordres en cours de journée alors que le masque de paiement
-   * reste celui du jour, et le nouvel ordre tiré ne pourrait plus être payé.
+   * Seed for the briefing draw. The username can be renamed: seeding with it
+   * would change the orders mid-day while the payout mask stays the one for
+   * the day, and the newly drawn order could no longer be paid out.
    */
   id: string;
   username: string;
@@ -72,13 +72,13 @@ interface RawUserBundle {
   }[];
 }
 
-/** Les 7 derniers jours : un booléen par jour, du plus ancien au plus récent. */
+/** The last 7 days: one boolean per day, oldest to most recent. */
 function weekDots(records: CompletionRecord[], todayIso: string): boolean[] {
-  const jours = new Set(records.map((r) => r.completedAt.slice(0, 10)));
+  const days = new Set(records.map((r) => r.completedAt.slice(0, 10)));
   const dots: boolean[] = [];
   for (let i = 6; i >= 0; i--) {
     const t = Date.parse(`${todayIso}T00:00:00Z`) - i * 86_400_000;
-    dots.push(jours.has(new Date(t).toISOString().slice(0, 10)));
+    dots.push(days.has(new Date(t).toISOString().slice(0, 10)));
   }
   return dots;
 }
@@ -103,10 +103,10 @@ function shape(bundle: RawUserBundle): UserState {
   const today = todayIso();
   const { past, today: todayRecords } = splitCompletions(records, today);
 
-  // Projection sans persistance : ce qui arriverait si le cadet validait une
-  // étape maintenant. Sans elle, un cadet absent cinq jours verrait encore son
-  // ancienne série. On rejoue `advanceLiaison` pour ne pas dupliquer la règle
-  // des relais (lib/streak.ts).
+  // Projection without persistence: what would happen if the cadet completed
+  // a step now. Without it, a cadet away for five days would still see their
+  // old streak. We replay `advanceLiaison` so the relay rule is not
+  // duplicated (lib/streak.ts).
   const projection = advanceLiaison(
     {
       streak: bundle.streak,
@@ -197,9 +197,9 @@ async function fetchBundle(userId: string): Promise<RawUserBundle | null> {
 }
 
 /**
- * Lecture pure : la liaison n'avance que dans `completeStep`, sur une étape
- * validée. Ouvrir un onglet ne compte pas comme une journée active.
- * Renvoie null si l'utilisateur n'existe pas.
+ * Pure read: the liaison only advances in `completeStep`, on a completed
+ * step. Opening a tab does not count as an active day.
+ * Returns null if the user does not exist.
  */
 export async function getUserState(userId: string): Promise<UserState | null> {
   const bundle = await fetchBundle(userId);
@@ -211,7 +211,7 @@ export class UserNotFoundError extends Error {}
 export class UsernameTakenError extends Error {}
 export class InvalidUsernameError extends Error {}
 export class InvalidStepError extends Error {}
-/** Étape demandée avant la précédente (lib/step-order.ts) : message affichable. */
+/** Step requested before the previous one (lib/step-order.ts): displayable message. */
 export class StepOrderError extends Error {}
 
 async function assertUserExists(userId: string): Promise<void> {
@@ -257,20 +257,20 @@ export interface CompleteStepResult {
   awardedXp: number;
   newBadge: string | null;
   alreadyDone: boolean;
-  /** XP versée par les ordres du jour, incluse dans awardedXp. */
+  /** XP paid out by the daily orders, included in awardedXp. */
   questXp: number;
   completedQuests: string[];
   newConductBadges: string[];
   newUnlocks: string[];
-  /** Message de liaison à afficher une fois (relais consommé, rupture). */
+  /** Liaison message to show once (relay consumed, streak broken). */
   notice: string | null;
 }
 
 /**
- * Délais de la transaction de `completeStep` (5 s par défaut chez Prisma).
- * Elle fait une vingtaine d'allers-retours vers une base distante, et un
- * `P2028` annulerait aussi la `StepCompletion` : le cadet perdrait son étape.
- * `maxWait` couvre l'attente d'une connexion du pool, `timeout` l'exécution.
+ * Timeouts for the `completeStep` transaction (Prisma defaults to 5 s).
+ * It makes about twenty round trips to a remote database, and a `P2028`
+ * would also roll back the `StepCompletion`: the cadet would lose their step.
+ * `maxWait` covers waiting for a pool connection, `timeout` the execution.
  */
 const COMPLETE_STEP_TX_OPTIONS = { maxWait: 10_000, timeout: 30_000 } as const;
 
@@ -293,7 +293,7 @@ export async function completeStep(
   const totalSteps = chapterData.steps.length;
   const badgeForChapter = getBadgeForChapter(course, chapter);
 
-  // Insertion idempotente, XP et badge dans la même transaction.
+  // Idempotent insert, XP and badge in the same transaction.
   let awardedXp = 0;
   let newBadge: string | null = null;
   let alreadyDone = false;
@@ -321,15 +321,15 @@ export async function completeStep(
       return;
     }
 
-    // Ordre de progression (audit EXE-01) : vérifié après le test
-    // d'idempotence, pour qu'une étape déjà faite reste une réponse normale,
-    // et dans la transaction, sur les complétions qu'elle voit.
-    const faites = await tx.stepCompletion.findMany({
+    // Progression order (audit EXE-01): checked after the idempotency test,
+    // so an already completed step stays a normal response, and inside the
+    // transaction, against the completions it sees.
+    const completed = await tx.stepCompletion.findMany({
       where: { userId, course },
       select: { chapter: true, stepIndex: true },
     });
-    const ordre = checkStepOrder(CHAPTERS_BY_COURSE[course] ?? [], faites, chapter, stepIndex);
-    if (!ordre.ok) throw new StepOrderError(ordre.reason);
+    const orderCheck = checkStepOrder(CHAPTERS_BY_COURSE[course] ?? [], completed, chapter, stepIndex);
+    if (!orderCheck.ok) throw new StepOrderError(orderCheck.reason);
 
     await tx.stepCompletion.create({
       data: { userId, course, chapter, stepIndex },
@@ -344,7 +344,7 @@ export async function completeStep(
       select: { totalXp: true },
     });
 
-    // Plafonne l'XP à MAX_XP.
+    // Caps XP at MAX_XP.
     if (user.totalXp > MAX_XP) {
       await tx.user.update({
         where: { id: userId },
@@ -355,7 +355,7 @@ export async function completeStep(
       awardedXp = stepXp;
     }
 
-    // Chapitre terminé : badge.
+    // Chapter finished: badge.
     if (badgeForChapter) {
       const doneCount = await tx.stepCompletion.count({
         where: { userId, course, chapter },
@@ -374,10 +374,10 @@ export async function completeStep(
       }
     }
 
-    // Boucle quotidienne : liaison, ordres, badges de conduite.
-    const jour = todayIso();
+    // Daily loop: liaison, orders, conduct badges.
+    const today = todayIso();
 
-    const brut = await tx.user.findUnique({
+    const rawUser = await tx.user.findUnique({
       where: { id: userId },
       select: {
         totalXp: true,
@@ -393,151 +393,151 @@ export async function completeStep(
         dailyClaimed: true,
       },
     });
-    if (!brut) throw new UserNotFoundError();
+    if (!rawUser) throw new UserNotFoundError();
 
-    const toutes = await tx.stepCompletion.findMany({
+    const allCompletions = await tx.stepCompletion.findMany({
       where: { userId },
       select: { course: true, chapter: true, stepIndex: true, completedAt: true },
     });
-    const records: CompletionRecord[] = toutes.map((r) => ({
+    const records: CompletionRecord[] = allCompletions.map((r) => ({
       course: r.course,
       chapter: r.chapter,
       stepIndex: r.stepIndex,
       completedAt: r.completedAt.toISOString(),
     }));
-    const { past, today: todayRecords } = splitCompletions(records, jour);
+    const { past, today: todayRecords } = splitCompletions(records, today);
 
     const briefing = buildBriefing({
-      // Identifiant de compte, jamais le pseudo : cf. `RawUserBundle.id`.
+      // Account id, never the username: see `RawUserBundle.id`.
       userId,
-      todayIso: jour,
+      todayIso: today,
       past,
       today: todayRecords,
       chaptersByCourse: CHAPTERS_BY_COURSE,
     });
 
-    // L'arithmétique du versement (bits, bonus de clôture, série de briefings
-    // parfaits, remise à zéro du masque) vit dans `applyBriefingPayout`, pure
-    // et testée : ce module importe `server-only` et échappe à vitest.
-    const versement = applyBriefingPayout(
+    // The payout arithmetic (bits, completion bonus, perfect briefing streak,
+    // mask reset) lives in `applyBriefingPayout`, which is pure and tested:
+    // this module imports `server-only` and cannot run under vitest.
+    const payout = applyBriefingPayout(
       briefing,
       {
-        claimedMask: brut.dailyClaimed,
-        claimedDay: brut.lastDailyMission,
-        perfectRun: brut.perfectBriefingRun,
-        lastPerfectDay: brut.lastPerfectDay,
+        claimedMask: rawUser.dailyClaimed,
+        claimedDay: rawUser.lastDailyMission,
+        perfectRun: rawUser.perfectBriefingRun,
+        lastPerfectDay: rawUser.lastPerfectDay,
       },
-      jour
+      today
     );
 
-    // La liaison avance sans condition : on n'arrive ici que pour une étape
-    // nouvelle (la transaction sort plus haut si `alreadyDone`). Le déclencheur
-    // est l'étape et non l'ordre accompli : un ordre peut demander plusieurs
-    // étapes, et un cadet qui n'en fait qu'une a quand même travaillé.
-    // `advanceLiaison` est idempotente sur la journée.
+    // The liaison advances unconditionally: we only get here for a new step
+    // (the transaction exits earlier if `alreadyDone`). The trigger is the
+    // step, not a fulfilled order: an order can require several
+    // steps, and a cadet who does only one has still put in the work.
+    // `advanceLiaison` is idempotent within a day.
     const transition = advanceLiaison(
       {
-        streak: brut.streak,
-        bestStreak: brut.bestStreak,
-        shields: brut.streakShields,
-        shieldEverGranted: brut.shieldEverGranted,
-        lastActiveDay: brut.lastVisit,
+        streak: rawUser.streak,
+        bestStreak: rawUser.bestStreak,
+        shields: rawUser.streakShields,
+        shieldEverGranted: rawUser.shieldEverGranted,
+        lastActiveDay: rawUser.lastVisit,
       },
-      jour
+      today
     );
 
-    const liaisonApres = transition.next;
+    const liaisonAfter = transition.next;
 
-    const questsCompletedApres = brut.questsCompleted + versement.questsPaid;
-    const xpApres = Math.min(brut.totalXp + versement.bonusXp, MAX_XP);
+    const questsCompletedAfter = rawUser.questsCompleted + payout.questsPaid;
+    const xpAfter = Math.min(rawUser.totalXp + payout.bonusXp, MAX_XP);
 
     await tx.user.update({
       where: { id: userId },
       data: {
-        totalXp: xpApres,
-        dailyClaimed: versement.nextMask,
-        lastDailyMission: jour,
-        questsCompleted: questsCompletedApres,
-        perfectBriefingRun: versement.perfectRun,
-        lastPerfectDay: versement.lastPerfectDay,
-        streak: liaisonApres.streak,
-        bestStreak: liaisonApres.bestStreak,
-        streakShields: liaisonApres.shields,
-        shieldEverGranted: liaisonApres.shieldEverGranted,
-        lastVisit: liaisonApres.lastActiveDay,
+        totalXp: xpAfter,
+        dailyClaimed: payout.nextMask,
+        lastDailyMission: today,
+        questsCompleted: questsCompletedAfter,
+        perfectBriefingRun: payout.perfectRun,
+        lastPerfectDay: payout.lastPerfectDay,
+        streak: liaisonAfter.streak,
+        bestStreak: liaisonAfter.bestStreak,
+        streakShields: liaisonAfter.shields,
+        shieldEverGranted: liaisonAfter.shieldEverGranted,
+        lastVisit: liaisonAfter.lastActiveDay,
       },
     });
 
-    awardedXp += xpApres - brut.totalXp;
-    questXp = xpApres - brut.totalXp;
-    // Seuls les ordres payés à cet instant : filtrer `briefing.quests` sur
-    // `done` réannoncerait les ordres déjà payés plus tôt dans la journée.
-    completedQuests = versement.paidLabels;
+    awardedXp += xpAfter - rawUser.totalXp;
+    questXp = xpAfter - rawUser.totalXp;
+    // Only the orders paid out right now: filtering `briefing.quests` on
+    // `done` would re-announce orders already paid out earlier in the day.
+    completedQuests = payout.paidLabels;
 
     if (transition.shieldsConsumed) {
-      notice = `Un relais de secours a couvert ton absence. Il t'en reste ${liaisonApres.shields}.`;
+      notice = `Un relais de secours a couvert ton absence. Il t'en reste ${liaisonAfter.shields}.`;
     } else if (transition.broken) {
-      notice = `Liaison rompue. Ton record de ${liaisonApres.bestStreak} jours reste acquis.`;
+      notice = `Liaison rompue. Ton record de ${liaisonAfter.bestStreak} jours reste acquis.`;
     }
 
-    // Badges de conduite mérités mais non encore attribués.
-    const merites = evaluateConductBadges({
-      streak: liaisonApres.streak,
-      questsCompleted: questsCompletedApres,
-      perfectBriefingRun: versement.perfectRun,
+    // Conduct badges earned but not yet awarded.
+    const earnedConductBadges = evaluateConductBadges({
+      streak: liaisonAfter.streak,
+      questsCompleted: questsCompletedAfter,
+      perfectBriefingRun: payout.perfectRun,
       completions: records,
       justReturned: transition.earnedReturn,
     });
-    const dejaLa = new Set(
+    const alreadyOwned = new Set(
       (await tx.userBadge.findMany({ where: { userId }, select: { badgeId: true } })).map(
         (b) => b.badgeId
       )
     );
-    for (const id of merites) {
-      if (dejaLa.has(id)) continue;
+    for (const id of earnedConductBadges) {
+      if (alreadyOwned.has(id)) continue;
       await tx.userBadge.create({ data: { userId, badgeId: id } });
       newConductBadges.push(id);
     }
 
-    // Déblocables cosmétiques nouvellement atteints.
-    const chapitresFinis = Object.entries(CHAPTERS_BY_COURSE).reduce(
-      (n, [course, chapitres]) =>
+    // Newly reached cosmetic unlocks.
+    const chaptersFinished = Object.entries(CHAPTERS_BY_COURSE).reduce(
+      (n, [course, courseChapters]) =>
         n +
-        chapitres.filter(
+        courseChapters.filter(
           (ch) =>
             records.filter((r) => r.course === course && r.chapter === ch.slug).length >=
             ch.totalSteps
         ).length,
       0
     );
-    const cursusFinis = Object.entries(CHAPTERS_BY_COURSE).filter(([course, chapitres]) =>
-      chapitres.every(
+    const coursesFinished = Object.entries(CHAPTERS_BY_COURSE).filter(([course, courseChapters]) =>
+      courseChapters.every(
         (ch) =>
           records.filter((r) => r.course === course && r.chapter === ch.slug).length >=
           ch.totalSteps
       )
     ).length;
 
-    const dejaDebloques = new Set(
+    const alreadyUnlocked = new Set(
       (await tx.userUnlock.findMany({ where: { userId }, select: { itemId: true } })).map(
         (u) => u.itemId
       )
     );
-    const statuts = evaluateUnlocks({
-      streak: liaisonApres.streak,
-      questsCompleted: questsCompletedApres,
-      totalXp: xpApres,
-      badges: [...dejaLa, ...merites],
-      coursesComplete: cursusFinis,
-      chaptersComplete: chapitresFinis,
-      owned: [...dejaDebloques],
+    const unlockStatuses = evaluateUnlocks({
+      streak: liaisonAfter.streak,
+      questsCompleted: questsCompletedAfter,
+      totalXp: xpAfter,
+      badges: [...alreadyOwned, ...earnedConductBadges],
+      coursesComplete: coursesFinished,
+      chaptersComplete: chaptersFinished,
+      owned: [...alreadyUnlocked],
     });
-    for (const s of statuts) {
-      // Les objets par défaut sont acquis d'office et `setCosmetics` les
-      // accepte sans ligne en base : leur créer un `UserUnlock` les ferait
-      // annoncer comme nouveaux déblocables.
+    for (const s of unlockStatuses) {
+      // Default items are owned automatically and `setCosmetics` accepts
+      // them without a database row: creating a `UserUnlock` for them would
+      // announce them as new unlocks.
       if (!s.unlocked || s.def.condition.kind === "default") continue;
-      if (dejaDebloques.has(s.def.id)) continue;
+      if (alreadyUnlocked.has(s.def.id)) continue;
       await tx.userUnlock.create({ data: { userId, itemId: s.def.id } });
       newUnlocks.push(s.def.id);
     }
@@ -560,8 +560,8 @@ export async function completeStep(
 }
 
 /**
- * Marque le briefing de première connexion comme vu. Idempotent : la date
- * n'est écrite que la première fois.
+ * Marks the first-login briefing as seen. Idempotent: the date is only
+ * written the first time.
  */
 export async function markOnboarded(userId: string): Promise<UserState> {
   const current = await prisma.user.findUnique({
@@ -588,10 +588,10 @@ export async function markOnboarded(userId: string): Promise<UserState> {
 export class InvalidAvatarError extends Error {}
 
 /**
- * Enregistre l'avatar. Espèce et rôle sont validés dans la route contre des
- * listes constantes. La couleur d'uniforme se vérifie ici : les couleurs
- * méritées (catalogue `UNLOCKS`, axe `uniform`) exigent une garde de
- * possession, qui dépend de l'utilisateur.
+ * Saves the avatar. Species and role are validated in the route against
+ * constant lists. The uniform color is checked here: earned colors
+ * (`UNLOCKS` catalog, `uniform` axis) require an ownership guard, which
+ * depends on the user.
  */
 export async function setAvatar(
   userId: string,
@@ -600,8 +600,8 @@ export async function setAvatar(
   await assertUserExists(userId);
 
   if (!isBaseUniformColorId(args.uniformColor)) {
-    // Couleur méritée : acceptée seulement si le cadet possède le déblocage,
-    // même garde que `setCosmetics` (axe "uniform").
+    // Earned color: accepted only if the cadet owns the unlock,
+    // same guard as `setCosmetics` ("uniform" axis).
     const def = UNLOCKS.find((u) => u.id === args.uniformColor && u.axis === "uniform");
     if (!def) {
       throw new InvalidAvatarError("Couleur d'uniforme invalide");
@@ -634,9 +634,9 @@ export async function setAvatar(
 export class InvalidCosmeticError extends Error {}
 
 /**
- * Emplacements cosmétiques acceptés et colonne écrite pour chacun ; cette
- * table sert de liste blanche. `uniform` écrit `uniformColor`, la colonne de
- * l'avatar : un seul espace d'identifiants pour les couleurs (cf. lib/avatar.ts).
+ * Accepted cosmetic slots and the column written for each; this table acts
+ * as an allowlist. `uniform` writes `uniformColor`, the avatar column: a single
+ * id space for colors (see lib/avatar.ts).
  */
 const COSMETIC_SLOTS: {
   key: "frame" | "title" | "cardBg" | "uniform";
@@ -658,8 +658,8 @@ export interface CosmeticChoices {
 }
 
 /**
- * Enregistre les cosmétiques portés. Refuse tout objet que le cadet n'a pas
- * débloqué : la validation se fait côté serveur.
+ * Saves the equipped cosmetics. Rejects any item the cadet has not
+ * unlocked: validation happens server-side.
  */
 export async function setCosmetics(
   userId: string,
@@ -671,12 +671,12 @@ export async function setCosmetics(
     prisma.userUnlock.findMany({ where: { userId }, select: { itemId: true } }),
     prisma.userBadge.findMany({ where: { userId }, select: { badgeId: true } }),
   ]);
-  const possede = new Set(unlocks.map((u) => u.itemId));
-  const badgesPossedes = new Set(badges.map((b) => b.badgeId));
+  const ownedSet = new Set(unlocks.map((u) => u.itemId));
+  const ownedBadges = new Set(badges.map((b) => b.badgeId));
 
-  // Objet de mise à jour construit clé par clé : passer `choices` tel quel à
-  // Prisma laisserait une route qui relaie le corps JSON brut écrire n'importe
-  // quelle colonne de `User`, `totalXp` compris.
+  // Update object built key by key: passing `choices` as is to Prisma would
+  // let a route that forwards the raw JSON body write any column of `User`,
+  // `totalXp` included.
   const data: {
     frame?: string;
     title?: string;
@@ -691,19 +691,19 @@ export async function setCosmetics(
 
     const def = UNLOCKS.find((u) => u.id === id);
     if (!def) throw new InvalidCosmeticError("Objet inconnu");
-    // L'objet doit appartenir à l'axe de l'emplacement visé : sans ce test, un
-    // fond de carte débloqué pourrait être porté comme cadre d'avatar.
+    // The item must belong to the target slot's axis: without this check, an
+    // unlocked card background could be worn as an avatar frame.
     if (def.axis !== slot.axis) {
       throw new InvalidCosmeticError("Cet objet n'appartient pas à cet emplacement");
     }
-    if (def.condition.kind !== "default" && !possede.has(id)) {
+    if (def.condition.kind !== "default" && !ownedSet.has(id)) {
       throw new InvalidCosmeticError("Cet objet n'est pas débloqué");
     }
     data[slot.column] = id;
   }
 
   if (choices.emblem !== undefined) {
-    if (!badgesPossedes.has(choices.emblem)) {
+    if (!ownedBadges.has(choices.emblem)) {
       throw new InvalidCosmeticError("Ce badge n'est pas obtenu");
     }
     data.emblem = choices.emblem;
@@ -719,9 +719,9 @@ export async function setCosmetics(
 }
 
 /**
- * Mémorise le cursus en cours. Appelé à l'ouverture d'une page de chapitre,
- * pour que « Reprendre la mission » suive le cadet avant même qu'il valide
- * une étape.
+ * Remembers the current course. Called when a chapter page opens, so that
+ * "Reprendre la mission" follows the cadet even before they complete
+ * a step.
  */
 export async function markCourseVisited(
   userId: string,
@@ -739,7 +739,7 @@ export async function markCourseVisited(
   return state;
 }
 
-/** Ids des cinématiques déjà vues pour un cursus (préfixe "<course>:"). */
+/** Ids of the cutscenes already seen for a course ("<course>:" prefix). */
 export async function listCinematicViews(
   userId: string,
   course: string
@@ -751,7 +751,7 @@ export async function listCinematicViews(
   return rows.map((r) => r.cinematicId);
 }
 
-/** Marque une cinématique vue ; idempotent (revoir ne crée pas de doublon). */
+/** Marks a cutscene as seen; idempotent (rewatching creates no duplicate). */
 export async function markCinematicView(
   userId: string,
   cinematicId: string
@@ -764,8 +764,8 @@ export async function markCinematicView(
 }
 
 /**
- * RGPD : export des données personnelles (droit d'accès et portabilité).
- * Profil, badges et progression sous forme sérialisable.
+ * GDPR: export of personal data (right of access and portability).
+ * Profile, badges and progress in serializable form.
  */
 export async function exportUserData(userId: string) {
   const user = await prisma.user.findUnique({
@@ -808,8 +808,8 @@ export async function exportUserData(userId: string) {
 }
 
 /**
- * RGPD : suppression définitive du compte (droit à l'effacement). Le `onDelete:
- * Cascade` du schéma supprime comptes, sessions, badges, progression et tokens.
+ * GDPR: permanent account deletion (right to erasure). The schema's `onDelete:
+ * Cascade` deletes accounts, sessions, badges, progress and tokens.
  */
 export async function deleteAccount(userId: string): Promise<void> {
   await assertUserExists(userId);
@@ -817,8 +817,8 @@ export async function deleteAccount(userId: string): Promise<void> {
 }
 
 /**
- * Vérifie le mot de passe avant une action irréversible comme la suppression
- * du compte (audit SRV-09). Même comparaison que la connexion (`auth.ts`).
+ * Checks the password before an irreversible action such as account
+ * deletion (audit SRV-09). Same comparison as login (`auth.ts`).
  */
 export async function verifyPassword(userId: string, password: string): Promise<boolean> {
   const user = await prisma.user.findUnique({

@@ -2,8 +2,8 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent } from "./_utils";
 
 /**
- * Renvoie le corps non vide de la première règle dont le sélecteur satisfait
- * `selectorPattern`, ou null.
+ * Returns the non-empty body of the first rule whose selector matches
+ * `selectorPattern`, or null.
  */
 function ruleHasDeclaration(css: string, selectorPattern: RegExp): string | null {
   const ruleRe = /([^{}]+)\{([^}]*)\}/g;
@@ -18,7 +18,7 @@ function ruleHasDeclaration(css: string, selectorPattern: RegExp): string | null
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : .btn:hover avec au moins une déclaration
+  // Step 1: .btn:hover with at least one declaration
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -26,7 +26,7 @@ export const validators: Validator[] = [
     if (!body) return { ok: false, msg: "Ajoute une règle .btn:hover { ... }." };
     return { ok: true, msg: "Feedback actif.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : .field:focus avec border, box-shadow, outline ou background
+  // Step 2: .field:focus with border, box-shadow, outline or background
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -37,20 +37,20 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Focus accessible.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : .quote::before avec une propriété content
+  // Step 3: .quote::before with a content property
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
     const body = ruleHasDeclaration(css, /\.quote::before\b/);
     if (!body) return { ok: false, msg: "Ajoute une règle .quote::before { ... }." };
-    // `(?<![-\w])` plutôt que `\b`, sinon `justify-content` ou `align-content`
-    // compteraient comme `content`.
+    // `(?<![-\w])` rather than `\b`, otherwise `justify-content` or `align-content`
+    // would count as `content`.
     if (!/(?<![-\w])content\s*:/i.test(body)) {
       return { ok: false, msg: "Un pseudo-élément a besoin d'une propriété content: \"...\" pour s'afficher." };
     }
     return { ok: true, msg: "Élément fantôme créé.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : li:nth-child(...) avec un background
+  // Step 4: li:nth-child(...) with a background
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };

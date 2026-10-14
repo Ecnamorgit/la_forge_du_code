@@ -1,6 +1,6 @@
 import type { DocEntry } from "../types";
 import { cssStyle } from "./style";
-import { selectors } from "./selecteurs";
+import { selectors } from "./selectors";
 import { boxModel } from "./box-model";
 import { flexbox } from "./flexbox";
 import { grid } from "./grid";
@@ -10,7 +10,7 @@ import { mediaQueries } from "./media-queries";
 import { cssTransition } from "./transition";
 import { cssVariables } from "./variables";
 
-/** Toutes les fiches CSS, dans l'ordre du parcours. */
+/** All CSS reference sheets, in course order. */
 const ALL_CSS_DOCS: DocEntry[] = [
   cssStyle,
   selectors,
@@ -24,7 +24,7 @@ const ALL_CSS_DOCS: DocEntry[] = [
   cssVariables,
 ];
 
-/** Registre des fiches CSS, clé = DocEntry.id. */
+/** Registry of CSS reference sheets, key = DocEntry.id. */
 export const cssDocs: Record<string, DocEntry> = Object.fromEntries(
   ALL_CSS_DOCS.map((entry) => [entry.id, entry])
 );

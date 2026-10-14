@@ -7,10 +7,10 @@ import {
 } from "@/lib/public-routes";
 
 /**
- * Les listes viennent de `lib/public-routes.ts`, comme pour `proxy.ts` : une
- * section protégée déclarée là-bas est interdite ici. Le chapitre d'essai reste
- * explorable car son chemin est plus long que `/learn`, et Google applique la
- * règle la plus spécifique.
+ * The lists come from `lib/public-routes.ts`, as for `proxy.ts`: a
+ * protected section declared there is disallowed here. The trial chapter stays
+ * crawlable because its path is longer than `/learn`, and Google applies the
+ * most specific rule.
  */
 export default function robots(): MetadataRoute.Robots {
   const base = process.env.APP_URL ?? "http://localhost:3000";
@@ -20,8 +20,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: ["/", ...PUBLIC_TRIAL_ROUTES],
-        // Sans slash final, `Disallow: /dashboard` couvre aussi la route
-        // exacte, qui redirige vers /login.
+        // Without a trailing slash, `Disallow: /dashboard` also covers the
+        // exact route, which redirects to /login.
         disallow: [...PROTECTED_PREFIXES, ...NON_INDEXABLE_PREFIXES],
       },
     ],

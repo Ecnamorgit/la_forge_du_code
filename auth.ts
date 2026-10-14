@@ -7,9 +7,9 @@ import { z } from "zod";
 
 import { authConfig } from "@/auth.config";
 import { prisma } from "@/lib/db";
-import { compteVerrouille, hashFactice, noterEchecConnexion } from "@/lib/login-guard";
+import { isAccountLocked, dummyHash, recordLoginFailure } from "@/lib/login-guard";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
-import { sessionEstValide } from "@/lib/session-guard";
+import { isSessionValid } from "@/lib/session-guard";
 
 declare module "next-auth" {
   interface Session {
@@ -31,26 +31,26 @@ const credentialsSchema = z.object({
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  // Le type de l'adaptateur vise une ancienne version du client Prisma ; le
-  // contrat à l'exécution est identique.
+  // The adapter's type targets an older version of the Prisma client; the
+  // runtime contract is identical.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: PrismaAdapter(prisma as any),
   callbacks: {
     ...authConfig.callbacks,
-    // Ajoute la révocation de session (audit SRV-03) : elle lit la base, donc
-    // reste hors de `auth.config.ts`, chargé par `proxy.ts`.
+    // Adds session revocation (audit SRV-03): it reads the database, so it
+    // stays out of `auth.config.ts`, which `proxy.ts` loads.
     jwt: async ({ token, user }) => {
       if (user) {
-        // Connexion : le jeton emporte l'identité et la version de session.
+        // Sign-in: the token carries the identity and the session version.
         token.id = user.id;
         token.username = (user as { username?: string }).username;
         token.sessionVersion = (user as { sessionVersion?: number }).sessionVersion ?? 0;
         return token;
       }
-      // Requêtes suivantes : on refuse le jeton si le mot de passe a changé
-      // depuis son émission. Renvoyer null détruit la session.
+      // Subsequent requests: reject the token if the password has changed
+      // since it was issued. Returning null destroys the session.
       if (typeof token.id === "string") {
-        const ok = await sessionEstValide(token.id, token.sessionVersion);
+        const ok = await isSessionValid(token.id, token.sessionVersion);
         if (!ok) return null;
       }
       return token;
@@ -64,8 +64,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Mot de passe", type: "password" },
       },
       authorize: async (credentials, request) => {
-        // Limite par IP avant bcrypt, contre la force brute. Un dépassement
-        // échoue comme de mauvais identifiants.
+        // Per-IP limit before bcrypt, against brute force. Exceeding it
+        // fails the same way as bad credentials.
         const ip = getClientIp(request as unknown as Request);
         if (!(await rateLimit(`login:${ip}`, { limit: 10, windowMs: 5 * 60 * 1000 })).ok) {
           return null;
@@ -76,10 +76,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const { email, password } = parsed.data;
 
-        // Limite par compte (audit SRV-07), contre un attaquant aux IP
-        // multiples : après 10 échecs en 15 minutes, même le bon mot de passe
-        // est refusé jusqu'à la fin de la fenêtre.
-        if (await compteVerrouille(email)) return null;
+        // Per-account limit (audit SRV-07), against an attacker with many
+        // IPs: after 10 failures in 15 minutes, even the right password is
+        // rejected until the window ends.
+        if (await isAccountLocked(email)) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: email.toLowerCase() },
@@ -95,22 +95,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
 
         if (!user || !user.password) {
-          // Comparaison factice : le temps de réponse ne révèle pas que
-          // l'adresse n'a pas de compte (audit SRV-07).
-          await bcrypt.compare(password, await hashFactice());
-          await noterEchecConnexion(email);
+          // Dummy comparison: the response time does not reveal that the
+          // address has no account (audit SRV-07).
+          await bcrypt.compare(password, await dummyHash());
+          await recordLoginFailure(email);
           return null;
         }
 
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) {
-          await noterEchecConnexion(email);
+          await recordLoginFailure(email);
           return null;
         }
 
-        // Adresse non vérifiée : connexion refusée, sinon n'importe qui pourrait
-        // s'inscrire avec l'email d'un tiers et s'en servir. Le contournement de
-        // test est interdit en production par `lib/env.ts`.
+        // Unverified address: sign-in refused, otherwise anyone could sign up
+        // with a third party's email and use it. The test bypass is
+        // forbidden in production by `lib/env.ts`.
         if (!user.emailVerified && process.env.AUTH_ALLOW_UNVERIFIED_LOGIN !== "true") {
           throw new CredentialsSignin("email_unverified");
         }

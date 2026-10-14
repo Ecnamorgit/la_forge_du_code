@@ -3,14 +3,14 @@ import Link from "next/link";
 import BrandLogo from "@/components/ui/BrandLogo";
 
 /**
- * En-tête des pages publiques (landing, codex). La coque et le bloc de marque
- * sont partagés ; chaque page passe ses propres actions en `children`.
+ * Header for the public pages (landing, codex). The shell and the brand block
+ * are shared; each page passes its own actions as `children`.
  */
 export default function PublicHeader({ children }: { children: React.ReactNode }) {
   return (
     <header className="relative z-50 flex h-16 items-center justify-between border-b border-nebula-border/70 bg-nebula-bg-darkest/80 px-4 backdrop-blur-md sm:px-6">
-      {/* Sous `sm`, la navigation occupe presque toute la largeur : seul le
-          pictogramme est affiché, le nom reste annoncé via aria-label. */}
+      {/* Below `sm`, the navigation takes up almost the full width: only the
+          icon is shown, and the name is still announced via aria-label. */}
       <Link
         href="/"
         aria-label="La Forge du Code — accueil"

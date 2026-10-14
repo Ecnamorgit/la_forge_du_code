@@ -1,6 +1,6 @@
-// Bundle React et le client ReactDOM en un fichier chargeable par <script src>
-// depuis l'iframe d'aperçu React. Exécuté via predev / prebuild ; la sortie
-// n'est pas versionnée.
+// Bundles React and the ReactDOM client into one file loadable via <script src>
+// from the React preview iframe. Run via predev / prebuild; the output
+// is not under version control.
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -21,8 +21,8 @@ await build({
   platform: "browser",
   target: ["es2020"],
   minify: true,
-  // React lit process.env.NODE_ENV à l'exécution : sans ce define, le bundle
-  // embarque le code de développement et plante sur `process`.
+  // React reads process.env.NODE_ENV at runtime: without this define, the bundle
+  // ships the development code and crashes on `process`.
   define: { "process.env.NODE_ENV": '"production"' },
   logLevel: "warning",
 });

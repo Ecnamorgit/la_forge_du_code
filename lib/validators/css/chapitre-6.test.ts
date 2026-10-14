@@ -2,13 +2,13 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-6";
 
 /**
- * Chapitre 6 — le positionnement : relative, absolute, fixed, sticky.
+ * Chapter 6 — positioning: relative, absolute, fixed, sticky.
  *
- * Chaque étape exige un couple (valeur de position + décalage) : les cas
- * d'échec isolent l'un ou l'autre, jamais les deux à la fois.
+ * Each step requires a pair (position value + offset): the failing cases
+ * isolate one or the other, never both at once.
  */
 
-/** Page complète avec le CSS donné. */
+/** Full page with the given CSS. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -27,101 +27,101 @@ function page(css: string): string {
 </html>`;
 }
 
-describe("CSS chapitre 6 — etape 1 (position relative avec decalage)", () => {
-  const valider = validators[0];
+describe("CSS chapter 6 — step 1 (relative position with an offset)", () => {
+  const validate = validators[0];
 
-  it("accepte position: relative accompagne d'un top", () => {
-    expect(valider(page(".badge { position: relative; top: -4px; }")).ok).toBe(true);
+  it("accepts position: relative together with a top", () => {
+    expect(validate(page(".badge { position: relative; top: -4px; }")).ok).toBe(true);
   });
 
-  it("refuse position: relative sans aucun decalage", () => {
-    // Échec ciblé : sans décalage, `relative` ne déplace rien.
-    expect(valider(page(".badge { position: relative; }")).ok).toBe(false);
+  it("rejects position: relative without any offset", () => {
+    // Targeted failure: without an offset, `relative` moves nothing.
+    expect(validate(page(".badge { position: relative; }")).ok).toBe(false);
   });
 
-  it("refuse un decalage sans position: relative", () => {
-    expect(valider(page(".badge { top: -4px; }")).ok).toBe(false);
+  it("rejects an offset without position: relative", () => {
+    expect(validate(page(".badge { top: -4px; }")).ok).toBe(false);
   });
 
-  it("refuse padding-top, qui n'est pas un decalage de positionnement", () => {
-    // `padding-top` contient « top » précédé d'un tiret : une vérification par
-    // \b le compterait comme un décalage.
-    expect(valider(page(".badge { position: relative; padding-top: 4px; }")).ok).toBe(
+  it("rejects padding-top, which is not a positioning offset", () => {
+    // `padding-top` contains "top" preceded by a hyphen: a \b-based check
+    // would count it as an offset.
+    expect(validate(page(".badge { position: relative; padding-top: 4px; }")).ok).toBe(
       false
     );
   });
 });
 
-describe("CSS chapitre 6 — etape 2 (enfant absolu dans un parent relatif)", () => {
-  const valider = validators[1];
+describe("CSS chapter 6 — step 2 (absolute child inside a relative parent)", () => {
+  const validate = validators[1];
 
   const OK = ".card { position: relative; } .ribbon { position: absolute; top: 0; right: 0; }";
 
-  it("accepte un parent relatif et un enfant absolu ancre", () => {
-    expect(valider(page(OK)).ok).toBe(true);
+  it("accepts a relative parent and an anchored absolute child", () => {
+    expect(validate(page(OK)).ok).toBe(true);
   });
 
-  it("refuse quand le parent n'est pas relatif", () => {
+  it("rejects when the parent is not relative", () => {
     expect(
-      valider(page(".ribbon { position: absolute; top: 0; right: 0; }")).ok
+      validate(page(".ribbon { position: absolute; top: 0; right: 0; }")).ok
     ).toBe(false);
   });
 
-  it("refuse quand l'enfant absolu n'est pas ancre", () => {
+  it("rejects when the absolute child is not anchored", () => {
     expect(
-      valider(page(".card { position: relative; } .ribbon { position: absolute; }")).ok
+      validate(page(".card { position: relative; } .ribbon { position: absolute; }")).ok
     ).toBe(false);
   });
 });
 
-describe("CSS chapitre 6 — etape 3 (barre fixe en haut)", () => {
-  const valider = validators[2];
+describe("CSS chapter 6 — step 3 (bar fixed at the top)", () => {
+  const validate = validators[2];
 
-  it("accepte position: fixed avec top: 0", () => {
-    expect(valider(page(".topbar { position: fixed; top: 0; }")).ok).toBe(true);
+  it("accepts position: fixed with top: 0", () => {
+    expect(validate(page(".topbar { position: fixed; top: 0; }")).ok).toBe(true);
   });
 
-  it("accepte top: 0px, la meme valeur ecrite avec son unite", () => {
-    expect(valider(page(".topbar { position: fixed; top: 0px; }")).ok).toBe(true);
+  it("accepts top: 0px, the same value written with its unit", () => {
+    expect(validate(page(".topbar { position: fixed; top: 0px; }")).ok).toBe(true);
   });
 
-  it("refuse position: absolute, qui ne reste pas au defilement", () => {
-    expect(valider(page(".topbar { position: absolute; top: 0; }")).ok).toBe(false);
+  it("rejects position: absolute, which does not stay put on scroll", () => {
+    expect(validate(page(".topbar { position: absolute; top: 0; }")).ok).toBe(false);
   });
 
-  it("refuse un top non nul, qui n'ancre pas la barre en haut", () => {
-    expect(valider(page(".topbar { position: fixed; top: 20px; }")).ok).toBe(false);
+  it("rejects a non-zero top, which does not anchor the bar at the top", () => {
+    expect(validate(page(".topbar { position: fixed; top: 20px; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 6 — etape 4 (titre collant)", () => {
-  const valider = validators[3];
+describe("CSS chapter 6 — step 4 (sticky heading)", () => {
+  const validate = validators[3];
 
-  it("accepte position: sticky avec un top defini", () => {
-    expect(valider(page(".section-title { position: sticky; top: 0; }")).ok).toBe(true);
+  it("accepts position: sticky with a top set", () => {
+    expect(validate(page(".section-title { position: sticky; top: 0; }")).ok).toBe(true);
   });
 
-  it("accepte position: sticky avec un bottom défini", () => {
-    expect(valider(page(".section-title { position: sticky; bottom: 0; }")).ok).toBe(true);
+  it("accepts position: sticky with a bottom set", () => {
+    expect(validate(page(".section-title { position: sticky; bottom: 0; }")).ok).toBe(true);
   });
 
-  it("refuse margin-bottom, qui ne remplace pas le bottom", () => {
+  it("rejects margin-bottom, which does not replace bottom", () => {
     expect(
-      valider(page(".section-title { position: sticky; margin-bottom: 10px; }")).ok
+      validate(page(".section-title { position: sticky; margin-bottom: 10px; }")).ok
     ).toBe(false);
   });
 
-  it("refuse sticky sans top, qui ne colle a rien", () => {
-    expect(valider(page(".section-title { position: sticky; }")).ok).toBe(false);
+  it("rejects sticky without top, which sticks to nothing", () => {
+    expect(validate(page(".section-title { position: sticky; }")).ok).toBe(false);
   });
 
-  it("refuse position: fixed, qui sort le titre du flux", () => {
-    expect(valider(page(".section-title { position: fixed; top: 0; }")).ok).toBe(false);
+  it("rejects position: fixed, which takes the heading out of the flow", () => {
+    expect(validate(page(".section-title { position: fixed; top: 0; }")).ok).toBe(false);
   });
 
-  it("refuse margin-top, qui ne remplace pas le top exige par sticky", () => {
+  it("rejects margin-top, which does not replace the top that sticky requires", () => {
     expect(
-      valider(page(".section-title { position: sticky; margin-top: 10px; }")).ok
+      validate(page(".section-title { position: sticky; margin-top: 10px; }")).ok
     ).toBe(false);
   });
 });

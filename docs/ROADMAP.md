@@ -301,7 +301,7 @@ s'affiche jamais.
 - [x] L'aperçu React, l'aperçu HTML et le sandbox JS sont servis depuis une origine dédiée (`/bac-a-sable`) — EXE-03
 - [x] La CSP de l'application passe aux nonces et perd `'unsafe-inline'` — EXE-03
 - [x] La CSP de l'application perd `'unsafe-eval'` (en production) — EXE-03
-- [x] L'aperçu React et le cursus JavaScript fonctionnent toujours, prouvé en e2e contre un build de production — `csp-stricte`, `react-preview`, `securite-boucles`
+- [x] L'aperçu React et le cursus JavaScript fonctionnent toujours, prouvé en e2e contre un build de production — `strict-csp`, `react-preview`, `security-loops`
 
 ### CF-16 · Auto-héberger Monaco (retirer la dépendance CDN)
 **P2 · M · Robustesse/Perf**
@@ -388,11 +388,11 @@ imprimée dans son propre indice. Détail dans `docs/RAPPORT_VALIDATEURS.md`.
 
 **Acceptation**
 - [x] Chaque cursus a ≥ 1 test de validateur (cas passant + échec) — `all-chapter-1.test.ts`
-- [x] Chaque étape a un validateur, et son code de départ ne la valide pas — `parcours-integrite.test.ts`, 197 tests sur les 48 chapitres
+- [x] Chaque étape a un validateur, et son code de départ ne la valide pas — `course-integrity.test.ts`, 197 tests sur les 48 chapitres
 - [x] `css` : les 10 chapitres, 4 étapes chacun
 - [x] Les 9 cursus mono-chapitre : étapes 2 à 4
 - [x] `react` : chapitres 1 à 4 (5 à 8 étaient déjà couverts)
-- [x] `html` : les 8 chapitres — `html-parcours.test.ts` ne vérifiait qu'une structure, aucun comportement
+- [x] `html` : les 8 chapitres — `html-course.test.ts` ne vérifiait qu'une structure, aucun comportement
 - [x] `javascript` : chapitres 2 à 12
 
 **Les 191 étapes du parcours sont couvertes.** 694 tests ajoutés au total.

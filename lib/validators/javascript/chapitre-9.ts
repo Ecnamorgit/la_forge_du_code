@@ -6,11 +6,11 @@ function runtimeError(error: string | null): string | null {
 }
 
 /**
- * Chapitre asynchrone : le bac à sable attend 300 ms après l'exécution avant de
- * renvoyer les logs, ce qui couvre les délais des exercices (10 à 50 ms).
+ * Async chapter: the sandbox waits 300 ms after the run before returning
+ * the logs, which covers the delays used in the exercises (10 to 50 ms).
  */
 export const validators: Validator[] = [
-  // Étape 1 : new Promise et .then, affiche 'OK'
+  // Step 1: new Promise and .then, prints 'OK'
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -30,7 +30,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Promesse tenue.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : fonction async et await, affiche 'Mission lunaire'
+  // Step 2: async function and await, prints 'Mission lunaire'
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -47,7 +47,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Flux synchronisé.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : try/catch avec await, log contenant 'timeout'
+  // Step 3: try/catch with await, log containing 'timeout'
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -64,7 +64,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Erreur interceptée.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : Promise.all qui renvoie [1, 2, 3]
+  // Step 4: Promise.all that returns [1, 2, 3]
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);

@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-// En-têtes de sécurité à valeur fixe. La CSP, à nonce, est posée par `proxy.ts`.
+// Fixed-value security headers. The nonce-based CSP is set by `proxy.ts`.
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
@@ -22,17 +22,17 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
-  // N'annonce pas le framework dans les réponses.
+  // Does not advertise the framework in responses.
   poweredByHeader: false,
   async headers() {
-    // Le bac à sable pose lui-même sa CSP permissive et son `frame-ancestors`,
-    // incompatibles avec ces en-têtes (audit EXE-03).
+    // The sandbox sets its own permissive CSP and `frame-ancestors`,
+    // which are incompatible with these headers (audit EXE-03).
     return [{ source: "/((?!bac-a-sable).*)", headers: securityHeaders }];
   },
   experimental: {
     optimizePackageImports: ["@monaco-editor/react"],
-    // Cache de compilation Turbopack conservé dans .next entre deux exécutions
-    // (actif par défaut en dev depuis Next 16.1, optionnel pour le build).
+    // Turbopack compilation cache kept in .next between runs
+    // (on by default in dev since Next 16.1, opt-in for the build).
     turbopackFileSystemCacheForDev: true,
     turbopackFileSystemCacheForBuild: true,
   },

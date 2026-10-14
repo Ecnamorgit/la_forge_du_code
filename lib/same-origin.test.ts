@@ -2,18 +2,18 @@ import { describe, it, expect } from "vitest";
 
 import { crossOriginRefusal, isCrossOriginRequest } from "./same-origin";
 
-const requete = (headers: Record<string, string>) =>
+const makeRequest = (headers: Record<string, string>) =>
   new Request("http://interne:3000/api/me/visit", { method: "POST", headers });
 
 describe("isCrossOriginRequest", () => {
-  it("accepte la même origine", () => {
+  it("accepts the same origin", () => {
     expect(
-      isCrossOriginRequest(requete({ origin: "https://www.laforgeducode.fr", host: "www.laforgeducode.fr" }))
+      isCrossOriginRequest(makeRequest({ origin: "https://www.laforgeducode.fr", host: "www.laforgeducode.fr" }))
     ).toBe(false);
   });
 
-  it("compare à x-forwarded-host avant host, comme derrière Vercel", () => {
-    const req = requete({
+  it("compares against x-forwarded-host before host, as behind Vercel", () => {
+    const req = makeRequest({
       origin: "https://www.laforgeducode.fr",
       host: "interne:3000",
       "x-forwarded-host": "www.laforgeducode.fr",
@@ -21,44 +21,44 @@ describe("isCrossOriginRequest", () => {
     expect(isCrossOriginRequest(req)).toBe(false);
   });
 
-  it("refuse une autre origine", () => {
+  it("rejects another origin", () => {
     expect(
-      isCrossOriginRequest(requete({ origin: "https://piege.example", host: "www.laforgeducode.fr" }))
+      isCrossOriginRequest(makeRequest({ origin: "https://piege.example", host: "www.laforgeducode.fr" }))
     ).toBe(true);
   });
 
-  it("refuse un sous-domaine, que SameSite laisserait passer", () => {
+  it("rejects a subdomain, which SameSite would let through", () => {
     expect(
       isCrossOriginRequest(
-        requete({ origin: "https://bac-a-sable.laforgeducode.fr", host: "www.laforgeducode.fr" })
+        makeRequest({ origin: "https://bac-a-sable.laforgeducode.fr", host: "www.laforgeducode.fr" })
       )
     ).toBe(true);
   });
 
-  it("refuse l'origine opaque « null » d'une iframe sandboxée", () => {
-    expect(isCrossOriginRequest(requete({ origin: "null", host: "www.laforgeducode.fr" }))).toBe(true);
+  it("rejects the opaque 'null' origin of a sandboxed iframe", () => {
+    expect(isCrossOriginRequest(makeRequest({ origin: "null", host: "www.laforgeducode.fr" }))).toBe(true);
   });
 
-  it("se rabat sur Sec-Fetch-Site sans en-tête Origin", () => {
-    expect(isCrossOriginRequest(requete({ "sec-fetch-site": "cross-site" }))).toBe(true);
-    expect(isCrossOriginRequest(requete({ "sec-fetch-site": "same-site" }))).toBe(true);
-    expect(isCrossOriginRequest(requete({ "sec-fetch-site": "same-origin" }))).toBe(false);
+  it("falls back to Sec-Fetch-Site without an Origin header", () => {
+    expect(isCrossOriginRequest(makeRequest({ "sec-fetch-site": "cross-site" }))).toBe(true);
+    expect(isCrossOriginRequest(makeRequest({ "sec-fetch-site": "same-site" }))).toBe(true);
+    expect(isCrossOriginRequest(makeRequest({ "sec-fetch-site": "same-origin" }))).toBe(false);
   });
 
-  it("laisse passer un client hors navigateur, sans Origin ni Sec-Fetch-Site", () => {
-    expect(isCrossOriginRequest(requete({}))).toBe(false);
+  it("lets a non-browser client through, without Origin or Sec-Fetch-Site", () => {
+    expect(isCrossOriginRequest(makeRequest({}))).toBe(false);
   });
 });
 
 describe("crossOriginRefusal", () => {
-  it("répond 403 à une autre origine", async () => {
-    const res = crossOriginRefusal(requete({ origin: "https://piege.example", host: "www.laforgeducode.fr" }));
+  it("responds 403 to another origin", async () => {
+    const res = crossOriginRefusal(makeRequest({ origin: "https://piege.example", host: "www.laforgeducode.fr" }));
     expect(res?.status).toBe(403);
   });
 
-  it("ne répond rien à la même origine", () => {
+  it("returns nothing for the same origin", () => {
     expect(
-      crossOriginRefusal(requete({ origin: "https://www.laforgeducode.fr", host: "www.laforgeducode.fr" }))
+      crossOriginRefusal(makeRequest({ origin: "https://www.laforgeducode.fr", host: "www.laforgeducode.fr" }))
     ).toBeNull();
   });
 });

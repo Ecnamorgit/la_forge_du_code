@@ -6,14 +6,14 @@ import { nullProgressLabel, nullProgressAriaLabel } from "@/lib/null-progress";
 
 interface NullProgressBarProps {
   course: string;
-  /** Chapitres jouables du cursus (slug + nombre d'étapes), pour le calcul. */
+  /** The course's playable chapters (slug + step count), for the computation. */
   chapters: { slug: string; totalSteps: number }[];
 }
 
 /**
- * Jauge « recul du Spectre » d'un cursus : la corruption (violet) est repoussée
- * par un remplissage cyan→vert à mesure des étapes validées. Progression lue
- * via getCourseProgress ; rendu stable (0 %) tant que le store n'est pas hydraté.
+ * A course's « recul du Spectre » (Spectre retreat) gauge: the corruption
+ * (purple) is pushed back by a cyan→green fill as steps are completed. Progress
+ * is read via getCourseProgress; stable render (0%) until the store is hydrated.
  */
 export default function NullProgressBar({ course, chapters }: NullProgressBarProps) {
   const { state, hydrated } = useUser();

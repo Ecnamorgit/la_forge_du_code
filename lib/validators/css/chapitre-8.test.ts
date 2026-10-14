@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-8";
 
 /**
- * Chapitre 8 — responsive : largeurs fluides, media queries, clamp().
+ * Chapter 8 — responsive: fluid widths, media queries, clamp().
  */
 
-/** Page complète avec le CSS donné. */
+/** Full page with the given CSS. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -24,76 +24,76 @@ function page(css: string): string {
 </html>`;
 }
 
-describe("CSS chapitre 8 — etape 1 (largeur fluide)", () => {
-  const valider = validators[0];
+describe("CSS chapter 8 — step 1 (fluid width)", () => {
+  const validate = validators[0];
 
-  it("accepte max-width sur .container", () => {
-    expect(valider(page(".container { max-width: 800px; }")).ok).toBe(true);
+  it("accepts max-width on .container", () => {
+    expect(validate(page(".container { max-width: 800px; }")).ok).toBe(true);
   });
 
-  it("accepte max-width accompagne de width: 100%", () => {
-    expect(valider(page(".container { max-width: 800px; width: 100%; }")).ok).toBe(true);
+  it("accepts max-width together with width: 100%", () => {
+    expect(validate(page(".container { max-width: 800px; width: 100%; }")).ok).toBe(true);
   });
 
-  it("refuse une largeur figee a 800px laissee en dur", () => {
-    // Échec ciblé : max-width est là, mais le width figé annule la fluidité.
-    expect(valider(page(".container { max-width: 800px; width: 800px; }")).ok).toBe(false);
+  it("rejects a width left hard-coded at 800px", () => {
+    // Targeted failure: max-width is there, but the fixed width cancels the fluidity.
+    expect(validate(page(".container { max-width: 800px; width: 800px; }")).ok).toBe(false);
   });
 
-  it("refuse width seul, sans max-width", () => {
-    expect(valider(page(".container { width: 100%; }")).ok).toBe(false);
+  it("rejects width alone, without max-width", () => {
+    expect(validate(page(".container { width: 100%; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 8 — etape 2 (media query sur le titre)", () => {
-  const valider = validators[1];
+describe("CSS chapter 8 — step 2 (media query on the heading)", () => {
+  const validate = validators[1];
 
-  it("accepte une media query qui redefinit font-size sur h1", () => {
+  it("accepts a media query that redefines font-size on h1", () => {
     const css = "@media (max-width: 600px) { h1 { font-size: 24px; } }";
-    expect(valider(page(css)).ok).toBe(true);
+    expect(validate(page(css)).ok).toBe(true);
   });
 
-  it("refuse une media query qui ne touche pas au h1", () => {
+  it("rejects a media query that does not touch the h1", () => {
     const css = "@media (max-width: 600px) { .container { padding: 8px; } }";
-    expect(valider(page(css)).ok).toBe(false);
+    expect(validate(page(css)).ok).toBe(false);
   });
 
-  it("refuse un font-size sur h1 pose hors de toute media query", () => {
-    expect(valider(page("h1 { font-size: 24px; }")).ok).toBe(false);
+  it("rejects a font-size on h1 set outside any media query", () => {
+    expect(validate(page("h1 { font-size: 24px; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 8 — etape 3 (grille repliee en une colonne)", () => {
-  const valider = validators[2];
+describe("CSS chapter 8 — step 3 (grid collapsed to one column)", () => {
+  const validate = validators[2];
 
-  it("accepte .grid ramene a une colonne dans une media query", () => {
+  it("accepts .grid reduced to one column in a media query", () => {
     const css = "@media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }";
-    expect(valider(page(css)).ok).toBe(true);
+    expect(validate(page(css)).ok).toBe(true);
   });
 
-  it("refuse une media query qui laisse deux colonnes", () => {
+  it("rejects a media query that leaves two columns", () => {
     const css = "@media (max-width: 600px) { .grid { grid-template-columns: 1fr 1fr; } }";
-    expect(valider(page(css)).ok).toBe(false);
+    expect(validate(page(css)).ok).toBe(false);
   });
 
-  it("refuse une colonne unique posee hors media query", () => {
-    expect(valider(page(".grid { grid-template-columns: 1fr; }")).ok).toBe(false);
+  it("rejects a single column set outside a media query", () => {
+    expect(validate(page(".grid { grid-template-columns: 1fr; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 8 — etape 4 (typographie fluide au clamp)", () => {
-  const valider = validators[3];
+describe("CSS chapter 8 — step 4 (fluid typography with clamp)", () => {
+  const validate = validators[3];
 
-  it("accepte clamp() avec une unite vw", () => {
-    expect(valider(page("h1 { font-size: clamp(24px, 4vw, 48px); }")).ok).toBe(true);
+  it("accepts clamp() with a vw unit", () => {
+    expect(validate(page("h1 { font-size: clamp(24px, 4vw, 48px); }")).ok).toBe(true);
   });
 
-  it("refuse clamp() sans unite relative au viewport", () => {
-    // Échec ciblé : la fonction est là, mais rien ne varie avec l'écran.
-    expect(valider(page("h1 { font-size: clamp(24px, 32px, 48px); }")).ok).toBe(false);
+  it("rejects clamp() without a viewport-relative unit", () => {
+    // Targeted failure: the function is there, but nothing varies with the screen.
+    expect(validate(page("h1 { font-size: clamp(24px, 32px, 48px); }")).ok).toBe(false);
   });
 
-  it("refuse une taille fixe, sans clamp()", () => {
-    expect(valider(page("h1 { font-size: 32px; }")).ok).toBe(false);
+  it("rejects a fixed size, without clamp()", () => {
+    expect(validate(page("h1 { font-size: 32px; }")).ok).toBe(false);
   });
 });

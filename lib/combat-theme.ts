@@ -1,12 +1,12 @@
 /**
- * Thème visuel du visualiseur de combat, dérivé du cursus. Le beat de succès
- * (geste constructif) diffère par thème ; le beat d'échec reste partagé.
+ * Visual theme of the combat visualizer, derived from the course. The success
+ * beat (constructive gesture) differs per theme; the failure beat is shared.
  */
 export type CombatTheme = "turret" | "repair" | "field";
 
 /**
- * Thème de combat d'un cursus, à partir de son slug (`"html"`, `"css"`,
- * `"javascript"`…). Tout cursus non ciblé retombe sur `"turret"`.
+ * Combat theme of a course, from its slug (`"html"`, `"css"`,
+ * `"javascript"`…). Any course not listed falls back to `"turret"`.
  */
 export function combatThemeForCourse(course: string): CombatTheme {
   if (course === "html") return "repair";

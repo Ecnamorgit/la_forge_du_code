@@ -2,10 +2,10 @@ import { test, expect } from "@playwright/test";
 
 import { STORAGE_STATE } from "./global-setup";
 
-// Session partagée écrite par global-setup (limite de connexions par IP).
+// Shared session written by global-setup (per-IP login limit).
 test.use({ storageState: STORAGE_STATE });
 
-test("le panneau de doc s'ouvre depuis un chip et se ferme avec Échap", async ({
+test("the doc panel opens from a chip and closes with Escape", async ({
   page,
 }) => {
   await page.goto("/learn/html/chapitre-1");
@@ -13,7 +13,7 @@ test("le panneau de doc s'ouvre depuis un chip et se ferme avec Échap", async (
   const panel = page.getByTestId("doc-panel");
   await expect(panel).toHaveAttribute("aria-hidden", "true");
 
-  // Chip inline dans le briefing.
+  // Inline chip in the briefing.
   await page.locator('button[data-doc-id="html/doctype"]').first().click();
   await expect(panel).toHaveAttribute("aria-hidden", "false");
   await expect(panel.getByText("La déclaration <!DOCTYPE html>")).toBeVisible();
@@ -21,7 +21,7 @@ test("le panneau de doc s'ouvre depuis un chip et se ferme avec Échap", async (
   await page.keyboard.press("Escape");
   await expect(panel).toHaveAttribute("aria-hidden", "true");
 
-  // Cluster « Références de cette étape ».
+  // The "Références de cette étape" (this step's references) cluster.
   await page.locator('button[data-doc-ref="html/html-element"]').click();
   await expect(panel).toHaveAttribute("aria-hidden", "false");
   await expect(panel.getByText("L'élément racine <html>")).toBeVisible();

@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, ruleBody } from "./_utils";
 
 export const validators: Validator[] = [
-  // Étape 1 : transition sur .btn, avec une durée en secondes
+  // Step 1: transition on .btn, with a duration in seconds
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Transition fluide.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : .card:hover avec un transform
+  // Step 2: .card:hover with a transform
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -27,7 +27,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Effet d'échelle.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : une @keyframes, appliquée à .pulse via animation
+  // Step 3: an @keyframes, applied to .pulse through animation
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };
@@ -41,7 +41,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Pulsation active.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : @keyframes avec rotate, et animation infinie sur .icon
+  // Step 4: @keyframes with rotate, and an infinite animation on .icon
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) return { ok: false, msg: "La balise <style> est manquante." };

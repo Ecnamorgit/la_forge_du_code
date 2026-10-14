@@ -2,36 +2,36 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * DevOps chapitre 1 — étapes 2 à 4.
+ * DevOps chapter 1 — steps 2 to 4.
  *
- * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
+ * Step 1 is already covered by `lib/validators/all-chapter-1.test.ts`.
  *
- * L'étape 3 ne retire pas les commentaires `#` : dans un .gitignore, ce sont
- * des libellés de section qui font partie de la réponse. Les tests l'exercent
- * avec de vrais commentaires.
+ * Step 3 does not strip `#` comments: in a .gitignore, they are section
+ * labels that are part of the answer. The tests exercise it with real
+ * comments.
  */
 
-describe("DevOps — etape 2 (deploiement Vercel)", () => {
-  const valider = validators[1];
+describe("DevOps — step 2 (Vercel deployment)", () => {
+  const validate = validators[1];
 
-  it("accepte l'installation de la CLI suivie du login", () => {
-    expect(valider("npm install -g vercel\nvercel login\nvercel").ok).toBe(true);
+  it("accepts installing the CLI followed by login", () => {
+    expect(validate("npm install -g vercel\nvercel login\nvercel").ok).toBe(true);
   });
 
-  it("refuse un deploiement sans installer la CLI", () => {
-    expect(valider("vercel login\nvercel").ok).toBe(false);
+  it("rejects a deployment without installing the CLI", () => {
+    expect(validate("vercel login\nvercel").ok).toBe(false);
   });
 
-  it("refuse une installation locale au lieu de globale", () => {
-    // Échec ciblé : l'étape enseigne l'installation globale (-g).
-    expect(valider("npm install vercel\nvercel login").ok).toBe(false);
+  it("rejects a local install instead of a global one", () => {
+    // Targeted failure: the step teaches the global install (-g).
+    expect(validate("npm install vercel\nvercel login").ok).toBe(false);
   });
 });
 
-describe("DevOps — etape 3 (variables d'environnement)", () => {
-  const valider = validators[2];
+describe("DevOps — step 3 (environment variables)", () => {
+  const validate = validators[2];
 
-  it("accepte un .env, un .gitignore et un .env.example", () => {
+  it("accepts a .env, a .gitignore and a .env.example", () => {
     const code = `# .env
 API_URL=https://api.codeforge.space
 DB_PASSWORD=secret
@@ -44,11 +44,11 @@ DB_PASSWORD=secret
 # .env.example
 API_URL=
 DB_PASSWORD=`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un .env non ignore par git", () => {
-    // Échec ciblé : c'est l'oubli qui fait fuiter les secrets.
+  it("rejects a .env not ignored by git", () => {
+    // Targeted failure: this is the omission that leaks secrets.
     const code = `# .env
 API_URL=https://api.codeforge.space
 DB_PASSWORD=secret
@@ -56,10 +56,10 @@ DB_PASSWORD=secret
 # .env.example
 API_URL=
 DB_PASSWORD=`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse l'absence de .env.example", () => {
+  it("rejects a missing .env.example", () => {
     const code = `# .env
 API_URL=https://api.codeforge.space
 DB_PASSWORD=secret
@@ -67,14 +67,14 @@ DB_PASSWORD=secret
 # .gitignore
 .env
 .env.local`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("DevOps — etape 4 (Dockerfile)", () => {
-  const valider = validators[3];
+describe("DevOps — step 4 (Dockerfile)", () => {
+  const validate = validators[3];
 
-  const COMPLET = `FROM node:20-alpine
+  const COMPLETE = `FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -82,27 +82,27 @@ COPY . .
 EXPOSE 3000
 CMD ["node", "server.js"]`;
 
-  it("accepte un Dockerfile complet", () => {
-    expect(valider(COMPLET).ok).toBe(true);
+  it("accepts a complete Dockerfile", () => {
+    expect(validate(COMPLETE).ok).toBe(true);
   });
 
-  it("refuse un Dockerfile sans installation des dependances", () => {
-    // Échec ciblé : toutes les directives sont là sauf le RUN npm ci.
+  it("rejects a Dockerfile that does not install dependencies", () => {
+    // Targeted failure: every directive is there except RUN npm ci.
     const code = `FROM node:20-alpine
 WORKDIR /app
 COPY . .
 EXPOSE 3000
 CMD ["node", "server.js"]`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un Dockerfile qui n'expose aucun port", () => {
+  it("rejects a Dockerfile that exposes no port", () => {
     const code = `FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
 CMD ["node", "server.js"]`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });

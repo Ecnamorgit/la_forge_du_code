@@ -1,20 +1,20 @@
 /**
- * Logique pure de la cinématique d'intro, sans dépendance DOM au chargement
- * pour rester testable sous node. Les accès au storage sont gardés par
+ * Pure logic for the intro cinematic, with no DOM dependency at load time
+ * so it stays testable under node. Storage access is guarded by
  * `typeof window`.
  */
 
 export const INTRO_STORAGE_KEY = "nc_intro_seen";
 
-/** Durée d'affichage d'une scène avant auto-défilement (ms). */
+/** How long a scene is shown before auto-advancing (ms). */
 export const INTRO_SCENE_DURATION_MS = 4500;
 
 export interface IntroScene {
-  /** Index stable, qui sert aussi de numéro de frame dans INTRO_CINEMATIC. */
+  /** Stable index, also used as the frame number in INTRO_CINEMATIC. */
   id: number;
-  /** Narration affichée en texte réel (lisible par lecteur d'écran). */
+  /** Narration shown as real text (readable by screen readers). */
   narration: string;
-  /** Variante visuelle de repli, composée d'images existantes. */
+  /** Fallback visual variant, built from existing images. */
   visual: "logo" | "cadet" | "orbit" | "planet" | "invite";
 }
 
@@ -47,8 +47,8 @@ export const INTRO_SCENES: IntroScene[] = [
 ];
 
 /**
- * Mémorise que l'intro a été vue, pour qu'elle ne se lance d'elle-même qu'une
- * fois par navigateur ; sans effet si le storage est indisponible.
+ * Records that the intro has been seen, so it only auto-plays once
+ * per browser; no effect if storage is unavailable.
  */
 export function markIntroSeen(): void {
   if (typeof window === "undefined") return;
@@ -59,13 +59,13 @@ export function markIntroSeen(): void {
   }
 }
 
-/** L'intro a-t-elle déjà été vue dans ce navigateur ? */
+/** Has the intro already been seen in this browser? */
 export function hasSeenIntro(): boolean {
   if (typeof window === "undefined") return true;
   try {
     return window.localStorage.getItem(INTRO_STORAGE_KEY) === "true";
   } catch {
-    // Storage indisponible : ne pas imposer l'intro à chaque navigation.
+    // Storage unavailable: do not force the intro on every navigation.
     return true;
   }
 }

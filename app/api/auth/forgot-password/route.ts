@@ -12,10 +12,10 @@ const bodySchema = z.object({
   email: z.string().email().max(254),
 });
 
-/** Répond 200 que l'adresse soit inscrite ou non, pour ne pas la révéler. */
+/** Responds 200 whether or not the address is registered, so as not to reveal it. */
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   const limit = await rateLimit(`forgot:${getClientIp(req)}`, {
     limit: 5,
@@ -42,13 +42,13 @@ export async function POST(req: Request) {
   });
 
   if (user && user.password) {
-    // Après la réponse : attendre l'envoi rendrait la réponse plus lente pour
-    // une adresse inscrite, et le délai révélerait le compte.
+    // After the response: waiting for the email to be sent would slow the response
+    // for a registered address, and the delay would reveal the account.
     after(async () => {
       try {
         const token = await createToken({ userId: user.id, kind: "password_reset" });
-        const envoi = await sendPasswordResetEmail({ to: user.email, token });
-        if (!envoi.ok) logger.warn("forgot-password: échec de l'envoi", { error: envoi.error });
+        const sendResult = await sendPasswordResetEmail({ to: user.email, token });
+        if (!sendResult.ok) logger.warn("forgot-password: échec de l'envoi", { error: sendResult.error });
       } catch (err) {
         logger.error("forgot-password: échec de la création du jeton", {
           error: err instanceof Error ? err.message : String(err),

@@ -12,7 +12,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : console.log("Bonjour, station Nebula")
+  // Step 1: console.log("Bonjour, station Nebula")
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -32,7 +32,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Étape 2 : une variable let, affichée avec console.log
+  // Step 2: a let variable, printed with console.log
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -49,7 +49,7 @@ export const validators: Validator[] = [
         msg: "La console ne reçoit rien — vérifie ton console.log.",
       };
     }
-    // Le console.log doit recevoir la variable elle-même, pas une chaîne.
+    // console.log must receive the variable itself, not a string.
     const stripped = stripComments(code);
     const letMatch = stripped.match(/\blet\s+([a-zA-Z_$][\w$]*)\s*=/);
     if (!letMatch) {
@@ -71,7 +71,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Étape 3 : const et 3 types primitifs affichés
+  // Step 3: const and 3 primitive types printed
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -106,7 +106,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Étape 4 : template literal interpolant au moins 2 variables
+  // Step 4: template literal interpolating at least 2 variables
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);

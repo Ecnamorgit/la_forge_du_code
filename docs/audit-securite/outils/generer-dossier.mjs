@@ -1,9 +1,9 @@
-// Genere un dossier BLACKPROOF (proofpack v3) a partir d'un fichier de donnees d'audit.
-// Usage : node generer-dossier.mjs <depot> <donnees.mjs> <dossier-sortie>
+// Generates a BLACKPROOF bundle (proofpack v3) from an audit data file.
+// Usage: node generer-dossier.mjs <repo> <data.mjs> <output-dir>
 //
-// Les preuves tirees du code sont lues dans le commit audite (`git show`), pas dans
-// l'arbre de travail : leur empreinte reste verifiable apres les corrections, par
-// `git show <commit>:<fichier> | sha256sum`.
+// Evidence taken from the code is read from the audited commit (`git show`), not
+// from the working tree: its hash stays verifiable after the fixes, with
+// `git show <commit>:<file> | sha256sum`.
 import { execFileSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -16,8 +16,8 @@ const { data } = await import(pathToFileURL(path.resolve(dataFile)).href);
 fs.mkdirSync(path.join(out, "annexes"), { recursive: true });
 
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
-// Canonisation BLACKPROOF : cles triees recursivement, sans espaces.
-// Verifie sur proofpack-demo.json : reproduit l'empreinte publiee.
+// BLACKPROOF canonicalization: keys sorted recursively, no whitespace.
+// Checked against proofpack-demo.json: reproduces the published fingerprint.
 const canon = (v) =>
   Array.isArray(v)
     ? "[" + v.map(canon).join(",") + "]"
@@ -31,10 +31,10 @@ const now = `${date}T00:00:00.000Z`;
 const stamp = date.replaceAll("-", "");
 const gitShow = (file) => execFileSync("git", ["-C", repo, "show", `${commit}:${file}`]);
 
-// Annexe generee : carte des routes.
+// Generated annex: route map.
 fs.writeFileSync(path.join(out, "annexes", "carte-des-routes.md"), data.routeMapMd);
 
-// --- preuves : empreinte calculee sur le fichier du commit audite, ou sur l'annexe
+// --- evidence: hash computed on the file from the audited commit, or on the annex
 const evidenceOut = evidence.map(({ repoFile, annexFile, ...e }) => {
   const rel = repoFile ?? `annexes/${annexFile}`;
   const bytes = repoFile ? gitShow(repoFile) : fs.readFileSync(path.join(out, "annexes", annexFile));
@@ -55,12 +55,12 @@ const evidenceOut = evidence.map(({ repoFile, annexFile, ...e }) => {
   };
 });
 
-// --- questionnaire source (texte, une question par ligne)
+// --- source questionnaire (text, one question per line)
 const qTxt = questions.map((q, i) => `${i + 1}. ${q.text}`).join("\n") + "\n";
 const qFile = `questionnaire-${slug}.txt`;
 fs.writeFileSync(path.join(out, qFile), qTxt);
 
-// --- scores (methode simple, documentee dans la note de synthese)
+// --- scores (simple method, documented in the summary note)
 const evById = Object.fromEntries(evidenceOut.map((e) => [e.id, e]));
 const answered = questions.filter((q) => q.answerText).length;
 const covered = questions.filter((q) => q.evidenceIds.some((id) => evById[id]?.status === "available")).length;
@@ -96,7 +96,7 @@ const pack = {
   },
   questions: questions.map((q) => ({ ...q, caseId })),
   evidence: evidenceOut,
-  // Le schema v3 refuse les champs inconnus : livrable, echeance et constats restent dans le CSV.
+  // The v3 schema rejects unknown fields: deliverable, due date and findings stay in the CSV.
   debts: debts.map((d) => ({
     id: d.id, kind: d.kind, caseId, questionId: d.questionId, evidenceId: d.evidenceId,
     severity: d.severity, reason: d.reason, recommendedAction: d.recommendedAction,
@@ -117,7 +117,7 @@ const write = (name, content, role, description) => {
 write(`proofpack-${slug}.json`, JSON.stringify(pack, null, 2) + "\n", "machine_contract",
   "ProofPack machine-readable (schema v3) avec liens, resume et empreinte.");
 
-// --- CSV (separateur ; comme la demo)
+// --- CSV (";" separator, like the demo)
 const cell = (v) => {
   const s = Array.isArray(v) ? v.join(" | ") : v == null ? "" : String(v);
   return /[;"\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s;
@@ -139,7 +139,7 @@ write(`plan-remediation-${slug}.csv`, csv(
 write(`rapport-audit-${slug}.md`, data.reportMd(pack), "supplier_answer", "Rapport detaille : reponses, constats, preuves.");
 write(`note-synthese-${slug}.md`, data.summaryMd(pack), "executive_summary", "Synthese de l'audit en une page.");
 
-// Le manifeste inventorie aussi le questionnaire et les annexes.
+// The manifest also lists the questionnaire and the annexes.
 const extra = [qFile, ...fs.readdirSync(path.join(out, "annexes")).sort().map((f) => `annexes/${f}`)];
 const manifest = {
   id: `proofpack_bundle_${slug}_${stamp}`,

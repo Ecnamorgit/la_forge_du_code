@@ -10,7 +10,7 @@ Les autres routes, elles, étaient déjà neutres : « mot de passe oublié » e
 
 ## Démonstration
 
-Test [e2e/securite-inscription.spec.ts](../../../e2e/securite-inscription.spec.ts), commité seul, avant le correctif (commit `11de9f9`). Il compare la réponse pour une adresse déjà inscrite (le compte de test) à celle pour une adresse libre. La suite tourne avec `RESEND_API_KEY=""` dans le shell : aucun e-mail réel ne part pendant les tests.
+Test [e2e/security-signup.spec.ts](../../../e2e/security-signup.spec.ts), commité seul, avant le correctif (commit `11de9f9`). Il compare la réponse pour une adresse déjà inscrite (le compte de test) à celle pour une adresse libre. La suite tourne avec `RESEND_API_KEY=""` dans le shell : aucun e-mail réel ne part pendant les tests.
 
 | Contrôle | Avant correctif | Après correctif |
 |---|---|---|

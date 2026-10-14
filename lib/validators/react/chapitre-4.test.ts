@@ -2,13 +2,13 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-4";
 
 /**
- * React chapitre 4 — react-router : routes, liens, paramètres, navigation.
+ * React chapter 4 — react-router: routes, links, params, navigation.
  */
 
-describe("React chapitre 4 — etape 1 (declarer les routes)", () => {
-  const valider = validators[0];
+describe("React chapter 4 — step 1 (declare the routes)", () => {
+  const validate = validators[0];
 
-  it("accepte un BrowserRouter avec deux routes", () => {
+  it("accepts a BrowserRouter with two routes", () => {
     const code = `function App() {
   return (
     <BrowserRouter>
@@ -19,10 +19,10 @@ describe("React chapitre 4 — etape 1 (declarer les routes)", () => {
     </BrowserRouter>
   );
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse une seule route", () => {
+  it("rejects a single route", () => {
     const code = `function App() {
   return (
     <BrowserRouter>
@@ -32,11 +32,11 @@ describe("React chapitre 4 — etape 1 (declarer les routes)", () => {
     </BrowserRouter>
   );
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse des routes hors de BrowserRouter", () => {
-    // Échec ciblé : sans le routeur, aucune route ne se résout.
+  it("rejects routes outside BrowserRouter", () => {
+    // Targeted failure: without the router, no route resolves.
     const code = `function App() {
   return (
     <Routes>
@@ -45,14 +45,14 @@ describe("React chapitre 4 — etape 1 (declarer les routes)", () => {
     </Routes>
   );
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("React chapitre 4 — etape 2 (navigation par Link)", () => {
-  const valider = validators[1];
+describe("React chapter 4 — step 2 (navigation with Link)", () => {
+  const validate = validators[1];
 
-  it("accepte deux Link dans un nav", () => {
+  it("accepts two Link inside a nav", () => {
     const code = `import { Link } from 'react-router-dom';
 function Menu() {
   return (
@@ -62,11 +62,11 @@ function Menu() {
     </nav>
   );
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse des ancres <a href> a la place des Link", () => {
-    // Échec ciblé : une ancre recharge la page et casse la SPA.
+  it("rejects <a href> anchors instead of Link", () => {
+    // Targeted failure: an anchor reloads the page and breaks the SPA.
     const code = `import { Link } from 'react-router-dom';
 function Menu() {
   return (
@@ -76,10 +76,10 @@ function Menu() {
     </nav>
   );
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse des Link poses hors d'un nav", () => {
+  it("rejects Link placed outside a nav", () => {
     const code = `import { Link } from 'react-router-dom';
 function Menu() {
   return (
@@ -89,68 +89,68 @@ function Menu() {
     </div>
   );
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("React chapitre 4 — etape 3 (parametre d'URL)", () => {
-  const valider = validators[2];
+describe("React chapter 4 — step 3 (URL param)", () => {
+  const validate = validators[2];
 
-  it("accepte useParams lu et affiche", () => {
+  it("accepts useParams read and displayed", () => {
     const code = `import { useParams } from 'react-router-dom';
 function Vaisseau() {
   const { id } = useParams();
   return <div>Vaisseau : {id}</div>;
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un id lu mais jamais affiche", () => {
-    // Échec ciblé : rien ne prouve que le paramètre a été compris.
+  it("rejects an id read but never displayed", () => {
+    // Targeted failure: nothing proves the param was understood.
     const code = `import { useParams } from 'react-router-dom';
 function Vaisseau() {
   const { id } = useParams();
   return <div>Vaisseau</div>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un id passe en prop plutot que lu dans l'URL", () => {
+  it("rejects an id passed as a prop rather than read from the URL", () => {
     const code = `function Vaisseau({ id }) {
   return <div>Vaisseau : {id}</div>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("React chapitre 4 — etape 4 (redirection programmatique)", () => {
-  const valider = validators[3];
+describe("React chapter 4 — step 4 (programmatic redirect)", () => {
+  const validate = validators[3];
 
-  it("accepte useNavigate suivi d'une redirection", () => {
+  it("accepts useNavigate followed by a redirect", () => {
     const code = `import { useNavigate } from 'react-router-dom';
 function Connexion() {
   const navigate = useNavigate();
   return <button onClick={() => navigate('/dashboard')}>Entrer</button>;
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un useNavigate jamais appele", () => {
+  it("rejects a useNavigate that is never called", () => {
     const code = `import { useNavigate } from 'react-router-dom';
 function Connexion() {
   const navigate = useNavigate();
   return <button>Entrer</button>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse une redirection vers une autre destination", () => {
-    // Échec ciblé : l'étape nomme explicitement /dashboard.
+  it("rejects a redirect to another destination", () => {
+    // Targeted failure: the step names /dashboard explicitly.
     const code = `import { useNavigate } from 'react-router-dom';
 function Connexion() {
   const navigate = useNavigate();
   return <button onClick={() => navigate('/accueil')}>Entrer</button>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });

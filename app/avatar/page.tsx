@@ -39,7 +39,7 @@ function AvatarPageInner() {
   const { state, hydrated, setAvatar, setCosmetics } = useUser();
 
   const mode: Mode = state.species ? "edit" : "create";
-  // Chemin interne uniquement, contre la redirection ouverte (audit SRV-06).
+  // Internal path only, to prevent open redirects (audit SRV-06).
   const returnTo = safeInternalPath(searchParams.get("from"));
 
   const [species, setSpecies] = useState<SpeciesId>(
@@ -54,9 +54,9 @@ function AvatarPageInner() {
   const [error, setError] = useState<string | null>(null);
   const [cosmeticError, setCosmeticError] = useState<string | null>(null);
 
-  // Recopie l'état serveur dans le formulaire après hydratation, et à chaque
-  // changement. Fait pendant le rendu plutôt que dans un effet, comme le
-  // recommande React pour ajuster un état à sa source.
+  // Copies the server state into the form after hydration, and on every
+  // change. Done during render rather than in an effect, as React
+  // recommends for adjusting state to its source.
   const seedKey = hydrated
     ? `${state.species ?? ""}|${state.uniformColor ?? ""}|${state.role ?? ""}`
     : null;
@@ -68,8 +68,8 @@ function AvatarPageInner() {
     if (state.role) setRole(state.role as RoleId);
   }
 
-  // Importe la progression du mode essai puis la purge du stockage local. Un
-  // échec ne bloque pas l'onboarding : au pire, un chapitre d'essai est perdu.
+  // Imports the trial-mode progress then purges it from local storage. A
+  // failure does not block onboarding: at worst, a trial chapter is lost.
   useEffect(() => {
     const trialState = readTrialState();
     const steps = trialCompletedSteps(trialState);
@@ -87,7 +87,7 @@ function AvatarPageInner() {
           clearTrialState();
           clearLocalSeen();
         } else {
-          // Seule trace de l'échec : le serveur ne journalise que le succès.
+          // The only trace of the failure: the server only logs success.
           console.warn("trial_import_failed", { status: res.status });
         }
       } catch (err) {
@@ -107,8 +107,8 @@ function AvatarPageInner() {
     badges: state.badges,
     coursesComplete: completionStats.coursesComplete,
     chaptersComplete: completionStats.chaptersComplete,
-    // Sans la possession, l'armurerie reverrouillerait un objet obtenu dès que
-    // sa condition redevient fausse (la liaison retombe à la rupture).
+    // Without ownership, the armory would re-lock an earned item as soon as
+    // its condition becomes false again (the liaison drops when it breaks).
     owned: state.unlocks,
   };
 
@@ -117,8 +117,8 @@ function AvatarPageInner() {
     setError(null);
     setSaving(true);
     try {
-      // `uniformColor` peut être une couleur méritée, choisie dans
-      // l'armurerie : `setAvatar` vérifie que le cadet la possède.
+      // `uniformColor` may be an earned color, picked in the
+      // armory: `setAvatar` checks that the cadet owns it.
       await setAvatar({ species, uniformColor, role });
       router.push(returnTo);
       router.refresh();
@@ -161,7 +161,7 @@ function AvatarPageInner() {
           </p>
         </header>
 
-        {/* Aperçu */}
+        {/* Preview */}
         <div className="mb-10 flex flex-col items-center gap-3 animate-fade-up">
           <AvatarBadge species={species} uniformColor={uniformColor} size={128} />
           <div className="text-center font-tech text-xs uppercase tracking-[0.2em] text-nebula-text-secondary">
@@ -174,7 +174,7 @@ function AvatarPageInner() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-10 animate-fade-up">
-          {/* Espèce */}
+          {/* Species */}
           <Section
             label="Origine"
             description="D'où viens-tu ? Choisis ton espèce d'origine."
@@ -194,7 +194,7 @@ function AvatarPageInner() {
             </div>
           </Section>
 
-          {/* Couleur d'uniforme */}
+          {/* Uniform color */}
           <Section
             label="Couleur d'uniforme"
             description="Affichée comme accent autour de ton avatar."
@@ -227,7 +227,7 @@ function AvatarPageInner() {
             </div>
           </Section>
 
-          {/* Rôle */}
+          {/* Role */}
           <Section
             label="Rôle préféré"
             description="Oriente les cursus recommandés pour ton profil sur la page Cursus."
@@ -247,7 +247,7 @@ function AvatarPageInner() {
             </div>
           </Section>
 
-          {/* Armurerie */}
+          {/* Armory */}
           <Section
             label="Armurerie"
             description="Les objets gagnés en jouant. Les verrouillés restent visibles, avec leur condition — chaque sélection s'enregistre aussitôt."

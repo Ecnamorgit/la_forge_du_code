@@ -1,11 +1,11 @@
 /**
- * Cinématiques vues, persistées dans localStorage (mode essai, sans compte).
- * Les accès au stockage sont gardés par `typeof window` et ne lèvent jamais.
+ * Seen cinematics, persisted in localStorage (trial mode, no account).
+ * Storage access is guarded by `typeof window` and never throws.
  */
 
 export const CINE_SEEN_STORAGE_KEY = "nc_cine_seen";
 
-/** Décode un tableau d'ids ; [] si absent, corrompu ou de forme invalide. */
+/** Decodes an array of ids; [] if missing, corrupted or malformed. */
 export function parseSeenIds(raw: string | null): string[] {
   if (!raw) return [];
   try {
@@ -33,7 +33,7 @@ export function writeLocalSeen(ids: string[]): void {
   try {
     window.localStorage.setItem(CINE_SEEN_STORAGE_KEY, JSON.stringify([...new Set(ids)]));
   } catch {
-    /* navigation privée ou quota : l'essai continue sans persistance */
+    /* private browsing or quota: the trial continues without persistence */
   }
 }
 

@@ -11,7 +11,7 @@ import {
 
 const strip = (code: string) => stripLineComments(code, "//");
 
-/** Noms des hooks personnalisés déclarés (`function useX`, `const useX =`...). */
+/** Names of the declared custom hooks (`function useX`, `const useX =`...). */
 function findCustomHookNames(code: string): string[] {
   const names: string[] = [];
   const re = /(?:function|const|let|var)\s+(use[A-Z]\w*)/g;
@@ -21,9 +21,9 @@ function findCustomHookNames(code: string): string[] {
 }
 
 /**
- * Le hook `name` est-il appelé, en plus d'être déclaré ? On retire d'abord
- * `function <name>`, sinon la déclaration `function useCompteur()` compterait
- * comme un appel (la forme `const useCompteur = () =>` n'a pas ce problème).
+ * Is the hook `name` called, in addition to being declared? We first remove
+ * `function <name>`, otherwise the declaration `function useCompteur()` would
+ * count as a call (the `const useCompteur = () =>` form does not have this issue).
  */
 function isHookCalled(code: string, name: string): boolean {
   const withoutDecl = code.replace(new RegExp(`function\\s+${name}`, "g"), "");
@@ -31,8 +31,8 @@ function isHookCalled(code: string, name: string): boolean {
 }
 
 /**
- * Premier hook personnalisé dont le corps satisfait `predicate`. Chaque hook
- * est évalué séparément : un hook correct ne valide pas un hook incomplet.
+ * First custom hook whose body satisfies `predicate`. Each hook is evaluated
+ * separately: a correct hook does not validate an incomplete one.
  */
 function findHookBodyMatching(
   code: string,
@@ -46,11 +46,11 @@ function findHookBodyMatching(
 }
 
 /**
- * Un appel de hook (`useXxx(`) est-il dans un bloc `if (...) { ... }` ?
+ * Is a hook call (`useXxx(`) inside an `if (...) { ... }` block?
  *
- * Seuls les `if` suivis d'accolades sont vus : un `if` sans accolades, un
- * `else`, un ternaire, une boucle ou un `switch` ne sont pas détectés. Cela
- * suffit pour cet exercice, dont le `startCode` place l'appel dans un `if { }`.
+ * Only `if` statements followed by braces are seen: an `if` without braces, an
+ * `else`, a ternary, a loop or a `switch` are not detected. This is enough
+ * for this exercise, whose `startCode` puts the call inside an `if { }`.
  */
 function hookCallInsideIfBlock(code: string): boolean {
   const ifRe = /\bif\s*\(/g;
@@ -75,9 +75,9 @@ function hookCallInsideIfBlock(code: string): boolean {
 }
 
 /**
- * Contenu d'un `return { ... }` ou `return [ ... ]`, délimiteurs équilibrés :
- * `return { etat: { charge }, recharger };` contient une accolade imbriquée
- * qu'un `[^}]*` couperait. Renvoie null sans un tel `return`.
+ * Contents of a `return { ... }` or `return [ ... ]`, with balanced delimiters:
+ * `return { etat: { charge }, recharger };` contains a nested brace that
+ * a `[^}]*` would cut off. Returns null when there is no such `return`.
  */
 function extractReturnMembers(body: string): string | null {
   const m = /return\s*([{[])/.exec(body);
@@ -89,13 +89,13 @@ function extractReturnMembers(body: string): string | null {
 }
 
 /**
- * Corps du cleanup retourné par l'effet, ou null si le `return` ne renvoie pas
- * une fonction.
+ * Body of the cleanup returned by the effect, or null if the `return` does not
+ * return a function.
  *
- * L'expression qui suit `return` (voir `statementEnd`) est acceptée si c'est
- * une flèche, une expression `function`, ou un identifiant dont on résout la
- * définition dans l'effet puis dans le hook. `return window.removeEventListener(...)`
- * désabonne dès le montage au lieu de retourner une fonction : refusé.
+ * The expression after `return` (see `statementEnd`) is accepted if it is
+ * an arrow, a `function` expression, or an identifier whose definition is
+ * resolved in the effect, then in the hook. `return window.removeEventListener(...)`
+ * unsubscribes right on mount instead of returning a function: rejected.
  */
 function returnedCleanupBody(effectBody: string, hookBody: string): string | null {
   const returnIdx = effectBody.search(/\breturn\b/);
@@ -119,7 +119,7 @@ function returnedCleanupBody(effectBody: string, hookBody: string): string | nul
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : extraire la logique dans un hook personnalisé, et l'appeler.
+  // Step 1: extract the logic into a custom hook, and call it.
   (code) => {
     const c = strip(code);
 
@@ -147,7 +147,7 @@ export const validators: Validator[] = [
     return pass("Logique extraite.", ["o1a", "o1b"]);
   },
 
-  // Étape 2 : le hook retourne valeur et action, le composant les déstructure.
+  // Step 2: the hook returns a value and an action, the component destructures them.
   (code) => {
     const c = strip(code);
 
@@ -159,7 +159,7 @@ export const validators: Validator[] = [
       );
     }
 
-    // Le hook doit retourner au moins deux sorties (la valeur et l'action).
+    // The hook must return at least two outputs (the value and the action).
     const membersRaw = extractReturnMembers(hook.body);
 
     if (membersRaw === null) {
@@ -180,7 +180,7 @@ export const validators: Validator[] = [
       );
     }
 
-    // Côté appelant : déstructuration du résultat du hook.
+    // Caller side: destructuring of the hook's result.
     const destructured = new RegExp(
       `(?:const|let|var)\\s*(?:\\{[^}]*\\}|\\[[^\\]]*\\])\\s*=\\s*${hook.name}\\s*\\(`
     ).test(c);
@@ -193,7 +193,7 @@ export const validators: Validator[] = [
     return pass("Module branché.", ["o2a", "o2b"]);
   },
 
-  // Étape 3 : hook avec useEffect, abonnement et désabonnement dans le cleanup.
+  // Step 3: hook with useEffect, subscribing and unsubscribing in the cleanup.
   (code) => {
     const c = strip(code);
 
@@ -205,7 +205,7 @@ export const validators: Validator[] = [
       );
     }
 
-    // Le useEffect du hook, pas n'importe lequel du fichier.
+    // The hook's useEffect, not just any one in the file.
     const effect = findBareCallBody(hook.body, "useEffect");
     if (!effect) {
       return fail("Appelle useEffect à l'intérieur de ton hook.", "structure");
@@ -249,7 +249,7 @@ export const validators: Validator[] = [
     return pass("Hublot calibré.", ["o3a", "o3b"]);
   },
 
-  // Étape 4 : règles des hooks, aucun appel dans un bloc conditionnel.
+  // Step 4: rules of hooks, no call inside a conditional block.
   (code) => {
     const c = strip(code);
 
@@ -264,8 +264,8 @@ export const validators: Validator[] = [
       );
     }
 
-    // o4b : le rendu conditionnel doit subsister (if, ternaire, ou `&&`/`||` en
-    // JSX comme `{visible && <Truc />}`), et useState doit précéder le premier if.
+    // o4b: the conditional rendering must remain (if, ternary, or `&&`/`||` in
+    // JSX such as `{visible && <Truc />}`), and useState must come before the first if.
     const firstIf = c.search(/\bif\s*\(/);
     const hasTernaryOrIf =
       firstIf !== -1 || /\?[^:]*:/.test(c) || /(?:&&|\|\|)\s*\(?\s*</.test(c);
