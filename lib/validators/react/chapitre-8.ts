@@ -13,20 +13,20 @@ import {
 
 const strip = (code: string) => stripLineComments(code, "//");
 
-/** Un `<X.Provider ...>` est-il présent ? */
+/** Is a `<X.Provider ...>` present? */
 const providerRe = /<\s*[A-Za-z_$][\w$]*\s*\.\s*Provider\b/;
 
-/** Même motif, en capturant le nom pointé de la balise. */
+/** Same pattern, capturing the tag's dotted name. */
 const providerTagNameRe = /<\s*([A-Za-z_$][\w$]*\s*\.\s*Provider)\b/;
 
 /**
- * Contenu de l'attribut `value={...}` du premier `<X.Provider>`, cherché dans
- * les attributs de cette balise seulement : un `<input value={x} />` plus loin
- * ne doit pas compter. Renvoie null sans Provider ou sans `value` sur sa balise.
+ * Contents of the `value={...}` attribute of the first `<X.Provider>`, searched
+ * for in that tag's attributes only: an `<input value={x} />` further down
+ * must not count. Returns null without a Provider or without `value` on its tag.
  *
- * Le nom pointé (`ContexteFlotte.Provider`) est inséré tel quel dans la regex
- * de `findJsxTagAttrs`, où `.` vaut n'importe quel caractère : sans effet ici,
- * puisque c'est le nom trouvé à cet endroit même.
+ * The dotted name (`ContexteFlotte.Provider`) is inserted as is into the regex
+ * of `findJsxTagAttrs`, where `.` matches any character: harmless here,
+ * since it is the very name found at that position.
  */
 function providerValueBody(code: string): string | null {
   const m = providerTagNameRe.exec(code);
@@ -40,13 +40,13 @@ function providerValueBody(code: string): string | null {
 }
 
 /**
- * Nom de la fonction (composant ou hook) dont le corps contient la position
- * `pos`, pour limiter une vérification au bon composant : dans un fichier à
- * plusieurs composants, le comportement de l'un ne doit pas en valider un autre.
+ * Name of the function (component or hook) whose body contains position
+ * `pos`, to restrict a check to the right component: in a file with
+ * several components, one component's behavior must not validate another.
  *
- * Parmi les déclarations `function nom(...) {}`, `const nom = (...) => {}` et
- * `const nom = function (...) {}` qui contiennent `pos`, renvoie la plus
- * imbriquée.
+ * Among the `function nom(...) {}`, `const nom = (...) => {}` and
+ * `const nom = function (...) {}` declarations that contain `pos`, returns the
+ * innermost one.
  */
 function enclosingFunctionName(code: string, pos: number): string | null {
   const declRe =
@@ -66,7 +66,7 @@ function enclosingFunctionName(code: string, pos: number): string | null {
   return best ? best.name : null;
 }
 
-/** Noms déstructurés depuis `useContext(...)`, ou [] sans déstructuration. */
+/** Names destructured from `useContext(...)`, or [] without destructuring. */
 function contextDestructuredNames(code: string): string[] {
   const m = /(?:const|let|var)\s*\{([^}]*)\}\s*=\s*useContext\s*\(/.exec(code);
   if (!m) return [];
@@ -76,15 +76,15 @@ function contextDestructuredNames(code: string): string[] {
     .filter(Boolean);
 }
 
-/** Nom de la variable affectée depuis `useContext(...)`, ou null. */
+/** Name of the variable assigned from `useContext(...)`, or null. */
 function contextVarName(code: string): string | null {
   const m = /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*useContext\s*\(/.exec(code);
   return m ? m[1]! : null;
 }
 
 /**
- * Compte les branches d'action distinctes d'un réducteur : `case 'x':` ou
- * `action.type === 'x'`. `default` ne compte pas comme une action.
+ * Counts a reducer's distinct action branches: `case 'x':` or
+ * `action.type === 'x'`. `default` does not count as an action.
  */
 function countActionBranches(body: string): number {
   const cases = new Set<string>();
@@ -99,13 +99,13 @@ function countActionBranches(body: string): number {
 }
 
 /**
- * Le réducteur retourne-t-il quelque chose pour une action inconnue ?
+ * Does the reducer return something for an unknown action?
  *
- * Avec un `switch`, le texte qui suit `default:` (jusqu'au `case` suivant) doit
- * contenir un `return` : `default: break;` ne suffit pas. Sans `switch`, le
- * dernier `return` du corps ne doit être suivi que de `;`, d'accolades
- * fermantes ou d'un commentaire de fin de ligne, que `stripLineComments` ne
- * retire pas.
+ * With a `switch`, the text after `default:` (up to the next `case`) must
+ * contain a `return`: `default: break;` is not enough. Without a `switch`, the
+ * last `return` of the body must be followed only by `;`, closing braces
+ * or an end-of-line comment, which `stripLineComments` does not
+ * remove.
  */
 function hasFallbackReturn(reducerBody: string): boolean {
   if (/\bswitch\s*\(/.test(reducerBody)) {
@@ -130,7 +130,7 @@ function hasFallbackReturn(reducerBody: string): boolean {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : créer le contexte et le diffuser via un Provider.
+  // Step 1: create the context and broadcast it via a Provider.
   (code) => {
     const c = strip(code);
 
@@ -157,7 +157,7 @@ export const validators: Validator[] = [
     return pass("Diffusion active.", ["o1a", "o1b"]);
   },
 
-  // Étape 2 : consommer le contexte dans un descendant, sans prop.
+  // Step 2: consume the context in a descendant, without a prop.
   (code) => {
     const c = strip(code);
 
@@ -172,15 +172,15 @@ export const validators: Validator[] = [
       return fail("Passe l'objet contexte à useContext, par exemple useContext(ContexteFlotte).");
     }
 
-    // o2b : la valeur lue doit être affichée, par déstructuration ou via une
-    // variable. La recherche se limite au composant qui appelle useContext : le
-    // `{ amiral: 'Vesper' }` du Provider ou le rendu d'un autre composant ne
-    // doivent pas compter.
+    // o2b: the value read must be displayed, via destructuring or via a
+    // variable. The search is limited to the component that calls useContext: the
+    // Provider's `{ amiral: 'Vesper' }` or another component's rendering must
+    // not count.
     const compName = enclosingFunctionName(c, call.start);
     const scope = (compName !== null ? findNamedFunctionBody(c, compName) : null) ?? c;
 
-    // Sans retirer la déclaration, le `{ amiral }` de la déstructuration
-    // compterait comme une interpolation JSX.
+    // Without removing the declaration, the destructuring's `{ amiral }`
+    // would count as a JSX interpolation.
     const withoutDecl = scope.replace(
       /(?:const|let|var)\s*(?:\{[^}]*\}|[A-Za-z_$][\w$]*)\s*=\s*useContext\s*\([^)]*\)\s*;?/g,
       ""
@@ -203,7 +203,7 @@ export const validators: Validator[] = [
     return pass("Signal reçu.", ["o2a", "o2b"]);
   },
 
-  // Étape 3 : un réducteur à deux actions, branché par useReducer.
+  // Step 3: a two-action reducer, wired up with useReducer.
   (code) => {
     const c = strip(code);
 
@@ -215,8 +215,8 @@ export const validators: Validator[] = [
       );
     }
 
-    // Le réducteur est résolu par son nom (premier argument de useReducer), pas
-    // par le premier switch venu.
+    // The reducer is resolved by its name (first argument of useReducer), not
+    // by whichever switch comes first.
     const reducerName = call.body.split(",")[0]!.trim();
     const reducerBody = /^[A-Za-z_$][\w$]*$/.test(reducerName)
       ? findNamedFunctionBody(c, reducerName)
@@ -253,7 +253,7 @@ export const validators: Validator[] = [
     return pass("Réducteur en ligne.", ["o3a", "o3b"]);
   },
 
-  // Étape 4 : diffuser etat et dispatch, et agir depuis le consommateur.
+  // Step 4: broadcast etat and dispatch, and act from the consumer.
   (code) => {
     const c = strip(code);
 
@@ -286,8 +286,8 @@ export const validators: Validator[] = [
       );
     }
 
-    // Seul le composant consommateur compte : un `dispatch(` appelé ailleurs
-    // (dans App, où dispatch est en portée locale) ne passe pas par le contexte.
+    // Only the consumer component counts: a `dispatch(` called elsewhere
+    // (in App, where dispatch is in local scope) does not go through the context.
     const consumerName = enclosingFunctionName(c, call.start);
     const consumerBody = (consumerName !== null ? findNamedFunctionBody(c, consumerName) : null) ?? c;
 

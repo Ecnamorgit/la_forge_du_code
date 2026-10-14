@@ -4,7 +4,7 @@ import { stripLineComments, countMatches, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Étape 1 : BrowserRouter et deux Route path/element
+  // Step 1: BrowserRouter and two Route path/element
   (code) => {
     const c = strip(code);
     if (!/<BrowserRouter>/.test(c)) {
@@ -15,7 +15,7 @@ export const validators: Validator[] = [
     }
     return pass("Routes actives.", ["o1a", "o1b"]);
   },
-  // Étape 2 : import de Link et deux <Link to=...> dans une <nav>
+  // Step 2: Link import and two <Link to=...> inside a <nav>
   (code) => {
     const c = strip(code);
     if (!/import\s*\{[^}]*\bLink\b[^}]*\}\s*from\s*['"]react-router-dom['"]/.test(c)) {
@@ -26,16 +26,16 @@ export const validators: Validator[] = [
     }
     return pass("Navigation fluide.", ["o2a", "o2b"]);
   },
-  // Étape 3 : route dynamique :id et useParams
+  // Step 3: dynamic :id route and useParams
   (code) => {
     const c = strip(code);
-    // La <Route path="/vaisseaux/:id"> vit dans App (indiquée en commentaire
-    // dans le startCode) : le signal vérifiable ici est la lecture du paramètre.
+    // The <Route path="/vaisseaux/:id"> lives in App (shown as a comment
+    // in the startCode): the signal we can check here is reading the param.
     if (!/useParams\s*\(\s*\)/.test(c)) {
       return fail("Récupère les params de l'URL avec const { id } = useParams().");
     }
-    // On retire la déstructuration avant de chercher l'affichage : elle s'écrit
-    // elle-même `{ id }` et validerait un code qui ne rend jamais le paramètre.
+    // Remove the destructuring before looking for the display: it is itself
+    // written `{ id }` and would pass code that never renders the param.
     const withoutDestructuring = c.replace(
       /(?:const|let|var)\s*\{\s*id\s*\}\s*=\s*useParams\s*\(\s*\)\s*;?/,
       ""
@@ -45,7 +45,7 @@ export const validators: Validator[] = [
     }
     return pass("URL décodée.", ["o3a", "o3b"]);
   },
-  // Étape 4 : useNavigate et navigate('/dashboard')
+  // Step 4: useNavigate and navigate('/dashboard')
   (code) => {
     const c = strip(code);
     if (!/useNavigate\s*\(\s*\)/.test(c)) {

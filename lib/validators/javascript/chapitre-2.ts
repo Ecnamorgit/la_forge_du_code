@@ -6,7 +6,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : calcul arithmétique, affiche 56
+  // Step 1: arithmetic calculation, prints 56
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -27,7 +27,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Étape 2 : comparaison qui affiche false
+  // Step 2: comparison that prints false
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -48,7 +48,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Étape 3 : if/else qui affiche "ALERTE"
+  // Step 3: if/else that prints "ALERTE"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -60,8 +60,8 @@ export const validators: Validator[] = [
     if (!/\belse\b/.test(stripped)) {
       return { ok: false, msg: "Ajoute une branche else." };
     }
-    // La condition doit vraiment comparer `niveauBouclier` : `if (true)` ne
-    // suffit pas.
+    // The condition must actually compare `niveauBouclier`: `if (true)` is
+    // not enough.
     const conditionRe =
       /\bif\s*\(\s*[^)]*\bniveauBouclier\b[^)]*(?:<=?|>=?|===|!==)[^)]*\)|\bif\s*\(\s*[^)]*(?:<=?|>=?|===|!==)[^)]*\bniveauBouclier\b[^)]*\)/;
     if (!conditionRe.test(stripped)) {
@@ -76,7 +76,7 @@ export const validators: Validator[] = [
         msg: 'La console doit afficher "ALERTE" (le bouclier est à 25).',
       };
     }
-    // "OK" en plus de "ALERTE" trahit une sortie codée en dur.
+    // "OK" on top of "ALERTE" gives away hard-coded output.
     if (logsInclude(ctx.logs, "OK")) {
       return {
         ok: false,
@@ -89,7 +89,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Étape 4 : else if qui affiche "OK"
+  // Step 4: else if that prints "OK"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -98,8 +98,8 @@ export const validators: Validator[] = [
     if (!/\belse\s+if\s*\(/.test(stripped)) {
       return { ok: false, msg: "Utilise au moins un else if (...)." };
     }
-    // Un `else` qui n'est pas suivi de `if` : le `else` d'un `else if` ne
-    // compte pas.
+    // An `else` that is not followed by `if`: the `else` of an `else if` does
+    // not count.
     if (!/\belse\b(?!\s*if\b)/.test(stripped)) {
       return { ok: false, msg: "Ajoute aussi une branche else finale." };
     }

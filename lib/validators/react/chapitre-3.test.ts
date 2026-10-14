@@ -2,15 +2,15 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-3";
 
 /**
- * React chapitre 3 — useEffect : montage, dépendances, nettoyage, chargement.
+ * React chapter 3 — useEffect: mount, dependencies, cleanup, loading.
  */
 
 const IMPORT = `import { useState, useEffect } from 'react';`;
 
-describe("React chapitre 3 — etape 1 (effet au montage)", () => {
+describe("React chapter 3 — step 1 (effect on mount)", () => {
   const validate = validators[0];
 
-  it("accepte un effet logue avec un tableau de dependances vide", () => {
+  it("accepts a logging effect with an empty dependency array", () => {
     const code = `${IMPORT}
 function Station() {
   useEffect(() => {
@@ -21,8 +21,8 @@ function Station() {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un effet sans tableau de dependances", () => {
-    // Échec ciblé : sans [], l'effet rejoue à chaque rendu.
+  it("rejects an effect without a dependency array", () => {
+    // Targeted failure: without [], the effect re-runs on every render.
     const code = `${IMPORT}
 function Station() {
   useEffect(() => {
@@ -33,7 +33,7 @@ function Station() {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un useEffect non importe", () => {
+  it("rejects a useEffect that is not imported", () => {
     const code = `import { useState } from 'react';
 function Station() {
   useEffect(() => {
@@ -45,10 +45,10 @@ function Station() {
   });
 });
 
-describe("React chapitre 3 — etape 2 (effet dependant d'une valeur)", () => {
+describe("React chapter 3 — step 2 (effect depending on a value)", () => {
   const validate = validators[1];
 
-  it("accepte document.title synchronise sur count", () => {
+  it("accepts document.title synced with count", () => {
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -60,8 +60,8 @@ function Compteur() {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un effet qui ne declare pas count en dependance", () => {
-    // Échec ciblé : le titre ne se mettrait à jour qu'au montage.
+  it("rejects an effect that does not declare count as a dependency", () => {
+    // Targeted failure: the title would only update on mount.
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -73,7 +73,7 @@ function Compteur() {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un effet qui ne touche pas au titre", () => {
+  it("rejects an effect that does not touch the title", () => {
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -86,10 +86,10 @@ function Compteur() {
   });
 });
 
-describe("React chapitre 3 — etape 3 (nettoyage de l'intervalle)", () => {
+describe("React chapter 3 — step 3 (interval cleanup)", () => {
   const validate = validators[2];
 
-  it("accepte un setInterval nettoye au demontage", () => {
+  it("accepts a setInterval cleaned up on unmount", () => {
     const code = `${IMPORT}
 function Horloge() {
   useEffect(() => {
@@ -101,8 +101,8 @@ function Horloge() {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un intervalle jamais nettoye", () => {
-    // Échec ciblé : c'est exactement la fuite que l'étape enseigne à éviter.
+  it("rejects an interval that is never cleaned up", () => {
+    // Targeted failure: this is exactly the leak the step teaches to avoid.
     const code = `${IMPORT}
 function Horloge() {
   useEffect(() => {
@@ -113,7 +113,7 @@ function Horloge() {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un cleanup qui n'arrete pas l'intervalle", () => {
+  it("rejects a cleanup that does not stop the interval", () => {
     const code = `${IMPORT}
 function Horloge() {
   useEffect(() => {
@@ -126,10 +126,10 @@ function Horloge() {
   });
 });
 
-describe("React chapitre 3 — etape 4 (chargement de donnees)", () => {
+describe("React chapter 3 — step 4 (data loading)", () => {
   const validate = validators[3];
 
-  it("accepte un fetch au montage avec etat de chargement", () => {
+  it("accepts a fetch on mount with a loading state", () => {
     const code = `${IMPORT}
 function Flotte() {
   const [data, setData] = useState(null);
@@ -142,8 +142,8 @@ function Flotte() {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un fetch sans etat de chargement", () => {
-    // Échec ciblé : l'apprenant afficherait un écran vide pendant l'attente.
+  it("rejects a fetch without a loading state", () => {
+    // Targeted failure: the learner would show a blank screen while waiting.
     const code = `${IMPORT}
 function Flotte() {
   const [data, setData] = useState([]);
@@ -155,7 +155,7 @@ function Flotte() {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un composant sans fetch", () => {
+  it("rejects a component without fetch", () => {
     const code = `${IMPORT}
 function Flotte() {
   const [data, setData] = useState(null);

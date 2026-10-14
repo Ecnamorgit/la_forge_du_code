@@ -5,8 +5,8 @@ import { validators } from "./chapitre-7";
 
 const [step1, step2, step3, step4] = validators;
 
-describe("react/chapitre-7 — etape 1 : extraire un hook", () => {
-  it("accepte un hook declare avec function, appele depuis le composant", () => {
+describe("react/chapitre-7 — step 1: extract a hook", () => {
+  it("accepts a hook declared with function, called from the component", () => {
     const code = `function useCompteur() {
   const [n, setN] = useState(0);
   return { n, augmenter: () => setN(n + 1) };
@@ -18,7 +18,7 @@ function Reacteur() {
     expect(step1!(code).ok).toBe(true);
   });
 
-  it("accepte la forme flechee const useX = () => { ... }", () => {
+  it("accepts the arrow form const useX = () => { ... }", () => {
     const code = `const useCompteur = () => {
   const [n, setN] = useState(0);
   return { n, setN };
@@ -30,7 +30,7 @@ function Reacteur() {
     expect(step1!(code).ok).toBe(true);
   });
 
-  it("refuse une fonction non prefixee par use", () => {
+  it("rejects a function not prefixed with use", () => {
     const code = `function compteur() {
   const [n, setN] = useState(0);
   return { n, setN };
@@ -44,7 +44,7 @@ function Reacteur() {
     expect(r.msg).toMatch(/use/i);
   });
 
-  it("refuse un hook declare dont l'etat est reste dans le composant", () => {
+  it("rejects a declared hook whose state stayed in the component", () => {
     const code = `function useCompteur() {
   return {};
 }
@@ -58,7 +58,7 @@ function Reacteur() {
     expect(r.msg).toMatch(/useState/);
   });
 
-  it("refuse un hook correct mais jamais appele", () => {
+  it("rejects a correct hook that is never called", () => {
     const code = `function useCompteur() {
   const [n, setN] = useState(0);
   return { n, setN };
@@ -72,14 +72,14 @@ function Reacteur() {
   });
 });
 
-describe("react/chapitre-7 — etape 2 : contrat de retour", () => {
+describe("react/chapitre-7 — step 2: return contract", () => {
   const hookOk = `function useBouclier() {
   const [charge, setCharge] = useState(100);
   const recharger = () => setCharge(100);
   return { charge, recharger };
 }`;
 
-  it("accepte un retour objet destructure par le composant", () => {
+  it("accepts an object return destructured by the component", () => {
     const code = `${hookOk}
 function Bouclier() {
   const { charge, recharger } = useBouclier();
@@ -88,7 +88,7 @@ function Bouclier() {
     expect(step2!(code).ok).toBe(true);
   });
 
-  it("accepte un retour tableau destructure par le composant", () => {
+  it("accepts an array return destructured by the component", () => {
     const code = `function useBouclier() {
   const [charge, setCharge] = useState(100);
   return [charge, () => setCharge(100)];
@@ -100,7 +100,7 @@ function Bouclier() {
     expect(step2!(code).ok).toBe(true);
   });
 
-  it("refuse un hook qui ne retourne rien (le startCode)", () => {
+  it("rejects a hook that returns nothing (the startCode)", () => {
     const code = `function useBouclier() {
   const [charge, setCharge] = useState(100);
   const recharger = () => setCharge(100);
@@ -113,7 +113,7 @@ function Bouclier() {
     expect(r.msg).toMatch(/retourne rien/);
   });
 
-  it("compte correctement les sorties quand un membre du retour contient un objet imbrique", () => {
+  it("counts the outputs correctly when a returned member contains a nested object", () => {
     const code = `function useBouclier() {
   const [charge, setCharge] = useState({ valeur: 100 });
   const recharger = () => setCharge({ valeur: 100 });
@@ -126,7 +126,7 @@ function Bouclier() {
     expect(step2!(code).ok).toBe(true);
   });
 
-  it("refuse un retour a une seule sortie", () => {
+  it("rejects a return with a single output", () => {
     const code = `function useBouclier() {
   const [charge, setCharge] = useState(100);
   return { charge };
@@ -140,7 +140,7 @@ function Bouclier() {
     expect(r.msg).toMatch(/DEUX/);
   });
 
-  it("refuse un hook correct dont le composant ne destructure pas", () => {
+  it("rejects a correct hook whose component does not destructure", () => {
     const code = `${hookOk}
 function Bouclier() {
   const b = useBouclier();
@@ -152,7 +152,7 @@ function Bouclier() {
   });
 });
 
-describe("react/chapitre-7 — etape 3 : abonnement et cleanup", () => {
+describe("react/chapitre-7 — step 3: subscription and cleanup", () => {
   const fullSolution = `function useLargeurHublot() {
   const [largeur, setLargeur] = useState(window.innerWidth);
   useEffect(() => {
@@ -167,11 +167,11 @@ function Hublot() {
   return <div>{largeur}</div>;
 }`;
 
-  it("accepte un hook qui s'abonne et se desabonne", () => {
+  it("accepts a hook that subscribes and unsubscribes", () => {
     expect(step3!(fullSolution).ok).toBe(true);
   });
 
-  it("refuse un abonnement sans cleanup", () => {
+  it("rejects a subscription without cleanup", () => {
     const code = `function useLargeurHublot() {
   const [largeur, setLargeur] = useState(window.innerWidth);
   useEffect(() => {
@@ -184,7 +184,7 @@ function Hublot() {
     expect(r.msg).toMatch(/cleanup/);
   });
 
-  it("refuse un removeEventListener hors du cleanup", () => {
+  it("rejects a removeEventListener outside the cleanup", () => {
     const code = `function useLargeurHublot() {
   const [largeur, setLargeur] = useState(0);
   useEffect(() => {
@@ -198,7 +198,7 @@ function Hublot() {
     expect(r.msg).toMatch(/cleanup/);
   });
 
-  it("refuse un cleanup qui APPELLE removeEventListener au lieu de le retourner (finding 2)", () => {
+  it("rejects a cleanup that CALLS removeEventListener instead of returning it (finding 2)", () => {
     const code = `function useLargeurHublot() {
   const [largeur, setLargeur] = useState(window.innerWidth);
   useEffect(() => {
@@ -213,7 +213,7 @@ function Hublot() {
     expect(r.msg).toMatch(/cleanup/);
   });
 
-  it("accepte un cleanup NOMME declare puis retourne par reference", () => {
+  it("accepts a NAMED cleanup declared then returned by reference", () => {
     const code = `function useLargeurHublot() {
   const [largeur, setLargeur] = useState(window.innerWidth);
   useEffect(() => {
@@ -229,7 +229,7 @@ function Hublot() {
     expect(step3!(code).ok).toBe(true);
   });
 
-  it("refuse un hook sans etat (l'affichage ne se mettrait jamais a jour)", () => {
+  it("rejects a hook without state (the display would never update)", () => {
     const code = `function useLargeurHublot() {
   let largeur = window.innerWidth;
   useEffect(() => {
@@ -244,7 +244,7 @@ function Hublot() {
     expect(r.msg).toMatch(/useState/);
   });
 
-  it("ne se laisse pas valider par un useEffect exterieur au hook", () => {
+  it("is not fooled by a useEffect outside the hook", () => {
     const code = `function Autre() {
   useEffect(() => {
     window.addEventListener('resize', h);
@@ -262,8 +262,8 @@ function useLargeurHublot() {
   });
 });
 
-describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
-  it("accepte l'appel remonte avant le return anticipe", () => {
+describe("react/chapitre-7 — step 4: rules of hooks", () => {
+  it("accepts the call moved up before the early return", () => {
     const code = `function Panneau({ visible }) {
   const [mode, setMode] = useState('auto');
   if (!visible) return null;
@@ -272,7 +272,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
     expect(step4!(code).ok).toBe(true);
   });
 
-  it("refuse un appel de hook enferme dans un if (le startCode)", () => {
+  it("rejects a hook call locked inside an if (the startCode)", () => {
     const code = `function Panneau({ visible }) {
   if (visible) {
     const [mode, setMode] = useState('auto');
@@ -285,7 +285,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
     expect(r.msg).toMatch(/if/);
   });
 
-  it("refuse un useEffect enferme dans un if", () => {
+  it("rejects a useEffect locked inside an if", () => {
     const code = `function Panneau({ visible }) {
   const [mode, setMode] = useState('auto');
   if (visible) {
@@ -296,7 +296,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
     expect(step4!(code).ok).toBe(false);
   });
 
-  it("refuse la suppression du comportement conditionnel", () => {
+  it("rejects removing the conditional behavior", () => {
     const code = `function Panneau({ visible }) {
   const [mode, setMode] = useState('auto');
   return <div>{mode}</div>;
@@ -306,7 +306,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
     expect(r.msg).toMatch(/conditionnel/);
   });
 
-  it("refuse un appel place apres la condition", () => {
+  it("rejects a call placed after the condition", () => {
     const code = `function Panneau({ visible }) {
   if (!visible) return null;
   const [mode, setMode] = useState('auto');
@@ -317,7 +317,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
     expect(r.msg).toMatch(/précéder|première ligne/);
   });
 
-  it("accepte un ternaire comme comportement conditionnel", () => {
+  it("accepts a ternary as the conditional behavior", () => {
     const code = `function Panneau({ visible }) {
   const [mode, setMode] = useState('auto');
   return visible ? <div>{mode}</div> : null;
@@ -325,7 +325,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
     expect(step4!(code).ok).toBe(true);
   });
 
-  it("accepte && comme comportement conditionnel (finding 1)", () => {
+  it("accepts && as the conditional behavior (finding 1)", () => {
     const code = `function Panneau({ visible }) {
   const [mode, setMode] = useState('auto');
   return <div>{visible && <span>Mode : {mode}</span>}</div>;
@@ -335,11 +335,11 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
 });
 
 /**
- * Un `hint` refusé par son propre validateur bloquerait l'apprenant qui suit
- * l'indice affiché.
+ * A `hint` rejected by its own validator would block the learner who follows
+ * the displayed hint.
  */
-describe("react/chapitre-7 — chaque hint passe son propre validateur", () => {
-  it("valide les quatre hints", () => {
+describe("react/chapitre-7 — each hint passes its own validator", () => {
+  it("passes all four hints", () => {
     chapter7.steps.forEach((step, i) => {
       const r = validators[i]!(step.hint);
       expect(r.ok, `etape ${i + 1} : hint refuse — ${r.msg}`).toBe(true);

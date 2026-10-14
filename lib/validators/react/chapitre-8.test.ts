@@ -5,8 +5,8 @@ import { validators } from "./chapitre-8";
 
 const [step1, step2, step3, step4] = validators;
 
-describe("react/chapitre-8 — etape 1 : creer et diffuser un contexte", () => {
-  it("accepte createContext plus un Provider avec value", () => {
+describe("react/chapitre-8 — step 1: create and broadcast a context", () => {
+  it("accepts createContext plus a Provider with value", () => {
     const code = `const ContexteFlotte = createContext(null);
 function App() {
   return (
@@ -18,7 +18,7 @@ function App() {
     expect(step1!(code).ok).toBe(true);
   });
 
-  it("refuse l'absence de createContext", () => {
+  it("rejects a missing createContext", () => {
     const code = `function App() {
   return <ContexteFlotte.Provider value={{ amiral: 'Vesper' }}><Pont /></ContexteFlotte.Provider>;
 }`;
@@ -27,7 +27,7 @@ function App() {
     expect(r.msg).toMatch(/createContext/);
   });
 
-  it("refuse un contexte cree mais jamais diffuse (le startCode)", () => {
+  it("rejects a context created but never broadcast (the startCode)", () => {
     const code = `const ContexteFlotte = createContext(null);
 function App() {
   return <Pont />;
@@ -37,7 +37,7 @@ function App() {
     expect(r.msg).toMatch(/Provider/);
   });
 
-  it("refuse un Provider sans attribut value", () => {
+  it("rejects a Provider without a value attribute", () => {
     const code = `const ContexteFlotte = createContext(null);
 function App() {
   return <ContexteFlotte.Provider><Pont /></ContexteFlotte.Provider>;
@@ -47,7 +47,7 @@ function App() {
     expect(r.msg).toMatch(/value/);
   });
 
-  it("voit la value meme avec des accolades imbriquees", () => {
+  it("sees the value even with nested braces", () => {
     const code = `const C = createContext(null);
 function App() {
   return <C.Provider value={{ a: { b: 1 } }}><X /></C.Provider>;
@@ -55,7 +55,7 @@ function App() {
     expect(step1!(code).ok).toBe(true);
   });
 
-  it("refuse un Provider sans value meme si un element PLUS LOIN en a une (finding 6)", () => {
+  it("rejects a Provider without value even if an element FURTHER DOWN has one (finding 6)", () => {
     const code = `const ContexteFlotte = createContext(null);
 function App() {
   return (
@@ -70,8 +70,8 @@ function App() {
   });
 });
 
-describe("react/chapitre-8 — etape 2 : consommer avec useContext", () => {
-  it("accepte la destructuration affichee dans le JSX", () => {
+describe("react/chapitre-8 — step 2: consume with useContext", () => {
+  it("accepts destructuring displayed in the JSX", () => {
     const code = `const ContexteFlotte = createContext(null);
 function Console() {
   const { amiral } = useContext(ContexteFlotte);
@@ -80,7 +80,7 @@ function Console() {
     expect(step2!(code).ok).toBe(true);
   });
 
-  it("accepte l'acces par variable puis propriete", () => {
+  it("accepts access through a variable then a property", () => {
     const code = `const ContexteFlotte = createContext(null);
 function Console() {
   const flotte = useContext(ContexteFlotte);
@@ -89,7 +89,7 @@ function Console() {
     expect(step2!(code).ok).toBe(true);
   });
 
-  it("refuse l'absence de useContext (le startCode)", () => {
+  it("rejects a missing useContext (the startCode)", () => {
     const code = `const ContexteFlotte = createContext(null);
 function Console() {
   return <div>Amiral : ???</div>;
@@ -99,7 +99,7 @@ function Console() {
     expect(r.msg).toMatch(/useContext/);
   });
 
-  it("refuse useContext sans argument", () => {
+  it("rejects useContext without an argument", () => {
     const code = `function Console() {
   const { amiral } = useContext();
   return <div>{amiral}</div>;
@@ -109,7 +109,7 @@ function Console() {
     expect(r.msg).toMatch(/objet contexte/);
   });
 
-  it("refuse une valeur lue mais jamais affichee", () => {
+  it("rejects a value read but never displayed", () => {
     const code = `const ContexteFlotte = createContext(null);
 function Console() {
   const { amiral } = useContext(ContexteFlotte);
@@ -120,7 +120,7 @@ function Console() {
     expect(r.msg).toMatch(/Affiche/);
   });
 
-  it("refuse une valeur lue dans Console mais affichee seulement dans un AUTRE composant (finding 3)", () => {
+  it("rejects a value read in Console but displayed only in ANOTHER component (finding 3)", () => {
     const code = `const ContexteFlotte = createContext(null);
 function Console() {
   const { amiral } = useContext(ContexteFlotte);
@@ -139,7 +139,7 @@ function App() {
   });
 });
 
-describe("react/chapitre-8 — etape 3 : useReducer", () => {
+describe("react/chapitre-8 — step 3: useReducer", () => {
   const reducerOk = `function reducteur(etat, action) {
   switch (action.type) {
     case 'monter':
@@ -151,7 +151,7 @@ describe("react/chapitre-8 — etape 3 : useReducer", () => {
   }
 }`;
 
-  it("accepte un reducteur a deux actions branche et utilise", () => {
+  it("accepts a two-action reducer that is wired up and used", () => {
     const code = `${reducerOk}
 function Alerte() {
   const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });
@@ -160,7 +160,7 @@ function Alerte() {
     expect(step3!(code).ok).toBe(true);
   });
 
-  it("accepte la forme action.type === au lieu du switch", () => {
+  it("accepts the action.type === form instead of the switch", () => {
     const code = `function reducteur(etat, action) {
   if (action.type === 'monter') return { niveau: etat.niveau + 1 };
   if (action.type === 'descendre') return { niveau: etat.niveau - 1 };
@@ -173,7 +173,7 @@ function Alerte() {
     expect(step3!(code).ok).toBe(true);
   });
 
-  it("refuse l'absence de useReducer (le startCode)", () => {
+  it("rejects a missing useReducer (the startCode)", () => {
     const code = `function Alerte() {
   return <div>Niveau : ???</div>;
 }`;
@@ -182,7 +182,7 @@ function Alerte() {
     expect(r.msg).toMatch(/useReducer/);
   });
 
-  it("refuse un reducteur a une seule action", () => {
+  it("rejects a reducer with a single action", () => {
     const code = `function reducteur(etat, action) {
   switch (action.type) {
     case 'monter':
@@ -200,7 +200,7 @@ function Alerte() {
     expect(r.msg).toMatch(/une action|deux transitions/);
   });
 
-  it("refuse un reducteur sans cas default", () => {
+  it("rejects a reducer without a default case", () => {
     const code = `function reducteur(etat, action) {
   switch (action.type) {
     case 'monter':
@@ -218,7 +218,7 @@ function Alerte() {
     expect(r.msg).toMatch(/default/);
   });
 
-  it("refuse un reducteur correct dont aucune action n'est envoyee", () => {
+  it("rejects a correct reducer to which no action is dispatched", () => {
     const code = `${reducerOk}
 function Alerte() {
   const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });
@@ -229,7 +229,7 @@ function Alerte() {
     expect(r.msg).toMatch(/dispatch/);
   });
 
-  it("refuse un default qui ne retourne rien (finding 4, loose)", () => {
+  it("rejects a default that returns nothing (finding 4, loose)", () => {
     const code = `function reducteur(etat, action) {
   switch (action.type) {
     case 'monter':
@@ -249,7 +249,7 @@ function Alerte() {
     expect(r.msg).toMatch(/default/);
   });
 
-  it("accepte un default avec un commentaire de fin de ligne apres le return (finding 4, brittle)", () => {
+  it("accepts a default with an end-of-line comment after the return (finding 4, brittle)", () => {
     const code = `function reducteur(etat, action) {
   switch (action.type) {
     case 'monter':
@@ -267,7 +267,7 @@ function Alerte() {
     expect(step3!(code).ok).toBe(true);
   });
 
-  it("accepte un reducteur if/else se terminant par return { ...etat } (finding 4, brittle)", () => {
+  it("accepts an if/else reducer ending with return { ...etat } (finding 4, brittle)", () => {
     const code = `function reducteur(etat, action) {
   if (action.type === 'monter') return { ...etat, niveau: etat.niveau + 1 };
   if (action.type === 'descendre') return { ...etat, niveau: etat.niveau - 1 };
@@ -280,7 +280,7 @@ function Alerte() {
     expect(step3!(code).ok).toBe(true);
   });
 
-  it("ne se laisse pas valider par un switch sans rapport avec le reducteur", () => {
+  it("is not fooled by a switch unrelated to the reducer", () => {
     const code = `function autreChose(x) {
   switch (x.type) {
     case 'a': return 1;
@@ -296,7 +296,7 @@ function Alerte() {
   });
 });
 
-describe("react/chapitre-8 — etape 4 : contexte plus reducteur", () => {
+describe("react/chapitre-8 — step 4: context plus reducer", () => {
   const fullSolution = `const ContexteAlerte = createContext(null);
 function reducteur(etat, action) {
   switch (action.type) {
@@ -319,18 +319,18 @@ function App() {
   );
 }`;
 
-  it("accepte la combinaison complete", () => {
+  it("accepts the full combination", () => {
     expect(step4!(fullSolution).ok).toBe(true);
   });
 
-  it("refuse une value qui ne transporte que l'etat", () => {
+  it("rejects a value that carries only the state", () => {
     const code = fullSolution.replace("value={{ etat, dispatch }}", "value={{ etat }}");
     const r = step4!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/dispatch/);
   });
 
-  it("refuse l'absence de Provider", () => {
+  it("rejects a missing Provider", () => {
     const code = `const ContexteAlerte = createContext(null);
 function App() {
   const [etat, dispatch] = useReducer(reducteur, { niveau: 0 });
@@ -341,7 +341,7 @@ function App() {
     expect(r.msg).toMatch(/Provider/);
   });
 
-  it("refuse un consommateur qui ne declenche aucune action", () => {
+  it("rejects a consumer that triggers no action", () => {
     const code = fullSolution.replace(
       "<button onClick={() => dispatch({ type: 'monter' })}>Alerte {etat.niveau}</button>",
       "<button>Alerte {etat.niveau}</button>"
@@ -351,7 +351,7 @@ function App() {
     expect(r.msg).toMatch(/transition|dispatch/);
   });
 
-  it("refuse l'absence de useReducer", () => {
+  it("rejects a missing useReducer", () => {
     const code = `const ContexteAlerte = createContext(null);
 function App() {
   const [etat, setEtat] = useState({ niveau: 0 });
@@ -362,7 +362,7 @@ function App() {
     expect(r.msg).toMatch(/useReducer/);
   });
 
-  it("refuse un dispatch declenche depuis App plutot que depuis le consommateur (finding 5)", () => {
+  it("rejects a dispatch triggered from App rather than from the consumer (finding 5)", () => {
     const code = `const ContexteAlerte = createContext(null);
 function reducteur(etat, action) {
   switch (action.type) {
@@ -390,7 +390,7 @@ function App() {
     expect(r.msg).toMatch(/transition|dispatch/);
   });
 
-  it("refuse une value qui ne transporte que dispatch, sans etat (finding 5)", () => {
+  it("rejects a value that carries only dispatch, without etat (finding 5)", () => {
     const code = fullSolution.replace("value={{ etat, dispatch }}", "value={{ dispatch }}");
     const r = step4!(code);
     expect(r.ok).toBe(false);
@@ -399,11 +399,11 @@ function App() {
 });
 
 /**
- * Un `hint` refusé par son propre validateur bloquerait l'apprenant qui suit
- * l'indice affiché.
+ * A `hint` rejected by its own validator would block the learner who follows
+ * the displayed hint.
  */
-describe("react/chapitre-8 — chaque hint passe son propre validateur", () => {
-  it("valide les quatre hints", () => {
+describe("react/chapitre-8 — each hint passes its own validator", () => {
+  it("passes all four hints", () => {
     chapter8.steps.forEach((step, i) => {
       const r = validators[i]!(step.hint);
       expect(r.ok, `etape ${i + 1} : hint refuse — ${r.msg}`).toBe(true);

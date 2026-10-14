@@ -3,15 +3,15 @@ import { validators } from "./chapitre-12";
 import { getChapterData } from "@/lib/courses-registry";
 
 /**
- * JS chapitre 12 — CRUD complet sur une API REST.
+ * JS chapter 12 — full CRUD on a REST API.
  *
- * Validateurs statiques, comme au chapitre 11 : l'hôte est fictif.
+ * Static validators, as in chapter 11: the host is fictional.
  */
 
-describe("JS chapitre 12 — etape 1 (lire la flotte)", () => {
+describe("JS chapter 12 — step 1 (read the fleet)", () => {
   const validate = validators[0];
 
-  it("valide un GET verifie et logue", () => {
+  it("passes a checked and logged GET", () => {
     const code = `const response = await fetch('https://api.codeforge.space/vaisseaux');
 if (response.ok) {
   console.log(await response.json());
@@ -19,8 +19,8 @@ if (response.ok) {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un GET explicite avec des options", () => {
-    // Échec ciblé : l'étape enseigne que GET est le comportement par défaut.
+  it("rejects an explicit GET with options", () => {
+    // Targeted failure: the step teaches that GET is the default behavior.
     const code = `const response = await fetch('https://api.codeforge.space/vaisseaux', { method: 'GET' });
 if (response.ok) {
   console.log(await response.json());
@@ -28,17 +28,17 @@ if (response.ok) {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un appel dont on ne verifie pas le statut", () => {
+  it("rejects a call whose status is not checked", () => {
     const code = `const response = await fetch('https://api.codeforge.space/vaisseaux');
 console.log(await response.json());`;
     expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("JS chapitre 12 — etape 2 (creer)", () => {
+describe("JS chapter 12 — step 2 (create)", () => {
   const validate = validators[1];
 
-  it("valide un POST complet", () => {
+  it("passes a complete POST", () => {
     const code = `await fetch('https://api.codeforge.space/vaisseaux', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -47,8 +47,8 @@ describe("JS chapitre 12 — etape 2 (creer)", () => {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un body non serialise", () => {
-    // Échec ciblé : un objet brut en body ne part pas en JSON.
+  it("rejects a non-serialized body", () => {
+    // Targeted failure: a raw object as the body is not sent as JSON.
     const code = `await fetch('https://api.codeforge.space/vaisseaux', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -57,7 +57,7 @@ describe("JS chapitre 12 — etape 2 (creer)", () => {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un POST sans headers", () => {
+  it("rejects a POST without headers", () => {
     const code = `await fetch('https://api.codeforge.space/vaisseaux', {
   method: 'POST',
   body: JSON.stringify({ nom: 'Phoenix', classe: 'cargo' }),
@@ -66,10 +66,10 @@ describe("JS chapitre 12 — etape 2 (creer)", () => {
   });
 });
 
-describe("JS chapitre 12 — etape 3 (mettre a jour)", () => {
+describe("JS chapter 12 — step 3 (update)", () => {
   const validate = validators[2];
 
-  it("valide un PUT sur la ressource ciblee", () => {
+  it("passes a PUT on the targeted resource", () => {
     const code = `await fetch('https://api.codeforge.space/vaisseaux/42', {
   method: 'PUT',
   headers: { 'Content-Type': 'application/json' },
@@ -78,8 +78,8 @@ describe("JS chapitre 12 — etape 3 (mettre a jour)", () => {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un PUT sur la collection au lieu de la ressource", () => {
-    // Échec ciblé : sans l'id dans l'URL, on ne sait pas quoi remplacer.
+  it("rejects a PUT on the collection instead of the resource", () => {
+    // Targeted failure: without the id in the URL, there is no way to know what to replace.
     const code = `await fetch('https://api.codeforge.space/vaisseaux', {
   method: 'PUT',
   body: JSON.stringify({ nom: 'Phoenix II', classe: 'combat' }),
@@ -87,7 +87,7 @@ describe("JS chapitre 12 — etape 3 (mettre a jour)", () => {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un POST la ou un PUT est attendu", () => {
+  it("rejects a POST where a PUT is expected", () => {
     const code = `await fetch('https://api.codeforge.space/vaisseaux/42', {
   method: 'POST',
   body: JSON.stringify({ nom: 'Phoenix II', classe: 'combat' }),
@@ -96,7 +96,7 @@ describe("JS chapitre 12 — etape 3 (mettre a jour)", () => {
   });
 });
 
-describe("JS chapitre 12 — etape 4 (supprimer)", () => {
+describe("JS chapter 12 — step 4 (delete)", () => {
   const validate = validators[3];
 
   const OK = `const response = await fetch('https://api.codeforge.space/vaisseaux/13', {
@@ -106,28 +106,28 @@ if (response.ok) {
   console.log('Vaisseau retiré de la flotte');
 }`;
 
-  it("valide un DELETE confirme et marque l'etape finale", () => {
+  it("passes a confirmed DELETE and marks the final step", () => {
     const r = validate(OK);
     expect(r.ok).toBe(true);
     expect(r.final).toBe(true);
   });
 
-  it("refuse une suppression dont on ne verifie pas le succes", () => {
+  it("rejects a deletion whose success is not checked", () => {
     const code = `await fetch('https://api.codeforge.space/vaisseaux/13', { method: 'DELETE' });
 console.log('Vaisseau retiré de la flotte');`;
     expect(validate(code).ok).toBe(false);
   });
 
-  it("valide l'indice donné dans la leçon", () => {
+  it("passes the hint given in the lesson", () => {
     const hint = getChapterData("javascript", "chapitre-12")!.steps[3].hint;
     expect(validate(hint).ok).toBe(true);
   });
 
-  it("accepte le message sans accent", () => {
+  it("accepts the message without an accent", () => {
     expect(validate(OK.replace("retiré", "retire")).ok).toBe(true);
   });
 
-  it("refuse une suppression sur un autre identifiant", () => {
+  it("rejects a deletion on another id", () => {
     const code = `const response = await fetch('https://api.codeforge.space/vaisseaux/8', {
   method: 'DELETE',
 });

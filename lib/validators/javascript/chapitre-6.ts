@@ -6,7 +6,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : xp.map() qui double les valeurs, résultat affiché
+  // Step 1: xp.map() that doubles the values, result printed
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -23,7 +23,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Données transformées.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : equipage.filter() qui garde niveau >= 5, résultat affiché
+  // Step 2: equipage.filter() that keeps niveau >= 5, result printed
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -43,7 +43,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Élites identifiées.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : cargo.reduce() dont la somme des masses vaut 400
+  // Step 3: cargo.reduce() whose sum of masses is 400
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -57,7 +57,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Total calculé.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : ships.find() renvoie le vaisseau en maintenance, affiche "NEB-02"
+  // Step 4: ships.find() returns the ship under maintenance, prints "NEB-02"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);

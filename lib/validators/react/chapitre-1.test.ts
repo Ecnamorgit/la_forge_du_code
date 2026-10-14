@@ -2,33 +2,33 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * React chapitre 1 — composant, props, condition, composition.
+ * React chapter 1 — component, props, condition, composition.
  */
 
-describe("React chapitre 1 — etape 1 (premier composant)", () => {
+describe("React chapter 1 — step 1 (first component)", () => {
   const validate = validators[0];
 
-  it("accepte une fonction Radar qui retourne du JSX", () => {
+  it("accepts a Radar function that returns JSX", () => {
     const code = `function Radar() {
   return <div>Scan en cours</div>;
 }`;
     expect(validate(code).ok).toBe(true);
   });
 
-  it("accepte la forme const Radar = () => ...", () => {
+  it("accepts the const Radar = () => ... form", () => {
     const code = `const Radar = () => <div>Scan en cours</div>;`;
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un nom de composant en minuscule", () => {
-    // Échec ciblé : React distingue les composants par leur majuscule.
+  it("rejects a lowercase component name", () => {
+    // Targeted failure: React tells components apart by their capital letter.
     const code = `function radar() {
   return <div>Scan en cours</div>;
 }`;
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un composant qui ne retourne pas le texte demande", () => {
+  it("rejects a component that does not return the requested text", () => {
     const code = `function Radar() {
   return <div>Rien a signaler</div>;
 }`;
@@ -36,32 +36,32 @@ describe("React chapitre 1 — etape 1 (premier composant)", () => {
   });
 });
 
-describe("React chapitre 1 — etape 2 (props)", () => {
+describe("React chapter 1 — step 2 (props)", () => {
   const validate = validators[1];
 
-  it("accepte props.cible affiche entre accolades", () => {
+  it("accepts props.cible printed inside braces", () => {
     const code = `function Radar(props) {
   return <div>Scan de {props.cible}</div>;
 }`;
     expect(validate(code).ok).toBe(true);
   });
 
-  it("accepte la destructuration du parametre", () => {
+  it("accepts destructuring the parameter", () => {
     const code = `function Radar({ cible }) {
   return <div>Scan de {cible}</div>;
 }`;
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un composant sans parametre", () => {
+  it("rejects a component without a parameter", () => {
     const code = `function Radar() {
   return <div>Scan de {props.cible}</div>;
 }`;
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse une valeur ecrite en dur au lieu de la prop", () => {
-    // Échec ciblé : le paramètre existe mais n'est jamais affiché.
+  it("rejects a hard-coded value instead of the prop", () => {
+    // Targeted failure: the parameter exists but is never displayed.
     const code = `function Radar(props) {
   return <div>Scan de la Lune</div>;
 }`;
@@ -69,32 +69,32 @@ describe("React chapitre 1 — etape 2 (props)", () => {
   });
 });
 
-describe("React chapitre 1 — etape 3 (affichage conditionnel)", () => {
+describe("React chapter 1 — step 3 (conditional rendering)", () => {
   const validate = validators[2];
 
-  it("accepte un ternaire sur menace", () => {
+  it("accepts a ternary on menace", () => {
     const code = `function Radar(props) {
   return <div>{props.menace ? <span>ALERTE</span> : null}</div>;
 }`;
     expect(validate(code).ok).toBe(true);
   });
 
-  it("accepte l'operateur && ", () => {
+  it("accepts the && operator", () => {
     const code = `function Radar(props) {
   return <div>{props.menace && <span>ALERTE</span>}</div>;
 }`;
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse une alerte affichee sans condition", () => {
+  it("rejects an alert displayed without a condition", () => {
     const code = `function Radar(props) {
   return <div><span>ALERTE</span></div>;
 }`;
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse une condition qui n'affiche pas le span attendu", () => {
-    // Échec ciblé : la logique est là, le rendu ne l'est pas.
+  it("rejects a condition that does not render the expected span", () => {
+    // Targeted failure: the logic is there, the rendering is not.
     const code = `function Radar(props) {
   return <div>{props.menace ? <b>ALERTE</b> : null}</div>;
 }`;
@@ -102,10 +102,10 @@ describe("React chapitre 1 — etape 3 (affichage conditionnel)", () => {
   });
 });
 
-describe("React chapitre 1 — etape 4 (composition)", () => {
+describe("React chapter 1 — step 4 (composition)", () => {
   const validate = validators[3];
 
-  it("accepte un parent qui monte deux Radar avec des cibles distinctes", () => {
+  it("accepts a parent that mounts two Radar with distinct targets", () => {
     const code = `function TableauDeBord() {
   return (
     <div>
@@ -117,15 +117,15 @@ describe("React chapitre 1 — etape 4 (composition)", () => {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un parent qui ne monte qu'un seul Radar", () => {
+  it("rejects a parent that mounts only one Radar", () => {
     const code = `function TableauDeBord() {
   return <div><Radar cible="Lune" /></div>;
 }`;
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse deux Radar sur la meme cible", () => {
-    // Échec ciblé : l'étape demande deux cibles nommées, Lune et Mars.
+  it("rejects two Radar on the same target", () => {
+    // Targeted failure: the step asks for two named targets, Lune and Mars.
     const code = `function TableauDeBord() {
   return (
     <div>

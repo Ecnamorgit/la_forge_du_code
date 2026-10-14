@@ -2,62 +2,62 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-11";
 
 /**
- * JS chapitre 11 — fetch.
+ * JS chapter 11 — fetch.
  *
- * Contrairement aux chapitres 1 à 10, ces validateurs sont statiques : l'hôte
- * d'API est fictif et ne résout jamais dans le bac à sable, c'est donc le code
- * écrit qui est inspecté, pas sa sortie. Aucun contexte à fournir.
+ * Unlike chapters 1 to 10, these validators are static: the API host is
+ * fictional and never resolves in the sandbox, so it is the written code
+ * that is inspected, not its output. No context to provide.
  */
 
-describe("JS chapitre 11 — etape 1 (premier appel)", () => {
+describe("JS chapter 11 — step 1 (first call)", () => {
   const validate = validators[0];
 
-  it("valide un fetch chaine a un then qui logue", () => {
+  it("passes a fetch chained to a then that logs", () => {
     const code = `fetch('https://api.codeforge.space/ping')
   .then((r) => console.log(r));`;
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un fetch sans then", () => {
+  it("rejects a fetch without then", () => {
     expect(validate(`fetch('https://api.codeforge.space/ping');`).ok).toBe(false);
   });
 
-  it("refuse un appel vers une autre URL", () => {
-    // Échec ciblé : l'étape nomme explicitement l'endpoint.
+  it("rejects a call to another URL", () => {
+    // Targeted failure: the step names the endpoint explicitly.
     const code = `fetch('https://api.codeforge.space/status')
   .then((r) => console.log(r));`;
     expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("JS chapitre 11 — etape 2 (decoder le JSON)", () => {
+describe("JS chapter 11 — step 2 (decode the JSON)", () => {
   const validate = validators[1];
 
-  it("valide deux then dont un json()", () => {
+  it("passes two thens, one of them with json()", () => {
     const code = `fetch('https://api.codeforge.space/vaisseau')
   .then((response) => response.json())
   .then((data) => console.log(data));`;
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un seul then, sans decodage", () => {
+  it("rejects a single then, without decoding", () => {
     const code = `fetch('https://api.codeforge.space/vaisseau')
   .then((response) => console.log(response));`;
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un json() sans second then pour l'exploiter", () => {
-    // Échec ciblé : les données sont décodées puis perdues.
+  it("rejects a json() without a second then to use it", () => {
+    // Targeted failure: the data is decoded and then lost.
     const code = `fetch('https://api.codeforge.space/vaisseau')
   .then((response) => response.json());`;
     expect(validate(code).ok).toBe(false);
   });
 });
 
-describe("JS chapitre 11 — etape 3 (passer a async/await)", () => {
+describe("JS chapter 11 — step 3 (switch to async/await)", () => {
   const validate = validators[2];
 
-  it("valide un await sur le fetch et sur le json", () => {
+  it("passes an await on the fetch and on the json", () => {
     const code = `async function charger() {
   const response = await fetch('https://api.codeforge.space/vaisseau');
   const data = await response.json();
@@ -66,8 +66,8 @@ describe("JS chapitre 11 — etape 3 (passer a async/await)", () => {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un await sur le fetch seul", () => {
-    // Échec ciblé : json() renvoie aussi une promesse, souvent oubliée.
+  it("rejects an await on the fetch only", () => {
+    // Targeted failure: json() also returns a promise, often forgotten.
     const code = `async function charger() {
   const response = await fetch('https://api.codeforge.space/vaisseau');
   const data = response.json();
@@ -76,7 +76,7 @@ describe("JS chapitre 11 — etape 3 (passer a async/await)", () => {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse une fonction non async", () => {
+  it("rejects a non-async function", () => {
     const code = `function charger() {
   const response = fetch('https://api.codeforge.space/vaisseau');
   console.log(response);
@@ -85,7 +85,7 @@ describe("JS chapitre 11 — etape 3 (passer a async/await)", () => {
   });
 });
 
-describe("JS chapitre 11 — etape 4 (gerer la panne)", () => {
+describe("JS chapter 11 — step 4 (handle the failure)", () => {
   const validate = validators[3];
 
   const OK = `async function charger() {
@@ -98,14 +98,14 @@ describe("JS chapitre 11 — etape 4 (gerer la panne)", () => {
   }
 }`;
 
-  it("valide un try/catch avec verification de response.ok", () => {
+  it("passes a try/catch that checks response.ok", () => {
     const r = validate(OK);
     expect(r.ok).toBe(true);
     expect(r.final).toBe(true);
   });
 
-  it("refuse un try/catch qui ne verifie pas response.ok", () => {
-    // Échec ciblé : fetch ne rejette pas sur un 404, seul .ok le révèle.
+  it("rejects a try/catch that does not check response.ok", () => {
+    // Targeted failure: fetch does not reject on a 404, only .ok reveals it.
     const code = `async function charger() {
   try {
     const response = await fetch('https://api.codeforge.space/vaisseau');
@@ -117,7 +117,7 @@ describe("JS chapitre 11 — etape 4 (gerer la panne)", () => {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un catch au message different de celui demande", () => {
+  it("rejects a catch with a message other than the one requested", () => {
     const code = `async function charger() {
   try {
     const response = await fetch('https://api.codeforge.space/vaisseau');

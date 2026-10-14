@@ -2,15 +2,15 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-2";
 
 /**
- * React chapitre 2 — useState : compteur, événement, objet, remontée d'état.
+ * React chapter 2 — useState: counter, event, object, lifting state up.
  */
 
 const IMPORT = `import { useState } from 'react';`;
 
-describe("React chapitre 2 — etape 1 (declarer un etat)", () => {
+describe("React chapter 2 — step 1 (declare state)", () => {
   const validate = validators[0];
 
-  it("accepte un useState importe, declare et affiche", () => {
+  it("accepts a useState that is imported, declared and displayed", () => {
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -19,7 +19,7 @@ function Compteur() {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un useState non importe", () => {
+  it("rejects a useState that is not imported", () => {
     const code = `function Compteur() {
   const [count, setCount] = useState(0);
   return <div>{count}</div>;
@@ -27,8 +27,8 @@ function Compteur() {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un etat declare mais jamais affiche", () => {
-    // Échec ciblé : sans rendu, l'apprenant ne voit pas l'état vivre.
+  it("rejects state declared but never displayed", () => {
+    // Targeted failure: without rendering, the learner does not see the state change.
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -37,7 +37,7 @@ function Compteur() {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse une valeur initiale autre que zero", () => {
+  it("rejects an initial value other than zero", () => {
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(1);
@@ -47,10 +47,10 @@ function Compteur() {
   });
 });
 
-describe("React chapitre 2 — etape 2 (incrementer au clic)", () => {
+describe("React chapter 2 — step 2 (increment on click)", () => {
   const validate = validators[1];
 
-  it("accepte un bouton qui appelle setCount dans une fleche", () => {
+  it("accepts a button that calls setCount in an arrow", () => {
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -59,7 +59,7 @@ function Compteur() {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un bouton sans onClick", () => {
+  it("rejects a button without onClick", () => {
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -68,8 +68,8 @@ function Compteur() {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un onClick qui ne met pas l'etat a jour", () => {
-    // Échec ciblé : le gestionnaire existe mais n'appelle pas le setter.
+  it("rejects an onClick that does not update the state", () => {
+    // Targeted failure: the handler exists but does not call the setter.
     const code = `${IMPORT}
 function Compteur() {
   const [count, setCount] = useState(0);
@@ -79,10 +79,10 @@ function Compteur() {
   });
 });
 
-describe("React chapitre 2 — etape 3 (etat objet et immutabilite)", () => {
+describe("React chapter 2 — step 3 (object state and immutability)", () => {
   const validate = validators[2];
 
-  it("accepte une mise a jour par spread", () => {
+  it("accepts an update with spread", () => {
     const code = `${IMPORT}
 function Profil() {
   const [profil, setProfil] = useState({ nom: 'Lia', xp: 0 });
@@ -91,8 +91,8 @@ function Profil() {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse une mutation directe de l'objet d'etat", () => {
-    // Échec ciblé : sans nouvelle référence, React ne redessine pas.
+  it("rejects a direct mutation of the state object", () => {
+    // Targeted failure: without a new reference, React does not re-render.
     const code = `${IMPORT}
 function Profil() {
   const [profil, setProfil] = useState({ nom: 'Lia', xp: 0 });
@@ -101,7 +101,7 @@ function Profil() {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un etat qui n'est pas l'objet demande", () => {
+  it("rejects state that is not the requested object", () => {
     const code = `${IMPORT}
 function Profil() {
   const [profil, setProfil] = useState(0);
@@ -111,10 +111,10 @@ function Profil() {
   });
 });
 
-describe("React chapitre 2 — etape 4 (remontee d'etat)", () => {
+describe("React chapter 2 — step 4 (lifting state up)", () => {
   const validate = validators[3];
 
-  it("accepte un parent qui passe la valeur et le setter", () => {
+  it("accepts a parent that passes the value and the setter", () => {
     const code = `${IMPORT}
 function TableauDeBord() {
   const [alerte, setAlerte] = useState(false);
@@ -123,8 +123,8 @@ function TableauDeBord() {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse un parent qui ne passe que la valeur", () => {
-    // Échec ciblé : sans le setter, l'enfant ne peut rien remonter.
+  it("rejects a parent that passes only the value", () => {
+    // Targeted failure: without the setter, the child cannot send anything back up.
     const code = `${IMPORT}
 function TableauDeBord() {
   const [alerte, setAlerte] = useState(false);
@@ -133,7 +133,7 @@ function TableauDeBord() {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un etat declare dans l'enfant au lieu du parent", () => {
+  it("rejects state declared in the child instead of the parent", () => {
     const code = `${IMPORT}
 function Bouton() {
   const [actif, setActif] = useState(false);

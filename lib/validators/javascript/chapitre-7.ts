@@ -6,7 +6,7 @@ function runtimeError(error: string | null): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : createElement et appendChild, innerHTML affiché avec "Centre de commande"
+  // Step 1: createElement and appendChild, innerHTML printed with "Centre de commande"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -26,7 +26,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Élément injecté.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : un <ul> de 3 <li>, affiche "3"
+  // Step 2: a <ul> with 3 <li>, prints "3"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -43,7 +43,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Missions listées.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : changement de classe, affiche "ALERTE"
+  // Step 3: class change, prints "ALERTE"
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
@@ -57,7 +57,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Statut mis à jour.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : querySelectorAll, affiche A, B et C
+  // Step 4: querySelectorAll, prints A, B and C
   (code, ctx) => {
     if (!ctx) return { ok: false, msg: "Exécution requise." };
     const err = runtimeError(ctx.error);
