@@ -35,7 +35,7 @@ describe("JS reference sheets", () => {
   it("every related id resolves (js, html or css)", () => {
     for (const e of entries) {
       for (const rel of e.related ?? []) {
-        expect(known.has(rel), `related inconnu: ${rel} (dans ${e.id})`).toBe(true);
+        expect(known.has(rel), `unknown related: ${rel} (in ${e.id})`).toBe(true);
       }
     }
   });

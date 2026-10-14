@@ -19,6 +19,6 @@ test("Monaco loads locally, without the jsdelivr CDN", async ({ page }) => {
 
   expect(
     cdnHits,
-    `Requêtes inattendues vers jsdelivr : ${cdnHits.join(", ")}`
+    `Unexpected requests to jsdelivr: ${cdnHits.join(", ")}`
   ).toEqual([]);
 });

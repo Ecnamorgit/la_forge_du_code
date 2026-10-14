@@ -323,7 +323,7 @@ describe("React chapter 6 — hints pass their own validator", () => {
   it("each hint passes its own validator", () => {
     chapter6.steps.forEach((step, i) => {
       const r = validators[i](step.hint);
-      expect(r.ok, `hint etape ${i + 1} rejete : ${!r.ok ? r.msg : ""}`).toBe(true);
+      expect(r.ok, `hint for step ${i + 1} rejected: ${!r.ok ? r.msg : ""}`).toBe(true);
     });
   });
 });

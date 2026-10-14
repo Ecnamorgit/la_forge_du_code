@@ -56,18 +56,18 @@ describe("React course integrity", () => {
     for (let n = 1; n <= reactChapterCount; n++) {
       const slug = `chapitre-${n}`;
       const data = getChapterData("react", slug);
-      expect(data, `${slug} absent du registre`).not.toBeNull();
-      expect(data!.steps.length, `${slug} n'a pas 4 etapes`).toBe(4);
+      expect(data, `${slug} missing from the registry`).not.toBeNull();
+      expect(data!.steps.length, `${slug} does not have 4 steps`).toBe(4);
 
       const validators = VALIDATORS_BY_CHAPTER[slug];
-      expect(validators, `${slug} sans validateurs`).toBeDefined();
-      expect(validators!.length, `${slug} : un validateur par etape`).toBe(
+      expect(validators, `${slug} has no validators`).toBeDefined();
+      expect(validators!.length, `${slug}: one validator per step`).toBe(
         data!.steps.length
       );
 
       const badgeId = getBadgeForChapter("react", slug);
-      expect(badgeId, `${slug} sans badge declare`).not.toBeNull();
-      expect(getBadge(badgeId!), `badge ${badgeId} absent du catalogue`).toBeDefined();
+      expect(badgeId, `${slug} has no declared badge`).not.toBeNull();
+      expect(getBadge(badgeId!), `badge ${badgeId} missing from the catalog`).toBeDefined();
     }
 
     // The React course must stay "complete" as the catalog defines it.

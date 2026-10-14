@@ -100,7 +100,7 @@ describe("sitemap / robots / middleware consistency", () => {
       );
       // A route under a protected prefix is only allowed if the allowlist opens it.
       if (isUnderProtectedPrefix) {
-        expect(isPublicRoute(route), `${route} est protégé et hors allowlist`).toBe(true);
+        expect(isPublicRoute(route), `${route} is protected and not in the allowlist`).toBe(true);
       }
     }
   });
@@ -122,7 +122,7 @@ describe("sitemap / robots / middleware consistency", () => {
       for (const prefix of NON_INDEXABLE_PREFIXES) {
         expect(
           route === prefix || route.startsWith(`${prefix}/`),
-          `${route} est déclaré au sitemap mais interdit par ${prefix}`
+          `${route} is in the sitemap but disallowed by ${prefix}`
         ).toBe(false);
       }
     }

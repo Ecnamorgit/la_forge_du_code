@@ -25,7 +25,7 @@ test("under the production CSP, script-src uses a nonce and no unsafe-*", async 
 
   test.skip(
     !csp,
-    "CSP absente : lance ce test contre `pnpm build && pnpm start` (E2E_PROD=1), pas `pnpm dev`."
+    "No CSP: run this test against `pnpm build && pnpm start` (E2E_PROD=1), not `pnpm dev`."
   );
 
   const scriptSrc = csp!
@@ -33,13 +33,13 @@ test("under the production CSP, script-src uses a nonce and no unsafe-*", async 
     .map((d) => d.trim())
     .find((d) => d === "script-src" || d.startsWith("script-src "));
 
-  expect(scriptSrc, "La CSP ne contient pas de directive script-src.").toBeDefined();
-  expect(scriptSrc, "script-src doit porter un nonce.").toMatch(/'nonce-[^']+'/);
-  expect(scriptSrc, "script-src doit porter 'strict-dynamic'.").toContain("'strict-dynamic'");
-  expect(scriptSrc, "script-src ne doit plus porter 'unsafe-inline' (constat EXE-03).").not.toContain(
+  expect(scriptSrc, "The CSP has no script-src directive.").toBeDefined();
+  expect(scriptSrc, "script-src must carry a nonce.").toMatch(/'nonce-[^']+'/);
+  expect(scriptSrc, "script-src must carry 'strict-dynamic'.").toContain("'strict-dynamic'");
+  expect(scriptSrc, "script-src must no longer carry 'unsafe-inline' (finding EXE-03).").not.toContain(
     "'unsafe-inline'"
   );
-  expect(scriptSrc, "script-src ne doit plus porter 'unsafe-eval' (constat EXE-03).").not.toContain(
+  expect(scriptSrc, "script-src must no longer carry 'unsafe-eval' (finding EXE-03).").not.toContain(
     "'unsafe-eval'"
   );
 
@@ -51,7 +51,7 @@ test("under the production CSP, script-src uses a nonce and no unsafe-*", async 
     .split(";")
     .map((d) => d.trim())
     .find((d) => d.startsWith("frame-src "));
-  expect(frameSrc, "frame-src doit valoir exactement 'self' + l'origine du bac à sable.").toBe(
+  expect(frameSrc, "frame-src must be exactly 'self' + the sandbox origin.").toBe(
     `frame-src 'self' ${sandboxOrigin}`
   );
 
@@ -62,7 +62,7 @@ test("under the production CSP, script-src uses a nonce and no unsafe-*", async 
     .split(";")
     .map((d) => d.trim())
     .find((d) => d.startsWith("frame-ancestors "));
-  expect(ancestors, "frame-ancestors du bac à sable doit valoir exactement l'origine de l'app.").toBe(
+  expect(ancestors, "the sandbox frame-ancestors must be exactly the app origin.").toBe(
     `frame-ancestors ${app}`
   );
 
@@ -71,5 +71,5 @@ test("under the production CSP, script-src uses a nonce and no unsafe-*", async 
     timeout: 15_000,
   });
   await page.waitForTimeout(1000);
-  expect(violations, `Violations CSP au chargement :\n${violations.join("\n")}`).toEqual([]);
+  expect(violations, `CSP violations on load:\n${violations.join("\n")}`).toEqual([]);
 });

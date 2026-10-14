@@ -16,18 +16,18 @@ describe("previewMount of the React curriculum", () => {
     for (const slug of slugs) {
       const exempt = PREVIEW_EXEMPT[`react/${slug}`];
       const data = getChapterData("react", slug);
-      expect(data, `${slug} absent du registre`).not.toBeNull();
+      expect(data, `${slug} missing from the registry`).not.toBeNull();
 
       data!.steps.forEach((step, i) => {
-        const ref = `react/${slug} etape ${i + 1}`;
+        const ref = `react/${slug} step ${i + 1}`;
         if (exempt) {
-          expect(step.previewMount, `${ref} : chapitre exempte, previewMount inattendu`).toBeUndefined();
+          expect(step.previewMount, `${ref}: exempt chapter, unexpected previewMount`).toBeUndefined();
           return;
         }
-        expect(step.previewMount, `${ref} : previewMount manquant`).toBeDefined();
+        expect(step.previewMount, `${ref}: missing previewMount`).toBeDefined();
         expect(
           PREVIEW_MOUNT_NAME_RE.test(step.previewMount!),
-          `${ref} : « ${step.previewMount} » n'est pas un identifiant valide`
+          `${ref}: "${step.previewMount}" is not a valid identifier`
         ).toBe(true);
       });
     }
@@ -49,7 +49,7 @@ describe("previewMount of the React curriculum", () => {
         ).test(step.hint);
         expect(
           declare,
-          `react/${slug} etape ${i + 1} : « ${mountName} » n'est pas declare dans le hint`
+          `react/${slug} step ${i + 1}: "${mountName}" is not declared in the hint`
         ).toBe(true);
       });
     }
@@ -57,7 +57,7 @@ describe("previewMount of the React curriculum", () => {
 
   it("every exemption has a non-empty reason", () => {
     for (const [key, reason] of Object.entries(PREVIEW_EXEMPT)) {
-      expect(reason.trim().length, `${key} : raison vide`).toBeGreaterThan(20);
+      expect(reason.trim().length, `${key}: empty reason`).toBeGreaterThan(20);
     }
   });
 });

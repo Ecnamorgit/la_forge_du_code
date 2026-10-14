@@ -39,7 +39,7 @@ describe("every chapter can be validated", () => {
   describe.each(CHAPTERS)("$course / $chapter", ({ course, chapter }) => {
     it("has as many validators as steps", () => {
       const data = getChapterData(course, chapter);
-      expect(data, `${course}/${chapter} absent du registre de contenu`).not.toBeNull();
+      expect(data, `${course}/${chapter} missing from the content registry`).not.toBeNull();
 
       const validators = getValidators(course, chapter);
 
@@ -66,14 +66,14 @@ describe("the start code never validates its own step", () => {
     data.steps.forEach((step, i) => {
       it(`step ${i + 1}`, () => {
         const validate = validators[i];
-        expect(validate, `pas de validateur pour l'étape ${i + 1}`).toBeTypeOf("function");
+        expect(validate, `no validator for step ${i + 1}`).toBeTypeOf("function");
 
         // If the startCode already passes, the step is empty: the learner clicks
         // "check" and succeeds without writing anything. Nothing else flags it.
         expect(
           validate(step.startCode).ok,
-          `${course}/${chapter} étape ${i + 1} : le code de départ valide déjà. ` +
-            `L'apprenant n'a rien à faire.`
+          `${course}/${chapter} step ${i + 1}: the start code already passes. ` +
+            `The learner has nothing to do.`
         ).toBe(false);
       });
     });

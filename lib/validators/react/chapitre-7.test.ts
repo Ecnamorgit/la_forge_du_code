@@ -342,7 +342,7 @@ describe("react/chapitre-7 — each hint passes its own validator", () => {
   it("passes all four hints", () => {
     chapter7.steps.forEach((step, i) => {
       const r = validators[i]!(step.hint);
-      expect(r.ok, `etape ${i + 1} : hint refuse — ${r.msg}`).toBe(true);
+      expect(r.ok, `step ${i + 1}: hint rejected — ${r.msg}`).toBe(true);
     });
   });
 });

@@ -10,7 +10,7 @@ describe("Kira appears in person at the top of the 1st briefing (HTML + CSS)", (
       const slug = `chapitre-${n}`;
       it(`${course}/${slug} — the first briefing mentions Kira`, () => {
         const data = getChapterData(course, slug);
-        expect(data, `${course}/${slug} introuvable`).not.toBeNull();
+        expect(data, `${course}/${slug} not found`).not.toBeNull();
         const content = data!.steps[0].briefing?.content ?? "";
         expect(content).toContain("Kira");
       });

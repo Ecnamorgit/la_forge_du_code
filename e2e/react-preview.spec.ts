@@ -21,7 +21,7 @@ async function setEditorCode(page: Page, code: string) {
     return "ok";
   }, code);
   if (result !== "ok") {
-    throw new Error(`Impossible de definir le code de l'editeur Monaco : ${result}`);
+    throw new Error(`Could not set the Monaco editor code: ${result}`);
   }
 }
 
@@ -71,14 +71,14 @@ test.describe("React preview", () => {
     const iframe = page.locator('iframe[title="Aperçu du composant React"]');
     await expect(iframe).toHaveCount(1);
     const src = await iframe.getAttribute("src");
-    expect(src, "l'aperçu doit être chargé par src, plus par srcDoc").not.toBeNull();
+    expect(src, "the preview must be loaded via src, no longer via srcDoc").not.toBeNull();
 
     const previewOrigin = new URL(src!).origin;
     const appOrigin = new URL(page.url()).origin;
     expect(new URL(src!).pathname).toBe("/bac-a-sable");
     expect(
       previewOrigin,
-      `l'aperçu (${previewOrigin}) doit être servi depuis une autre origine que l'app (${appOrigin})`
+      `the preview (${previewOrigin}) must be served from an origin other than the app (${appOrigin})`
     ).not.toBe(appOrigin);
   });
 

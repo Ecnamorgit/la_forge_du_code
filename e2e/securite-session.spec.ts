@@ -60,7 +60,7 @@ async function logIn(page: Page): Promise<void> {
     maxRedirects: 0,
   });
   const session = await (await page.request.get("/api/auth/session")).json();
-  expect(session?.user?.email, "la connexion a échoué").toBe(TARGET.email);
+  expect(session?.user?.email, "sign-in failed").toBe(TARGET.email);
 }
 
 const meStatus = async (page: Page) => (await page.request.get("/api/me")).status();

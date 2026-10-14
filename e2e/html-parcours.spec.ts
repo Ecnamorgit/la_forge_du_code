@@ -66,13 +66,13 @@ test.describe("HTML preview on the dedicated origin", () => {
   const preview = page.locator('iframe[title="Apercu"]');
   await expect(preview).toHaveCount(1);
   const src = await preview.getAttribute("src");
-  expect(src, "l'aperçu doit être chargé par src, plus par srcDoc").not.toBeNull();
+  expect(src, "the preview must be loaded via src, no longer via srcDoc").not.toBeNull();
   const previewOrigin = new URL(src!).origin;
   const appOrigin = new URL(page.url()).origin;
   expect(new URL(src!).pathname).toBe("/bac-a-sable/html");
   expect(
     previewOrigin,
-    `l'aperçu (${previewOrigin}) doit être servi depuis une autre origine que l'app (${appOrigin})`
+    `the preview (${previewOrigin}) must be served from an origin other than the app (${appOrigin})`
   ).not.toBe(appOrigin);
 
   // Without <!DOCTYPE>, this HTML renders without validating the step: only

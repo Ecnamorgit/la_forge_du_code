@@ -11,21 +11,21 @@ describe("safeInternalPath", () => {
   );
 
   it.each([
-    ["absent", null],
-    ["vide", ""],
-    ["relatif", "dashboard"],
-    ["URL absolue", "https://piege.example/connexion"],
-    ["URL sans protocole", "//piege.example"],
-    ["antislash lu comme slash", "/\\piege.example"],
-    ["double antislash", "\\\\piege.example"],
-    ["tabulation qui reforme //", "/\t/piege.example"],
-    ["retour à la ligne qui reforme //", "/\n/piege.example"],
-    ["schéma javascript", "javascript:alert(1)"],
+    ["missing", null],
+    ["empty", ""],
+    ["relative", "dashboard"],
+    ["absolute URL", "https://evil.example/connexion"],
+    ["protocol-relative URL", "//evil.example"],
+    ["backslash read as a slash", "/\\evil.example"],
+    ["double backslash", "\\\\evil.example"],
+    ["tab that rebuilds //", "/\t/evil.example"],
+    ["newline that rebuilds //", "/\n/evil.example"],
+    ["javascript scheme", "javascript:alert(1)"],
   ])("rejects %s", (_label, value) => {
     expect(safeInternalPath(value)).toBe("/dashboard");
   });
 
   it("uses the provided fallback destination", () => {
-    expect(safeInternalPath("https://piege.example", "/profil")).toBe("/profil");
+    expect(safeInternalPath("https://evil.example", "/profil")).toBe("/profil");
   });
 });

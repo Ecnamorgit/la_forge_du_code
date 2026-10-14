@@ -31,7 +31,7 @@ interface ServerState {
 /** State as seen by the server, not read from the DOM. */
 async function readState(page: Page): Promise<ServerState> {
   const res = await page.request.get("/api/me");
-  expect(res.ok(), `GET /api/me a échoué : ${res.status()}`).toBeTruthy();
+  expect(res.ok(), `GET /api/me failed: ${res.status()}`).toBeTruthy();
   return res.json();
 }
 
@@ -53,7 +53,7 @@ async function setEditorCode(page: Page, code: string): Promise<void> {
     model.setValue(value);
     return "ok";
   }, code);
-  expect(result, "impossible de poser le code sur le modèle Monaco").toBe("ok");
+  expect(result, "could not set the code on the Monaco model").toBe("ok");
 }
 
 /**
@@ -102,7 +102,7 @@ test.describe("daily loop", () => {
     const res = await page.request.post("/api/me/avatar", {
       data: { species: "humain", uniformColor: "cyan", role: "pilote" },
     });
-    expect(res.ok(), `POST /api/me/avatar a échoué : ${res.status()}`).toBeTruthy();
+    expect(res.ok(), `POST /api/me/avatar failed: ${res.status()}`).toBeTruthy();
   });
 
   test("the liaison banner and the briefing show up, and an order leads to a mission", async ({
@@ -199,7 +199,7 @@ test.describe("daily loop", () => {
     // The `reprise` order is always drawn, with a target of at most 2
     // (lib/quests.ts).
     const resumeQuest = after.briefing?.quests.find((q) => q.slot === "reprise");
-    expect(resumeQuest, "le briefing doit toujours porter un ordre de reprise").toBeDefined();
+    expect(resumeQuest, "the briefing must always include a reprise order").toBeDefined();
     expect(resumeQuest!.progress).toBeGreaterThanOrEqual(resumeQuest!.target);
     expect(resumeQuest!.done).toBe(true);
 

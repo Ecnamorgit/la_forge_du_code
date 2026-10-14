@@ -84,7 +84,7 @@ test("SQL: an endless query is interrupted, the tab stays usable", async ({ page
   );
   await page.getByRole("button", { name: DEPLOY_BUTTON }).click();
 
-  expect(await tabResponds(page), "l'onglet est figé").toBe(true);
+  expect(await tabResponds(page), "the tab is frozen").toBe(true);
   // The message also shows up in the console, hence `.first()`.
   await expect(page.getByText(/interrompue/i).first()).toBeVisible({ timeout: 15_000 });
 });
@@ -98,7 +98,7 @@ test("JavaScript: an endless loop is interrupted, the tab stays usable", async (
   await typeCode(page, "let encore = true;\nwhile (encore) {}");
   await page.getByRole("button", { name: DEPLOY_BUTTON }).click();
 
-  expect(await tabResponds(page), "l'onglet est figé").toBe(true);
+  expect(await tabResponds(page), "the tab is frozen").toBe(true);
   // The message also shows up in the console, hence `.first()`.
   await expect(page.getByText(/interrompue/i).first()).toBeVisible({ timeout: 15_000 });
 });

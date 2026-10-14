@@ -102,7 +102,7 @@ describe("buildBriefing — determinism", () => {
       const distinctIds = new Set(idsPerDay);
       expect(
         distinctIds.size,
-        `emplacement ${slot} sur ${days.length} jours : ${idsPerDay.join(", ")}`
+        `slot ${slot} over ${days.length} days: ${idsPerDay.join(", ")}`
       ).toBeGreaterThanOrEqual(2);
     }
   });
@@ -119,7 +119,7 @@ describe("buildBriefing — determinism", () => {
       const distinctIds = new Set(idsPerCadet);
       expect(
         distinctIds.size,
-        `emplacement ${slot} sur ${cadets.length} cadets : ${idsPerCadet.join(", ")}`
+        `slot ${slot} over ${cadets.length} cadets: ${idsPerCadet.join(", ")}`
       ).toBeGreaterThanOrEqual(2);
     }
   });
@@ -209,7 +209,7 @@ describe("buildBriefing — feasibility", () => {
         expect(`${finishQuest.course}/${finishQuest.chapter}`).toBe("html/chapitre-2");
       }
     }
-    expect(drawn, `boucler-chapitre jamais tiré sur ${days.length} jours`).toBe(true);
+    expect(drawn, `boucler-chapitre never drawn over ${days.length} days`).toBe(true);
   });
 
   it("does not offer to open a course when all of them are started", () => {

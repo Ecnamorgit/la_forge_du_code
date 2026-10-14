@@ -13,7 +13,7 @@ describe("Spectre trap steps", () => {
   for (const [course, chapter, step] of TRAPS) {
     it(`${course}/${chapter} step ${step + 1} carries a non-empty spectreTrap`, () => {
       const data = getChapterData(course, chapter);
-      expect(data, `${course}/${chapter} introuvable`).not.toBeNull();
+      expect(data, `${course}/${chapter} not found`).not.toBeNull();
       const trap = data!.steps[step]?.spectreTrap;
       expect(typeof trap).toBe("string");
       expect((trap ?? "").trim().length).toBeGreaterThan(0);

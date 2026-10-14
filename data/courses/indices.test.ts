@@ -17,7 +17,7 @@ const CHAPTERS = listCourseSlugs().flatMap((course) =>
 describe("hints rendered as text", () => {
   it.each(CHAPTERS)("$course / $chapter: no HTML entity", ({ course, chapter }) => {
     getChapterData(course, chapter)!.steps.forEach((step, i) => {
-      expect(HTML_ENTITY.test(step.hint), `étape ${i + 1} : ${step.hint}`).toBe(false);
+      expect(HTML_ENTITY.test(step.hint), `step ${i + 1}: ${step.hint}`).toBe(false);
     });
   });
 });

@@ -26,7 +26,7 @@ describe("reference sheet link integrity", () => {
   it("every sheet `related` points to an existing sheet", () => {
     for (const entry of Object.values(htmlDocs)) {
       for (const id of entry.related ?? []) {
-        expect(getDocEntry(id), `related cassé: ${id}`).toBeDefined();
+        expect(getDocEntry(id), `broken related: ${id}`).toBeDefined();
       }
     }
   });
@@ -37,7 +37,7 @@ describe("reference sheet link integrity", () => {
         for (const id of step.docRefs ?? []) {
           expect(
             getDocEntry(id),
-            `docRefs cassé dans ${chapter.slug}: ${id}`
+            `broken docRefs in ${chapter.slug}: ${id}`
           ).toBeDefined();
         }
       }
@@ -50,7 +50,7 @@ describe("reference sheet link integrity", () => {
         for (const id of extractDocTokenIds(step.briefing.content)) {
           expect(
             getDocEntry(id),
-            `token cassé dans ${chapter.slug}: ${id}`
+            `broken token in ${chapter.slug}: ${id}`
           ).toBeDefined();
         }
       }
@@ -59,10 +59,10 @@ describe("reference sheet link integrity", () => {
 
   it("every sheet has its essential fields filled in", () => {
     for (const entry of Object.values(htmlDocs)) {
-      expect(entry.id, "id manquant").toBeTruthy();
-      expect(entry.term, `term manquant: ${entry.id}`).toBeTruthy();
-      expect(entry.title, `title manquant: ${entry.id}`).toBeTruthy();
-      expect(entry.summary, `summary manquant: ${entry.id}`).toBeTruthy();
+      expect(entry.id, "missing id").toBeTruthy();
+      expect(entry.term, `missing term: ${entry.id}`).toBeTruthy();
+      expect(entry.title, `missing title: ${entry.id}`).toBeTruthy();
+      expect(entry.summary, `missing summary: ${entry.id}`).toBeTruthy();
       expect(entry.body.trim(), `body vide: ${entry.id}`).toBeTruthy();
     }
   });

@@ -33,7 +33,7 @@ describe("narrative integrity", () => {
   it("never names the threat 'Null' or 'Glitch'", () => {
     const text = allNarrativeText();
     for (const pattern of BANNED) {
-      expect(text, `terme banni ${pattern} trouvé`).not.toMatch(pattern);
+      expect(text, `banned term ${pattern} found`).not.toMatch(pattern);
     }
   });
 

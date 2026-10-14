@@ -70,5 +70,5 @@ test("attempts spread across many IPs lock the account", async ({ request }) => 
   // The real password, from a never-seen IP: the account must
   // stay locked until the end of the window.
   await attemptLogin(request, TARGET.password, "203.0.113.100");
-  expect(await signedInEmail(request), "compte verrouillé après 12 échecs").toBeNull();
+  expect(await signedInEmail(request), "account locked after 12 failures").toBeNull();
 });

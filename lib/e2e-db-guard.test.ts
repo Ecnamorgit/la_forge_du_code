@@ -101,7 +101,7 @@ describe("assertTestDatabaseUrl — what is rejected", () => {
         "postgresql://postgres:x@db.abcdefgh.supabase.co:5432/postgres",
         WITHOUT_OVERRIDE
       );
-      expect.unreachable("la garde aurait dû lever");
+      expect.unreachable("the guard should have thrown");
     } catch (err) {
       const message = (err as Error).message;
       expect(message).toContain("DATABASE_URL");
@@ -184,7 +184,7 @@ describe("assertLocalAppUnderTest", () => {
   it("explains why, and how to fix it", () => {
     try {
       assertLocalAppUnderTest("https://laforgeducode.fr", WITHOUT);
-      expect.unreachable("la garde aurait dû lever");
+      expect.unreachable("the guard should have thrown");
     } catch (err) {
       const message = (err as Error).message;
       expect(message).toContain("E2E_BASE_URL");

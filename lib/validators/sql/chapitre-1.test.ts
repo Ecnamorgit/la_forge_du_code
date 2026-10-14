@@ -36,7 +36,7 @@ describe("SQL chapitre-1 validators (real execution)", () => {
   it("accepts each step with the hint's solution", async () => {
     for (let i = 0; i < SOLUTIONS.length; i++) {
       const res = await play(i, SOLUTIONS[i]);
-      expect(res.ok, `étape ${i + 1}`).toBe(true);
+      expect(res.ok, `step ${i + 1}`).toBe(true);
     }
   });
 

@@ -31,9 +31,9 @@ describe("security.txt", () => {
   it("expires in the future, less than a year away", () => {
     const [expires] = fieldValues(text, "Expires");
     const date = Date.parse(expires);
-    expect(Number.isNaN(date), `Expires illisible : ${expires}`).toBe(false);
-    expect(date, "security.txt a expiré : le renouveler").toBeGreaterThan(Date.now());
-    expect(date - Date.now(), "Expires à plus d'un an").toBeLessThan(ONE_YEAR_MS);
+    expect(Number.isNaN(date), `Unreadable Expires: ${expires}`).toBe(false);
+    expect(date, "security.txt has expired: renew it").toBeGreaterThan(Date.now());
+    expect(date - Date.now(), "Expires is more than a year away").toBeLessThan(ONE_YEAR_MS);
   });
 
   it("states its canonical address over https", () => {

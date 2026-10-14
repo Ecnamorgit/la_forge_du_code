@@ -9,10 +9,10 @@ const PROD = { nonce: NONCE, sandboxOrigin: SANDBOX };
 
 /** Failure message: explains why `script-src` must stay strict. */
 const WHY =
-  "Le code des apprenants s'exécute depuis une origine dédiée (/bac-a-sable*, " +
-  "lib/sandbox/sandbox-response.ts), qui porte seule la CSP permissive. " +
-  "script-src doit donc rester à nonce + 'strict-dynamic', sans 'unsafe-inline' " +
-  "ni 'unsafe-eval'. Voir docs/audit-securite/corrections/EXE-03.md.";
+  "Learner code runs from a dedicated origin (/bac-a-sable*, " +
+  "lib/sandbox/sandbox-response.ts), which alone carries the permissive CSP. " +
+  "script-src must therefore stay at nonce + 'strict-dynamic', without 'unsafe-inline' " +
+  "or 'unsafe-eval'. See docs/audit-securite/corrections/EXE-03.md.";
 
 describe("CSP — script-src (production)", () => {
   const script = () => directiveTokens(cspDirectives(PROD), "script-src");

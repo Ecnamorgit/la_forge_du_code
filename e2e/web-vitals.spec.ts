@@ -14,7 +14,7 @@ import { STORAGE_STATE } from "./global-setup";
 
 test.skip(
   process.env.MESURE_VITALS !== "1",
-  "Mesure sur demande — MESURE_VITALS=1 E2E_PROD=1 pnpm test:e2e --grep \"Core Web Vitals\""
+  "On-demand measurement — MESURE_VITALS=1 E2E_PROD=1 pnpm test:e2e --grep \"Core Web Vitals\""
 );
 
 /** web.dev "good" thresholds. */
@@ -112,7 +112,7 @@ function report(page: string, r: Measurement): void {
 
 function checkThresholds(pageName: string, r: Measurement): void {
   // An LCP of zero means the probe captured nothing.
-  expect(r.lcp, `${pageName} — aucun LCP capte, la mesure ne prouve rien`).toBeGreaterThan(0);
+  expect(r.lcp, `${pageName} — no LCP captured, the measurement proves nothing`).toBeGreaterThan(0);
 
   expect(r.lcp, `${pageName} — LCP`).toBeLessThanOrEqual(THRESHOLDS.lcp);
   expect(r.cls, `${pageName} — CLS`).toBeLessThanOrEqual(THRESHOLDS.cls);
@@ -120,7 +120,7 @@ function checkThresholds(pageName: string, r: Measurement): void {
   // Zero means no interaction crossed the observer's 16 ms threshold,
   // not an instant response.
   if (r.interactionMax > 0) {
-    expect(r.interactionMax, `${pageName} — interaction la plus lente`).toBeLessThanOrEqual(
+    expect(r.interactionMax, `${pageName} — slowest interaction`).toBeLessThanOrEqual(
       THRESHOLDS.inp
     );
   }

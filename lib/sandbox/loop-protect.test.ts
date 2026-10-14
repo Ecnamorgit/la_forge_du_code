@@ -13,19 +13,19 @@ const execute = (code: string, timeoutMs = 50) =>
 describe("guardLoops", () => {
   it.each([
     ["while", "let x = true; while (x) {}"],
-    ["while sans accolades", "let x = true; while (x) x = true;"],
+    ["while without braces", "let x = true; while (x) x = true;"],
     ["do…while", "do {} while (true);"],
     ["for", "for (;;) {}"],
-    ["for sans accolades", "for (let i = 0; i >= 0; i++) i = 0;"],
-    ["boucle imbriquée", "for (let i = 0; i < 10; i++) { while (true) {} }"],
-    ["boucle étiquetée", "externe: while (true) { continue externe; }"],
-    ["boucle dans une fonction", "function f() { while (true) {} } f();"],
+    ["for without braces", "for (let i = 0; i >= 0; i++) i = 0;"],
+    ["nested loop", "for (let i = 0; i < 10; i++) { while (true) {} }"],
+    ["labeled loop", "outer: while (true) { continue outer; }"],
+    ["loop inside a function", "function f() { while (true) {} } f();"],
   ])("interrupts an infinite loop (%s)", (_label, code) => {
     expect(() => execute(code)).toThrow(LOOP_INTERRUPTED_MESSAGE);
   });
 
   it("interrupts a for…of loop over an infinite iterable", () => {
-    const code = "function* sansFin() { while (true) yield 1; } for (const x of sansFin()) {}";
+    const code = "function* endless() { while (true) yield 1; } for (const x of endless()) {}";
     expect(() => execute(code)).toThrow(LOOP_INTERRUPTED_MESSAGE);
   });
 
