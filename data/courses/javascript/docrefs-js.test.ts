@@ -5,9 +5,9 @@ import { getDocEntry } from "@/data/docs";
 const EXPECTED: Record<string, string> = {
   "chapitre-1": "js/console",
   "chapitre-2": "js/conditions",
-  "chapitre-3": "js/fonctions",
-  "chapitre-4": "js/tableaux",
-  "chapitre-5": "js/objets",
+  "chapitre-3": "js/functions",
+  "chapitre-4": "js/arrays",
+  "chapitre-5": "js/objects",
   "chapitre-6": "js/array-methods",
   "chapitre-7": "js/dom",
   "chapitre-8": "js/events",

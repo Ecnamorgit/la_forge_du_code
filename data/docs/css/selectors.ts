@@ -1,7 +1,7 @@
 import type { DocEntry } from "../types";
 
 export const selectors: DocEntry = {
-  id: "css/selecteurs",
+  id: "css/selectors",
   domain: "css",
   term: ".classe",
   title: "Sélecteurs & classes",

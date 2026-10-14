@@ -12,7 +12,7 @@ import { describe, it, expect } from "vitest";
  */
 
 const ROOT = process.cwd();
-const SCRIPT = path.join(ROOT, "scripts", "migrer-si-production.mjs");
+const SCRIPT = path.join(ROOT, "scripts", "migrate-if-production.mjs");
 const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8")) as {
   buildCommand: string;
 };
@@ -31,7 +31,7 @@ describe("Vercel build: database migrations", () => {
   });
 
   it("goes through the script that only migrates in production", () => {
-    expect(vercel.buildCommand).toContain("node scripts/migrer-si-production.mjs");
+    expect(vercel.buildCommand).toContain("node scripts/migrate-if-production.mjs");
   });
 
   it("does not apply migrations on a preview", () => {

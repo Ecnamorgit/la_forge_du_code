@@ -43,14 +43,14 @@ Vérifié : la route sert le document (HTTP 200) avec sa CSP dédiée ; le scrip
 
 - Nouveau document servi [lib/sandbox/js-runner-document.ts](../../../lib/sandbox/js-runner-document.ts) (console factice, polyfill `localStorage`, bornes anti-emballement, flush 300 ms), couvert par [js-runner-document.test.ts](../../../lib/sandbox/js-runner-document.test.ts). Route [app/bac-a-sable/js/route.ts](../../../app/bac-a-sable/js/route.ts).
 - Les en-têtes des trois documents du bac à sable sont désormais posés par un builder commun [lib/sandbox/sandbox-response.ts](../../../lib/sandbox/sandbox-response.ts).
-- **Preuve cross-origin** : [e2e/securite-boucles.spec.ts](../../../e2e/securite-boucles.spec.ts) 3/3 (témoin exécuté et validé ; boucle JS interrompue, onglet vivant ; boucle SQL interrompue). Sortie : [annexes/EXE-03-sandbox-js-origine-dediee.txt](annexes/EXE-03-sandbox-js-origine-dediee.txt).
+- **Preuve cross-origin** : [e2e/security-loops.spec.ts](../../../e2e/security-loops.spec.ts) 3/3 (témoin exécuté et validé ; boucle JS interrompue, onglet vivant ; boucle SQL interrompue). Sortie : [annexes/EXE-03-sandbox-js-origine-dediee.txt](annexes/EXE-03-sandbox-js-origine-dediee.txt).
 
 ## Câblage — étape 1c : aperçu HTML (fait)
 
 [components/lesson/ChapterWorkspace.tsx](../../../components/lesson/ChapterWorkspace.tsx) charge désormais l'aperçu HTML par **`src`** vers `/bac-a-sable/html` (origine dédiée), attend sa poignée de main puis lui **poste** le HTML de l'apprenant — au lieu de le poser en `srcdoc` sur le site.
 
 - Nouvelle coquille servie [lib/sandbox/html-preview-document.ts](../../../lib/sandbox/html-preview-document.ts) : elle rend le HTML dans une **iframe imbriquée**, qui hérite de la CSP permissive de la coquille (et non de celle du site, deux crans plus haut). Couverte par [html-preview-document.test.ts](../../../lib/sandbox/html-preview-document.test.ts). Route [app/bac-a-sable/html/route.ts](../../../app/bac-a-sable/html/route.ts).
-- **Preuve cross-origin** : [e2e/html-parcours.spec.ts](../../../e2e/html-parcours.spec.ts) 3/3, dont un nouveau test « l'aperçu HTML est rendu depuis une origine distincte » (origine dédiée + rendu à travers les deux iframes) et le parcours HTML complet toujours jouable. Sortie : [annexes/EXE-03-apercu-html-origine-dediee.txt](annexes/EXE-03-apercu-html-origine-dediee.txt).
+- **Preuve cross-origin** : [e2e/html-course.spec.ts](../../../e2e/html-course.spec.ts) 3/3, dont un nouveau test « l'aperçu HTML est rendu depuis une origine distincte » (origine dédiée + rendu à travers les deux iframes) et le parcours HTML complet toujours jouable. Sortie : [annexes/EXE-03-apercu-html-origine-dediee.txt](annexes/EXE-03-apercu-html-origine-dediee.txt).
 
 **Les trois exécuteurs sont désormais servis depuis l'origine dédiée.** Plus aucun `srcdoc` du site n'exécute de `new Function` ni de script en ligne d'apprenant. Le prérequis du durcissement CSP est levé.
 
@@ -61,12 +61,12 @@ L'application émet désormais une **CSP à nonce** posée par [proxy.ts](../../
 - [lib/security/csp.ts](../../../lib/security/csp.ts) : builder `buildCsp({ nonce, isDev, sandboxOrigin })` ; `frame-src` n'autorise que **l'origine du bac à sable de la requête**, dérivée par `sandboxOriginFor` (voir « Correction après mise en production » ci-dessous). [csp.test.ts](../../../lib/security/csp.test.ts) retourné : il affirme maintenant l'**absence** de `'unsafe-*'` dans `script-src`.
 - `next.config.ts` : la CSP fixe y est retirée (la CSP est à nonce, donc par requête). Les autres en-têtes de sécurité restent.
 - [app/layout.tsx](../../../app/layout.tsx) : `export const dynamic = "force-dynamic"` — le nonce, unique par requête, impose le rendu dynamique (une page pré-rendue n'en aurait pas). Coût assumé : plus d'optimisation statique.
-- Garde-fou e2e : `csp-srcdoc-script.spec.ts` (qui prouvait l'ancienne approche `srcdoc`) est remplacé par [csp-stricte.spec.ts](../../../e2e/csp-stricte.spec.ts) : sous la CSP de prod, `script-src` est à nonce + `strict-dynamic` sans `unsafe-*`, et la page hydrate sans violation.
+- Garde-fou e2e : `csp-srcdoc-script.spec.ts` (qui prouvait l'ancienne approche `srcdoc`) est remplacé par [strict-csp.spec.ts](../../../e2e/strict-csp.spec.ts) : sous la CSP de prod, `script-src` est à nonce + `strict-dynamic` sans `unsafe-*`, et la page hydrate sans violation.
 - `strict-dynamic` : Monaco (loader injecté par le bundle nonce) et les chunks de Next restent chargés ; `'wasm-unsafe-eval'` garde sql.js (WebAssembly dans un Worker de l'app).
 
 ### Vérification contre un build de PRODUCTION
 
-La CSP n'est émise qu'en production. Vérifiée contre `pnpm build && pnpm start` (base locale, jamais la prod) : `next build` OK ; en-tête CSP réel confirmé strict sur l'app et permissif confiné au bac à sable ; **22 tests e2e passés sous la CSP stricte, 0 violation CSP** — `csp-stricte`, `monaco` (Monaco charge), `react-preview` 6/6, `html-parcours` 3/3, `securite-boucles` 3/3 (dont SQL/WASM), `smoke` 7/7. Sortie : [annexes/EXE-03-csp-nonce-build-prod.txt](annexes/EXE-03-csp-nonce-build-prod.txt).
+La CSP n'est émise qu'en production. Vérifiée contre `pnpm build && pnpm start` (base locale, jamais la prod) : `next build` OK ; en-tête CSP réel confirmé strict sur l'app et permissif confiné au bac à sable ; **22 tests e2e passés sous la CSP stricte, 0 violation CSP** — `strict-csp`, `monaco` (Monaco charge), `react-preview` 6/6, `html-course` 3/3, `security-loops` 3/3 (dont SQL/WASM), `smoke` 7/7. Sortie : [annexes/EXE-03-csp-nonce-build-prod.txt](annexes/EXE-03-csp-nonce-build-prod.txt).
 
 `vitest` 1509/1509 ; `tsc` et `eslint` sans erreur.
 
@@ -88,7 +88,7 @@ Le relevé en ligne a montré un défaut : `frame-src` de la production listait 
 
 Correction : les deux origines sont désormais **dérivées de la requête**, dans les deux sens, par [lib/sandbox/sandbox-origin.ts](../../../lib/sandbox/sandbox-origin.ts) — `requestOrigin` (en-têtes `x-forwarded-host` / `x-forwarded-proto` / `host`, comme `lib/same-origin.ts`), `sandboxOriginFor` pour le `frame-src` de l'app (`proxy.ts`), et son inverse `appOriginsForSandbox` pour le `frame-ancestors` du bac à sable (`sandbox-response.ts`). En production : le seul sous-domaine dédié, et l'app (nu + `www.`) ; en local et en CI (build de prod sur `localhost`) : le seul autre hôte local. Un simple `NODE_ENV` n'aurait pas convenu : la CI exerce la CSP de production sur `localhost`.
 
-Verrouillé par `csp.test.ts` (aucune origine de développement dans la politique de production), `sandbox-origin.test.ts`, `sandbox-response.test.ts`, et `csp-stricte.spec.ts` (e2e : `frame-src` et `frame-ancestors` valent **exactement** les origines dérivées).
+Verrouillé par `csp.test.ts` (aucune origine de développement dans la politique de production), `sandbox-origin.test.ts`, `sandbox-response.test.ts`, et `strict-csp.spec.ts` (e2e : `frame-src` et `frame-ancestors` valent **exactement** les origines dérivées).
 
 ## Risque résiduel
 

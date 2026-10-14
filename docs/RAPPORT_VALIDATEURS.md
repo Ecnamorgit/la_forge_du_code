@@ -66,7 +66,7 @@ balises et comptage, une approche qui résiste mieux.
 
 ## Balayage structurel — 2026-08-06
 
-`lib/validators/parcours-integrite.test.ts`, 189 tests sur les 48 chapitres.
+`lib/validators/course-integrity.test.ts`, 189 tests sur les 48 chapitres.
 
 **Aucune anomalie.** Les deux invariants passent du premier coup :
 

@@ -65,7 +65,7 @@ test.beforeEach(({ page }) => logErrors(page));
 
 const DEPLOY_BUTTON = /DEPLOYER/;
 
-// The SQL control test is in sql-moteur.spec.ts.
+// The SQL control test is in sql-engine.spec.ts.
 
 test("JavaScript control: a normal program runs and is validated", async ({ page }) => {
   await resetProgress("javascript", "chapitre-1");

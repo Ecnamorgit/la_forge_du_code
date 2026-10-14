@@ -22,7 +22,7 @@ const CHEATER = {
   password: "Test1234",
 };
 
-// Valid solutions for the steps of HTML chapter 1 (see html-parcours.spec.ts).
+// Valid solutions for the steps of HTML chapter 1 (see html-course.spec.ts).
 const CH1 = [
   "<!DOCTYPE html>\n<html></html>",
   "<!DOCTYPE html>\n<html>\n<head>\n<title>Mission Selene</title>\n</head>\n</html>",

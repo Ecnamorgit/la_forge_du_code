@@ -1,22 +1,23 @@
 <#
-  Crée les milestones (M1 à M3), les labels et les 19 issues de la roadmap sur
-  le dépôt GitHub, via l'API REST (sans dépendance à `gh`).
+  Creates the milestones (M1 to M3), the labels and the 19 roadmap issues on
+  the GitHub repository, through the REST API (no dependency on `gh`).
 
-  Prérequis : un token GitHub classic avec le scope `repo`, ou fine-grained
-  avec la permission « Issues: Read and write », défini dans la session :
+  Prerequisites: a classic GitHub token with the `repo` scope, or a
+  fine-grained one with the "Issues: Read and write" permission, set in the
+  session:
     $env:GH_TOKEN = "ghp_xxx..."
 
-  Utilisation :
+  Usage:
     pwsh ./scripts/create-issues.ps1
     powershell -File scripts\create-issues.ps1
 
-  Relançable sans dupliquer milestones et labels, mais les issues sont
-  recréées à chaque exécution.
+  Can be rerun without duplicating milestones and labels, but the issues are
+  created again on each run.
 #>
 
 $ErrorActionPreference = "Stop"
 
-# Dépôt cible
+# Target repository
 $Owner = "Ecnamorgit"
 $Repo  = "la_forge_du_code"
 

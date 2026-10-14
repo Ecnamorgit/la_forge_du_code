@@ -41,7 +41,7 @@ Un même élément peut porter une **class** (étiquette) ajoutee dans le HTML :
         { id: "o1a", label: "Utiliser un sélecteur de classe (.alert)" },
         { id: "o1b", label: "Appliquer une propriété color" },
       ],
-      docRefs: ["css/selecteurs"],
+      docRefs: ["css/selectors"],
       missionIcon: "🏷",
       missionTag: "PROTOCOLE 01",
       missionTtl: "CIBLAGE PRÉCIS",

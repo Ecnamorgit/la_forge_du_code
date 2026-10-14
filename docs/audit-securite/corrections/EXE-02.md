@@ -14,7 +14,7 @@ L'impact se limite au poste de l'apprenant, puisque le code n'est jamais partag�
 
 ## Démonstration
 
-Test [e2e/securite-boucles.spec.ts](../../../e2e/securite-boucles.spec.ts), commité seul, avant le correctif (commit `a410813`). Il déploie une boucle sans fin, attend 6 s, puis vérifie que l'onglet exécute encore du code et qu'un message d'interruption s'affiche. Un témoin vérifie qu'un programme normal fonctionne toujours.
+Test [e2e/security-loops.spec.ts](../../../e2e/security-loops.spec.ts), commité seul, avant le correctif (commit `a410813`). Il déploie une boucle sans fin, attend 6 s, puis vérifie que l'onglet exécute encore du code et qu'un message d'interruption s'affiche. Un témoin vérifie qu'un programme normal fonctionne toujours.
 
 Cette démonstration n'a été possible qu'après le correctif d'EXE-07 : avant lui, le moteur SQL ne se chargeait pas du tout.
 

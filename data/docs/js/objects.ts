@@ -1,7 +1,7 @@
 import type { DocEntry } from "../types";
 
 export const objects: DocEntry = {
-  id: "js/objets",
+  id: "js/objects",
   domain: "js",
   term: "{ }",
   title: "Objets & méthodes",
@@ -22,6 +22,6 @@ Une fonction dans un objet est une **méthode** ; \`this\` y désigne l'objet ap
     "const empêche de réassigner l'objet entier, pas de changer ses propriétés.",
     "this dépend de la façon dont la méthode est appelée.",
   ],
-  related: ["js/tableaux", "js/array-methods"],
+  related: ["js/arrays", "js/array-methods"],
   official: { label: "MDN — Objets", url: "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide/Working_with_objects" },
 };

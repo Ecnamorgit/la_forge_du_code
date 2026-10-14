@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Against `pnpm dev`, no CSP is emitted (`proxy.ts`) and
- * `e2e/csp-stricte.spec.ts` skips itself. `E2E_PROD=1` runs a production build,
+ * `e2e/strict-csp.spec.ts` skips itself. `E2E_PROD=1` runs a production build,
  * like CI. Locally, `pnpm start` also requires an https, non-localhost
  * APP_URL and a RESEND_API_KEY (`lib/env.ts`), hence the switch.
  */

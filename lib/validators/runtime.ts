@@ -9,7 +9,7 @@
  * until it is registered here.
  *
  * These chapters are excluded from the invariant "the start code never
- * validates its own step" (`parcours-integrite.test.ts`). The server cannot
+ * validates its own step" (`course-integrity.test.ts`). The server cannot
  * revalidate them either without running the learner's code: their success
  * remains declared by the browser (`lib/step-proof.ts`).
  */

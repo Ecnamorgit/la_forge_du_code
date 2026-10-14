@@ -7,7 +7,7 @@
 // variables.
 //
 // One-time prerequisites: `npx vercel login` (pluriface account) then
-// `npx vercel link`. Usage: node scripts/deployer-production.mjs
+// `npx vercel link`. Usage: node scripts/deploy-production.mjs
 // (see docs/DEPLOYMENT.md, section 4).
 
 import { execSync, spawnSync } from "node:child_process";

@@ -1,7 +1,7 @@
 import type { DocEntry } from "../types";
 
 export const functions: DocEntry = {
-  id: "js/fonctions",
+  id: "js/functions",
   domain: "js",
   term: "function",
   title: "Fonctions",
@@ -22,6 +22,6 @@ Forme concise : \`const f = (x) => x * 2;\`. Sans \`return\` explicite pour un c
     "Une fonction sans return renvoie undefined.",
     "Les paramètres sont locaux à la fonction — invisibles à l'extérieur.",
   ],
-  related: ["js/conditions", "js/tableaux"],
+  related: ["js/conditions", "js/arrays"],
   official: { label: "MDN — Fonctions", url: "https://developer.mozilla.org/fr/docs/Web/JavaScript/Guide/Functions" },
 };

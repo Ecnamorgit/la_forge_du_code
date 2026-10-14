@@ -21,7 +21,7 @@ La page de connexion avait déjà un filtre : `startsWith("/") && !startsWith("/
 
 ## Démonstration
 
-Test [e2e/securite-redirection.spec.ts](../../../e2e/securite-redirection.spec.ts), commité seul, avant le correctif (commit `dfdb1ac`). Il ouvre `/avatar?from=https://piege.invalid/`, enregistre l'avatar et vérifie que l'on reste sur le site. Le domaine `.invalid` ne résout jamais : `page.route` répond à sa place, et aucune requête ne part vers l'extérieur.
+Test [e2e/security-redirect.spec.ts](../../../e2e/security-redirect.spec.ts), commité seul, avant le correctif (commit `dfdb1ac`). Il ouvre `/avatar?from=https://piege.invalid/`, enregistre l'avatar et vérifie que l'on reste sur le site. Le domaine `.invalid` ne résout jamais : `page.route` répond à sa place, et aucune requête ne part vers l'extérieur.
 
 | Contrôle | Avant correctif | Après correctif |
 |---|---|---|

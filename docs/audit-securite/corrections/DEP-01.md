@@ -43,7 +43,7 @@ Changement de comportement vérifié : avec next-auth beta.32, une session en er
 | `eslint` | 0 erreur, 1 avertissement | 0 erreur, 2 avertissements (nouvelle règle de eslint-config-next 16.3 sur `window.location.href` dans `app/signup/page.tsx:67`, code existant) |
 | Playwright (base locale) | 29 réussis, 1 échec connu, 4 ignorés | 29 réussis, même échec connu, 4 ignorés |
 
-L'échec e2e connu (`trial-etendu.spec.ts`, « la carte HTML est publique ») est antérieur à l'audit et sans lien avec les dépendances.
+L'échec e2e connu (`trial-extended.spec.ts`, « la carte HTML est publique ») est antérieur à l'audit et sans lien avec les dépendances.
 
 Détail des avis restants : [annexes/DEP-01-pnpm-audit-apres.md](annexes/DEP-01-pnpm-audit-apres.md).
 

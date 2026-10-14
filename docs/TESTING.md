@@ -69,12 +69,12 @@ La suite compte 50 tests E2E dans le répertoire `e2e/`. Ils valident le comport
    - Ouverture automatique du panneau latéral d'aide lorsqu'un apprenant clique sur un chip de documentation dans le briefing.
    - Fermeture automatique du panneau avec la touche Échap.
    - Chargement des bonnes références de documentation associées à l'étape en cours.
-4. **Parcours interactif HTML Chapitre 1 (`e2e/html-parcours.spec.ts`)** :
+4. **Parcours interactif HTML Chapitre 1 (`e2e/html-course.spec.ts`)** :
    - Simulation complète d'un étudiant jouant le chapitre 1 du cursus HTML (3 étapes) : saisie du code dans Monaco, clic sur **DEPLOYER**, vérification du bandeau de succès "SYSTEME EN LIGNE", passage à l'étape suivante, puis écran final de complétion ("TERMINER LE PROTOCOLE").
    - Test d'ouverture des documents de référence (docRefs) sur un chapitre ultérieur (ex: Chapitre 8 - `<video>`), garantissant l'activation globale du câblage de documentation.
    - Rendu de l'aperçu HTML depuis l'origine dédiée du bac à sable.
 
-Les autres fichiers du dossier couvrent notamment : l'aperçu React sur l'origine dédiée (`react-preview.spec.ts`), la CSP stricte de production (`csp-stricte.spec.ts`), le moteur SQL (`sql-moteur.spec.ts`), l'essai sans compte (`trial.spec.ts`, `trial-etendu.spec.ts`), l'intro et les cinématiques (`intro.spec.ts`, `cinematics.spec.ts`), la boucle quotidienne (`boucle-quotidienne.spec.ts`), les Core Web Vitals (`web-vitals.spec.ts`) et les contrôles de sécurité issus de l'audit (`securite-*.spec.ts`).
+Les autres fichiers du dossier couvrent notamment : l'aperçu React sur l'origine dédiée (`react-preview.spec.ts`), la CSP stricte de production (`strict-csp.spec.ts`), le moteur SQL (`sql-engine.spec.ts`), l'essai sans compte (`trial.spec.ts`, `trial-extended.spec.ts`), l'intro et les cinématiques (`intro.spec.ts`, `cinematics.spec.ts`), la boucle quotidienne (`daily-loop.spec.ts`), les Core Web Vitals (`web-vitals.spec.ts`) et les contrôles de sécurité issus de l'audit (`securite-*.spec.ts`).
 
 ### Nettoyage automatique de la base (`e2e/global-setup.ts`)
 

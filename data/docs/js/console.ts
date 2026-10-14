@@ -24,6 +24,6 @@ Types de base : string (\`"texte"\`), number (\`42\`), boolean (\`true\`).
     "const empêche de réassigner la variable, pas de muter un objet/tableau.",
     "Les chaînes ont besoin de guillemets ; sans eux, JS croit à une variable.",
   ],
-  related: ["js/conditions", "js/fonctions"],
+  related: ["js/conditions", "js/functions"],
   official: { label: "MDN — console.log", url: "https://developer.mozilla.org/fr/docs/Web/API/console/log_static" },
 };

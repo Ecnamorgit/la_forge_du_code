@@ -79,7 +79,7 @@ test.describe("import of trial progress into an account", () => {
     await login(page);
 
     // The shared account may have validated these steps in another spec
-    // (html-parcours.spec.ts): we check the final state rather than a delta.
+    // (html-course.spec.ts): we check the final state rather than a delta.
     const seededSteps = [0, 1, 2];
 
     // Trial chapter finished before sign-up. The `xp` value hardly matters:

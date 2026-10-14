@@ -1,6 +1,6 @@
 import type { DocEntry } from "../types";
 import { cssStyle } from "./style";
-import { selectors } from "./selecteurs";
+import { selectors } from "./selectors";
 import { boxModel } from "./box-model";
 import { flexbox } from "./flexbox";
 import { grid } from "./grid";

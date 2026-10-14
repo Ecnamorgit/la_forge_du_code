@@ -22,6 +22,6 @@ export const conditions: DocEntry = {
     "== compare en convertissant les types (0 == '0' est vrai) ; === ne le fait pas.",
     "Un = seul (affectation) dans un if est un bug fréquent — il faut ===.",
   ],
-  related: ["js/console", "js/fonctions"],
+  related: ["js/console", "js/functions"],
   official: { label: "MDN — if...else", url: "https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Statements/if...else" },
 };

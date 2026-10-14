@@ -1,13 +1,13 @@
--- Démonstration de la Row Level Security (audit SRV-04) : elle bloque un rôle
--- non privilégié, comme la clé publique « anon » de Supabase, sans gêner le
--- propriétaire des tables, rôle par lequel Prisma se connecte.
+-- Row Level Security demonstration (audit SRV-04): it blocks an unprivileged
+-- role, such as Supabase's public "anon" key, without hindering the table
+-- owner, the role Prisma connects with.
 --
--- À lancer sur une base de test, jamais en production :
---   docker exec -i codeforge-e2e psql -U postgres -d codeforge_test < scripts/demontrer-rls.sql
+-- Run it on a test database, never in production:
+--   docker exec -i codeforge-e2e psql -U postgres -d codeforge_test < scripts/demonstrate-rls.sql
 --
--- La migration 20260914102000_enable_row_level_security active la RLS ; ce
--- script la désactive le temps de montrer la différence, puis la réactive et
--- supprime ses objets de test.
+-- Migration 20260914102000_enable_row_level_security enables RLS; this
+-- script disables it long enough to show the difference, then re-enables it
+-- and removes its test objects.
 
 INSERT INTO "User" (id, email, username, password, "lastVisit")
 VALUES ('rls-temoin', 'rls@codeforge.test', 'rlstemoin', 'x', '') ON CONFLICT (id) DO NOTHING;

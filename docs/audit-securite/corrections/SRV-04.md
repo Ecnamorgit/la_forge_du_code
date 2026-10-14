@@ -10,7 +10,7 @@ L'accès légitime de l'application passe uniquement par Prisma, côté serveur,
 
 ## Démonstration
 
-Script [scripts/demontrer-rls.sql](../../../scripts/demontrer-rls.sql), exécuté sur la base PostgreSQL locale. Il crée un rôle non privilégié `anon_test` (l'équivalent du rôle « anon » de Supabase), lui donne le `SELECT` que Supabase accorde par défaut, puis compare selon que la RLS est active ou non.
+Script [scripts/demonstrate-rls.sql](../../../scripts/demonstrate-rls.sql), exécuté sur la base PostgreSQL locale. Il crée un rôle non privilégié `anon_test` (l'équivalent du rôle « anon » de Supabase), lui donne le `SELECT` que Supabase accorde par défaut, puis compare selon que la RLS est active ou non.
 
 | Rôle / état | Lignes visibles dans `User` |
 |---|---|
@@ -34,7 +34,7 @@ Migration [20260914102000_enable_row_level_security](../../../prisma/migrations/
 |---|---|
 | Migration appliquée sur la base locale (`migrate deploy`) | OK, RLS active sur les 10 tables |
 | Démonstration : `anon` bloqué, propriétaire non | 0 vs 15 lignes |
-| Suite e2e complète (base locale, RLS active, sans e-mail réel, `--retries=1`) | 42 réussis, seul échec dur `trial-etendu` (antérieur à l'audit) |
+| Suite e2e complète (base locale, RLS active, sans e-mail réel, `--retries=1`) | 42 réussis, seul échec dur `trial-extended` (antérieur à l'audit) |
 | `vitest run` | 1492 / 1492 |
 | `tsc --noEmit` | OK |
 

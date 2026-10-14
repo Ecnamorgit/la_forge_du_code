@@ -49,4 +49,4 @@ Depuis, l'exécution a été déplacée sur une origine dédiée et les boucles 
 
 - [x] Définir une `DATABASE_URL` PostgreSQL managée (Supabase/Neon) dans les environnements (voir [DEPLOYMENT.md](DEPLOYMENT.md)).
 - [x] Migrer la convention Next.js `middleware` vers `proxy` (`proxy.ts`).
-- [x] Ajouter un test e2e du parcours complet (signup -> chapitre -> sauvegarde step) : dossier `e2e/`, voir [TESTING.md](TESTING.md). La connexion, le chapitre et la sauvegarde sont couverts dans le navigateur ; l'inscription l'est au niveau de l'API (`securite-inscription.spec.ts`), la vérification d'email ne l'est pas.
+- [x] Ajouter un test e2e du parcours complet (signup -> chapitre -> sauvegarde step) : dossier `e2e/`, voir [TESTING.md](TESTING.md). La connexion, le chapitre et la sauvegarde sont couverts dans le navigateur ; l'inscription l'est au niveau de l'API (`security-signup.spec.ts`), la vérification d'email ne l'est pas.

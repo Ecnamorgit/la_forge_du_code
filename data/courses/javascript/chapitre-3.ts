@@ -46,7 +46,7 @@ export const chapter3: ChapterData = {
         { id: "o1a", label: "Déclarer une fonction nommée greet" },
         { id: "o1b", label: 'Afficher le résultat pour name = "Cadet"' },
       ],
-      docRefs: ["js/fonctions"],
+      docRefs: ["js/functions"],
       missionIcon: "🧩",
       missionTag: "PROTOCOLE 01",
       missionTtl: "PREMIÈRE FONCTION",

@@ -4,7 +4,7 @@ import { getDocEntry } from "@/data/docs";
 
 const EXPECTED: Record<string, string> = {
   "chapitre-1": "css/style",
-  "chapitre-2": "css/selecteurs",
+  "chapitre-2": "css/selectors",
   "chapitre-3": "css/box-model",
   "chapitre-4": "css/flexbox",
   "chapitre-5": "css/grid",

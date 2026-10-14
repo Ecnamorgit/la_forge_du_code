@@ -22,6 +22,6 @@ Un **sélecteur** cible des éléments, puis un bloc \`{ propriété: valeur; }\
     "Oublier de fermer </style> casse le reste de la page.",
     "Une règle hors de <style> (dans le <body>) est affichée comme du texte.",
   ],
-  related: ["css/selecteurs", "html/head"],
+  related: ["css/selectors", "html/head"],
   official: { label: "MDN — Premiers pas CSS", url: "https://developer.mozilla.org/fr/docs/Learn/CSS/First_steps" },
 };
