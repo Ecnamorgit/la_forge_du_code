@@ -4,9 +4,9 @@
 
 ## Constat
 
-`proxy.ts` renvoie vers la connexion tout visiteur sans session qui demande une page de `/learn`, sauf les chapitres d'essai. Mais la page d'un chapitre (`app/learn/[course]/[chapter]/page.tsx`) ne vérifiait pas la session elle-même : elle comptait sur le seul proxy.
+`proxy.ts` renvoie vers la connexion tout visiteur sans session qui demande une page de `/learn`, sauf les chapitres d'essai. Mais la page d'un chapitre (`app/(platform)/learn/[course]/[chapter]/page.tsx`) ne vérifiait pas la session elle-même : elle comptait sur le seul proxy.
 
-Or next 16.2.4 portait plusieurs contournements publics du proxy (voir DEP-01). Le jour où un nouveau contournement apparaît, une page qui ne se garde pas elle-même sert son contenu à n'importe qui. La carte du cursus (`app/learn/[course]/page.tsx`) se protégeait déjà ainsi, par défense en profondeur. La page chapitre, non.
+Or next 16.2.4 portait plusieurs contournements publics du proxy (voir DEP-01). Le jour où un nouveau contournement apparaît, une page qui ne se garde pas elle-même sert son contenu à n'importe qui. La carte du cursus (`app/(platform)/learn/[course]/page.tsx`) se protégeait déjà ainsi, par défense en profondeur. La page chapitre, non.
 
 Les autres pages protégées (tableau de bord, profil, classement, avatar, liste des cursus) sont des composants client : leurs données viennent des API, qui vérifient toutes la session elles-mêmes (voir la carte des routes de l'audit initial).
 

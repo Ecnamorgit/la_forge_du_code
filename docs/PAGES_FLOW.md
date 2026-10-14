@@ -119,7 +119,7 @@ Fichier : `app/reset-password/[token]/page.tsx` · Arrivée : **lien email**.
 # PARTIE 2 — Parcours connecté
 
 ## 7. `/avatar` — Onboarding & avatar (design : à faire)
-Fichier : `app/avatar/page.tsx` · Arrivée : **gate 1er login** (`/dashboard` → `/avatar?from=…`)
+Fichier : `app/(platform)/avatar/page.tsx` · Arrivée : **gate 1er login** (`/dashboard` → `/avatar?from=…`)
 ou depuis le profil (« Changer d'avatar »).
 
 **Assets / design à faire**
@@ -134,7 +134,7 @@ ou depuis le profil (« Changer d'avatar »).
 - [ ] Re-visiter `/avatar` après onboarding → accessible pour changer (pas de boucle)
 
 ## 8. `/dashboard` — Hub (design : à faire)
-Fichier : `app/dashboard/page.tsx` (+ `app/DashboardNav.tsx`, `app/ExploreSection.tsx`)
+Fichier : `app/(platform)/dashboard/page.tsx` (+ `app/(platform)/DashboardNav.tsx`, `app/(platform)/ExploreSection.tsx`)
 
 **Assets / design à faire**
 - [x] Icônes de cours (sprite `mission-icons-v2`, livré ; fallback emoji conservé)
@@ -149,7 +149,7 @@ Fichier : `app/dashboard/page.tsx` (+ `app/DashboardNav.tsx`, `app/ExploreSectio
       **Pratique** = désactivé (non cliquable), avatar → `/profil`, **Déconnexion** → `/`
 
 ## 9. `/learn` — Cursus (catalogue) (design : à faire)
-Fichier : `app/learn/page.tsx`
+Fichier : `app/(platform)/learn/page.tsx`
 
 **Assets / design à faire**
 - [ ] Vignette/sprite par cours (3 « featured » en strips animés : html/css/js)
@@ -161,7 +161,7 @@ Fichier : `app/learn/page.tsx`
 - [ ] Retour `/dashboard`
 
 ## 10. `/learn/[course]` — Carte du cours (design : à faire)
-Fichier : `app/learn/[course]/page.tsx` (+ `LevelNode.tsx`)
+Fichier : `app/(platform)/learn/[course]/page.tsx` (+ `LevelNode.tsx`)
 
 **Assets / design à faire**
 - [ ] Fond spatial du cours (actuellement générique `chapter-1-bg`)
@@ -175,7 +175,7 @@ Fichier : `app/learn/[course]/page.tsx` (+ `LevelNode.tsx`)
 - [ ] URL cours inexistant (`/learn/inconnu`) → **404** (`notFound()`)
 
 ## 11. `/learn/[course]/[chapter]` — Mission (cœur de l'app) (design : à faire)
-Fichier : `app/learn/[course]/[chapter]/page.tsx` → `ChapterClient.tsx` (+ `ChapterWorkspace`, `QuestBanner`, `CompletionScreen`, `MonacoEditor`)
+Fichier : `app/(platform)/learn/[course]/[chapter]/page.tsx` → `ChapterClient.tsx` (+ `ChapterWorkspace`, `QuestBanner`, `CompletionScreen`, `MonacoEditor`)
 
 **Assets / design à faire**
 - [x] Icône de mission (sprite `mission-icons-v2`, livré ; fallback emoji conservé)
@@ -196,7 +196,7 @@ Fichier : `app/learn/[course]/[chapter]/page.tsx` → `ChapterClient.tsx` (+ `Ch
 - [ ] Vérifier sous CSP de prod : Monaco charge, « Déployer » marche, aucune erreur CSP en console
 
 ## 12. `/leaderboard` — Classement (design : à faire)
-Fichier : `app/leaderboard/page.tsx`
+Fichier : `app/(platform)/leaderboard/page.tsx`
 
 **Tests fonctionnels**
 - [ ] Déconnecté → `/login`
@@ -205,7 +205,7 @@ Fichier : `app/leaderboard/page.tsx`
 - [ ] Aucune info sensible (pas d'email) ; GET `/api/leaderboard` 200
 
 ## 13. `/profil` — Profil & réglages (design : à faire)
-Fichier : `app/profil/page.tsx`
+Fichier : `app/(platform)/profil/page.tsx`
 
 **Assets / design à faire**
 - [x] Sprites des **badges** (`badges.png`, 48 badges ; fallback emoji conservé)

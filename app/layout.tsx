@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Share_Tech_Mono, Exo_2, JetBrains_Mono, Silkscreen } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
-import AuthSessionProvider from "@/components/auth/SessionProvider";
 import "./globals.css";
 
 const shareTechMono = Share_Tech_Mono({
@@ -69,7 +68,7 @@ export default function RootLayout({
       className={`${shareTechMono.variable} ${exo2.variable} ${jetbrainsMono.variable} ${silkscreen.variable} h-full w-full`}
     >
       <body className="min-h-full w-full bg-nebula-bg-darkest text-nebula-text font-body text-base m-0 p-0">
-        <AuthSessionProvider>{children}</AuthSessionProvider>
+        {children}
         {/*
           Vercel audience measurement with no cookie or persistent identifier,
           so no prior consent needed (docs/RGPD.md §2). Inert outside Vercel.

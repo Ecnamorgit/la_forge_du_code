@@ -12,7 +12,7 @@
   scénarisation des erreurs en « rapports d'anomalie système ».
 - **Cinématique d'accueil** (livrée) — [scenario_espace.md](scenario_espace.md), moteur sprite-sheet + placeholder.
 - **Casting rendu partout** : le bandeau « Kira Vesper » coiffe chaque briefing
-  ([ChapterClient.tsx](../app/learn/[course]/[chapter]/ChapterClient.tsx)), H.E.L.P. chaque hint
+  ([ChapterClient.tsx](../app/(platform)/learn/[course]/[chapter]/ChapterClient.tsx)), H.E.L.P. chaque hint
   ([HintBox.tsx](../components/ui/HintBox.tsx)), Le Spectre raille après 2 échecs
   ([ChapterWorkspace.tsx](../components/lesson/ChapterWorkspace.tsx), [narrative-feedback.ts](../lib/narrative-feedback.ts)).
 

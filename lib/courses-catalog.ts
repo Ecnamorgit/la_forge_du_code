@@ -4,7 +4,7 @@
  * To add a course: an entry here, its chapter summaries in
  * lib/chapter-summaries.ts and its wiring in lib/courses-registry.ts.
  * Layout (LevelNode positions, sprites) stays in
- * app/learn/[course]/page.tsx.
+ * app/(platform)/learn/[course]/page.tsx.
  */
 
 import { CHAPTER_SUMMARIES } from "./chapter-summaries";
