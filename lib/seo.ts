@@ -24,6 +24,31 @@ export function siteUrl(): string {
   return process.env.APP_URL ?? "http://localhost:3000";
 }
 
+/** Host without its `www.` prefix: the bare domain and `www` are one site. */
+function siteHost(origin: string): string {
+  return new URL(origin).host.replace(/^www\./, "");
+}
+
+/**
+ * Is the request served on the site's own host (the one in APP_URL)?
+ *
+ * The same deployment also answers on the sandbox subdomain
+ * (`bac-a-sable.…`, audit EXE-03) and on its `.vercel.app` address. Pages
+ * served there are copies of the site and must stay out of search results.
+ * The bare domain and its `www.` form both count as the site's host: one
+ * redirects to the other, and the canonical link picks between them. Without
+ * APP_URL (local development), or when the origin cannot be read, every
+ * host counts.
+ */
+export function isSiteOrigin(requestOrigin: string, appUrl: string | undefined): boolean {
+  if (!appUrl) return true;
+  try {
+    return siteHost(requestOrigin) === siteHost(appUrl);
+  } catch {
+    return true;
+  }
+}
+
 /**
  * WebSite + EducationalOrganization graph for the landing page. The logo and
  * the share image give search results something to show next to the name.

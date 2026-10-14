@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -7,7 +8,7 @@ import BrandLogo from "@/components/ui/BrandLogo";
 import TrialBanner from "@/components/lesson/TrialBanner";
 import LevelNodeComponent, { type LevelNode } from "./LevelNode";
 import { getChaptersMeta } from "@/lib/courses-meta";
-import { getCourseStatus } from "@/lib/courses-catalog";
+import { getCourseInfo, getCourseStatus } from "@/lib/courses-catalog";
 import { TRIAL_COURSE } from "@/lib/public-routes";
 import NullProgressBar from "@/components/lesson/NullProgressBar";
 
@@ -599,6 +600,21 @@ const LEVELS_BY_COURSE: Record<string, LevelNode[]> = {
 };
 
 const COURSE_BACKGROUND = "/space-background-orange.webp";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ course: string }>;
+}): Promise<Metadata> {
+  const { course } = await params;
+  const info = getCourseInfo(course);
+  if (!info) return {};
+  return {
+    title: `La Forge du Code — Cursus ${info.title} : ${info.subtitle}`,
+    description: info.description,
+    alternates: { canonical: `/learn/${course}` },
+  };
+}
 
 export default async function CourseMapPage({
   params,

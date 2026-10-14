@@ -5,6 +5,7 @@ import { authConfig } from "@/auth.config";
 import { PROTECTED_PREFIXES, isPublicRoute } from "@/lib/public-routes";
 import { requestOrigin, sandboxOriginFor } from "@/lib/sandbox/sandbox-origin";
 import { buildCsp } from "@/lib/security/csp";
+import { isSiteOrigin } from "@/lib/seo";
 
 const { auth } = NextAuth(authConfig);
 
@@ -30,10 +31,18 @@ export default auth((req) => {
 
   // `frame-src` only allows the sandbox origin derived from the request
   // (dedicated subdomain in production, another local host in CI).
+  const origin = requestOrigin(req);
   const nonce = CSP_ACTIVE && !isSandboxPath ? generateNonce() : null;
-  const csp = nonce
-    ? buildCsp({ nonce, sandboxOrigin: sandboxOriginFor(requestOrigin(req)) })
-    : null;
+  const csp = nonce ? buildCsp({ nonce, sandboxOrigin: sandboxOriginFor(origin) }) : null;
+
+  // The sandbox subdomain and the .vercel.app address serve the whole site
+  // too: those copies are kept out of search results.
+  const indexable = isSiteOrigin(origin, process.env.APP_URL);
+  const withHeaders = (res: NextResponse) => {
+    if (csp) res.headers.set("Content-Security-Policy", csp);
+    if (!indexable) res.headers.set("X-Robots-Tag", "noindex");
+    return res;
+  };
 
   const isProtected =
     PROTECTED_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`)) &&
@@ -43,18 +52,14 @@ export default auth((req) => {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("from", pathname + search);
-    const res = NextResponse.redirect(url);
-    if (csp) res.headers.set("Content-Security-Policy", csp);
-    return res;
+    return withHeaders(NextResponse.redirect(url));
   }
 
   if (AUTH_PAGES.has(pathname) && isAuthed) {
     const url = req.nextUrl.clone();
     url.pathname = "/dashboard";
     url.search = "";
-    const res = NextResponse.redirect(url);
-    if (csp) res.headers.set("Content-Security-Policy", csp);
-    return res;
+    return withHeaders(NextResponse.redirect(url));
   }
 
   // Next reads the nonce from the request headers during server rendering
@@ -64,9 +69,7 @@ export default auth((req) => {
     requestHeaders.set("x-nonce", nonce);
     requestHeaders.set("Content-Security-Policy", csp);
   }
-  const res = NextResponse.next({ request: { headers: requestHeaders } });
-  if (csp) res.headers.set("Content-Security-Policy", csp);
-  return res;
+  return withHeaders(NextResponse.next({ request: { headers: requestHeaders } }));
 });
 
 export const config = {
