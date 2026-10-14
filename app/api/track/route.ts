@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const rejection = crossOriginRefusal(req);
   if (rejection) return rejection;
 
-  // Sans limite, le compteur est trivialement falsifiable.
+  // Without a limit, the counter is trivial to fake.
   const limit = await rateLimit(`track:${getClientIp(req)}`, {
     limit: 30,
     windowMs: 60 * 1000,
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   try {
     await prisma.trackEvent.create({ data: { name } });
   } catch (err) {
-    // Un échec de comptage n'est pas remonté au client.
+    // A counting failure is not reported to the client.
     logger.warn("track_write_failed", {
       message: err instanceof Error ? err.message : String(err),
     });

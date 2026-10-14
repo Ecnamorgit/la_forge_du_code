@@ -1,6 +1,6 @@
-// Copie les assets Monaco (min/vs) dans public/monaco/vs pour les self-héberger
-// au lieu de les charger depuis le CDN jsdelivr (CF-16). Exécuté via predev /
-// prebuild ; les assets ne sont pas versionnés.
+// Copies the Monaco assets (min/vs) into public/monaco/vs to self-host them
+// instead of loading them from the jsdelivr CDN (CF-16). Run via predev /
+// prebuild; the assets are not under version control.
 import { cp, rm, access } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";

@@ -1,14 +1,14 @@
-// Déploie `main` en production sur Vercel, depuis une copyDir sans dossier .git.
+// Deploys `main` to production on Vercel, from a copy without a .git folder.
 //
-// Sur le plan Hobby, un dépôt privé ne peut être déployé que si l'auteur du
-// commit est le compte GitHub relié à Vercel, y compris avec `vercel --prod`
-// lancé depuis le dépôt, car la CLI joint les métadonnées git locales. Sans
-// .git, le build tourne chez Vercel avec `vercel.json` et les variables du
-// projet.
+// On the Hobby plan, a private repository can only be deployed if the commit
+// author is the GitHub account linked to Vercel, including with `vercel --prod`
+// run from the repository, because the CLI attaches the local git metadata.
+// Without .git, the build runs on Vercel with `vercel.json` and the project's
+// variables.
 //
-// Préalables, une seule fois : `npx vercel login` (compte pluriface) puis
-// `npx vercel link`. Usage : node scripts/deployer-production.mjs
-// (cf. docs/DEPLOYMENT.md, section 4).
+// One-time prerequisites: `npx vercel login` (pluriface account) then
+// `npx vercel link`. Usage: node scripts/deployer-production.mjs
+// (see docs/DEPLOYMENT.md, section 4).
 
 import { execSync, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
@@ -40,12 +40,12 @@ if (local !== distant) {
 
 const copyDir = mkdtempSync(join(tmpdir(), "forge-deploy-"));
 try {
-  // `git archive` n'emporte que les fichiers suivis : ni .git, ni .env, ni node_modules.
+  // `git archive` only takes tracked files: no .git, no .env, no node_modules.
   const archive = join(copyDir, "source.tar");
   execSync(`git archive --format=tar --output="${archive}" ${REF}`);
-  // Extraction avec un chemin RELATIF, depuis le dossier de la copyDir : le tar de
-  // Windows (bsdtar) lirait le `C:` d'un chemin absolu comme un hôte distant
-  // (« Cannot connect to C: resolve failed »).
+  // Extract with a RELATIVE path, from the copy's folder: the Windows tar
+  // (bsdtar) would read the `C:` of an absolute path as a remote host
+  // ("Cannot connect to C: resolve failed").
   execSync("tar -xf source.tar", { cwd: copyDir });
   rmSync(archive);
   mkdirSync(join(copyDir, ".vercel"));
@@ -59,9 +59,9 @@ try {
   });
   process.exitCode = res.status ?? 1;
 } finally {
-  // Sous Windows, le dossier peut rester verrouillé (EBUSY) un instant après la
-  // fin de la CLI : on réessaie, et un échec de nettoyage n'annule pas un
-  // déploiement réussi — on le signale seulement.
+  // On Windows, the folder can stay locked (EBUSY) for a moment after the
+  // CLI exits: retry, and a cleanup failure does not undo a successful
+  // deployment — it is only reported.
   try {
     rmSync(copyDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
   } catch (err) {

@@ -22,7 +22,7 @@ export default function SignupPage() {
     setError(null);
     setEmailWarning(null);
 
-    // Contrôles de confort : le serveur revalide tout.
+    // Convenience checks: the server re-validates everything.
     if (!/[A-Za-z]/.test(password) || !/\d/.test(password)) {
       setError("Le mot de passe doit contenir au moins une lettre et un chiffre.");
       return;
@@ -54,8 +54,8 @@ export default function SignupPage() {
         return;
       }
 
-      // La connexion immédiate n'aboutit que si la vérification d'adresse est
-      // désactivée (AUTH_ALLOW_UNVERIFIED_LOGIN).
+      // The immediate sign-in only succeeds if address verification is
+      // disabled (AUTH_ALLOW_UNVERIFIED_LOGIN).
       const loginRes = await signIn("credentials", {
         email,
         password,
@@ -95,7 +95,7 @@ export default function SignupPage() {
                 <h1 className="mb-3 font-tech text-2xl tracking-[0.18em] text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.3)]">
                   VÉRIFIE TA BOÎTE MAIL
                 </h1>
-                {/* Même message que l'adresse soit libre ou déjà inscrite (audit SRV-05) */}
+                {/* Same message whether the address is free or already registered (audit SRV-05) */}
                 <p className="mb-5 font-body text-sm leading-relaxed text-nebula-text-secondary">
                   On vient d&apos;envoyer un e-mail à
                   <br />

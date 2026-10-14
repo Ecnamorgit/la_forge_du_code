@@ -3,9 +3,9 @@ import { getBadge } from "@/lib/badges-catalog";
 import { sanitizeShareName, parseShareXp } from "@/lib/share";
 
 /**
- * Image OG publique de la carte de réussite partageable. Le badge est vérifié
- * dans le catalogue et les paramètres sont nettoyés, pour que la route ne serve
- * pas de générateur d'images libre. Aucune donnée personnelle hormis le pseudo.
+ * Public OG image for the shareable achievement card. The badge is checked
+ * against the catalog and the parameters are sanitized, so the route does not
+ * serve as an open image generator. No personal data apart from the username.
  */
 
 export const dynamic = "force-dynamic";

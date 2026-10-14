@@ -26,7 +26,7 @@ const signupSchema = z.object({
     .regex(/\d/, "Le mot de passe doit contenir au moins un chiffre"),
 });
 
-/** Même réponse que l'adresse soit libre ou déjà inscrite (audit SRV-05). */
+/** Same response whether the address is free or already registered (audit SRV-05). */
 function signupResponse(mail: { ok: boolean; error?: string }) {
   return NextResponse.json({
     ok: true,
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   const rejection = crossOriginRefusal(request);
   if (rejection) return rejection;
 
-  // Limite par IP contre les inscriptions en masse.
+  // Per-IP limit against mass sign-ups.
   const limit = await rateLimit(`signup:${getClientIp(request)}`, {
     limit: 5,
     windowMs: 60 * 60 * 1000,
@@ -65,18 +65,19 @@ export async function POST(request: Request) {
   const { email, username, password } = parsed.data;
   const emailLower = email.toLowerCase();
 
-  // Adresse déjà inscrite : le titulaire reçoit un e-mail « tu as déjà un
-  // compte » et la réponse est celle d'une inscription réussie. Le hachage est
-  // calculé quand même pour que le temps de réponse ne trahisse rien.
+  // Address already registered: the owner gets a "tu as déjà un compte"
+  // (you already have an account) email and the response is that of a
+  // successful sign-up. The hash is still computed so the response time
+  // gives nothing away.
   const existingUser = await prisma.user.findUnique({
     where: { email: emailLower },
     select: { id: true },
   });
   if (existingUser) {
     await bcrypt.hash(password, 12);
-    // Au plus 3 notice par adresse et par jour, pour ne pas inonder la boîte
-    // d'un tiers. La clé est une emailHash : l'adresse n'apparaît pas dans le
-    // limiteur.
+    // At most 3 notices per address per day, so as not to flood a third
+    // party's inbox. The key is a hash: the address does not appear in the
+    // limiter.
     const emailHash = crypto.createHash("sha256").update(emailLower).digest("hex");
     const notice = await rateLimit(`signup-exists:${emailHash}`, {
       limit: 3,
@@ -87,8 +88,8 @@ export async function POST(request: Request) {
     return signupResponse(mailRes);
   }
 
-  // Les pseudos sont publics (classement) : dire qu'un pseudo est pris ne
-  // révèle rien.
+  // Usernames are public (leaderboard): saying a username is taken reveals
+  // nothing.
   const usernameTaken = await prisma.user.findUnique({
     where: { username },
     select: { id: true },
@@ -100,8 +101,8 @@ export async function POST(request: Request) {
     );
   }
 
-  // Coût 12, valeur recommandée en 2026 (aussi enseignée dans le cours de
-  // sécurité).
+  // Cost 12, the recommended value in 2026 (also taught in the security
+  // course).
   const hashed = await bcrypt.hash(password, 12);
 
   const user = await prisma.user.create({
@@ -110,9 +111,9 @@ export async function POST(request: Request) {
       username,
       password: hashed,
       name: username,
-      // Pas de `lastVisit` : le champ désigne le dernier jour actif, et
-      // s'inscrire n'en est pas un. Le semer fausserait la liaison affichée
-      // après la première étape.
+      // No `lastVisit`: the field means the last active day, and signing up
+      // is not one. Seeding it would skew the liaison shown after the first
+      // step.
     },
     select: { id: true, email: true },
   });
@@ -120,7 +121,7 @@ export async function POST(request: Request) {
   const token = await createToken({ userId: user.id, kind: "email_verify" });
   const mailRes = await sendVerificationEmail({ to: user.email, token });
 
-  // Comptage anonyme, qui ne doit pas faire échouer l'inscription.
+  // Anonymous counting, which must not make the sign-up fail.
   await prisma.trackEvent.create({ data: { name: "inscription" } }).catch(() => {});
 
   return signupResponse(mailRes);

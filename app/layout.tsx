@@ -11,8 +11,8 @@ const shareTechMono = Share_Tech_Mono({
   display: "swap",
 });
 
-// Police pixel, réservée aux titres courts : elle devient illisible en petite
-// taille.
+// Pixel font, reserved for short headings: it becomes unreadable at small
+// sizes.
 const silkscreen = Silkscreen({
   weight: ["400", "700"],
   subsets: ["latin"],
@@ -32,9 +32,9 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-// La CSP à nonce impose un rendu dynamique : une page pré-rendue au build
-// n'aurait pas de nonce et ses scripts seraient bloqués. Posé sur le layout
-// racine, `force-dynamic` vaut pour toutes les routes.
+// The nonce-based CSP requires dynamic rendering: a page pre-rendered at build
+// time would have no nonce and its scripts would be blocked. Set on the root
+// layout, `force-dynamic` applies to every route.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -71,8 +71,8 @@ export default function RootLayout({
       <body className="min-h-full w-full bg-nebula-bg-darkest text-nebula-text font-body text-base m-0 p-0">
         <AuthSessionProvider>{children}</AuthSessionProvider>
         {/*
-          Mesure d'audience Vercel sans cookie ni identifiant persistant, donc
-          sans consentement préalable (docs/RGPD.md §2). Inerte hors de Vercel.
+          Vercel audience measurement with no cookie or persistent identifier,
+          so no prior consent needed (docs/RGPD.md §2). Inert outside Vercel.
         */}
         <Analytics />
       </body>

@@ -5,10 +5,10 @@ import { getBadge } from "@/lib/badges-catalog";
 import { sanitizeShareName, parseShareXp } from "@/lib/share";
 
 /**
- * Page publique d'une carte de réussite partagée : elle porte les métadonnées
- * OG et Twitter de l'image dynamique (app/api/share/[badge]/route.tsx) et
- * invite le visiteur sur l'application. Aucune donnée personnelle hormis le
- * pseudo.
+ * Public page for a shared achievement card: it carries the OG and Twitter
+ * metadata for the dynamic image (app/api/share/[badge]/route.tsx) and
+ * invites the visitor to the application. No personal data apart from the
+ * username.
  */
 
 type Params = Promise<{ badge: string }>;

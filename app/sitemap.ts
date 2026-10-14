@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 import { INDEXABLE_ROUTES } from "@/lib/public-routes";
 
 /**
- * Pages publiques, tirées de `lib/public-routes.ts` comme les règles du proxy,
- * pour ne jamais lister une page qui redirige vers /login.
+ * Public pages, taken from `lib/public-routes.ts` like the proxy rules,
+ * so a page that redirects to /login is never listed.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.APP_URL ?? "http://localhost:3000";

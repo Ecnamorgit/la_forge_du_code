@@ -1,14 +1,14 @@
 name: CI
 
-# Lint, typecheck, tests unitaires, build et e2e à chaque push ou pull request
-# sur main et dev.
+# Lint, typecheck, unit tests, build and e2e on every push or pull request
+# to main and dev.
 on:
   push:
     branches: [main, dev]
   pull_request:
     branches: [main, dev]
 
-# Le jeton GITHUB_TOKEN n'a besoin que de lire le dépôt.
+# The GITHUB_TOKEN only needs to read the repository.
 permissions:
   contents: read
 
@@ -34,8 +34,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Client Prisma généré (lib/generated/prisma), nécessaire au typecheck
-      # comme au build.
+      # Generated Prisma client (lib/generated/prisma), needed by the typecheck
+      # as well as the build.
       - name: Generate Prisma client
         run: pnpm prisma generate
 
@@ -48,9 +48,9 @@ jobs:
       - name: Tests unitaires
         run: pnpm test:run
 
-      # DATABASE_URL factice : aucune page n'interroge la base au build, l'URL
-      # sert seulement à instancier le pool Prisma. La validation de
-      # l'environnement n'a lieu qu'au démarrage du serveur.
+      # Dummy DATABASE_URL: no page queries the database at build time, the URL
+      # is only used to instantiate the Prisma pool. Environment validation
+      # only happens when the server starts.
       - name: Build
         run: pnpm build
         env:
@@ -77,17 +77,17 @@ jobs:
       DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
       DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
       AUTH_SECRET: ci-e2e-secret-not-used-1234567890
-      # Suite lancée contre `pnpm build && pnpm start` : la CSP n'est émise
-      # qu'en production (proxy.ts, garde `CSP_ACTIVE`). Voir
+      # Suite run against `pnpm build && pnpm start`: the CSP is only emitted
+      # in production (proxy.ts, `CSP_ACTIVE` guard). See
       # docs/audit-securite/corrections/EXE-03.md.
       E2E_PROD: "1"
-      # En production, `lib/env.ts` exige une APP_URL https non-localhost et une
-      # RESEND_API_KEY. Valeurs factices : aucune spec n'envoie d'e-mail.
+      # In production, `lib/env.ts` requires an https, non-localhost APP_URL and a
+      # RESEND_API_KEY. Dummy values: no spec sends email.
       APP_URL: https://ci.codeforge.invalid
       RESEND_API_KEY: ci-e2e-key-not-used
-      # Sans elle, Auth.js refuse localhost en production (UntrustedHost). En
-      # local, `.env` la fournit ; elle est aussi requise en production
-      # (docs/DEPLOYMENT.md) bien que `lib/env.ts` la déclare optionnelle.
+      # Without it, Auth.js rejects localhost in production (UntrustedHost).
+      # Locally, `.env` provides it; it is also required in production
+      # (docs/DEPLOYMENT.md) even though `lib/env.ts` declares it optional.
       AUTH_TRUST_HOST: "true"
     steps:
       - name: Checkout

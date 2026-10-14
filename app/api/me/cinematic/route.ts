@@ -5,8 +5,8 @@ import { auth } from "@/auth";
 import { listCinematicViews, markCinematicView } from "@/lib/me-server";
 import { crossOriginRefusal } from "@/lib/same-origin";
 
-// "<cursus>:intro", "<cursus>:finale" ou "<cursus>:chapter:<slug>" (voir
-// lib/cinematics/types) : tout autre identifiant est refusé.
+// "<course>:intro", "<course>:finale" or "<course>:chapter:<slug>" (see
+// lib/cinematics/types): any other identifier is rejected.
 const postSchema = z.object({
   cinematicId: z
     .string()

@@ -20,8 +20,8 @@ export default function LoginPage() {
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Chemins internes uniquement, contre la redirection ouverte. next-auth
-  // revérifie l'origine.
+  // Internal paths only, to prevent open redirects. next-auth
+  // checks the origin again.
   const callbackUrl = safeInternalPath(searchParams.get("from"));
 
   const [email, setEmail] = useState("");
@@ -48,9 +48,9 @@ function LoginPageContent() {
     setPending(false);
 
     if (!res || res.error) {
-      // Auth.js v5 ne remonte pas toujours le code CredentialsSignin avec
-      // `redirect: false` : cette route distingue mauvais mot de passe et
-      // adresse non vérifiée.
+      // Auth.js v5 does not always surface the CredentialsSignin code with
+      // `redirect: false`: this route tells a wrong password apart from an
+      // unverified address.
       try {
         const check = await fetch("/api/auth/check-verification", {
           method: "POST",
@@ -64,7 +64,7 @@ function LoginPageContent() {
           return;
         }
       } catch {
-        // Message d'erreur générique ci-dessous.
+        // Generic error message below.
       }
       setError("Email ou mot de passe invalide");
       return;
@@ -85,7 +85,7 @@ function LoginPageContent() {
       });
       setResent(true);
     } catch {
-      // Même confirmation en cas d'échec réseau.
+      // Same confirmation on a network failure.
       setResent(true);
     } finally {
       setResending(false);

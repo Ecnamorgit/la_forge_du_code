@@ -19,11 +19,11 @@ import {
 interface CourseEntry extends CourseInfo {
   chapters: number;
   status: "available" | "locked";
-  /** Parcours complet ou simple chapitre d'aperçu. */
+  /** Full course or just a preview chapter. */
   depth: CourseStatus;
 }
 
-// Cursus complets d'abord, aperçus ensuite ; l'ordre du catalogue est conservé.
+// Full courses first, previews after; the catalog order is preserved.
 const DEPTH_ORDER: Record<CourseStatus, number> = { complete: 0, preview: 1 };
 
 const COURSES: CourseEntry[] = COURSES_CATALOG.map((c) => ({
@@ -37,7 +37,7 @@ export default function LearnPage() {
   const { state, hydrated } = useUser();
   const userRole = hydrated && state?.role && isRoleId(state.role) ? state.role : null;
 
-  // Si un rôle est choisi, ses cursus recommandés (lib/avatar.ts) passent en tête.
+  // If a role is chosen, its recommended courses (lib/avatar.ts) come first.
   const roleCourses = userRole ? ROLE_RECOMMENDED_COURSES[userRole] : null;
   const recommendedCourses = roleCourses
     ? COURSES.filter((c) => roleCourses.includes(c.slug))
@@ -82,7 +82,7 @@ export default function LearnPage() {
           </p>
         </div>
 
-        {/* Cursus recommandés */}
+        {/* Recommended courses */}
         {recommendedCourses.length > 0 && (
           <div className="w-full mb-10 animate-fade-up">
             <div className="flex items-center gap-3 mb-6">
@@ -99,7 +99,7 @@ export default function LearnPage() {
           </div>
         )}
 
-        {/* Autres cursus, ou tous sans rôle */}
+        {/* Other courses, or all of them without a role */}
         <div className="w-full animate-fade-up">
           {recommendedCourses.length > 0 && (
             <div className="flex items-center gap-3 mb-6 mt-4">
@@ -165,7 +165,7 @@ function CourseCard({ course }: { course: CourseEntry }) {
         }
       `}
     >
-      {/* Logo filaire en fond */}
+      {/* Wireframe logo in the background */}
       <div className={`absolute inset-0 z-0 overflow-hidden rounded-lg pointer-events-none opacity-[0.18] flex items-center justify-center ${c.text}`}>
         <CourseWireframe slug={course.slug} />
       </div>

@@ -12,7 +12,7 @@ const bodySchema = z.object({
   email: z.string().email().max(254),
 });
 
-/** Répond 200 que l'adresse soit inscrite ou non, pour ne pas la révéler. */
+/** Responds 200 whether or not the address is registered, so as not to reveal it. */
 export async function POST(req: Request) {
   const rejection = crossOriginRefusal(req);
   if (rejection) return rejection;
@@ -42,8 +42,8 @@ export async function POST(req: Request) {
   });
 
   if (user && user.password) {
-    // Après la réponse : attendre l'sendEmail rendrait la réponse plus lente pour
-    // une adresse inscrite, et le délai révélerait le compte.
+    // After the response: waiting for the email to be sent would slow the response
+    // for a registered address, and the delay would reveal the account.
     after(async () => {
       try {
         const token = await createToken({ userId: user.id, kind: "password_reset" });

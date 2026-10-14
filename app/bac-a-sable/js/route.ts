@@ -2,8 +2,8 @@ import { buildJsRunnerDocument } from "@/lib/sandbox/js-runner-document";
 import { sandboxResponse } from "@/lib/sandbox/sandbox-response";
 
 /**
- * Document d'exécution JavaScript, servi depuis l'origine dédiée. `run-js.ts`
- * le charge dans une iframe cachée puis lui poste le code de l'apprenant.
+ * JavaScript execution document, served from the dedicated origin. `run-js.ts`
+ * loads it in a hidden iframe then posts it the learner's code.
  */
 export function GET(req: Request): Response {
   return sandboxResponse(buildJsRunnerDocument(), req);

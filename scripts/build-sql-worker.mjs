@@ -1,8 +1,8 @@
-// Bundle le Web Worker d'exécution SQL (lib/sandbox/sql.worker.ts) dans
-// public/sql. Exécuté via predev / prebuild ; la sortie n'est pas versionnée.
+// Bundles the SQL execution Web Worker (lib/sandbox/sql.worker.ts) into
+// public/sql. Run via predev / prebuild; the output is not under version control.
 //
-// Le Worker isole sql.js du fil principal : une requête sans fin ne fige pas
-// l'onglet, et la page peut l'arrêter (audit EXE-02).
+// The Worker isolates sql.js from the main thread: an endless query does not
+// freeze the tab, and the page can stop it (audit EXE-02).
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -20,8 +20,8 @@ await build({
   outfile,
   bundle: true,
   format: "iife",
-  // Variante « browser » de sql.js, qui réclame sql-wasm-browser.wasm
-  // (copié par copy-sql-wasm.mjs).
+  // The "browser" variant of sql.js, which requests sql-wasm-browser.wasm
+  // (copied by copy-sql-wasm.mjs).
   platform: "browser",
   target: ["es2020"],
   minify: true,

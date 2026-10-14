@@ -1,19 +1,19 @@
 /**
- * Vérifie qu'une base restaurée est exploitable (CF-19, runbook de
+ * Checks that a restored database is usable (CF-19, runbook in
  * `docs/DEPLOYMENT.md`).
  *
- * Usage :
- *   npx tsx scripts/verify-restore.ts "postgresql://user:pass@hote:5432/base"
+ * Usage:
+ *   npx tsx scripts/verify-restore.ts "postgresql://user:pass@host:5432/db"
  *
- * L'URL est obligatoire et jamais lue depuis .env : le DATABASE_URL de
- * l'environnement viserait la production.
+ * The URL is required and never read from .env: the environment's
+ * DATABASE_URL would target production.
  *
- * Affiche le volume de chaque table puis un verdict ; code de sortie 0 si la
- * base est exploitable, 1 sinon.
+ * Prints the row count of each table then a verdict; exit code 0 if the
+ * database is usable, 1 otherwise.
  */
 import { Client } from "pg";
 
-/** Tables dont la présence conditionne le fonctionnement de l'application. */
+/** Tables the application needs in order to work. */
 const EXPECTED_TABLES = [
   "User",
   "OneTimeToken",
@@ -26,8 +26,8 @@ const EXPECTED_TABLES = [
 ] as const;
 
 /**
- * Tables qui doivent contenir au moins une ligne. Seulement `User` : une base
- * restaurée peut n'avoir ni badge ni progression, mais pas zéro compte.
+ * Tables that must contain at least one row. Only `User`: a restored database
+ * may have no badges and no progress, but not zero accounts.
  */
 const NON_EMPTY_TABLES = ["User"] as const;
 
@@ -60,7 +60,7 @@ async function main(): Promise<void> {
   try {
     for (const table of EXPECTED_TABLES) {
       try {
-        // Guillemets requis : Prisma nomme les tables avec des majuscules.
+        // Quotes required: Prisma names tables with capital letters.
         const r = await client.query(`SELECT COUNT(*)::int AS n FROM "${table}"`);
         const rows = r.rows[0].n as number;
         volumes.push({ table, rows });

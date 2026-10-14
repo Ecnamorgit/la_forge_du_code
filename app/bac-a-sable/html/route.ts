@@ -2,9 +2,9 @@ import { buildHtmlPreviewDocument } from "@/lib/sandbox/html-preview-document";
 import { sandboxResponse } from "@/lib/sandbox/sandbox-response";
 
 /**
- * Coquille de l'aperçu HTML, servie depuis l'origine dédiée. `ChapterWorkspace`
- * la charge par `src` puis lui poste le HTML de l'apprenant, qu'elle rend dans
- * une iframe imbriquée.
+ * HTML preview shell, served from the dedicated origin. `ChapterWorkspace`
+ * loads it via `src` then posts it the learner's HTML, which it renders in
+ * a nested iframe.
  */
 export function GET(req: Request): Response {
   return sandboxResponse(buildHtmlPreviewDocument(), req);

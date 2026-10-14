@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   const rejection = crossOriginRefusal(req);
   if (rejection) return rejection;
 
-  // Limite par IP : freine l'essai de jetons au hasard et borne le coût des
+  // Per-IP limit: slows down random token guessing and caps the cost of
   // bcrypt.hash.
   const limit = await rateLimit(`reset:${getClientIp(req)}`, {
     limit: 10,
@@ -54,9 +54,9 @@ export async function POST(req: Request) {
       where: { id: userId },
       data: {
         password: hashed,
-        // Recevoir le lien prouve aussi la possession de l'adresse.
+        // Receiving the link also proves ownership of the address.
         emailVerified: new Date(),
-        // Révoque les sessions émises avant ce changement (audit SRV-03).
+        // Revokes sessions issued before this change (audit SRV-03).
         sessionVersion: { increment: 1 },
       },
     });

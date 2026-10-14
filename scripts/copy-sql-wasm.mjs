@@ -1,10 +1,10 @@
-// Copie les fichiers WebAssembly de sql.js dans public/sql, où le moteur SQL
-// les réclame (lib/sandbox/run-sql.ts). Exécuté via predev / prebuild ; la
-// sortie n'est pas versionnée et suit la version de sql.js installée.
+// Copies the sql.js WebAssembly files into public/sql, where the SQL engine
+// requests them (lib/sandbox/run-sql.ts). Run via predev / prebuild; the
+// output is not under version control and follows the installed sql.js version.
 //
-// Le bundler du navigateur choisit la variante « browser » de sql.js, qui
-// réclame `sql-wasm-browser.wasm` ; `sql-wasm.wasm` sert la variante par
-// défaut. Les deux sont donc copiées (audit EXE-07).
+// The browser bundler picks the "browser" variant of sql.js, which
+// requests `sql-wasm-browser.wasm`; `sql-wasm.wasm` serves the default
+// variant. Both are therefore copied (audit EXE-07).
 import { copyFile, mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";

@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Frontière d'erreur racine : elle remplace le layout entier, d'où ses propres
- * <html> et <body>.
+ * Root error boundary: it replaces the whole layout, hence its own
+ * <html> and <body>.
  */
 export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (

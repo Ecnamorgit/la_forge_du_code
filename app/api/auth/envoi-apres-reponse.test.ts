@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 /**
- * « Mot de passe oublié » et « renvoyer la vérification » répondent pareil
- * qu'un account existe ou non. Le jeton et l'e-mail ne sont produits qu'après
- * la réponse (`after`) : les attendre rallongerait la réponse pour une adresse
- * inscrite, et le délai révélerait le account.
+ * The forgot-password and resend-verification routes respond the same whether
+ * or not an account exists. The token and the email are produced only after
+ * the response (`after`): awaiting them would slow the response for a
+ * registered address, and the delay would reveal the account.
  */
 
 const mockState = vi.hoisted(() => ({
@@ -59,7 +59,7 @@ const CASES = [
   },
 ];
 
-describe.each(CASES)("$label : envoi après la réponse", ({ post, account, sendEmail }) => {
+describe.each(CASES)("$label: sends after the response",({ post, account, sendEmail }) => {
   beforeEach(() => {
     mockState.user = null;
     mockState.deferred.length = 0;
@@ -67,7 +67,7 @@ describe.each(CASES)("$label : envoi après la réponse", ({ post, account, send
     sendEmail.mockClear();
   });
 
-  it("répond sans attendre le jeton ni l'e-mail pour un compte existant", async () => {
+  it("responds without waiting for the token or email for an existing account",async () => {
     mockState.user = account;
 
     const res = await post(makeRequest("cadet@exemple.fr"));
@@ -83,7 +83,7 @@ describe.each(CASES)("$label : envoi après la réponse", ({ post, account, send
     expect(sendEmail).toHaveBeenCalledWith({ to: "cadet@exemple.fr", token: "jeton" });
   });
 
-  it("répond de la même façon pour une adresse inconnue, sans rien programmer", async () => {
+  it("responds the same way for an unknown address, without scheduling anything",async () => {
     const res = await post(makeRequest("inconnu@exemple.fr"));
 
     expect(res.status).toBe(200);
@@ -91,7 +91,7 @@ describe.each(CASES)("$label : envoi après la réponse", ({ post, account, send
     expect(mockState.deferred).toHaveLength(0);
   });
 
-  it("n'échoue pas si l'envoi échoue après la réponse", async () => {
+  it("does not fail if sending fails after the response",async () => {
     mockState.user = account;
     sendEmail.mockResolvedValueOnce({ ok: false, error: "panne" } as never);
     vi.spyOn(console, "warn").mockImplementation(() => {});

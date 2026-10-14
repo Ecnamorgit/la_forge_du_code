@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 /**
- * Audit SRV-10 : la page chapitre vérifie la session elle-même. On l'appelle
- * directement, sans session, comme le verrait un visiteur qui aurait
- * contourné le proxy.
+ * Audit SRV-10: the chapter page checks the session itself. It is called
+ * directly, without a session, as a visitor who had bypassed the proxy
+ * would see it.
  */
 
 const session = vi.hoisted(() => ({ value: null as null | { user: { id: string } } }));
@@ -24,24 +24,24 @@ import ChapterPage from "./page";
 const openChapter = (course: string, chapter: string) =>
   ChapterPage({ params: Promise.resolve({ course, chapter }) });
 
-describe("page chapitre, sans compter sur le proxy", () => {
+describe("chapter page, without relying on the proxy",() => {
   beforeEach(() => {
     session.value = null;
   });
 
-  it("renvoie vers la connexion un visiteur sans session sur un chapitre protégé", async () => {
+  it("redirects a visitor without a session to login on a protected chapter",async () => {
     await expect(openChapter("html", "chapitre-5")).rejects.toThrow("NEXT_REDIRECT:/login");
   });
 
-  it("renvoie vers la connexion un visiteur sans session sur un autre cursus", async () => {
+  it("redirects a visitor without a session to login on another course",async () => {
     await expect(openChapter("css", "chapitre-1")).rejects.toThrow("NEXT_REDIRECT:/login");
   });
 
-  it("sert un chapitre d'essai sans session", async () => {
+  it("serves a trial chapter without a session",async () => {
     await expect(openChapter("html", "chapitre-1")).resolves.toBeTruthy();
   });
 
-  it("sert un chapitre protégé à un compte connecté", async () => {
+  it("serves a protected chapter to a signed-in account",async () => {
     session.value = { user: { id: "cadet" } };
     await expect(openChapter("html", "chapitre-5")).resolves.toBeTruthy();
   });

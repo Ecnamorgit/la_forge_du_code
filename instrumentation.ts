@@ -3,9 +3,9 @@ import type { Instrumentation } from "next";
 import { logger } from "./lib/logger";
 
 /**
- * Appelé une fois au démarrage de chaque instance serveur : valide
- * l'environnement, puis initialise Sentry si `SENTRY_DSN` est défini. L'import
- * dynamique laisse Sentry hors du bundle tant qu'il n'est pas configuré.
+ * Called once when each server instance starts: validates the
+ * environment, then initializes Sentry if `SENTRY_DSN` is set. The dynamic
+ * import keeps Sentry out of the bundle as long as it is not configured.
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
@@ -23,8 +23,8 @@ export async function register() {
 }
 
 /**
- * Erreurs serveur non gérées : journal structuré, et Sentry s'il est
- * configuré. Aucune donnée personnelle n'est journalisée.
+ * Unhandled server errors: structured log, and Sentry if it is
+ * configured. No personal data is logged.
  */
 export const onRequestError: Instrumentation.onRequestError = async (
   err,

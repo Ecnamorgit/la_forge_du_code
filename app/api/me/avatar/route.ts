@@ -6,8 +6,8 @@ import { InvalidAvatarError, UserNotFoundError, setAvatar } from "@/lib/me-serve
 import { isRoleId, isSpeciesId } from "@/lib/avatar";
 import { crossOriginRefusal } from "@/lib/same-origin";
 
-// `uniformColor` n'est validé ici qu'en forme : le droit à une couleur
-// méritée dépend de l'utilisateur et se vérifie dans `setAvatar`.
+// `uniformColor` is only validated for shape here: the right to an earned
+// color depends on the user and is checked in `setAvatar`.
 const bodySchema = z
   .object({
     species: z.string().min(1).max(32),

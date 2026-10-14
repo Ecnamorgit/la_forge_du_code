@@ -10,12 +10,12 @@ const { auth } = NextAuth(authConfig);
 
 const AUTH_PAGES = new Set(["/login", "/signup"]);
 
-// CSP à nonce en production seulement : le serveur de développement a besoin
-// d'`eval` et de `ws:` (HMR), et une politique différente de celle livrée
-// donnerait une fausse confiance (voir docs/audit-securite/corrections/EXE-03.md).
+// Nonce-based CSP in production only: the dev server needs `eval` and
+// `ws:` (HMR), and a policy different from the shipped one would give
+// false confidence (see docs/audit-securite/corrections/EXE-03.md).
 const CSP_ACTIVE = process.env.NODE_ENV === "production";
 
-/** Nonce unique par requête. */
+/** Unique nonce per request. */
 function generateNonce(): string {
   return btoa(crypto.randomUUID());
 }
@@ -24,12 +24,12 @@ export default auth((req) => {
   const { pathname, search } = req.nextUrl;
   const isAuthed = !!req.auth;
 
-  // Les documents du bac à sable posent eux-mêmes leur CSP permissive, que la
-  // CSP stricte de l'app ne doit pas remplacer.
+  // The sandbox documents set their own permissive CSP, which the app's
+  // strict CSP must not replace.
   const isSandboxPath = pathname === "/bac-a-sable" || pathname.startsWith("/bac-a-sable/");
 
-  // `frame-src` n'autorise que l'origine du bac à sable dérivée de la requête
-  // (sous-domaine dédié en production, autre hôte local en CI).
+  // `frame-src` only allows the sandbox origin derived from the request
+  // (dedicated subdomain in production, another local host in CI).
   const nonce = CSP_ACTIVE && !isSandboxPath ? generateNonce() : null;
   const csp = nonce
     ? buildCsp({ nonce, sandboxOrigin: sandboxOriginFor(requestOrigin(req)) })
@@ -57,8 +57,8 @@ export default auth((req) => {
     return res;
   }
 
-  // Next lit le nonce dans les en-têtes de requête pendant le rendu serveur
-  // pour marquer ses propres scripts.
+  // Next reads the nonce from the request headers during server rendering
+  // to tag its own scripts.
   const requestHeaders = new Headers(req.headers);
   if (nonce && csp) {
     requestHeaders.set("x-nonce", nonce);

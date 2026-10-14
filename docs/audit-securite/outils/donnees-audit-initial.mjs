@@ -1,4 +1,4 @@
-// Donnees de l'audit initial de securite de La Forge du Code (2026-09-12).
+// Data for the initial security audit of La Forge du Code (2026-09-12).
 const SITE = "https://www.laforgeducode.fr";
 
 const questions = [
@@ -293,7 +293,7 @@ const debts = [
     deliverable: "public/.well-known/security.txt", dueDate: "2026-10-31" },
 ];
 
-// Constats detailles (rapport).
+// Detailed findings (report).
 const findings = [
   ["DEP-01", "Haute", "Dépendances vulnérables : next 16.2.4, next-auth 5.0.0-beta.31", "package.json:27-28", "Avis publics de contournement du proxy et d'auth en mode ouvert, exploitables sans compte selon la configuration.", "Mettre à jour next (16.3.5) et next-auth (beta.32)."],
   ["EXE-01", "Moyenne", "Réussite d'étape accordée sans preuve côté serveur", "lib/me-server.ts:282-292", "Un compte boucle sur POST /api/me/step et prend la tête du classement avec tous les badges.", "Limite de débit, ordre des étapes, validation serveur des cas statiques."],
@@ -454,7 +454,7 @@ Le fichier \`proofpack-la-forge-du-code.json\` embarque son empreinte (\`${pack.
 export const data = {
   slug: "la-forge-du-code",
   date: "2026-09-12",
-  // Commit de main audite : les empreintes des preuves de code sont calculees dessus.
+  // Audited commit of main: the code evidence hashes are computed on it.
   commit: "48b1627",
   caseInfo: {
     title: "La Forge du Code - Audit de sécurité du site",
