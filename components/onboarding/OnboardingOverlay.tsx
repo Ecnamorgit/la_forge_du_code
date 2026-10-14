@@ -112,7 +112,7 @@ export default function OnboardingOverlay() {
 
   const totalBriefingSlides = SLIDES.length;
   const totalQuestions = QUESTIONS.length;
-  const totalSteps = totalBriefingSlides + totalQuestions + 1; // briefing, questions, résultat
+  const totalSteps = totalBriefingSlides + totalQuestions + 1; // briefing, questions, result
 
   const isBriefing = step < totalBriefingSlides;
   const isQuestionnaire = step >= totalBriefingSlides && step < totalBriefingSlides + totalQuestions;
@@ -148,7 +148,7 @@ export default function OnboardingOverlay() {
 
   const handleSelectOption = (optIdx: number) => {
     setSelectedAnswers((prev) => ({ ...prev, [currentQuestionIdx]: optIdx }));
-    // Passage automatique à l'écran suivant.
+    // Automatically move to the next screen.
     setTimeout(() => {
       setStep((s) => s + 1);
     }, 250);
@@ -158,7 +158,7 @@ export default function OnboardingOverlay() {
     setLocalError(null);
     setDismissing(true);
     try {
-      // Garde l'espèce et la couleur existantes, sinon les valeurs par défaut.
+      // Keep the existing species and color, otherwise the defaults.
       await setAvatar({
         species: state.species || "humain",
         uniformColor: state.uniformColor || "cyan",
@@ -174,8 +174,8 @@ export default function OnboardingOverlay() {
   };
 
   const handleDismiss = async () => {
-    // « Passer » ne remplace jamais un rôle déjà choisi sur /avatar : le
-    // résultat du quiz ne sert que s'il n'y en a pas encore.
+    // « Passer » (skip) never overrides a role already chosen on /avatar: the
+    // quiz result is only used when there is none yet.
     const activeRole = isRoleId(state.role)
       ? state.role
       : getCalculatedRole();
@@ -194,7 +194,7 @@ export default function OnboardingOverlay() {
     >
       <div className="w-full max-w-lg rounded-sm border border-nebula-cyan/60 bg-nebula-bg-panel p-6 shadow-[0_0_60px_rgba(0,240,255,0.18),0_0_140px_rgba(0,240,255,0.06)] animate-modal-pop-in sm:p-8">
         
-        {/* En-tête */}
+        {/* Header */}
         <div className="mb-4 flex items-center justify-between font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
           {isBriefing && (
             <>
@@ -216,7 +216,7 @@ export default function OnboardingOverlay() {
           )}
         </div>
 
-        {/* Contenu */}
+        {/* Content */}
         {isBriefing && (
           <>
             <div className="mb-5 text-center">
@@ -302,7 +302,7 @@ export default function OnboardingOverlay() {
                 {roleDef.description}
               </p>
               
-              {/* Recommandations */}
+              {/* Recommendations */}
               <div className="w-full text-left p-4 bg-nebula-bg-darkest/60 border border-nebula-border/50 rounded-sm mb-6">
                 <span className="font-tech text-[10px] tracking-widest text-nebula-text-dim block mb-2 uppercase">
                   📡 Priorités de Cursus Recommandées
@@ -325,7 +325,7 @@ export default function OnboardingOverlay() {
           </>
         )}
 
-        {/* Points de progression */}
+        {/* Progress dots */}
         <div className="mb-5 flex items-center justify-center gap-2">
           {Array.from({ length: totalSteps }).map((_, i) => {
             const isActive = i === step;
@@ -395,7 +395,7 @@ export default function OnboardingOverlay() {
                 Suivant →
               </button>
             ) : (
-              // Avance automatique, mais « Suivant » reste actif si une option est déjà choisie.
+              // Auto-advance, but « Suivant » (next) stays enabled if an option is already chosen.
               <button
                 type="button"
                 onClick={() => setStep((s) => s + 1)}

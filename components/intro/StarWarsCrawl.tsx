@@ -5,9 +5,9 @@ import { CRAWL_LINES } from "@/lib/lore";
 interface StarWarsCrawlProps {
   onComplete?: () => void;
   onSkip?: () => void;
-  /** Durée du défilement en secondes. */
+  /** Scroll duration in seconds. */
   durationSeconds?: number;
-  /** Sans mouvement : le texte est affiché d'un bloc, sans défilement. */
+  /** No motion: the text is shown all at once, without scrolling. */
   reducedMotion?: boolean;
 }
 
@@ -70,7 +70,7 @@ export default function StarWarsCrawl({
         </div>
       )}
 
-      {/* Bouton visible dès la première seconde. */}
+      {/* Button visible from the very first second. */}
       <div className="z-30 mt-2 flex items-center gap-4">
         <button
           onClick={onSkip ?? onComplete}

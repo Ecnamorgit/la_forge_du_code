@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { Quest } from "@/lib/quests";
 
-/** Un ordre compact : libellé, barre de progression, lien vers l'endroit visé. */
+/** A compact order: label, progress bar, link to the targeted place. */
 export default function QuestLine({ quest, href }: { quest: Quest; href: string }) {
   const pct = Math.round((quest.progress / quest.target) * 100);
   return (

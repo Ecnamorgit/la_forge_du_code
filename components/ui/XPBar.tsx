@@ -1,11 +1,11 @@
 interface XPBarProps {
-  /** XP accumulée dans le chapitre en cours (pas le total du compte). */
+  /** XP earned in the current chapter (not the account total). */
   xp: number;
-  /** XP totale du chapitre en cours. */
+  /** Total XP of the current chapter. */
   maxXp: number;
   /**
-   * Niveau du compte (levelFromXp(totalXp)), pas du chapitre : échelle
-   * distincte de `xp` et `maxXp`.
+   * Account level (levelFromXp(totalXp)), not the chapter's: a separate
+   * scale from `xp` and `maxXp`.
    */
   accountLevel: number;
 }

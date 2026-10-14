@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import type { LiaisonPublic } from "@/lib/user-store";
 
-/** Temps restant avant minuit UTC, format « 4 h 12 ». */
+/** Time left until UTC midnight, formatted as « 4 h 12 ». */
 function timeRemaining(): string {
   const now = new Date();
   const endOfDay = Date.UTC(
@@ -20,18 +20,18 @@ function timeRemaining(): string {
 export default function LiaisonBanner({ liaison }: { liaison: LiaisonPublic }) {
   const [remaining, setRemaining] = useState<string | null>(null);
 
-  // Calculé après montage : l'heure diffère entre serveur et client, la rendre
-  // au premier rendu provoquerait une erreur d'hydratation.
+  // Computed after mount: the time differs between server and client, rendering
+  // it on first render would cause a hydration error.
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture ponctuelle au montage
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off read on mount
     setRemaining(timeRemaining());
     const id = setInterval(() => setRemaining(timeRemaining()), 60_000);
     return () => clearInterval(id);
   }, []);
 
-  // Une rupture est toujours annoncée : si valider une étape maintenant ne
-  // sauverait plus la série (relais épuisés), le statut est « rompue ». Tant
-  // que rien n'est validé aujourd'hui, le chiffre affiché est celui d'hier.
+  // A break is always announced: if completing a step now would no longer
+  // save the streak (relays used up), the status is "rompue" (broken). As long
+  // as nothing is completed today, the number shown is yesterday's.
   const perilStatus: "rompue" | "en-attente" | "acquise" = liaison.wouldBreakToday
     ? "rompue"
     : liaison.activeToday

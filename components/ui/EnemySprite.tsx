@@ -1,16 +1,16 @@
 "use client";
 
 /**
- * Ennemi animé tiré de enemy-sprites.png (planche 2816x1536, 4 colonnes x 3
- * lignes, cases de 704x512). Seule la première ligne (Alien-Swifter) sert.
+ * Animated enemy taken from enemy-sprites.png (2816x1536 sheet, 4 columns x 3
+ * rows, 704x512 cells). Only the first row (Alien-Swifter) is used.
  *
- * En cas d'erreur, l'ennemi traverse de droite à gauche ; en cas de succès,
- * il apparaît puis explose (zoom et fondu).
+ * On error, the enemy flies across from right to left; on success,
+ * it appears then explodes (zoom and fade).
  */
 
 interface EnemySpriteProps {
   type: "fly" | "explode" | "none";
-  trigger: number; // à incrémenter pour relancer l'animation
+  trigger: number; // increment to restart the animation
 }
 
 export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
@@ -29,7 +29,7 @@ export default function EnemySprite({ type, trigger }: EnemySpriteProps) {
           width: displaySize,
           height: displaySize * (512 / 704),
           backgroundImage: "url(/sprites/enemy-sprites.png)",
-          // Seule la ligne (Y) est fixée ; les keyframes `sprite-enemy-anim` pilotent X.
+          // Only the row (Y) is fixed; the `sprite-enemy-anim` keyframes drive X.
           backgroundPositionY: "0px",
           backgroundSize: `${2816 * scale}px ${1536 * scale}px`,
           imageRendering: "pixelated",

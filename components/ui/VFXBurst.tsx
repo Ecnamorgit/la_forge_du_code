@@ -1,6 +1,6 @@
 "use client";
 
-/** Effet de réussite de la bannière de quête : anneaux cyan en expansion, en CSS pur. */
+/** Quest banner success effect: expanding cyan rings, in pure CSS. */
 
 interface VFXBurstProps {
   trigger: number;
@@ -14,7 +14,7 @@ export default function VFXBurst({ trigger }: VFXBurstProps) {
       key={trigger}
       className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[398] pointer-events-none"
     >
-      {/* Anneaux en expansion */}
+      {/* Expanding rings */}
       {[0, 1, 2].map((i) => (
         <div
           key={i}

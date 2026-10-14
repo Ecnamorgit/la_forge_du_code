@@ -6,15 +6,15 @@ import StarWarsCrawl from "./StarWarsCrawl";
 import { hasSeenIntro, markIntroSeen } from "@/lib/intro";
 import { useModalOverlay } from "@/lib/use-modal-overlay";
 
-/** Évènement window déclenchant une relecture depuis n'importe quel bouton. */
+/** Window event that triggers a replay from any button. */
 export const REPLAY_INTRO_EVENT = "nebula:replay-intro";
 
 /**
- * Monte le crawl par-dessus la landing. C'est un overlay et non une
- * redirection : la landing reste rendue dessous pour les robots et les
- * aperçus de lien. Lecture automatique une seule fois par navigateur
- * (drapeau `nc_intro_seen`) ; les cinq scènes animées sont jouées au premier
- * login, côté dashboard.
+ * Mounts the crawl on top of the landing page. It is an overlay, not a
+ * redirect: the landing page stays rendered underneath for crawlers and
+ * link previews. Autoplays only once per browser
+ * (`nc_intro_seen` flag); the five animated scenes play on first
+ * login, on the dashboard side.
  */
 export default function IntroCinematicMount() {
   const [open, setOpen] = useState(false);
@@ -27,7 +27,7 @@ export default function IntroCinematicMount() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- lectures ponctuelles au montage
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off reads on mount
     setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     if (!hasSeenIntro()) setOpen(true);
 
@@ -36,9 +36,9 @@ export default function IntroCinematicMount() {
     return () => window.removeEventListener(REPLAY_INTRO_EVENT, onReplay);
   }, []);
 
-  // Même contrat modal que la cinématique post-inscription : la landing
-  // dessous ne doit pas être atteignable au clavier. Le focus initial va au
-  // bouton « Passer »/« Continuer », seul contrôle utile ici.
+  // Same modal contract as the post-signup cinematic: the landing page
+  // underneath must not be reachable by keyboard. Initial focus goes to the
+  // « Passer »/« Continuer » (skip/continue) button, the only useful control here.
   useModalOverlay(overlayRef, {
     open,
     onClose: handleClose,

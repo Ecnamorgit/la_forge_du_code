@@ -10,7 +10,7 @@ export default function TrialCtaLink({
   children,
 }: {
   className?: string;
-  /** Libellé du lien, propre à chaque appelant. */
+  /** Link label, specific to each caller. */
   children: ReactNode;
 }) {
   const ping = () => {
@@ -20,7 +20,7 @@ export default function TrialCtaLink({
       body: JSON.stringify({ name: "essai_lance" }),
       keepalive: true,
     }).catch(() => {
-      /* le comptage ne doit jamais bloquer la navigation */
+      /* tracking must never block navigation */
     });
   };
 

@@ -5,9 +5,9 @@ import { useUser } from "@/lib/use-user";
 import { sanitizeShareName } from "@/lib/share";
 
 /**
- * Partage d'une carte de réussite. Construit l'URL publique /share/[badge]
- * (qui porte les métadonnées de l'image OG) et passe par l'API Web Share si
- * elle existe, sinon par LinkedIn. Seul le pseudo est transmis.
+ * Shares an achievement card. Builds the public /share/[badge] URL
+ * (which carries the OG image metadata) and goes through the Web Share API if
+ * available, otherwise through LinkedIn. Only the username is sent.
  */
 
 interface ShareButtonProps {
@@ -36,7 +36,7 @@ export default function ShareButton({ badgeId, badgeLabel, xp = 0 }: ShareButton
         await navigator.share({ title: "La Forge du Code", text, url });
         return;
       } catch {
-        // Partage annulé ou en échec : repli sur LinkedIn.
+        // Share cancelled or failed: fall back to LinkedIn.
       }
     }
     const intent = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
@@ -47,7 +47,7 @@ export default function ShareButton({ badgeId, badgeLabel, xp = 0 }: ShareButton
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch {
-        // La copie dans le presse-papiers est facultative.
+        // Copying to the clipboard is optional.
       }
     }
   }, [buildUrl, badgeLabel]);

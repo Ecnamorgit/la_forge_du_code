@@ -6,29 +6,29 @@ import Image from "next/image";
 import { INTRO_FX, type Fx, type SceneFx } from "@/lib/intro-fx";
 
 /**
- * Mini-cinématique three.js pixelisée d'une scène d'intro.
+ * Pixelated three.js mini-cinematic for an intro scene.
  *
- * Le PNG de la scène reste une <Image> ordinaire ; un canvas three.js
- * transparent par-dessus n'anime que les effets (glitchs, halos, faisceaux,
- * particules) décrits dans `INTRO_FX`. La dérive de caméra est une animation
- * CSS sur le conteneur : image et effets bougent ensemble, et WebGL n'a
- * aucune texture à charger.
+ * The scene's PNG stays a plain <Image>; a transparent three.js canvas
+ * on top animates only the effects (glitches, halos, beams,
+ * particles) described in `INTRO_FX`. The camera drift is a CSS animation
+ * on the container: image and effects move together, and WebGL has
+ * no texture to load.
  *
- * Le rendu interne, en basse résolution, est agrandi sans lissage pour rester
- * en pixel art. three.js n'est importé qu'au montage ; si WebGL échoue,
- * l'<Image> reste seule.
+ * The internal render, at low resolution, is upscaled without smoothing to stay
+ * pixel art. three.js is only imported on mount; if WebGL fails,
+ * the <Image> is shown alone.
  */
 
 type ThreeModule = typeof import("three");
 
-/** Ratio des scene-N.png (1024×571). */
+/** Aspect ratio of the scene-N.png files (1024×571). */
 const IMG_ASPECT = 1024 / 571;
-/** Largeur interne du rendu, en px. */
+/** Internal render width, in px. */
 const RENDER_WIDTH = 320;
-/** Environ 20 images/s, suffisant pour des effets lents. */
+/** About 20 frames/s, enough for slow effects. */
 const TICK_MS = 50;
 
-/** Classe d'animation CSS du wrapper selon la dérive configurée. */
+/** Wrapper CSS animation class for the configured drift. */
 const CAMERA_CLASS: Record<SceneFx["camera"]["kind"], string> = {
   pan: "animate-intro-cam-pan",
   sway: "animate-intro-cam-sway",
@@ -36,13 +36,13 @@ const CAMERA_CLASS: Record<SceneFx["camera"]["kind"], string> = {
   "zoom-out": "animate-intro-cam-zoom-out",
 };
 
-/** Hash déterministe dans [0, 1[, pour les scintillements et les particules. */
+/** Deterministic hash in [0, 1), for flickers and particles. */
 function hash(n: number): number {
   const s = Math.sin(n * 127.1 + 311.7) * 43758.5453;
   return s - Math.floor(s);
 }
 
-/** Petite texture radiale douce (halo / particule). */
+/** Small soft radial texture (halo / particle). */
 function makeSoftCircle(THREE: ThreeModule): import("three").Texture {
   const c = document.createElement("canvas");
   c.width = c.height = 64;
@@ -58,7 +58,7 @@ function makeSoftCircle(THREE: ThreeModule): import("three").Texture {
   return tex;
 }
 
-/** Texture de rayures horizontales répétées (scanlines). */
+/** Texture of repeated horizontal stripes (scanlines). */
 function makeStripes(THREE: ThreeModule): import("three").Texture {
   const c = document.createElement("canvas");
   c.width = 4;
@@ -72,7 +72,7 @@ function makeStripes(THREE: ThreeModule): import("three").Texture {
   return tex;
 }
 
-/** Dégradé horizontal doux (barre de sweep). */
+/** Soft horizontal gradient (sweep bar). */
 function makeGradientBar(THREE: ThreeModule): import("three").Texture {
   const c = document.createElement("canvas");
   c.width = 64;
@@ -119,7 +119,7 @@ export default function IntroSceneCanvas({
       try {
         renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
       } catch {
-        // WebGL indisponible : l'<Image> statique reste seule affichée.
+        // WebGL unavailable: only the static <Image> is shown.
         return;
       }
 
@@ -134,7 +134,7 @@ export default function IntroSceneCanvas({
       const stripes = track(makeStripes(THREE));
       const gradientBar = track(makeGradientBar(THREE));
 
-      // Monde : un rectangle de la taille de l'image, hauteur 1.
+      // World: a rectangle the size of the image, height 1.
       const W = IMG_ASPECT;
       const H = 1;
       const toWorld = (nx: number, ny: number): [number, number] => [
@@ -174,7 +174,7 @@ export default function IntroSceneCanvas({
           })
         );
 
-      // Construction des effets et de leurs fonctions de mise à jour.
+      // Build the effects and their update functions.
       const updates: Array<(t: number) => void> = [];
 
       config.effects.forEach((fx: Fx, fxIndex: number) => {
@@ -290,8 +290,8 @@ export default function IntroSceneCanvas({
               ) as import("three").BufferAttribute;
               for (let i = 0; i < fx.count; i++) {
                 const travel = (t + phases[i]) * fx.speed;
-                // Position de départ pseudo-aléatoire + translation, repliée
-                // dans la zone (modulo) pour un flux continu.
+                // Pseudo-random start position + translation, wrapped
+                // into the area (modulo) for a continuous flow.
                 const px =
                   (hash(seed + i * 3) + (travel * dx) / len / fx.w) % 1;
                 const py =
@@ -415,8 +415,8 @@ export default function IntroSceneCanvas({
       cleanupThree = () => {
         for (const d of disposables) d.dispose();
         renderer.dispose();
-        // Un canvas est monté par scène : sans libération immédiate, les
-        // contextes WebGL s'accumulent jusqu'à la limite du navigateur.
+        // One canvas is mounted per scene: without immediate release,
+        // WebGL contexts pile up until the browser limit.
         renderer.forceContextLoss();
         if (holder.contains(el)) holder.removeChild(el);
       };

@@ -2,9 +2,9 @@
 
 import dynamic from "next/dynamic";
 
-// Monaco est servi depuis /public/monaco plutôt que le CDN jsdelivr (CF-16).
-// Le loader est configuré au chargement du module, avant le montage de
-// l'éditeur.
+// Monaco is served from /public/monaco rather than the jsdelivr CDN (CF-16).
+// The loader is configured when the module loads, before the editor
+// mounts.
 const Editor = dynamic(
   () =>
     import("@monaco-editor/react").then((mod) => {

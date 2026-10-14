@@ -9,10 +9,10 @@ interface BriefingCardProps {
   briefing: Briefing | null;
   courseTitle: string;
   courseProgress: number;
-  /** Lien vers l'étape suivante du cursus actif. */
+  /** Link to the next step of the active course. */
   resumeHref: string;
   resumeLabel: string;
-  /** Construit le lien d'un ordre à partir du cursus qu'il vise. */
+  /** Builds an order's link from the course it targets. */
   hrefForQuest: (course: string | null, chapter: string | null) => string;
 }
 

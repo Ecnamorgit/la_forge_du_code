@@ -12,15 +12,15 @@ import {
 } from "@/lib/sandbox/react-preview";
 import { SANDBOX_PATH, sandboxOriginFor } from "@/lib/sandbox/sandbox-origin";
 
-/** Délai au-delà duquel on considère que l'iframe ne répondra jamais. */
+/** Delay after which the iframe is considered never going to respond. */
 const READY_TIMEOUT_MS = 5000;
 
 interface ReactPreviewProps {
-  /** Code courant de l'éditeur, non transformé. */
+  /** Current editor code, untransformed. */
   code: string;
-  /** Nom du composant à monter. Absent = chapitre sans aperçu. */
+  /** Name of the component to mount. Missing = chapter without a preview. */
   mount?: string;
-  /** Incrémenté par le parent à chaque déploiement ; 0 tant que rien n'est déployé. */
+  /** Incremented by the parent on every deploy; 0 until anything is deployed. */
   deployNonce: number;
   className?: string;
 }
@@ -32,12 +32,12 @@ type PreviewState =
   | { phase: "erreur"; kind: PreviewErrorKind; message: string };
 
 /**
- * Aperçu exécuté du composant de l'apprenant.
+ * Live preview of the learner's component.
  *
- * Pas de chien de garde côté parent : dans Chromium, l'iframe peut partager le
- * thread principal de la page, si bien qu'une infiniteLoop synchrone gèle tout
- * l'onglet et qu'aucun minuteur du parent ne s'exécute. Aucune récupération
- * n'étant possible après l'envoi, le code suspect n'est pas envoyé (voir
+ * No watchdog on the parent side: in Chromium, the iframe can share the
+ * page's main thread, so a synchronous infinite loop freezes the whole
+ * tab and no parent timer ever runs. Since no recovery is possible
+ * once the code is sent, suspicious code is not sent (see
  * `lib/sandbox/loop-guard.ts`).
  */
 export default function ReactPreview({
@@ -49,13 +49,13 @@ export default function ReactPreview({
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [previewState, setPreviewState] = useState<PreviewState>({ phase: "attente" });
 
-  // Disponibilité de l'iframe dans un ref et non un état : en dépendance de
-  // l'effet de déploiement, elle ferait monter le composant deux fois quand
-  // un déploiement précède la poignée de main.
+  // Iframe readiness lives in a ref, not state: as a dependency of the
+  // deploy effect, it would mount the component twice when
+  // a deploy comes before the handshake.
   const readyRef = useRef(false);
 
-  // Dernier code transformé, gardé en file tant que l'iframe n'a pas envoyé
-  // `ready` : un postMessage envoyé trop tôt est perdu sans erreur.
+  // Last transformed code, kept queued until the iframe has sent
+  // `ready`: a postMessage sent too early is silently lost.
   const pendingRef = useRef<{ js: string; mount: string } | null>(null);
   const fileRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -67,9 +67,9 @@ export default function ReactPreview({
   }, []);
 
   /**
-   * Surveille un déploiement mis en file : si le script de l'iframe ne démarre
-   * jamais, l'apprenant resterait devant un cadre blanc (le filet initial ne
-   * couvre que l'état de départ).
+   * Watches a queued deploy: if the iframe's script never starts,
+   * the learner would be left facing a blank frame (the initial safety net
+   * only covers the starting state).
    */
   const startQueueWait = useCallback(() => {
     stopQueueWait();
@@ -81,18 +81,18 @@ export default function ReactPreview({
     }, READY_TIMEOUT_MS);
   }, [stopQueueWait]);
 
-  /** Poste vers l'iframe. Renvoie false si la frame n'est pas joignable. */
+  /** Posts to the iframe. Returns false if the frame is unreachable. */
   const sendPayload = useCallback((payload: { js: string; mount: string }) => {
     const targetWindow = iframeRef.current?.contentWindow;
     if (!targetWindow) return false;
-    // Iframe à origine opaque : "*" est la seule cible possible. La charge
-    // utile (le code de l'apprenant) n'est pas un secret, et l'iframe vérifie
+    // Opaque-origin iframe: "*" is the only possible target. The payload
+    // (the learner's code) is not a secret, and the iframe checks
     // `event.source === parent`.
     targetWindow.postMessage({ type: "preview:render", ...payload }, "*");
     return true;
   }, []);
 
-  // Si l'envoi échoue, la charge repart en file plutôt que d'être perdue.
+  // If sending fails, the payload goes back into the queue instead of being lost.
   const sendOrQueue = useCallback(
     (payload: { js: string; mount: string }) => {
       if (sendPayload(payload)) return;
@@ -102,7 +102,7 @@ export default function ReactPreview({
     [sendPayload, startQueueWait]
   );
 
-  // Écoute des messages de l'iframe.
+  // Listen for messages from the iframe.
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       const msg = parsePreviewMessage(event, iframeRef.current?.contentWindow ?? null);
@@ -127,8 +127,8 @@ export default function ReactPreview({
     return () => window.removeEventListener("message", onMessage);
   }, [sendOrQueue, stopQueueWait]);
 
-  // Filet initial : si `ready` n'arrive jamais alors que rien n'a encore été
-  // déployé, l'aperçu se déclare indisponible et la leçon continue.
+  // Initial safety net: if `ready` never arrives while nothing has been
+  // deployed yet, the preview declares itself unavailable and the lesson goes on.
   useEffect(() => {
     const t = setTimeout(() => {
       if (!readyRef.current) {
@@ -138,22 +138,22 @@ export default function ReactPreview({
     return () => clearTimeout(t);
   }, []);
 
-  // Aucun minuteur ne doit survivre au démontage du composant.
+  // No timer may outlive the component's unmount.
   useEffect(() => stopQueueWait, [stopQueueWait]);
 
-  // Code courant lu au déploiement, via un ref : mettre `code` dans les deps
-  // de l'effet de déploiement remonterait l'aperçu à chaque frappe.
+  // Current code read at deploy time, via a ref: putting `code` in the deploy
+  // effect's deps would remount the preview on every keystroke.
   const codeRef = useRef(code);
   useEffect(() => {
     codeRef.current = code;
   }, [code]);
 
-  // Transformation et envoi à chaque déploiement.
+  // Transform and send on every deploy.
   useEffect(() => {
     if (deployNonce === 0 || !mount) return;
 
     if (!PREVIEW_MOUNT_NAME_RE.test(mount)) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- réaction à une donnée de cours invalide, pas une resynchronisation différée
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reacting to invalid course data, not a deferred resync
       setPreviewState({
         phase: "erreur",
         kind: "mount",
@@ -166,8 +166,8 @@ export default function ReactPreview({
     void (async () => {
       const source = codeRef.current;
 
-      // Garde-fou avant toute transformation : une infiniteLoop infinie déjà
-      // envoyée ne peut plus être rattrapée.
+      // Safeguard before any transformation: an infinite loop that has
+      // already been sent can no longer be recovered from.
       const infiniteLoop = detectInfiniteLoop(source);
       if (infiniteLoop) {
         setPreviewState({ phase: "erreur", kind: "boucle", message: infiniteLoopMessage(infiniteLoop) });
@@ -183,8 +183,8 @@ export default function ReactPreview({
       }
 
       setPreviewState({ phase: "rendu" });
-      // Les boucles que le filtre littéral ci-dessus laisse passer sont
-      // interrompues à l'exécution, au lieu de figer l'onglet (audit EXE-02).
+      // Loops that the literal filter above lets through are
+      // interrupted at runtime instead of freezing the tab (audit EXE-02).
       const payload = { js: guardLoops(r.js), mount };
       if (readyRef.current) {
         sendOrQueue(payload);
@@ -199,19 +199,19 @@ export default function ReactPreview({
     };
   }, [deployNonce, mount, sendOrQueue, startQueueWait]);
 
-  // Document du bac à sable sur son origine dédiée (audit EXE-03), chargé par
-  // `src` : un `srcDoc` hériterait de la CSP du site. Résolu après le montage,
-  // car `sandboxOriginFor` a besoin de `window.location.origin` ; le calculer
-  // au rendu créerait un écart d'hydratation sur `src`.
+  // Sandbox document on its dedicated origin (audit EXE-03), loaded via
+  // `src`: a `srcDoc` would inherit the site's CSP. Resolved after mount,
+  // because `sandboxOriginFor` needs `window.location.origin`; computing it
+  // during render would cause a hydration mismatch on `src`.
   const [sandboxSrc, setSandboxSrc] = useState<string | null>(null);
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture ponctuelle de l'origine au montage
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off read of the origin on mount
     setSandboxSrc(sandboxOriginFor(window.location.origin) + SANDBOX_PATH);
   }, []);
 
-  // Dérivé au rendu plutôt que posé par un effet : un effet ferait clignoter
-  // l'invitation « Déploie… » pendant une frame sur un chapitre qui n'a jamais
-  // d'aperçu, et resterait bloqué si `mount` devenait défini plus tard.
+  // Derived during render rather than set by an effect: an effect would flash
+  // the « Déploie… » (deploy) prompt for one frame on a chapter that never has
+  // a preview, and would stay stuck if `mount` became defined later.
   const noPreview = !mount;
   const noIframe = noPreview || previewState.phase === "indisponible";
 
@@ -249,9 +249,9 @@ export default function ReactPreview({
       )}
 
       {!noPreview && previewState.phase === "indisponible" && (
-        // L'iframe est démontée ici, mais l'état n'est pas verrouillé : un
-        // déploiement ultérieur la remonte, elle envoie une nouvelle poignée de
-        // main et l'aperçu repart.
+        // The iframe is unmounted here, but the state is not locked: a
+        // later deploy remounts it, it sends a new handshake
+        // and the preview starts again.
         <p className="px-5 py-4 font-body text-sm text-nebula-text-dim">
           Aperçu indisponible. Ton code est toujours analysé et validable.
         </p>

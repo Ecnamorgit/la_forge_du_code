@@ -32,18 +32,18 @@ interface ChapterWorkspaceProps {
   step: Step;
   validate: Validator;
   language?: Language;
-  /** Thème de combat du cursus, transmis à CombatVisualizer. */
+  /** The course's combat theme, passed to CombatVisualizer. */
   combatTheme?: CombatTheme;
-  /** SQL d'initialisation et de vérification de l'étape (cursus SQL). */
+  /** The step's setup and verification SQL (SQL course). */
   sqlConfig?: SqlRunOptions;
-  /** Sous `lg`, un seul panneau interne est affiché à la fois. */
+  /** Below `lg`, only one inner panel is shown at a time. */
   mobilePanel?: "editor" | "output";
   /**
-   * Appelé avec le code validé et son résultat. Le code est envoyé au
-   * serveur, qui rejoue le validateur (lib/step-proof.ts).
+   * Called with the validated code and its result. The code is sent to the
+   * server, which replays the validator (lib/step-proof.ts).
    */
   onStepSuccess: (code: string, result: ValidationResult) => void;
-  /** Appelé à chaque déploiement (bascule d'onglet sur mobile). */
+  /** Called on every deploy (switches tab on mobile). */
   onDeploy?: () => void;
   onTeleportFlash: () => void;
 }
@@ -82,11 +82,11 @@ export default function ChapterWorkspace({
 }: ChapterWorkspaceProps) {
   const isJs = language === "javascript";
   const isSql = language === "sql";
-  // React : le composant est monté dans l'iframe de ReactPreview, mais la
-  // validation reste statique comme pour les autres cursus ; l'aperçu ne
-  // juge pas.
+  // React: the component is mounted in the ReactPreview iframe, but
+  // validation stays static as in the other courses; the preview does not
+  // judge.
   const isReact = language === "react";
-  // HTML/CSS : le seul cursus dont la sortie est un aperçu rendu (iframe).
+  // HTML/CSS: the only course whose output is a rendered preview (iframe).
   const isHtml = !isJs && !isSql && !isReact;
   const [code, setCode] = useState(step.startCode);
   const [sqlView, setSqlView] = useState<SqlQueryResult | null>(null);
@@ -100,11 +100,11 @@ export default function ChapterWorkspace({
     trigger: number;
   }>({ type: "none", trigger: 0 });
   const [consoleEntries, setConsoleEntries] = useState<ConsoleEntry[]>([]);
-  // Incrémenté à chaque échec pour (re)jouer la secousse de la console.
+  // Incremented on every failure to (re)play the console shake.
   const [shakeTrigger, setShakeTrigger] = useState(0);
-  // Échecs consécutifs sur l'étape courante ; pilote l'intrusion du Spectre.
+  // Consecutive failures on the current step; drives the Spectre's intrusion.
   const [failCount, setFailCount] = useState(0);
-  // Incrémenté à chaque déploiement : seul signal transmis à ReactPreview.
+  // Incremented on every deploy: the only signal passed to ReactPreview.
   const [deployNonce, setDeployNonce] = useState(0);
 
   const detectedTagsRef = useRef<Set<string>>(detectClosedTags(step.startCode));
@@ -112,34 +112,34 @@ export default function ChapterWorkspace({
   const detectTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const latestCodeRef = useRef<string>(step.startCode);
 
-  // Aperçu HTML servi depuis l'origine dédiée (audit EXE-03) : l'iframe est
-  // chargée par `src` et reçoit le HTML par message, car un `srcdoc`
-  // hériterait de la CSP du site. `src` est résolu après le montage :
-  // `sandboxOriginFor` a besoin de `window.location.origin`, et le calculer au
-  // rendu créerait un écart d'hydratation.
+  // HTML preview served from the dedicated origin (audit EXE-03): the iframe is
+  // loaded via `src` and receives the HTML by message, because a `srcdoc`
+  // would inherit the site's CSP. `src` is resolved after mount:
+  // `sandboxOriginFor` needs `window.location.origin`, and computing it during
+  // render would cause a hydration mismatch.
   const htmlReadyRef = useRef(false);
   const pendingHtmlRef = useRef<string | null>(null);
   const [htmlSandboxSrc, setHtmlSandboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isHtml) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- lecture ponctuelle de l'origine au montage
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off read of the origin on mount
     setHtmlSandboxSrc(sandboxOriginFor(window.location.origin) + SANDBOX_HTML_PATH);
   }, [isHtml]);
 
-  /** Poste le HTML à la coquille, ou le met en file tant qu'elle n'est pas prête. */
+  /** Posts the HTML to the shell, or queues it until the shell is ready. */
   const posterHtml = useCallback((html: string) => {
     const targetWindow = iframeRef.current?.contentWindow;
     if (htmlReadyRef.current && targetWindow) {
-      // Coquille à origine opaque : "*" est la seule cible ; elle vérifie
-      // `event.source === parent`. Le HTML n'est pas un secret.
+      // Opaque-origin shell: "*" is the only possible target; the shell checks
+      // `event.source === parent`. The HTML is not a secret.
       targetWindow.postMessage({ type: "html:render", html }, "*");
     } else {
       pendingHtmlRef.current = html;
     }
   }, []);
 
-  // Poignée de main de la coquille HTML : à `html:ready`, on vide la file.
+  // HTML shell handshake: on `html:ready`, flush the queue.
   useEffect(() => {
     if (!isHtml) return;
     const onMessage = (event: MessageEvent) => {
@@ -160,11 +160,11 @@ export default function ChapterWorkspace({
     return () => clearTimeout(detectTimerRef.current);
   }, []);
 
-  // Étape-piège : à l'ouverture, le Spectre fond sur la console. Au montage
-  // seulement, le composant étant remonté à chaque étape (clé).
+  // Trap step: on open, the Spectre swoops down on the console. On mount
+  // only, since the component is remounted for every step (key).
   useEffect(() => {
     if (step.spectreTrap) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- flourish volontaire au montage
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional flourish on mount
       setEnemyState({ type: "fly", trigger: 1 });
       playBreach();
     }
@@ -227,8 +227,8 @@ export default function ChapterWorkspace({
       });
     } else if (isSql) {
       const run = await runSql(code, sqlConfig ?? {});
-      // Résultat de la requête, ou à défaut l'état relu : une étape
-      // INSERT/UPDATE affiche ainsi la table obtenue.
+      // The query result, or failing that the re-read state: an
+      // INSERT/UPDATE step thus shows the resulting table.
       setSqlView(run.result ?? run.verify ?? null);
       result = validate(code, {
         logs: [],
@@ -237,8 +237,8 @@ export default function ChapterWorkspace({
         sql: { result: run.result, verify: run.verify, error: run.error },
       });
     } else {
-      // Les boucles des scripts de l'apprenant sont interrompues au lieu de
-      // figer l'onglet (audit EXE-02).
+      // Loops in the learner's scripts are interrupted instead of
+      // freezing the tab (audit EXE-02).
       posterHtml(guardHtmlScripts(code));
       result = validate(code);
     }
@@ -273,12 +273,12 @@ export default function ChapterWorkspace({
       : isReact
         ? "App.jsx"
         : "index.html";
-  // Monaco n'a pas de mode "jsx" distinct : javascript colore correctement le JSX.
+  // Monaco has no separate "jsx" mode: javascript highlights JSX correctly.
   const editorLanguage = isJs || isReact ? "javascript" : isSql ? "sql" : "html";
 
   return (
     <section className="flex min-h-0 flex-1 flex-col bg-nebula-bg-dark/30 backdrop-blur-md">
-      {/* Barre d'outils de l'éditeur */}
+      {/* Editor toolbar */}
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-nebula-border/60 bg-nebula-bg-panel/60 px-5">
         <div className="rounded-t-sm border border-b-0 border-nebula-cyan/70 bg-nebula-bg-editor/50 px-4 py-1.5 font-tech text-sm tracking-wider text-nebula-cyan">
           {editorTabLabel}
@@ -291,7 +291,7 @@ export default function ChapterWorkspace({
         </button>
       </div>
 
-      {/* Éditeur : 55 % de la hauteur sur desktop, tout l'onglet sur mobile */}
+      {/* Editor: 55% of the height on desktop, the whole tab on mobile */}
       <div
         className={`min-h-0 flex-col lg:flex lg:h-[55%] lg:flex-none ${
           mobilePanel === "output" ? "hidden" : "flex flex-1"
@@ -305,7 +305,7 @@ export default function ChapterWorkspace({
         />
       </div>
 
-      {/* Barre de statut, qui sert aussi de bande de combat */}
+      {/* Status bar, which also serves as the combat strip */}
       <div
         key={shakeTrigger}
         className={`shrink-0 border-y border-nebula-border/60 bg-nebula-bg-panel/50 px-5 py-3.5 backdrop-blur-sm ${
@@ -375,7 +375,7 @@ export default function ChapterWorkspace({
         </div>
       </div>
 
-      {/* Panneau du bas : table (SQL), console (JS) ou aperçu (React, HTML/CSS) */}
+      {/* Bottom panel: table (SQL), console (JS) or preview (React, HTML/CSS) */}
       {isSql ? (
         <div
           className={`flex-1 min-h-0 overflow-auto bg-nebula-bg-darkest/80 px-5 py-4 ${

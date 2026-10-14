@@ -10,11 +10,11 @@ interface QuestBannerProps {
   subtitle: string;
   xpLabel: string;
   buttonLabel: string;
-  /** Case dans /sprites/banner-icons.png ; à défaut, BrandLogo est affiché. */
+  /** Cell in /sprites/banner-icons.png; if missing, BrandLogo is shown. */
   bannerFrame?: number;
-  /** Numéro (à partir de 1) de l'étape tout juste validée. */
+  /** Number (1-based) of the step just completed. */
   progressNow?: number;
-  /** Nombre total d'étapes du chapitre. */
+  /** Total number of steps in the chapter. */
   progressTotal?: number;
   onNext: () => void;
   onDimClick: () => void;
