@@ -38,7 +38,7 @@ export function sandboxOriginFor(appOrigin: string): string {
 /**
  * Inverse of `sandboxOriginFor`: the application origins allowed to
  * frame a sandbox document (`frame-ancestors`). Locally, the other
- * local host; in production, the appHost domain and its `www.` form, since the
+ * local host; in production, the bare domain and its `www.` form, since the
  * site redirects one to the other. Empty array if the origin is unparsable:
  * the caller then emits `'none'`.
  */

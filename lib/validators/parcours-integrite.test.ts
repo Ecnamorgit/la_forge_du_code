@@ -69,7 +69,7 @@ describe("the start code never validates its own step", () => {
         expect(validate, `pas de validateur pour l'étape ${i + 1}`).toBeTypeOf("function");
 
         // If the startCode already passes, the step is empty: the learner clicks
-        // "validate" and succeeds without writing anything. Nothing else flags it.
+        // "check" and succeeds without writing anything. Nothing else flags it.
         expect(
           validate(step.startCode).ok,
           `${course}/${chapter} étape ${i + 1} : le code de départ valide déjà. ` +

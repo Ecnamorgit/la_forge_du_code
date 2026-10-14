@@ -15,7 +15,7 @@ interface SqlRequest {
 }
 
 // This file is compiled with the DOM types: we hand-type the two
-// members of the Worker's workerScope used here.
+// members of the Worker global scope used here.
 const workerScope = self as unknown as {
   addEventListener(type: "message", listener: (event: MessageEvent<SqlRequest>) => void): void;
   postMessage(message: { id: number; run: SqlRun }): void;

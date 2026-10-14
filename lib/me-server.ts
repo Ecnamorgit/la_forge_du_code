@@ -432,7 +432,7 @@ export async function completeStep(
 
     // The liaison advances unconditionally: we only get here for a new step
     // (the transaction exits earlier if `alreadyDone`). The trigger is the
-    // step, not a fulfilled orderCheck: an orderCheck can require several
+    // step, not a fulfilled order: an order can require several
     // steps, and a cadet who does only one has still put in the work.
     // `advanceLiaison` is idempotent within a day.
     const transition = advanceLiaison(

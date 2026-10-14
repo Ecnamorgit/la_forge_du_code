@@ -50,7 +50,7 @@ describe("checkStepOrder", () => {
 });
 
 /**
- * The server orders chapters by `getChaptersMeta` (the chapterMap) and
+ * The server orders chapters by `getChaptersMeta` (the chapter map) and
  * counts steps from the content registry: if they diverged, it would reject
  * steps the UI offers. The invariant is derived from the registries, so it
  * covers newly added chapters.

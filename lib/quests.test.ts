@@ -158,7 +158,7 @@ describe("buildBriefing — progress", () => {
   });
 
   it("marks the briefing complete when every order is reached", () => {
-    // Empty past: resumeQuest (1 or 2 steps), effort (5 steps), curiosity
+    // Empty past: reprise (1 or 2 steps), effort (5 steps), curiosity
     // (open the first untouched course in alphabetical order, css).
     const today = [
       ...Array.from({ length: 6 }, (_, i) => step("html", "chapitre-1", i % 4, "2026-08-19")),
@@ -296,7 +296,7 @@ describe("applyBriefingPayout", () => {
     expect(out.bonusXp).toBe(QUEST_XP.reprise + QUEST_XP.effort);
     expect(out.questsPaid).toBe(2);
     expect(out.paidLabels).toEqual(["ordre reprise", "ordre effort"]);
-    // bit 0 (resumeQuest) + bit 1 (effort), curiosity is still to be paid.
+    // bit 0 (reprise) + bit 1 (effort), curiosity is still to be paid.
     expect(out.nextMask).toBe(0b011);
   });
 

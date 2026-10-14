@@ -78,7 +78,7 @@ export function buildCsp(options: CspOptions): string {
 }
 
 /**
- * A directive's tokens, without its directiveName (empty array if it is absent).
+ * A directive's tokens, without its name (empty array if it is absent).
  * Searching the whole string would mix up the directives:
  * `'unsafe-inline'` appears in `style-src`.
  */

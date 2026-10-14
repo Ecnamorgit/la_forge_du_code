@@ -4,7 +4,7 @@ import { STORAGE_STATE } from "./global-setup";
 
 /**
  * Steps 1 and 2 of JavaScript chapter 1, since HTML progress is observed
- * by other specs. Two steps, because the briefing's resumeQuest order targets 1
+ * by other specs. Two steps, because the briefing's `reprise` order targets 1
  * or 2 steps depending on the day's draw (lib/quests.ts).
  */
 const SOLUTIONS_JS_CH1 = [
@@ -196,7 +196,7 @@ test.describe("daily loop", () => {
     // The liaison only counts real work, not visiting the dashboard.
     expect(after.liaison.activeToday).toBe(true);
 
-    // The resumeQuest order is always drawn, with a target of at most 2
+    // The `reprise` order is always drawn, with a target of at most 2
     // (lib/quests.ts).
     const resumeQuest = after.briefing?.quests.find((q) => q.slot === "reprise");
     expect(resumeQuest, "le briefing doit toujours porter un ordre de reprise").toBeDefined();
