@@ -5,13 +5,13 @@ import bcrypt from "bcryptjs";
 import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
- * Limite de tentatives de connexion par compte (audit SRV-07), que la limite
- * par IP ne remplace pas face à un attaquant aux IP multiples.
+ * Per-account login attempt limit (audit SRV-07), which the per-IP limit
+ * does not replace against an attacker with many IPs.
  *
- * Les IP sont simulées par X-Forwarded-For : en local, sans proxy, le client
- * le fournit ; en production, Vercel le pose avec la vraie adresse.
+ * IPs are simulated with X-Forwarded-For: locally, without a proxy, the client
+ * provides it; in production, Vercel sets it with the real address.
  *
- * Compte dédié, recréé à chaque test.
+ * Dedicated account, recreated for each test.
  */
 
 const TARGET = {
@@ -22,7 +22,7 @@ const TARGET = {
 };
 
 async function recreateTarget(): Promise<void> {
-  // Avant toute connexion : on efface puis recrée une ligne de User.
+  // Before any connection: we delete then recreate a User row.
   assertTestDatabaseUrl(process.env.DATABASE_URL);
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
@@ -39,7 +39,7 @@ async function recreateTarget(): Promise<void> {
   }
 }
 
-/** Une tentative de connexion par l'API de next-auth, depuis l'IP donnée. */
+/** One login attempt through the next-auth API, from the given IP. */
 async function attemptLogin(request: APIRequestContext, password: string, ip: string): Promise<void> {
   const headers = { "x-forwarded-for": ip };
   const { csrfToken } = await (await request.get("/api/auth/csrf", { headers })).json();
@@ -55,20 +55,20 @@ async function signedInEmail(request: APIRequestContext): Promise<string | null>
   return session?.user?.email ?? null;
 }
 
-test("témoin : le bon mot de passe ouvre la session", async ({ request }) => {
+test("control: the correct password opens the session", async ({ request }) => {
   await recreateTarget();
   await attemptLogin(request, TARGET.password, "198.51.100.1");
   expect(await signedInEmail(request)).toBe(TARGET.email);
 });
 
-test("des essais répartis sur de nombreuses IP verrouillent le compte", async ({ request }) => {
+test("attempts spread across many IPs lock the account", async ({ request }) => {
   await recreateTarget();
   for (let i = 1; i <= 12; i++) {
     await attemptLogin(request, `mauvais-${i}-mdp`, `203.0.113.${i}`);
   }
 
-  // Le vrai mot de passe, depuis une IP encore jamais vue : le compte doit
-  // rester fermé jusqu'à la fin de la fenêtre.
+  // The real password, from a never-seen IP: the account must
+  // stay locked until the end of the window.
   await attemptLogin(request, TARGET.password, "203.0.113.100");
   expect(await signedInEmail(request), "compte verrouillé après 12 échecs").toBeNull();
 });

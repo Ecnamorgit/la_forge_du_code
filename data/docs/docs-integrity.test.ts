@@ -22,8 +22,8 @@ const CHAPTERS: ChapterData[] = [
   chapter8,
 ];
 
-describe("intégrité des renvois de fiches", () => {
-  it("chaque `related` de fiche pointe vers une fiche existante", () => {
+describe("reference sheet link integrity", () => {
+  it("every sheet `related` points to an existing sheet", () => {
     for (const entry of Object.values(htmlDocs)) {
       for (const id of entry.related ?? []) {
         expect(getDocEntry(id), `related cassé: ${id}`).toBeDefined();
@@ -31,7 +31,7 @@ describe("intégrité des renvois de fiches", () => {
     }
   });
 
-  it("chaque `docRefs` de toutes les étapes HTML pointe vers une fiche existante", () => {
+  it("every `docRefs` of all HTML steps points to an existing sheet", () => {
     for (const chapter of CHAPTERS) {
       for (const step of chapter.steps) {
         for (const id of step.docRefs ?? []) {
@@ -44,7 +44,7 @@ describe("intégrité des renvois de fiches", () => {
     }
   });
 
-  it("chaque token [[doc:ID]] des briefings pointe vers une fiche existante", () => {
+  it("every [[doc:ID]] token in briefings points to an existing sheet", () => {
     for (const chapter of CHAPTERS) {
       for (const step of chapter.steps) {
         for (const id of extractDocTokenIds(step.briefing.content)) {
@@ -57,7 +57,7 @@ describe("intégrité des renvois de fiches", () => {
     }
   });
 
-  it("chaque fiche a les champs essentiels renseignés", () => {
+  it("every sheet has its essential fields filled in", () => {
     for (const entry of Object.values(htmlDocs)) {
       expect(entry.id, "id manquant").toBeTruthy();
       expect(entry.term, `term manquant: ${entry.id}`).toBeTruthy();

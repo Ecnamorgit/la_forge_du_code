@@ -5,12 +5,12 @@ import { htmlDocs } from "../html";
 const entries = Object.values(cssDocs);
 const known = new Set([...Object.keys(cssDocs), ...Object.keys(htmlDocs)]);
 
-describe("fiches CSS", () => {
-  it("contient les 10 fiches attendues", () => {
+describe("CSS reference sheets", () => {
+  it("contains the 10 expected sheets", () => {
     expect(entries).toHaveLength(10);
   });
 
-  it("chaque clé de registre == entry.id, domaine css, préfixe css/", () => {
+  it("every registry key == entry.id, css domain, css/ prefix", () => {
     for (const [key, entry] of Object.entries(cssDocs)) {
       expect(entry.id).toBe(key);
       expect(entry.domain).toBe("css");
@@ -18,7 +18,7 @@ describe("fiches CSS", () => {
     }
   });
 
-  it("champs obligatoires non vides", () => {
+  it("required fields are not empty", () => {
     for (const e of entries) {
       expect(e.term.trim().length).toBeGreaterThan(0);
       expect(e.title.trim().length).toBeGreaterThan(0);
@@ -27,7 +27,7 @@ describe("fiches CSS", () => {
     }
   });
 
-  it("chaque id related résout (html ou css)", () => {
+  it("every related id resolves (html or css)", () => {
     for (const e of entries) {
       for (const rel of e.related ?? []) {
         expect(known.has(rel), `related inconnu: ${rel} (dans ${e.id})`).toBe(true);

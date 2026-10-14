@@ -2,14 +2,14 @@ import { expect, test } from "@playwright/test";
 import { STORAGE_STATE } from "./global-setup";
 
 /**
- * Mesure des Core Web Vitals (CF-17), à la demande seulement : ces chiffres
- * dépendent de la machine et feraient échouer la CI au hasard.
+ * Core Web Vitals measurement (CF-17), on demand only: these figures
+ * depend on the machine and would make CI fail at random.
  *
  *   MESURE_VITALS=1 E2E_PROD=1 pnpm test:e2e --grep "Core Web Vitals"
  *
- * `E2E_PROD=1` est requis : en développement, le bundle n'est ni minifié ni
- * découpé comme en production. LCP et FCP ne sont enregistrés que pour une
- * page visible.
+ * `E2E_PROD=1` is required: in development, the bundle is neither minified nor
+ * split as in production. LCP and FCP are only recorded for a
+ * visible page.
  */
 
 test.skip(
@@ -17,7 +17,7 @@ test.skip(
   "Mesure sur demande — MESURE_VITALS=1 E2E_PROD=1 pnpm test:e2e --grep \"Core Web Vitals\""
 );
 
-/** Seuils « bon » de web.dev. */
+/** web.dev "good" thresholds. */
 const THRESHOLDS = {
   /** Largest Contentful Paint. */
   lcp: 2500,
@@ -35,8 +35,8 @@ interface Measurement {
 }
 
 /**
- * Observateurs installés avant tout script de la page : LCP et FCP surviennent
- * pendant le chargement.
+ * Observers installed before any page script: LCP and FCP happen
+ * during loading.
  */
 const PROBE = `
   window.__vitals = { lcp: 0, cls: 0, fcp: 0, interactionMax: 0 };
@@ -69,14 +69,14 @@ async function measure(page: import("@playwright/test").Page, pagePath: string):
   await page.addInitScript(PROBE);
   await page.goto(pagePath, { waitUntil: "load" });
 
-  // Le navigateur cesse d'enregistrer le LCP à la première interaction : sur
-  // une page lente à peindre (Monaco), on laisse d'abord la page se poser.
+  // The browser stops recording LCP at the first interaction: on a page
+  // that is slow to paint (Monaco), we first let the page settle.
   await page.waitForLoadState("networkidle").catch(() => {});
   await page.waitForTimeout(2000);
 
   const afterLoad = await page.evaluate(() => ({ ...window.__vitals }));
 
-  // De vraies interactions, sans lesquelles INP n'a rien à measure.
+  // Real interactions, without which INP has nothing to measure.
   await page.mouse.move(200, 300);
   await page.mouse.click(200, 300);
   await page.keyboard.press("Tab");
@@ -86,7 +86,7 @@ async function measure(page: import("@playwright/test").Page, pagePath: string):
   const afterInteraction = await page.evaluate(() => ({ ...window.__vitals }));
 
   return {
-    // LCP, FCP et CLS sont ceux du chargement, avant toute interaction.
+    // LCP, FCP and CLS are those of the load, before any interaction.
     lcp: afterLoad.lcp,
     fcp: afterLoad.fcp,
     cls: afterLoad.cls,
@@ -111,14 +111,14 @@ function report(page: string, r: Measurement): void {
 }
 
 function checkThresholds(pageName: string, r: Measurement): void {
-  // Un LCP à zéro signifie que la sonde n'a rien capté.
+  // An LCP of zero means the probe captured nothing.
   expect(r.lcp, `${pageName} — aucun LCP capte, la mesure ne prouve rien`).toBeGreaterThan(0);
 
   expect(r.lcp, `${pageName} — LCP`).toBeLessThanOrEqual(THRESHOLDS.lcp);
   expect(r.cls, `${pageName} — CLS`).toBeLessThanOrEqual(THRESHOLDS.cls);
 
-  // Zéro signifie qu'aucune interaction n'a franchi le seuil de 16 ms de
-  // l'observateur, et non une réponse instantanée.
+  // Zero means no interaction crossed the observer's 16 ms threshold,
+  // not an instant response.
   if (r.interactionMax > 0) {
     expect(r.interactionMax, `${pageName} — interaction la plus lente`).toBeLessThanOrEqual(
       THRESHOLDS.inp
@@ -127,22 +127,22 @@ function checkThresholds(pageName: string, r: Measurement): void {
 }
 
 test.describe("Core Web Vitals", () => {
-  test("page d'accueil", async ({ page }) => {
+  test("home page", async ({ page }) => {
     const r = await measure(page, "/");
     report("Accueil /", r);
     checkThresholds("Accueil", r);
   });
 
-  test("page de lecon", async ({ page }) => {
+  test("lesson page", async ({ page }) => {
     const r = await measure(page, "/learn/html/chapitre-1");
     report("Lecon /learn/html/chapitre-1", r);
     checkThresholds("Lecon", r);
   });
 
-  test.describe("connecte", () => {
+  test.describe("logged in", () => {
     test.use({ storageState: STORAGE_STATE });
 
-    test("tableau de bord", async ({ page }) => {
+    test("dashboard", async ({ page }) => {
       const r = await measure(page, "/dashboard");
       report("Tableau de bord /dashboard", r);
       checkThresholds("Tableau de bord", r);

@@ -4,26 +4,26 @@ export interface DocExample {
 }
 
 export interface DocEntry {
-  /** Identifiant stable, ex. "html/doctype". */
+  /** Stable identifier, e.g. "html/doctype". */
   id: string;
-  /** Domaine, ex. "html". */
+  /** Domain, e.g. "html". */
   domain: string;
-  /** Terme affiché par défaut dans un lien inline, ex. "<!DOCTYPE html>". */
+  /** Term shown by default in an inline link, e.g. "<!DOCTYPE html>". */
   term: string;
-  /** Titre de la fiche. */
+  /** Sheet title. */
   title: string;
-  /** Résumé en une phrase (aperçu / cluster). */
+  /** One-sentence summary (preview / cluster). */
   summary: string;
-  /** Corps en markdown maison (même parser que le briefing). */
+  /** Body in our in-house markdown (same parser as the briefing). */
   body: string;
-  /** Bloc syntaxe optionnel. */
+  /** Optional syntax block. */
   syntax?: string;
-  /** Exemples optionnels. */
+  /** Optional examples. */
   examples?: DocExample[];
-  /** Pièges courants. */
+  /** Common pitfalls. */
   pitfalls?: string[];
-  /** Autres fiches liées (ids). */
+  /** Other related sheets (ids). */
   related?: string[];
-  /** Lien externe optionnel vers la doc officielle. */
+  /** Optional external link to the official docs. */
   official?: { label: string; url: string };
 }

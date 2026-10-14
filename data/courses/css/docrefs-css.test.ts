@@ -15,9 +15,9 @@ const EXPECTED: Record<string, string> = {
   "chapitre-10": "css/variables",
 };
 
-describe("docRefs du cursus CSS", () => {
+describe("CSS course docRefs", () => {
   for (const [chapter, docId] of Object.entries(EXPECTED)) {
-    it(`${chapter} : l'étape 1 référence ${docId} et il résout`, () => {
+    it(`${chapter}: step 1 references ${docId} and it resolves`, () => {
       const data = getChapterData("css", chapter);
       expect(data).not.toBeNull();
       const refs = data!.steps[0].docRefs ?? [];

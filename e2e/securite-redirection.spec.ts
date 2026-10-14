@@ -3,18 +3,18 @@ import { test, expect } from "@playwright/test";
 import { STORAGE_STATE } from "./global-setup";
 
 /**
- * Après l'enregistrement de l'avatar, le paramètre `from` ne doit pas faire
- * quitter le site (audit SRV-06, redirection ouverte).
+ * After saving the avatar, the `from` parameter must not take the user
+ * off the site (audit SRV-06, open redirect).
  *
- * Le domaine `.invalid` ne résout jamais (RFC 2606) : `page.route` répond à sa
- * place, sans requête vers l'extérieur.
+ * The `.invalid` domain never resolves (RFC 2606): `page.route` answers in
+ * its place, without any outbound request.
  */
 
 test.use({ storageState: STORAGE_STATE });
 
 const TRAP_URL = "https://piege.invalid/";
 
-test("après l'enregistrement de l'avatar, un lien piégé ne fait pas quitter le site", async ({
+test("after saving the avatar, a booby-trapped link does not take the user off the site", async ({
   page,
   baseURL,
 }) => {
@@ -24,7 +24,7 @@ test("après l'enregistrement de l'avatar, un lien piégé ne fait pas quitter l
 
   await page.goto(`/avatar?from=${encodeURIComponent(TRAP_URL)}`);
 
-  // En mode édition, le lien « Annuler » reprend la même destination.
+  // In edit mode, the "Annuler" (cancel) link reuses the same destination.
   const cancelLink = page.getByRole("link", { name: "Annuler" });
   if (await cancelLink.count()) {
     expect.soft(await cancelLink.getAttribute("href")).not.toContain("piege");

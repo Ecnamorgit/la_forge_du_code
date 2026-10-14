@@ -5,14 +5,14 @@ import bcrypt from "bcryptjs";
 import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
- * Contrôle de l'origine sur les API qui modifient des données, et mot de passe
- * exigé pour deleteAccount le compte (audit SRV-09).
+ * Origin check on the APIs that modify data, and password required
+ * to delete the account (audit SRV-09).
  *
- * SameSite=Lax raisonne par site : un sous-domaine, comme celui du bac à
- * sable, enverrait des requêtes authentifiées. On le simule avec un en-tête
- * Origin étranger et la session du compte.
+ * SameSite=Lax works per site: a subdomain, like the sandbox's,
+ * would send authenticated requests. We simulate it with a foreign Origin
+ * header and the account's session.
  *
- * Compte dédié, recréé à chaque exécution : le test le supprime.
+ * Dedicated account, recreated on every run: the test deletes it.
  */
 
 const TARGET = {
@@ -23,7 +23,7 @@ const TARGET = {
 };
 
 async function recreateTarget(): Promise<void> {
-  // Avant toute connexion : on efface puis recrée une ligne de User.
+  // Before any connection: we delete then recreate a User row.
   assertTestDatabaseUrl(process.env.DATABASE_URL);
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
@@ -48,7 +48,7 @@ async function logIn(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
 }
 
-test("les API refusent une autre origine, et la suppression exige le mot de passe", async ({
+test("the APIs reject another origin, and deletion requires the password", async ({
   page,
 }) => {
   await recreateTarget();
@@ -61,7 +61,7 @@ test("les API refusent une autre origine, et la suppression exige le mot de pass
       })
     ).status();
 
-  await test.step("une requête venue d'une autre origine est refusée", async () => {
+  await test.step("a request from another origin is rejected", async () => {
     const res = await page.request.post("/api/me/visit", {
       headers: { Origin: "https://piege.invalid", "Content-Type": "text/plain" },
       data: JSON.stringify({ course: "html" }),
@@ -69,24 +69,24 @@ test("les API refusent une autre origine, et la suppression exige le mot de pass
     expect.soft(res.status()).toBe(403);
   });
 
-  await test.step("supprimer le compte sans mot de passe est refusé", async () => {
+  await test.step("deleting the account without a password is rejected", async () => {
     expect.soft(await deleteAccount()).toBe(400);
   });
 
-  await test.step("le compte existe toujours", async () => {
+  await test.step("the account still exists", async () => {
     expect.soft((await page.request.get("/api/me")).status()).toBe(200);
   });
 
-  await test.step("un mauvais mot de passe est refusé", async () => {
+  await test.step("a wrong password is rejected", async () => {
     expect.soft(await deleteAccount("pas-le-bon")).toBe(403);
   });
 
-  await test.step("avec le bon mot de passe, la suppression aboutit", async () => {
+  await test.step("with the correct password, deletion succeeds", async () => {
     expect.soft(await deleteAccount(TARGET.password)).toBe(200);
   });
 });
 
-test("la page profil demande le mot de passe avant de supprimer le compte", async ({ page }) => {
+test("the profile page asks for the password before deleting the account", async ({ page }) => {
   await recreateTarget();
   await logIn(page);
   await page.goto("/profil");

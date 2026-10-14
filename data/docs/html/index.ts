@@ -29,7 +29,7 @@ import { video } from "./video";
 import { audio } from "./audio";
 import { picture } from "./picture";
 
-/** Toutes les fiches HTML, dans l'ordre du parcours. */
+/** All HTML reference sheets, in course order. */
 const ALL_HTML_DOCS: DocEntry[] = [
   doctype,
   htmlElement,
@@ -62,12 +62,12 @@ const ALL_HTML_DOCS: DocEntry[] = [
   picture,
 ];
 
-/** Registre des fiches HTML, clé = DocEntry.id. */
+/** Registry of HTML reference sheets, key = DocEntry.id. */
 export const htmlDocs: Record<string, DocEntry> = Object.fromEntries(
   ALL_HTML_DOCS.map((entry) => [entry.id, entry])
 );
 
-/** Retourne la fiche correspondant à l'id, ou undefined si inconnue. */
+/** Returns the sheet matching the id, or undefined if unknown. */
 export function getDocEntry(id: string): DocEntry | undefined {
   return htmlDocs[id];
 }

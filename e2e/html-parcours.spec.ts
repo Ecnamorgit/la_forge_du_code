@@ -5,8 +5,8 @@ import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 import { E2E_USER, STORAGE_STATE } from "./global-setup";
 
 /**
- * Efface la progression du compte e2e sur un chapitre : l'interface ouvre la
- * première étape non faite, et le compte est partagé entre tests et specs.
+ * Clears the e2e account's progress on a chapter: the UI opens the
+ * first unfinished step, and the account is shared across tests and specs.
  */
 async function resetProgress(course: string, chapter: string): Promise<void> {
   assertTestDatabaseUrl(process.env.DATABASE_URL);
@@ -23,8 +23,8 @@ async function resetProgress(course: string, chapter: string): Promise<void> {
 }
 
 /**
- * Parcours HTML de bout en bout : le chapitre 1 joué jusqu'à l'écran de
- * complétion, puis le panneau de référence sur un chapitre tardif.
+ * End-to-end HTML course: chapter 1 played through to the completion
+ * screen, then the reference panel on a late chapter.
  */
 
 async function login(page: Page): Promise<void> {
@@ -38,8 +38,8 @@ async function login(page: Page): Promise<void> {
 async function setEditorContent(page: Page, code: string): Promise<void> {
   const editor = page.locator(".monaco-editor").first();
   await editor.click();
-  // insertText remplace la sélection sans déclencher l'auto-fermeture des
-  // balises de Monaco.
+  // insertText replaces the selection without triggering Monaco's
+  // tag auto-closing.
   await page.keyboard.press("Control+A");
   await page.keyboard.insertText(code);
 }
@@ -51,14 +51,14 @@ const CH1_SOLUTIONS = [
 ];
 
 /**
- * L'aperçu HTML est une coquille chargée par `src` depuis une origine dédiée
- * (audit EXE-03), qui rend le HTML de l'apprenant dans une iframe imbriquée.
+ * The HTML preview is a shell loaded via `src` from a dedicated origin
+ * (audit EXE-03), which renders the learner's HTML in a nested iframe.
  */
-test.describe("aperçu HTML sur l'origine dédiée", () => {
-  // Session partagée écrite par global-setup (limite de connexions par IP).
+test.describe("HTML preview on the dedicated origin", () => {
+  // Shared session written by global-setup (per-IP login limit).
   test.use({ storageState: STORAGE_STATE });
 
-  test("l'aperçu HTML est rendu depuis une origine distincte", async ({ page }) => {
+  test("the HTML preview is rendered from a separate origin", async ({ page }) => {
   await resetProgress("html", "chapitre-1");
   await page.goto("/learn/html/chapitre-1");
   await expect(page.locator(".monaco-editor").first()).toBeVisible({ timeout: 30_000 });
@@ -75,13 +75,13 @@ test.describe("aperçu HTML sur l'origine dédiée", () => {
     `l'aperçu (${previewOrigin}) doit être servi depuis une autre origine que l'app (${appOrigin})`
   ).not.toBe(appOrigin);
 
-  // Sans <!DOCTYPE>, ce HTML se rend sans valider l'étape : seul le rendu
-  // est vérifié ici.
+  // Without <!DOCTYPE>, this HTML renders without validating the step: only
+  // the rendering is checked here.
   await setEditorContent(page, "<h1>Bonjour Nebula</h1>");
   await page.getByRole("button", { name: /DEPLOYER/ }).click();
 
-  // Sélecteur DOM plutôt que `getByRole` : l'arbre d'accessibilité ne traverse
-  // pas de façon fiable deux iframes opaques imbriquées.
+  // DOM selector rather than `getByRole`: the accessibility tree does not
+  // reliably cross two nested opaque iframes.
   const scene = page
     .frameLocator('iframe[title="Apercu"]')
     .frameLocator('iframe[title="Rendu HTML"]');
@@ -89,10 +89,10 @@ test.describe("aperçu HTML sur l'origine dédiée", () => {
   });
 });
 
-test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async ({
+test("HTML chapter 1: playable end to end through completion", async ({
   page,
 }) => {
-  // Indépendant de ce qui a tourné avant sur ce compte partagé.
+  // Independent of whatever ran before on this shared account.
   await resetProgress("html", "chapitre-1");
   await login(page);
   await page.goto("/learn/html/chapitre-1");
@@ -120,8 +120,8 @@ test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async 
     await bannerBtn.click();
 
     if (isLast) {
-      // L'outro précède l'écran de complétion : l'utilisateur E2E, recréé à
-      // chaque run, ne l'a jamais vue.
+      // The outro comes before the completion screen: the E2E user, recreated
+      // on every run, has never seen it.
       await expect(page.getByTestId("cinematic-player")).toBeVisible({
         timeout: 15_000,
       });
@@ -135,7 +135,7 @@ test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async 
   }
 });
 
-test("le panneau de référence s'ouvre depuis un docRef d'un chapitre tardif (ch8)", async ({
+test("the reference panel opens from a docRef in a late chapter (ch8)", async ({
   page,
 }) => {
   await login(page);

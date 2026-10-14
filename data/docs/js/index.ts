@@ -12,7 +12,7 @@ import { localStorageDoc } from "./localstorage";
 import { fetchDoc } from "./fetch";
 import { rest } from "./rest";
 
-/** Toutes les fiches JS, dans l'ordre du parcours. */
+/** All JS reference sheets, in course order. */
 const ALL_JS_DOCS: DocEntry[] = [
   jsConsole,
   conditions,
@@ -28,7 +28,7 @@ const ALL_JS_DOCS: DocEntry[] = [
   rest,
 ];
 
-/** Registre des fiches JS, clé = DocEntry.id. */
+/** Registry of JS reference sheets, key = DocEntry.id. */
 export const jsDocs: Record<string, DocEntry> = Object.fromEntries(
   ALL_JS_DOCS.map((entry) => [entry.id, entry])
 );

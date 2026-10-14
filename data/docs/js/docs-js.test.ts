@@ -10,12 +10,12 @@ const known = new Set([
   ...Object.keys(cssDocs),
 ]);
 
-describe("fiches JS", () => {
-  it("contient les 12 fiches attendues", () => {
+describe("JS reference sheets", () => {
+  it("contains the 12 expected sheets", () => {
     expect(entries).toHaveLength(12);
   });
 
-  it("chaque clé == entry.id, domaine js, préfixe js/", () => {
+  it("every key == entry.id, js domain, js/ prefix", () => {
     for (const [key, entry] of Object.entries(jsDocs)) {
       expect(entry.id).toBe(key);
       expect(entry.domain).toBe("js");
@@ -23,7 +23,7 @@ describe("fiches JS", () => {
     }
   });
 
-  it("champs obligatoires non vides", () => {
+  it("required fields are not empty", () => {
     for (const e of entries) {
       expect(e.term.trim().length).toBeGreaterThan(0);
       expect(e.title.trim().length).toBeGreaterThan(0);
@@ -32,7 +32,7 @@ describe("fiches JS", () => {
     }
   });
 
-  it("chaque id related résout (js, html ou css)", () => {
+  it("every related id resolves (js, html or css)", () => {
     for (const e of entries) {
       for (const rel of e.related ?? []) {
         expect(known.has(rel), `related inconnu: ${rel} (dans ${e.id})`).toBe(true);

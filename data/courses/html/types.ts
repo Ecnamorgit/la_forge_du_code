@@ -4,9 +4,9 @@ export interface StepObjective {
 }
 
 /**
- * Ton narratif d'un échec, qui choisit l'en-tête d'erreur affiché :
- * "structure" pour un balisage cassé, "logic" pour une logique ou une boucle
- * fautive, "syntax" pour une erreur de syntaxe. Absent : générique
+ * Narrative tone of a failure, which picks the error header shown:
+ * "structure" for broken markup, "logic" for faulty logic or a faulty
+ * loop, "syntax" for a syntax error. Absent: generic
  * (lib/narrative-feedback.ts).
  */
 export type ErrorTone = "structure" | "logic" | "syntax" | "generic";
@@ -17,7 +17,7 @@ export interface ValidationResult {
   obj?: string;
   objList?: string[];
   final?: boolean;
-  /** Ton narratif de l'échec, ignoré en cas de succès. */
+  /** Narrative tone of the failure, ignored on success. */
   tone?: ErrorTone;
 }
 
@@ -25,8 +25,8 @@ export interface Step {
   startCode: string;
   placeholder: string;
   /**
-   * Étape-piège : Le Spectre a corrompu le `startCode`, à réparer. La valeur est
-   * sa raillerie, affichée à la place de la boîte narrateur. Absent = étape normale.
+   * Trap step: the Spectre has corrupted the `startCode`, which must be repaired. The
+   * value is its taunt, shown in place of the narrator box. Absent = normal step.
    */
   spectreTrap?: string;
   narrator: string;
@@ -36,22 +36,22 @@ export interface Step {
     content: string;
   };
   objectives: StepObjective[];
-  /** Ids de fiches de référence pertinentes pour cette étape (optionnel). */
+  /** Ids of reference sheets relevant to this step (optional). */
   docRefs?: string[];
   /**
-   * Composant à monter dans l'aperçu React (cursus React uniquement) : celui
-   * de l'exercice, ou le parent qui porte un Provider. Absent sans aperçu et
-   * sur les chapitres exemptés (lib/sandbox/preview-exemptions.ts).
+   * Component to mount in the React preview (React course only): the
+   * exercise's component, or the parent that holds a Provider. Absent when there
+   * is no preview and on exempted chapters (lib/sandbox/preview-exemptions.ts).
    */
   previewMount?: string;
   bannerIcon: string;
-  /** Case dans /sprites/banner-icons.png ; à défaut, le logo est affiché. */
+  /** Cell in /sprites/banner-icons.png; when absent, the logo is shown. */
   bannerFrame?: number;
   bannerTtl: string;
   bannerSub: string;
   bannerXp: string;
   missionIcon: string;
-  /** Case dans la planche des icônes de mission. */
+  /** Cell in the mission icon sprite sheet. */
   missionFrame?: number;
   missionTag: string;
   missionTtl: string;
@@ -74,19 +74,19 @@ export interface SqlQueryResult {
 }
 
 export interface ValidatorContext {
-  /** Sortie capturée de console.log/info/warn/error. */
+  /** Captured output of console.log/info/warn/error. */
   logs: string[];
-  /** Erreur d'exécution, ou null en cas de succès. */
+  /** Runtime error, or null on success. */
   error: string | null;
-  /** Valeur de la dernière expression exécutée. */
+  /** Value of the last executed expression. */
   lastValue: unknown;
-  /** Résultat de l'exécution SQL réelle, fourni pour le seul cursus SQL. */
+  /** Result of the real SQL execution, provided for the SQL course only. */
   sql?: {
-    /** Dernier jeu de résultats produit par le SQL de l'apprenant, ou null. */
+    /** Last result set produced by the learner's SQL, or null. */
     result: SqlQueryResult | null;
-    /** État relu par la requête `verify` de l'étape, si elle existe. */
+    /** State read back by the step's `verify` query, if there is one. */
     verify: SqlQueryResult | null;
-    /** Message d'erreur d'exécution, ou null en cas de succès. */
+    /** Runtime error message, or null on success. */
     error: string | null;
   };
 }

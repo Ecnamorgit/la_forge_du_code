@@ -3,18 +3,18 @@ import { expect, test } from "@playwright/test";
 import { sandboxOriginFor } from "../lib/sandbox/sandbox-origin";
 
 /**
- * CSP stricte de l'application (audit EXE-03) : le code des apprenants
- * s'exécute sur une origine dédiée, ce qui permet un script-src à nonce et
- * `'strict-dynamic'`, sans `'unsafe-inline'` ni `'unsafe-eval'`.
+ * The app's strict CSP (audit EXE-03): learners' code runs on a dedicated
+ * origin, which allows a nonce-based script-src with
+ * `'strict-dynamic'`, without `'unsafe-inline'` or `'unsafe-eval'`.
  *
- * La CSP n'est émise qu'en production (`proxy.ts`, garde `CSP_ACTIVE`) : ce
- * test se saute contre `pnpm dev` et ne sert qu'avec E2E_PROD=1, comme en CI.
- * Là où `csp.test.ts` vérifie le texte de la politique, il vérifie l'en-tête
- * réellement émis et l'hydratation de la page sans violation.
+ * The CSP is only sent in production (`proxy.ts`, `CSP_ACTIVE` guard): this
+ * test skips itself against `pnpm dev` and only runs with E2E_PROD=1, as in CI.
+ * Where `csp.test.ts` checks the policy text, this one checks the header
+ * actually sent and that the page hydrates without violations.
  */
-test("sous CSP de production, script-src est à nonce et sans unsafe-*", async ({ page }) => {
-  // Seules les vraies violations CSP comptent. Un refus pour type MIME vient
-  // de nosniff : en local, le script d'analytics Vercel est absent.
+test("under the production CSP, script-src uses a nonce and no unsafe-*", async ({ page }) => {
+  // Only real CSP violations count. A MIME type refusal comes from
+  // nosniff: locally, the Vercel analytics script is missing.
   const violations: string[] = [];
   page.on("console", (m) => {
     if (/content security policy/i.test(m.text())) violations.push(m.text());
@@ -43,8 +43,8 @@ test("sous CSP de production, script-src est à nonce et sans unsafe-*", async (
     "'unsafe-eval'"
   );
 
-  // frame-src autorise l'origine du bac à sable, et elle seule : les deux
-  // origines sont dérivées de la requête, sans liste codée en dur.
+  // frame-src allows the sandbox origin, and only that one: both
+  // origins are derived from the request, with no hard-coded list.
   const app = new URL(page.url()).origin;
   const sandboxOrigin = sandboxOriginFor(app);
   const frameSrc = csp!
@@ -55,7 +55,7 @@ test("sous CSP de production, script-src est à nonce et sans unsafe-*", async (
     `frame-src 'self' ${sandboxOrigin}`
   );
 
-  // Réciproquement, le bac à sable n'accepte d'être encadré que par l'app.
+  // Conversely, the sandbox only accepts being framed by the app.
   const doc = await page.request.get(`${sandboxOrigin}/bac-a-sable/html`);
   const sandboxCspHeader = doc.headers()["content-security-policy"] ?? "";
   const ancestors = sandboxCspHeader
@@ -66,7 +66,7 @@ test("sous CSP de production, script-src est à nonce et sans unsafe-*", async (
     `frame-ancestors ${app}`
   );
 
-  // La page hydrate sous la CSP stricte sans journaliser de violation.
+  // The page hydrates under the strict CSP without logging any violation.
   await expect(page.getByRole("link", { name: /connexion|se connecter/i }).first()).toBeVisible({
     timeout: 15_000,
   });

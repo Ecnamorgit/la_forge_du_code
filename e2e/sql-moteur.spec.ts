@@ -3,14 +3,14 @@ import { test, expect } from "@playwright/test";
 import { STORAGE_STATE } from "./global-setup";
 
 /**
- * Le moteur SQL se charge dans le navigateur (audit EXE-07). Le bundler prend
- * la variante « browser » de sql.js, qui réclame `sql-wasm-browser.wasm` ; les
- * tests unitaires, sous Node, utilisent la variante par défaut.
+ * The SQL engine loads in the browser (audit EXE-07). The bundler picks
+ * the "browser" variant of sql.js, which requests `sql-wasm-browser.wasm`; the
+ * unit tests, under Node, use the default variant.
  */
 
 test.use({ storageState: STORAGE_STATE });
 
-test("le cursus SQL exécute une requête et valide l'étape", async ({ page }) => {
+test("the SQL course runs a query and validates the step", async ({ page }) => {
   const errors: string[] = [];
   page.on("console", (m) => {
     if (m.type() === "error") errors.push(m.text());
@@ -28,11 +28,11 @@ test("le cursus SQL exécute une requête et valide l'étape", async ({ page }) 
   );
   await page.getByRole("button", { name: /DEPLOYER/ }).click();
 
-  await test.step("l'étape est validée", async () => {
+  await test.step("the step is validated", async () => {
     await expect.soft(page.getByText("SYSTÈME EN LIGNE")).toBeVisible({ timeout: 15_000 });
   });
 
-  await test.step("aucune erreur de chargement du moteur", async () => {
+  await test.step("no engine loading error", async () => {
     expect.soft(errors.filter((e) => /wasm/i.test(e))).toEqual([]);
   });
 });

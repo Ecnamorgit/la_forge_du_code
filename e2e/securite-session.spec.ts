@@ -5,11 +5,11 @@ import bcrypt from "bcryptjs";
 import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
- * Une réinitialisation du mot de passe révoque les sessions JWT ouvertes
- * (audit SRV-03). La révocation est simulée en incrémentant `sessionVersion`
- * en base, comme le fait la réinitialisation.
+ * A password reset revokes open JWT sessions
+ * (audit SRV-03). Revocation is simulated by incrementing `sessionVersion`
+ * in the database, as the reset does.
  *
- * Compte dédié, recréé à chaque exécution.
+ * Dedicated account, recreated on every run.
  */
 
 const TARGET = {
@@ -48,9 +48,9 @@ async function revokeInDatabase(): Promise<void> {
   }
 }
 
-// Connexion par l'API de next-auth avec une IP dédiée : le formulaire partage
-// son budget de connexions par IP avec les autres specs. La session reste dans
-// le contexte de `page`.
+// Login through the next-auth API with a dedicated IP: the form shares
+// its per-IP login budget with the other specs. The session stays in
+// the `page` context.
 async function logIn(page: Page): Promise<void> {
   const headers = { "x-forwarded-for": "198.51.100.77" };
   const { csrfToken } = await (await page.request.get("/api/auth/csrf", { headers })).json();
@@ -65,17 +65,17 @@ async function logIn(page: Page): Promise<void> {
 
 const meStatus = async (page: Page) => (await page.request.get("/api/me")).status();
 
-test("une session cesse de fonctionner quand le mot de passe est réinitialisé", async ({ page }) => {
+test("a session stops working when the password is reset", async ({ page }) => {
   await recreateTarget();
   await logIn(page);
 
-  await test.step("témoin : la session vaut avant révocation", async () => {
+  await test.step("control: the session is valid before revocation", async () => {
     expect.soft(await meStatus(page)).toBe(200);
   });
 
   await revokeInDatabase();
 
-  await test.step("après révocation, la session est refusée", async () => {
+  await test.step("after revocation, the session is rejected", async () => {
     expect.soft(await meStatus(page)).toBe(401);
   });
 });

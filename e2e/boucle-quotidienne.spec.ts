@@ -3,9 +3,9 @@ import { test, expect, type Page } from "@playwright/test";
 import { STORAGE_STATE } from "./global-setup";
 
 /**
- * Étapes 1 et 2 du chapitre 1 JavaScript, la progression HTML étant observée
- * par d'autres specs. Deux étapes, car l'ordre de resumeQuest du briefing vise 1
- * ou 2 étapes selon le tirage du jour (lib/quests.ts).
+ * Steps 1 and 2 of JavaScript chapter 1, since HTML progress is observed
+ * by other specs. Two steps, because the briefing's resumeQuest order targets 1
+ * or 2 steps depending on the day's draw (lib/quests.ts).
  */
 const SOLUTIONS_JS_CH1 = [
   'console.log("Bonjour, station Nebula");',
@@ -28,7 +28,7 @@ interface ServerState {
   liaison: { streak: number; activeToday: boolean };
 }
 
-/** État vu par le serveur, et non lu dans le DOM. */
+/** State as seen by the server, not read from the DOM. */
 async function readState(page: Page): Promise<ServerState> {
   const res = await page.request.get("/api/me");
   expect(res.ok(), `GET /api/me a échoué : ${res.status()}`).toBeTruthy();
@@ -36,17 +36,17 @@ async function readState(page: Page): Promise<ServerState> {
 }
 
 /**
- * Pose le code directement sur le modèle Monaco, qui fermerait sinon une
- * seconde fois guillemets et parenthèses à la frappe. Le `onChange` React est
- * déclenché comme pour une vraie saisie.
+ * Sets the code directly on the Monaco model, which would otherwise close
+ * quotes and parentheses a second time while typing. The React `onChange` is
+ * fired just as for real input.
  */
 async function setEditorCode(page: Page, code: string): Promise<void> {
   await expect(page.locator(".monaco-editor").first()).toBeVisible({ timeout: 30_000 });
   const result = await page.evaluate((value) => {
     const monaco = (window as unknown as { monaco?: typeof import("monaco-editor") }).monaco;
     if (!monaco) return "no-monaco";
-    // `ChapterWorkspace` est remonté à chaque étape : `getModels()` peut encore
-    // porter le modèle précédent, d'où la préférence pour l'éditeur monté.
+    // `ChapterWorkspace` is remounted on every step: `getModels()` may still
+    // hold the previous model, hence the preference for the mounted editor.
     const editors = monaco.editor.getEditors();
     const model = editors.length ? editors[0].getModel() : (monaco.editor.getModels()[0] ?? null);
     if (!model) return "no-models";
@@ -57,12 +57,12 @@ async function setEditorCode(page: Page, code: string): Promise<void> {
 }
 
 /**
- * Ouvre un chapitre et ramène la pagination à son étape 1.
+ * Opens a chapter and brings the pagination back to its step 1.
  *
- * Utile quand Playwright relance le test sans rejouer `globalSetup` : les
- * étapes déjà validées feraient reprendre `ChapterClient` plus loin. Il
- * affiche l'étape 1 tant que `GET /api/me` n'a pas répondu, d'où l'attente de
- * cette réponse before de lire l'état des boutons.
+ * Useful when Playwright retries the test without replaying `globalSetup`:
+ * already validated steps would make `ChapterClient` resume further on. It
+ * shows step 1 until `GET /api/me` has responded, hence waiting for
+ * that response before reading the buttons' state.
  */
 async function openChapterAtStep1(page: Page, url: string): Promise<void> {
   const hydration = page
@@ -76,7 +76,7 @@ async function openChapterAtStep1(page: Page, url: string): Promise<void> {
 
   const previousButton = page.getByRole("button", { name: /précédent/i });
   await expect(previousButton).toBeVisible({ timeout: 30_000 });
-  // Le chapitre compte 4 étapes : 3 clics ramènent toujours à la première.
+  // The chapter has 4 steps: 3 clicks always lead back to the first one.
   for (let i = 0; i < 3; i++) {
     if (await previousButton.isDisabled()) break;
     await previousButton.click();
@@ -84,28 +84,28 @@ async function openChapterAtStep1(page: Page, url: string): Promise<void> {
   await expect(previousButton).toBeDisabled();
 }
 
-/** Échappe une chaîne pour l'insérer telle quelle dans une RegExp. */
+/** Escapes a string so it can be inserted verbatim into a RegExp. */
 function escapeForRegex(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
- * Parcours de bout en bout de la boucle quotidienne (CF-12), avec la session
- * partagée écrite par global-setup.
+ * End-to-end walkthrough of the daily loop (CF-12), using the shared session
+ * written by global-setup.
  */
-test.describe("boucle quotidienne", () => {
+test.describe("daily loop", () => {
   test.use({ storageState: STORAGE_STATE });
 
   test.beforeEach(async ({ page }) => {
-    // E2E_USER est recréé sans avatar, et /dashboard affiche l'écran-titre tant
-    // qu'aucun avatar n'est choisi : on en pose un par l'API.
+    // E2E_USER is recreated without an avatar, and /dashboard shows the title
+    // screen until an avatar is chosen: we set one through the API.
     const res = await page.request.post("/api/me/avatar", {
       data: { species: "humain", uniformColor: "cyan", role: "pilote" },
     });
     expect(res.ok(), `POST /api/me/avatar a échoué : ${res.status()}`).toBeTruthy();
   });
 
-  test("le bandeau de liaison et le briefing s'affichent, un ordre mène en mission", async ({
+  test("the liaison banner and the briefing show up, and an order leads to a mission", async ({
     page,
   }) => {
     await page.goto("/dashboard");
@@ -120,33 +120,33 @@ test.describe("boucle quotidienne", () => {
     await expect(page).toHaveURL(/\/learn\//);
   });
 
-  test("l'ancien bouton « Récupérer le bonus » de la mission du jour a disparu", async ({
+  test("the old \"Récupérer le bonus\" (claim bonus) button of the daily mission is gone", async ({
     page,
   }) => {
     await page.goto("/dashboard");
     await expect(page.getByRole("button", { name: /récupérer le bonus/i })).toHaveCount(0);
   });
 
-  test("l'armurerie montre des objets verrouillés avec leur condition", async ({ page }) => {
+  test("the armory shows locked items with their unlock condition", async ({ page }) => {
     await page.goto("/avatar");
 
-    // Un objet non obtenu reste visible avec sa condition (UnlockShelf.tsx) ;
-    // un cadet neuf a toujours au moins un cadre verrouillé de ce type.
+    // An item not yet earned stays visible with its condition (UnlockShelf.tsx);
+    // a new cadet always has at least one locked frame of this kind.
     await expect(
       page.getByText(/encore .* de liaison|encore .* ordre/i).first()
     ).toBeVisible();
   });
 
   /**
-   * Briefing affiché, étapes validées, ordre accompli, XP persistée. L'état
-   * final est lu sur le serveur (`GET /api/me`), qui fait foi sur l'XP, puis
-   * retrouvé dans le dashboard.
+   * Briefing shown, steps validated, order completed, XP persisted. The final
+   * state is read from the server (`GET /api/me`), the source of truth for XP,
+   * then found again in the dashboard.
    */
-  test("deux étapes validées accomplissent un ordre du jour, et l'XP est persistée", async ({
+  test("two validated steps complete a daily order, and the XP is persisted", async ({
     page,
   }) => {
-    // Trois navigations, un montage Monaco et deux exécutions du bac à sable :
-    // le budget par défaut de 30 s est trop juste.
+    // Three navigations, one Monaco mount and two sandbox runs:
+    // the default 30 s budget is too tight.
     test.slow();
 
     const before = await readState(page);
@@ -158,9 +158,9 @@ test.describe("boucle quotidienne", () => {
     await openChapterAtStep1(page, "/learn/javascript/chapitre-1");
 
     for (const [step, code] of SOLUTIONS_JS_CH1.entries()) {
-      // `ChapterClient` saved sans attendre (`void completeStep(...)`), et
-      // seulement si l'étape n'était pas déjà validée. On n'attend donc la
-      // requête que si elle doit partir, sinon le délai complet s'écoulerait.
+      // `ChapterClient` saves without awaiting (`void completeStep(...)`), and
+      // only if the step was not already validated. So we only wait for the
+      // request if it is going to be sent, otherwise the full timeout would elapse.
       const saved = alreadyDone.has(step)
         ? null
         : page
@@ -186,24 +186,24 @@ test.describe("boucle quotidienne", () => {
       expect.arrayContaining([0, 1])
     );
 
-    // Une étape déjà validée ne rapporte pas d'XP : la comparaison stricte
-    // suppose qu'au moins une des deux était neuve.
+    // An already validated step earns no XP: the strict comparison
+    // assumes at least one of the two was new.
     expect(after.totalXp).toBeGreaterThan(0);
     if (alreadyDone.size < SOLUTIONS_JS_CH1.length) {
       expect(after.totalXp).toBeGreaterThan(before.totalXp);
     }
 
-    // La liaison ne compte que le travail réel, pas la visite du dashboard.
+    // The liaison only counts real work, not visiting the dashboard.
     expect(after.liaison.activeToday).toBe(true);
 
-    // L'ordre de resumeQuest est toujours tiré, avec une cible d'au plus 2
+    // The resumeQuest order is always drawn, with a target of at most 2
     // (lib/quests.ts).
     const resumeQuest = after.briefing?.quests.find((q) => q.slot === "reprise");
     expect(resumeQuest, "le briefing doit toujours porter un ordre de reprise").toBeDefined();
     expect(resumeQuest!.progress).toBeGreaterThanOrEqual(resumeQuest!.target);
     expect(resumeQuest!.done).toBe(true);
 
-    // `QuestLine` préfixe l'ordre accompli d'un ✓ ; le libellé vient du serveur.
+    // `QuestLine` prefixes the completed order with a ✓; the label comes from the server.
     await page.goto("/dashboard");
     await expect(
       page.getByText(new RegExp(`✓\\s*${escapeForRegex(resumeQuest!.label)}`))

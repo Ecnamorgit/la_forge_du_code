@@ -5,14 +5,14 @@ import bcrypt from "bcryptjs";
 import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 
 /**
- * POST /api/me/step n'accorde une étape que sur une vraie solution (audit
- * EXE-01). Le test appelle l'API directement, comme le ferait un script.
+ * POST /api/me/step only grants a step for a real solution (audit
+ * EXE-01). The test calls the API directly, as a script would.
  *
- * Assertions « soft » : chaque tentative est rapportée même si une précédente
- * échoue. Les étapes s'enchaînent sur la même progression.
+ * "Soft" assertions: each attempt is reported even if a previous one
+ * fails. The steps build on the same progress.
  *
- * Compte dédié, recréé à chaque exécution, pour ne pas fausser les specs qui
- * partagent E2E_USER.
+ * Dedicated account, recreated on every run, so as not to skew the specs that
+ * share E2E_USER.
  */
 
 const CHEATER = {
@@ -22,7 +22,7 @@ const CHEATER = {
   password: "Test1234",
 };
 
-// Solutions valides des étapes du chapitre 1 HTML (cf. html-parcours.spec.ts).
+// Valid solutions for the steps of HTML chapter 1 (see html-parcours.spec.ts).
 const CH1 = [
   "<!DOCTYPE html>\n<html></html>",
   "<!DOCTYPE html>\n<html>\n<head>\n<title>Mission Selene</title>\n</head>\n</html>",
@@ -30,7 +30,7 @@ const CH1 = [
 ];
 
 async function recreateCheater(): Promise<void> {
-  // Avant toute connexion : on efface puis recrée une ligne de User.
+  // Before any connection: we delete then recreate a User row.
   assertTestDatabaseUrl(process.env.DATABASE_URL);
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
@@ -58,13 +58,13 @@ async function logIn(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
 }
 
-test("l'API n'accorde une étape que sur une vraie solution, à son tour, sans rafale", async ({
+test("the API only grants a step for a real solution, in order, without bursts", async ({
   page,
 }) => {
   await recreateCheater();
   await logIn(page);
 
-  /** Déclare une étape du cursus HTML, sans passer par l'interface. */
+  /** Declares an HTML course step, without going through the UI. */
   const declareStep = async (chapter: string, stepIndex: number, code?: string) =>
     (
       await page.request.post("/api/me/step", {
@@ -72,25 +72,25 @@ test("l'API n'accorde une étape que sur une vraie solution, à son tour, sans r
       })
     ).status();
 
-  await test.step("une vraie solution, à son tour, est acceptée", async () => {
+  await test.step("a real solution, in order, is accepted", async () => {
     expect.soft(await declareStep("chapitre-1", 0, CH1[0])).toBe(200);
   });
 
-  await test.step("sauter une étape est refusé", async () => {
-    // L'étape 2 est valide en soi, mais l'étape 1 n'a jamais été faite.
+  await test.step("skipping a step is rejected", async () => {
+    // Step 2 is valid in itself, but step 1 was never done.
     expect.soft(await declareStep("chapitre-1", 2, CH1[2])).toBe(409);
   });
 
-  await test.step("déclarer une étape sans solution est refusé", async () => {
+  await test.step("declaring a step without a solution is rejected", async () => {
     expect.soft(await declareStep("chapitre-1", 1)).toBe(422);
   });
 
-  await test.step("la solution d'une autre étape est refusée", async () => {
-    // Solution de l'étape 0, sans <title> : ne valide pas l'étape 1.
+  await test.step("another step's solution is rejected", async () => {
+    // Solution of step 0, without <title>: does not validate step 1.
     expect.soft(await declareStep("chapitre-1", 1, CH1[0])).toBe(422);
   });
 
-  await test.step("une rafale d'appels est limitée", async () => {
+  await test.step("a burst of calls is rate-limited", async () => {
     const statuses: number[] = [];
     for (let i = 0; i < 25; i++) statuses.push(await declareStep("chapitre-1", 1, ""));
     expect.soft(statuses).toContain(429);

@@ -5,8 +5,8 @@ import { assertTestDatabaseUrl } from "../lib/e2e-db-guard";
 import { E2E_USER, STORAGE_STATE } from "./global-setup";
 
 /**
- * Efface la progression du compte e2e sur un chapitre : l'interface ouvre la
- * première étape non faite, et d'autres specs partagent ce compte.
+ * Clears the e2e account's progress on a chapter: the UI opens the
+ * first unfinished step, and other specs share this account.
  */
 async function resetProgress(course: string, chapter: string): Promise<void> {
   assertTestDatabaseUrl(process.env.DATABASE_URL);
@@ -23,16 +23,16 @@ async function resetProgress(course: string, chapter: string): Promise<void> {
 }
 
 /**
- * Une boucle sans fin dans le code de l'apprenant ne doit pas figer l'onglet
- * (audit EXE-02) : le JavaScript est instrumenté (lib/sandbox/loop-protect.ts)
- * et le SQL s'exécute dans un Worker arrêté passé le délai.
+ * An endless loop in the learner's code must not freeze the tab
+ * (audit EXE-02): JavaScript is instrumented (lib/sandbox/loop-protect.ts)
+ * and SQL runs in a Worker that is terminated after the timeout.
  *
- * Chaque test a sa propre page : un onglet figé ne gêne pas les suivants.
+ * Each test has its own page: a frozen tab does not affect the next ones.
  */
 
 test.use({ storageState: STORAGE_STATE });
 
-/** Remplace tout le contenu de l'éditeur Monaco. */
+/** Replaces the entire content of the Monaco editor. */
 async function typeCode(page: Page, code: string): Promise<void> {
   const editor = page.locator(".monaco-editor").first();
   await expect(editor).toBeVisible({ timeout: 30_000 });
@@ -42,8 +42,8 @@ async function typeCode(page: Page, code: string): Promise<void> {
 }
 
 /**
- * Vérifie que l'onglet exécute encore du code, après avoir laissé au code de
- * l'apprenant le temps de démarrer et au délai d'interruption de s'écouler.
+ * Checks that the tab still runs code, after giving the learner's code
+ * time to start and the interruption timeout time to elapse.
  */
 async function tabResponds(page: Page, timeoutMs = 10_000): Promise<boolean> {
   await new Promise((resolve) => setTimeout(resolve, 6_000));
@@ -53,7 +53,7 @@ async function tabResponds(page: Page, timeoutMs = 10_000): Promise<boolean> {
   ]);
 }
 
-/** Recopie les erreurs du navigateur dans la sortie du test. */
+/** Copies browser errors into the test output. */
 function logErrors(page: Page): void {
   page.on("console", (m) => {
     if (m.type() === "error") console.log(`[console] ${m.text()}`);
@@ -65,9 +65,9 @@ test.beforeEach(({ page }) => logErrors(page));
 
 const DEPLOY_BUTTON = /DEPLOYER/;
 
-// Le témoin SQL est dans sql-moteur.spec.ts.
+// The SQL control test is in sql-moteur.spec.ts.
 
-test("témoin JavaScript : un programme normal est exécuté et validé", async ({ page }) => {
+test("JavaScript control: a normal program runs and is validated", async ({ page }) => {
   await resetProgress("javascript", "chapitre-1");
   await page.goto("/learn/javascript/chapitre-1");
   await typeCode(page, 'console.log("Bonjour, station Nebula")');
@@ -75,7 +75,7 @@ test("témoin JavaScript : un programme normal est exécuté et validé", async 
   await expect(page.getByText("SYSTÈME EN LIGNE")).toBeVisible({ timeout: 15_000 });
 });
 
-test("SQL : une requête sans fin est interrompue, l'onglet reste utilisable", async ({ page }) => {
+test("SQL: an endless query is interrupted, the tab stays usable", async ({ page }) => {
   test.setTimeout(120_000);
   await page.goto("/learn/sql/chapitre-1");
   await typeCode(
@@ -85,20 +85,20 @@ test("SQL : une requête sans fin est interrompue, l'onglet reste utilisable", a
   await page.getByRole("button", { name: DEPLOY_BUTTON }).click();
 
   expect(await tabResponds(page), "l'onglet est figé").toBe(true);
-  // Le message apparaît aussi dans la console, d'où `.first()`.
+  // The message also shows up in the console, hence `.first()`.
   await expect(page.getByText(/interrompue/i).first()).toBeVisible({ timeout: 15_000 });
 });
 
-test("JavaScript : une boucle sans fin est interrompue, l'onglet reste utilisable", async ({
+test("JavaScript: an endless loop is interrupted, the tab stays usable", async ({
   page,
 }) => {
   test.setTimeout(120_000);
   await page.goto("/learn/javascript/chapitre-1");
-  // Forme que le filtre littéral de loop-guard.ts ne reconnaît pas.
+  // A form that the literal filter in loop-guard.ts does not recognize.
   await typeCode(page, "let encore = true;\nwhile (encore) {}");
   await page.getByRole("button", { name: DEPLOY_BUTTON }).click();
 
   expect(await tabResponds(page), "l'onglet est figé").toBe(true);
-  // Le message apparaît aussi dans la console, d'où `.first()`.
+  // The message also shows up in the console, hence `.first()`.
   await expect(page.getByText(/interrompue/i).first()).toBeVisible({ timeout: 15_000 });
 });

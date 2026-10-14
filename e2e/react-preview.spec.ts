@@ -3,12 +3,12 @@ import { expect, test, type Page } from "@playwright/test";
 import { STORAGE_STATE } from "./global-setup";
 
 /**
- * Pose le code directement sur le modèle Monaco, qui fermerait sinon une
- * seconde fois crochets, accolades et guillemets à la frappe. Le `onChange`
- * React est déclenché comme pour une vraie saisie.
+ * Sets the code directly on the Monaco model, which would otherwise close
+ * brackets, braces and quotes a second time while typing. The React `onChange`
+ * is fired just as for real input.
  *
- * L'iframe de l'aperçu est à origine opaque ; `frameLocator` y accède quand
- * même, car il passe par le protocole et non par la règle de même origine.
+ * The preview iframe has an opaque origin; `frameLocator` still reaches it,
+ * because it goes through the protocol rather than the same-origin policy.
  */
 async function setEditorCode(page: Page, code: string) {
   await expect(page.locator(".monaco-editor").first()).toBeVisible({ timeout: 15_000 });
@@ -26,13 +26,13 @@ async function setEditorCode(page: Page, code: string) {
 }
 
 /**
- * Les tests partagent le même utilisateur et s'exécutent en série : dès qu'une
- * étape est validée, le chapitre 7 reprend à l'étape suivante. Or tous
- * déploient `Reacteur`, le composant monté par l'étape 1 : on y revient par la
- * pagination.
+ * The tests share the same user and run serially: as soon as a step is
+ * validated, chapter 7 resumes at the next step. Yet they all deploy
+ * `Reacteur`, the component mounted by step 1, so we go back to it through
+ * the pagination.
  *
- * `ChapterClient` affiche l'étape 1 tant que `GET /api/me` n'a pas répondu,
- * d'où l'attente de cette réponse avant de lire l'état des boutons.
+ * `ChapterClient` shows step 1 until `GET /api/me` has responded,
+ * hence waiting for that response before reading the buttons' state.
  */
 async function goToChapter7AndBackToStep1(page: Page) {
   const hydration = page
@@ -42,12 +42,12 @@ async function goToChapter7AndBackToStep1(page: Page) {
     .catch(() => null);
   await page.goto("/learn/react/chapitre-7");
   await hydration;
-  // Laisse React traiter la réponse avant de lire le DOM.
+  // Let React process the response before reading the DOM.
   await page.waitForTimeout(250);
 
   const previousButton = page.getByRole("button", { name: /précédent/i });
   await expect(previousButton).toBeVisible({ timeout: 15_000 });
-  // Le chapitre compte 4 étapes : 3 clics ramènent toujours à la première.
+  // The chapter has 4 steps: 3 clicks always lead back to the first one.
   for (let i = 0; i < 3; i++) {
     if (await previousButton.isDisabled()) break;
     await previousButton.click();
@@ -55,17 +55,17 @@ async function goToChapter7AndBackToStep1(page: Page) {
   await expect(previousButton).toBeDisabled();
 }
 
-test.describe("apercu React", () => {
-  // Session partagée écrite par global-setup (limite de connexions par IP).
+test.describe("React preview", () => {
+  // Shared session written by global-setup (per-IP login limit).
   test.use({ storageState: STORAGE_STATE });
 
   /**
-   * L'aperçu est chargé par `src` depuis une origine dédiée, ce qui confine sa
-   * CSP permissive et laisse une CSP stricte à l'application (audit EXE-03).
-   * En local, cette origine est `127.0.0.1` quand l'app est sur `localhost`, et
-   * inversement.
+   * The preview is loaded via `src` from a dedicated origin, which confines its
+   * permissive CSP and leaves the app with a strict CSP (audit EXE-03).
+   * Locally, this origin is `127.0.0.1` when the app is on `localhost`, and
+   * vice versa.
    */
-  test("l'aperçu est chargé depuis une origine distincte de l'application", async ({ page }) => {
+  test("the preview is loaded from an origin separate from the app", async ({ page }) => {
     await goToChapter7AndBackToStep1(page);
 
     const iframe = page.locator('iframe[title="Aperçu du composant React"]');
@@ -82,7 +82,7 @@ test.describe("apercu React", () => {
     ).not.toBe(appOrigin);
   });
 
-  test("monte le composant et reagit au clic", async ({ page }) => {
+  test("mounts the component and reacts to a click", async ({ page }) => {
     await goToChapter7AndBackToStep1(page);
 
     await expect(page.getByText(/Déploie pour voir ton composant/i)).toBeVisible();
@@ -105,14 +105,14 @@ test.describe("apercu React", () => {
     const button = preview.getByRole("button", { name: /Poussee : 0/ });
     await expect(button).toBeVisible({ timeout: 15_000 });
 
-    // Ce code valide aussi l'étape : la bannière de réussite apparaît ~500 ms
-    // après le déploiement et son overlay intercepterait le clic suivant. On
-    // la ferme par son fond (`onDimClick`), qui, contrairement au button
-    // SUIVANT, n'avance pas l'étape et ne démonte donc pas l'aperçu.
+    // This code also validates the step: the success banner appears ~500 ms
+    // after deploying and its overlay would intercept the next click. We
+    // close it via its backdrop (`onDimClick`), which, unlike the "SUIVANT"
+    // (next) button, does not advance the step and so does not unmount the preview.
     const bannerBackdrop = page.locator(".animate-overlay-in");
     await page.waitForTimeout(900);
     if (await bannerBackdrop.isVisible().catch(() => false)) {
-      // La carte est centrée sur le fond : on clique dans un coin.
+      // The card is centered on the backdrop: click in a corner.
       await bannerBackdrop.click({ position: { x: 5, y: 5 } });
     }
 
@@ -120,8 +120,8 @@ test.describe("apercu React", () => {
     await expect(preview.getByRole("button", { name: /Poussee : 1/ })).toBeVisible();
   });
 
-  /** L'exception remonte via la frontière d'erreur de l'iframe. */
-  test("une exception levee pendant le rendu remonte au panneau", async ({ page }) => {
+  /** The exception propagates through the iframe's error boundary. */
+  test("an exception thrown during render is reported to the panel", async ({ page }) => {
     await goToChapter7AndBackToStep1(page);
 
     await setEditorCode(
@@ -134,21 +134,21 @@ test.describe("apercu React", () => {
     await page.getByRole("button", { name: /deployer/i }).click();
 
     await expect(page.getByText(/Erreur à l'exécution/i)).toBeVisible({ timeout: 15_000 });
-    // Le message de l'apprenant arrive tel quel, pas un message générique.
+    // The learner's message comes through as is, not a generic message.
     await expect(page.getByText(/Reacteur en surchauffe/)).toBeVisible();
   });
 
-  test("le chapitre 4, exempte, n'affiche pas d'apercu", async ({ page }) => {
+  test("chapter 4, which is exempt, shows no preview", async ({ page }) => {
     await page.goto("/learn/react/chapitre-4");
     await expect(page.locator('iframe[title="Aperçu du composant React"]')).toHaveCount(0);
   });
 
   /**
-   * Garde-fou statique de lib/sandbox/loop-guard.ts : une fois envoyée, la
-   * boucle pourrait figer l'onglet entier. Un dépassement de délai ici signale
-   * que le garde-fou a été contourné ou retiré.
+   * Static safeguard in lib/sandbox/loop-guard.ts: once sent, the
+   * loop could freeze the whole tab. A timeout here signals
+   * that the safeguard was bypassed or removed.
    */
-  test("une boucle infinie est refusee avant l'envoi, et le deploiement suivant marche", async ({
+  test("an infinite loop is rejected before sending, and the next deploy works", async ({
     page,
   }) => {
     await goToChapter7AndBackToStep1(page);
@@ -160,13 +160,13 @@ test.describe("apercu React", () => {
 
     await page.getByRole("button", { name: /deployer/i }).click();
 
-    // Correspondance exacte : le corps du message contient aussi « boucle sans fin ».
+    // Exact match: the message body also contains "boucle sans fin" (endless loop).
     await expect(page.getByText("Boucle sans fin", { exact: true })).toBeVisible({
       timeout: 10_000,
     });
     await expect(page.getByText(/risque de ne jamais se terminer/i)).toBeVisible();
 
-    // Si le code avait été envoyé, l'onglet figé empêcherait ce déploiement.
+    // Had the code been sent, the frozen tab would prevent this deploy.
     await setEditorCode(
       page,
       "function Reacteur() {\n" + "return <button>Systeme retabli</button>;\n" + "}"
@@ -180,12 +180,12 @@ test.describe("apercu React", () => {
   });
 
   /**
-   * Le bundle React est chargé depuis une autre origine que celle, opaque, de
-   * l'iframe : une exception levée pendant un onClick peut n'exposer que
-   * « Script error. ». Le gestionnaire lit donc le message de l'objet error,
-   * 5e argument de window.onerror.
+   * The React bundle is loaded from an origin other than the iframe's opaque
+   * one: an exception thrown during an onClick may only expose
+   * "Script error.". So the handler reads the message from the error object,
+   * the 5th argument of window.onerror.
    */
-  test("une exception non rattrapee dans un onClick remonte un vrai message", async ({
+  test("an uncaught exception in an onClick reports a real message", async ({
     page,
   }) => {
     await goToChapter7AndBackToStep1(page);
