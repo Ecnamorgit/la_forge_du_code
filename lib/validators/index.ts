@@ -36,10 +36,10 @@ export function getValidators(course: string, chapterSlug: string): Validator[] 
 }
 
 /**
- * Slugs des cursus ayant des validateurs.
+ * Slugs of the courses that have validators.
  *
- * `getValidators` renvoie `[]` aussi bien pour un cursus absent que pour un
- * chapitre inconnu : sans cette fonction, les deux cas sont indistinguables.
+ * `getValidators` returns `[]` both for a missing course and for an
+ * unknown chapter: without this function, the two cases are indistinguishable.
  */
 export function listValidatorCourses(): string[] {
   return Object.keys(REGISTRY);

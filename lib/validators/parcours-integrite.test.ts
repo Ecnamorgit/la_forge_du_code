@@ -5,46 +5,46 @@ import { getValidators, listValidatorCourses } from "./index";
 import { RUNTIME_CHAPTERS } from "./runtime";
 
 /**
- * Balayage structurel du parcours entier.
+ * Structural sweep of the whole learning path.
  *
- * Les tests par chapitre vérifient qu'un validateur dit juste. Celui-ci vérifie
- * qu'il existe, qu'il est branché, et que l'étape qu'il garde n'est pas vide.
- * Tout est dérivé des deux registres : un nouveau chapitre est couvert sans
- * toucher à ce fichier.
+ * The per-chapter tests check that a validator judges correctly. This one checks
+ * that it exists, that it is wired in, and that the step it guards is not empty.
+ * Everything is derived from the two registries: a new chapter is covered without
+ * touching this file.
  */
 
 /**
- * Chapitres jugés sur une exécution (voir `runtime.ts`) : sans contexte, leurs
- * validateurs échouent quel que soit le startCode, l'invariant ne prouverait
- * rien. Des tests dédiés les couvrent avec un contexte réel.
+ * Chapters judged on an execution (see `runtime.ts`): without a context, their
+ * validators fail whatever the startCode, so the invariant would prove
+ * nothing. Dedicated tests cover them with a real context.
  */
 const RUNTIME_STEPS = RUNTIME_CHAPTERS;
 
-/** Un couple (cursus, chapitre) par chapitre déclaré au registre de contenu. */
+/** One (course, chapter) pair per chapter declared in the content registry. */
 const CHAPTERS = listCourseSlugs().flatMap((course) =>
   listChapterSlugs(course).map((chapter) => ({ course, chapter }))
 );
 
-describe("registres de contenu et de validateurs", () => {
-  it("déclarent exactement les mêmes cursus", () => {
+describe("content and validator registries", () => {
+  it("declare exactly the same courses", () => {
     expect([...listValidatorCourses()].sort()).toEqual([...listCourseSlugs()].sort());
   });
 
-  it("exposent au moins un chapitre", () => {
+  it("expose at least one chapter", () => {
     expect(CHAPTERS.length).toBeGreaterThan(0);
   });
 });
 
-describe("chaque chapitre est validable", () => {
+describe("every chapter can be validated", () => {
   describe.each(CHAPTERS)("$course / $chapter", ({ course, chapter }) => {
-    it("a autant de validateurs que d'étapes", () => {
+    it("has as many validators as steps", () => {
       const data = getChapterData(course, chapter);
       expect(data, `${course}/${chapter} absent du registre de contenu`).not.toBeNull();
 
       const validators = getValidators(course, chapter);
 
-      // Une étape sans validateur est invalidable : l'apprenant reste bloqué
-      // sans recours. Un validateur sans étape ne s'exécutera jamais.
+      // A step without a validator can never be validated: the learner is stuck
+      // with no way out. A validator without a step will never run.
       expect(
         validators.length,
         `${course}/${chapter} : ${validators.length} validateur(s) pour ` +
@@ -54,7 +54,7 @@ describe("chaque chapitre est validable", () => {
   });
 });
 
-describe("le code de départ ne valide jamais son étape", () => {
+describe("the start code never validates its own step", () => {
   const testable = CHAPTERS.filter(
     ({ course, chapter }) => !RUNTIME_STEPS.has(`${course}/${chapter}`)
   );
@@ -64,12 +64,12 @@ describe("le code de départ ne valide jamais son étape", () => {
     const validators = getValidators(course, chapter);
 
     data.steps.forEach((step, i) => {
-      it(`étape ${i + 1}`, () => {
+      it(`step ${i + 1}`, () => {
         const validate = validators[i];
         expect(validate, `pas de validateur pour l'étape ${i + 1}`).toBeTypeOf("function");
 
-        // Si le startCode passe déjà, l'étape est vide : l'apprenant clique
-        // « validate » et réussit sans rien écrire. Rien d'autre ne le signale.
+        // If the startCode already passes, the step is empty: the learner clicks
+        // "validate" and succeeds without writing anything. Nothing else flags it.
         expect(
           validate(step.startCode).ok,
           `${course}/${chapter} étape ${i + 1} : le code de départ valide déjà. ` +

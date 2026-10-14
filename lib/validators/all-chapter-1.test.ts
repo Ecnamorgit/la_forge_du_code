@@ -9,15 +9,15 @@ const ctx = (
 ): ValidatorContext => ({ logs, error, lastValue: undefined });
 
 interface Case {
-  /** Slug du cursus. */
+  /** Course slug. */
   course: string;
-  /** Soumission correcte pour l'étape 1. */
+  /** Correct submission for step 1. */
   pass: string;
-  /** Contexte d'exécution, pour les validateurs runtime (JS). */
+  /** Execution context, for the runtime (JS) validators. */
   passCtx?: ValidatorContext;
 }
 
-// Une entrée par cursus : un cas passant réaliste pour l'étape 1.
+// One entry per course: a realistic passing case for step 1.
 const CASES: Case[] = [
   { course: "html", pass: "<!DOCTYPE html><html></html>" },
   { course: "css", pass: "<head><style></style></head>" },
@@ -37,7 +37,7 @@ const CASES: Case[] = [
     pass:
       "CREATE TABLE pilotes (id INTEGER PRIMARY KEY, nom VARCHAR(50) NOT NULL, niveau INTEGER DEFAULT 1); " +
       "INSERT INTO pilotes (id, nom, niveau) VALUES (1, 'Lia', 5);",
-    // SQL est validé sur une vraie exécution : on fournit l'état relu par le moteur.
+    // SQL is validated against a real execution: we supply the state read back by the engine.
     passCtx: {
       logs: [],
       error: null,
@@ -70,24 +70,24 @@ const CASES: Case[] = [
   { course: "algo", pass: "// O(1), O(n), O(n^2)" },
 ];
 
-describe("Validateurs chapitre-1 — couverture par cursus", () => {
-  it("couvre les 14 cursus", () => {
+describe("Chapitre-1 validators — coverage per course", () => {
+  it("covers the 14 courses", () => {
     expect(CASES).toHaveLength(14);
   });
 
-  describe.each(CASES)("cursus $course", ({ course, pass, passCtx }) => {
+  describe.each(CASES)("course $course", ({ course, pass, passCtx }) => {
     const validators = getValidators(course, "chapitre-1");
 
-    it("expose au moins un validateur câblé dans le registre", () => {
+    it("exposes at least one validator wired into the registry", () => {
       expect(validators.length).toBeGreaterThan(0);
       expect(typeof validators[0]).toBe("function");
     });
 
-    it("valide une soumission correcte (étape 1)", () => {
+    it("accepts a correct submission (step 1)", () => {
       expect(validators[0](pass, passCtx).ok).toBe(true);
     });
 
-    it("rejette une soumission vide (étape 1)", () => {
+    it("rejects an empty submission (step 1)", () => {
       expect(validators[0]("", passCtx ? ctx([]) : undefined).ok).toBe(false);
     });
   });

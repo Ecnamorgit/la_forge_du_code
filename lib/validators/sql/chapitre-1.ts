@@ -6,9 +6,9 @@ import type {
 import { fail, pass } from "../_static-utils";
 
 /**
- * Les validateurs SQL jugent une vraie exécution (sql.js) : les lignes
- * renvoyées par la requête, ou l'état relu par la requête de vérification de
- * l'étape, et non le texte source. Voir lib/sandbox/run-sql.ts et sql-seeds.ts.
+ * The SQL validators judge a real execution (sql.js): the rows returned
+ * by the query, or the state read back by the step's verification query,
+ * not the source text. See lib/sandbox/run-sql.ts and sql-seeds.ts.
  */
 
 function noEngine(): ValidationResult {
@@ -24,7 +24,7 @@ function colIndex(res: SqlQueryResult, name: string): number {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : CREATE TABLE pilotes et INSERT de 'Lia' au niveau 5
+  // Step 1: CREATE TABLE pilotes and INSERT 'Lia' at niveau 5
   (_code, ctx) => {
     const sql = ctx?.sql;
     if (!sql) return noEngine();
@@ -45,7 +45,7 @@ export const validators: Validator[] = [
     return pass("Entrepôt bâti.", ["o1a", "o1b"]);
   },
 
-  // Étape 2 : SELECT niveau >= 5, trié par niveau décroissant
+  // Step 2: SELECT niveau >= 5, sorted by niveau descending
   (_code, ctx) => {
     const sql = ctx?.sql;
     if (!sql) return noEngine();
@@ -67,7 +67,7 @@ export const validators: Validator[] = [
     return pass("Données extraites.", ["o2a", "o2b"]);
   },
 
-  // Étape 3 : UPDATE de id=1 à 10, DELETE de niveau < 3
+  // Step 3: UPDATE id=1 to 10, DELETE niveau < 3
   (_code, ctx) => {
     const sql = ctx?.sql;
     if (!sql) return noEngine();
@@ -86,7 +86,7 @@ export const validators: Validator[] = [
     return pass("Données actualisées.", ["o3a", "o3b"]);
   },
 
-  // Étape 4 : INNER JOIN entre pilotes et vaisseaux
+  // Step 4: INNER JOIN between pilotes and vaisseaux
   (_code, ctx) => {
     const sql = ctx?.sql;
     if (!sql) return noEngine();

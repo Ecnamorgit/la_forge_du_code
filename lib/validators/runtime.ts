@@ -1,22 +1,22 @@
 /**
- * Chapitres dont les validateurs jugent une exécution, pas un texte : ils
- * lisent `ctx.logs` ou `ctx.sql`, produits par le bac à sable du navigateur, et
- * échouent si on les appelle sans contexte.
+ * Chapters whose validators judge an execution, not text: they
+ * read `ctx.logs` or `ctx.sql`, produced by the browser sandbox, and
+ * fail if called without a context.
  *
- * La liste est tenue chapitre par chapitre : les chapitres 11 et 12 de
- * `javascript` sont statiques (hôte d'API fictif). Un nouveau chapitre est
- * statique par défaut ; s'il dépend de l'exécution, le test d'intégrité échoue
- * tant qu'il n'est pas inscrit ici.
+ * The list is kept chapter by chapter: chapters 11 and 12 of
+ * `javascript` are static (fake API host). A new chapter is
+ * static by default; if it depends on execution, the integrity test fails
+ * until it is registered here.
  *
- * Ces chapitres sont exclus de l'invariant « le code de départ ne valide
- * jamais son étape » (`parcours-integrite.test.ts`). Le serveur ne peut pas
- * non plus les revalider sans exécuter le code de l'apprenant : leur réussite
- * reste déclarée par le navigateur (`lib/step-proof.ts`).
+ * These chapters are excluded from the invariant "the start code never
+ * validates its own step" (`parcours-integrite.test.ts`). The server cannot
+ * revalidate them either without running the learner's code: their success
+ * remains declared by the browser (`lib/step-proof.ts`).
  */
 export const RUNTIME_CHAPTERS: ReadonlySet<string> = new Set<string>([
-  // javascript 1 à 10 : validés sur `ctx.logs`.
+  // javascript 1 to 10: validated on `ctx.logs`.
   ...Array.from({ length: 10 }, (_, i) => `javascript/chapitre-${i + 1}`),
-  // sql : validé sur le résultat d'une vraie requête (`ctx.sql`).
+  // sql: validated on the result of a real query (`ctx.sql`).
   "sql/chapitre-1",
 ]);
 

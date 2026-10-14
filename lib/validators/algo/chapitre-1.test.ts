@@ -2,15 +2,15 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-1";
 
 /**
- * Algorithmique chapitre 1 — étapes 2 à 4.
+ * Algorithms chapter 1 — steps 2 to 4.
  *
- * L'étape 1 est déjà couverte par `lib/validators/all-chapter-1.test.ts`.
+ * Step 1 is already covered by `lib/validators/all-chapter-1.test.ts`.
  */
 
-describe("Algo — etape 2 (recherche dichotomique)", () => {
+describe("Algo — step 2 (binary search)", () => {
   const validate = validators[1];
 
-  it("accepte une dichotomie complete", () => {
+  it("accepts a complete binary search", () => {
     const code = `function rechercher(tab, cible) {
   let debut = 0, fin = tab.length - 1;
   while (debut <= fin) {
@@ -24,7 +24,7 @@ describe("Algo — etape 2 (recherche dichotomique)", () => {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse une recherche lineaire, sans boucle while", () => {
+  it("rejects a linear search, with no while loop", () => {
     const code = `function rechercher(tab, cible) {
   for (let i = 0; i < tab.length; i++) {
     if (tab[i] === cible) return i;
@@ -34,8 +34,8 @@ describe("Algo — etape 2 (recherche dichotomique)", () => {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse une dichotomie qui ne signale pas l'absence", () => {
-    // Échec ciblé : la boucle et le milieu sont là, le retour -1 manque.
+  it("rejects a binary search that does not report a missing target", () => {
+    // Targeted failure: the loop and the midpoint are there, the return -1 is missing.
     const code = `function rechercher(tab, cible) {
   let debut = 0, fin = tab.length - 1;
   while (debut <= fin) {
@@ -48,10 +48,10 @@ describe("Algo — etape 2 (recherche dichotomique)", () => {
   });
 });
 
-describe("Algo — etape 3 (tri a bulles)", () => {
+describe("Algo — step 3 (bubble sort)", () => {
   const validate = validators[2];
 
-  it("accepte deux boucles imbriquees et un echange par destructuring", () => {
+  it("accepts two nested loops and a swap by destructuring", () => {
     const code = `function trier(a) {
   for (let i = 0; i < a.length; i++) {
     for (let j = 0; j < a.length - 1 - i; j++) {
@@ -65,7 +65,7 @@ describe("Algo — etape 3 (tri a bulles)", () => {
     expect(validate(code).ok).toBe(true);
   });
 
-  it("refuse une seule boucle", () => {
+  it("rejects a single loop", () => {
     const code = `function trier(a) {
   for (let j = 0; j < a.length - 1; j++) {
     [a[j], a[j + 1]] = [a[j + 1], a[j]];
@@ -75,8 +75,8 @@ describe("Algo — etape 3 (tri a bulles)", () => {
     expect(validate(code).ok).toBe(false);
   });
 
-  it("refuse un echange par variable temporaire", () => {
-    // Échec ciblé : l'étape enseigne la déstructuration, pas le tri en général.
+  it("rejects a swap through a temporary variable", () => {
+    // Targeted failure: the step teaches destructuring, not sorting in general.
     const code = `function trier(a) {
   for (let i = 0; i < a.length; i++) {
     for (let j = 0; j < a.length - 1; j++) {
@@ -93,7 +93,7 @@ describe("Algo — etape 3 (tri a bulles)", () => {
   });
 });
 
-describe("Algo — etape 4 (Fibonacci, deux versions)", () => {
+describe("Algo — step 4 (Fibonacci, two versions)", () => {
   const validate = validators[3];
 
   const RECURSIVE = `function fiboRecursif(n) {
@@ -107,16 +107,16 @@ describe("Algo — etape 4 (Fibonacci, deux versions)", () => {
   return a;
 }`;
 
-  it("accepte les deux implementations cote a cote", () => {
+  it("accepts both implementations side by side", () => {
     expect(validate(`${RECURSIVE}\n${ITERATIVE}`).ok).toBe(true);
   });
 
-  it("refuse la version recursive seule", () => {
+  it("rejects the recursive version alone", () => {
     expect(validate(RECURSIVE).ok).toBe(false);
   });
 
-  it("refuse une version iterative sans boucle", () => {
-    // Échec ciblé : la fonction existe mais n'itère pas.
+  it("rejects an iterative version without a loop", () => {
+    // Targeted failure: the function exists but does not iterate.
     const noLoop = `function fiboIteratif(n) { return n <= 1 ? n : null; }`;
     expect(validate(`${RECURSIVE}\n${noLoop}`).ok).toBe(false);
   });

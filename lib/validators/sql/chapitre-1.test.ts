@@ -11,7 +11,7 @@ beforeAll(() => {
   );
 });
 
-/** Exécute le SQL d'une étape, puis passe le résultat à son validateur. */
+/** Runs a step's SQL, then passes the result to its validator. */
 async function play(stepIndex: number, code: string) {
   const cfg = getSqlStepConfig("chapitre-1", stepIndex);
   const run = await runSql(code, cfg);
@@ -24,7 +24,7 @@ async function play(stepIndex: number, code: string) {
   return validators[stepIndex](code, ctx);
 }
 
-// Les solutions exactes fournies en `hint` à chaque étape.
+// The exact solutions given as the `hint` for each step.
 const SOLUTIONS = [
   "CREATE TABLE pilotes (id INTEGER PRIMARY KEY, nom VARCHAR(50) NOT NULL, niveau INTEGER DEFAULT 1);\nINSERT INTO pilotes (id, nom, niveau) VALUES (1, 'Lia', 5);",
   "SELECT nom, niveau FROM pilotes WHERE niveau >= 5 ORDER BY niveau DESC LIMIT 10;",
@@ -32,20 +32,20 @@ const SOLUTIONS = [
   "SELECT pilotes.nom, vaisseaux.modele FROM pilotes INNER JOIN vaisseaux ON vaisseaux.pilote_id = pilotes.id;",
 ];
 
-describe("validateurs SQL chapitre-1 (exécution réelle)", () => {
-  it("valide chaque étape avec la solution du hint", async () => {
+describe("SQL chapitre-1 validators (real execution)", () => {
+  it("accepts each step with the hint's solution", async () => {
     for (let i = 0; i < SOLUTIONS.length; i++) {
       const res = await play(i, SOLUTIONS[i]);
       expect(res.ok, `étape ${i + 1}`).toBe(true);
     }
   });
 
-  it("rejette un SELECT non trié (étape 2)", async () => {
+  it("rejects an unsorted SELECT (step 2)", async () => {
     const res = await play(1, "SELECT nom, niveau FROM pilotes WHERE niveau >= 5;");
     expect(res.ok).toBe(false);
   });
 
-  it("rejette un DELETE sans WHERE qui vide la table (étape 3)", async () => {
+  it("rejects a DELETE without WHERE that empties the table (step 3)", async () => {
     const res = await play(
       2,
       "UPDATE pilotes SET niveau = 10 WHERE id = 1;\nDELETE FROM pilotes;"
@@ -53,7 +53,7 @@ describe("validateurs SQL chapitre-1 (exécution réelle)", () => {
     expect(res.ok).toBe(false);
   });
 
-  it("signale une erreur SQL avec la tonalité syntax", async () => {
+  it("reports a SQL error with the syntax tone", async () => {
     const res = await play(1, "SELECT FROM WHERE;");
     expect(res.ok).toBe(false);
     expect(res.tone).toBe("syntax");

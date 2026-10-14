@@ -4,7 +4,7 @@ import { stripLineComments, countMatches, fail, pass } from "../_static-utils";
 const strip = (code: string) => stripLineComments(code, "//");
 
 export const validators: Validator[] = [
-  // Étape 1 : les réponses s'écrivent en commentaires, on lit donc le code brut.
+  // Step 1: the answers are written as comments, so we read the raw code.
   (code) => {
     const hasConstant = /O\s*\(\s*1\s*\)/i.test(code);
     const hasLinear = /O\s*\(\s*n\s*\)/i.test(code);
@@ -14,7 +14,7 @@ export const validators: Validator[] = [
     }
     return pass("Complexité comprise.", ["o1a", "o1b"]);
   },
-  // Étape 2 : recherche dichotomique (while, milieu, return -1 si absent)
+  // Step 2: binary search (while, midpoint, return -1 if absent)
   (code) => {
     const c = strip(code);
     if (!/while\s*\(/.test(c)) {
@@ -25,20 +25,20 @@ export const validators: Validator[] = [
     }
     return pass("Log n atteint.", ["o2a", "o2b"]);
   },
-  // Étape 3 : tri à bulles (deux boucles for imbriquées, échange par déstructuration)
+  // Step 3: bubble sort (two nested for loops, swap by destructuring)
   (code) => {
     const c = strip(code);
     if (countMatches(c, /for\s*\(/) < 2) {
       return fail("Le tri à bulles a besoin de DEUX boucles for imbriquées.");
     }
-    // Échange par déstructuration, ex. [a[j], a[j + 1]] = [a[j + 1], a[j]] : on
-    // cherche `] = [`, ce qui tolère les index imbriqués.
+    // Swap by destructuring, e.g. [a[j], a[j + 1]] = [a[j + 1], a[j]]: we
+    // look for `] = [`, which tolerates nested indexes.
     if (!/\]\s*=\s*\[/.test(c)) {
       return fail("Échange deux éléments avec le destructuring : [a[j], a[j+1]] = [a[j+1], a[j]].");
     }
     return pass("Données ordonnées.", ["o3a", "o3b"]);
   },
-  // Étape 4 : Fibonacci récursif et itératif
+  // Step 4: recursive and iterative Fibonacci
   (code) => {
     const c = strip(code);
     const recursive =
