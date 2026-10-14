@@ -91,7 +91,7 @@ export default function CompletionScreen({
           {badgeFrame !== undefined ? (
             <Sprite sheet={BADGE_ICONS} frame={badgeFrame} displaySize={20} title={badgeLabel} />
           ) : badgeIcon.startsWith("/") ? (
-            <Image src={badgeIcon} alt="Badge" width={20} height={20} className="h-5 w-5 object-contain" />
+            <Image src={badgeIcon} alt={`Badge ${badgeLabel}`} width={20} height={20} className="h-5 w-5 object-contain" />
           ) : (
             <span>{badgeIcon}</span>
           )}

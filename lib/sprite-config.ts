@@ -70,13 +70,13 @@ export const INTRO_CINEMATIC: SpriteSheet = {
 /** Chapter background per course. */
 export const BACKGROUND_BY_COURSE: Record<string, string> = {
   // TODO: switch to /bg/html-chapter.png once the image is delivered.
-  html: "/chapter-1-bg.png",
+  html: "/chapter-1-bg.webp",
   // TODO: switch to /bg/css-chapter.png once the image is delivered.
-  css: "/chapter-1-bg.png",
+  css: "/chapter-1-bg.webp",
   // TODO: switch to /bg/js-chapter.png once the image is delivered.
-  javascript: "/chapter-1-bg.png",
+  javascript: "/chapter-1-bg.webp",
 };
 
 export function getChapterBackground(course: string): string {
-  return BACKGROUND_BY_COURSE[course] ?? "/chapter-1-bg.png";
+  return BACKGROUND_BY_COURSE[course] ?? "/chapter-1-bg.webp";
 }
