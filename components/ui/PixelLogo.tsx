@@ -114,6 +114,13 @@ const SPIN_HOLD = 4.4; // s facing the viewer in each cycle
 const SHIP_OMEGA = (2 * Math.PI) / 7;
 const CHASE_GAP = 1.55; // rad between the fighter and its prey
 
+/**
+ * Time (s) of the still pose: crest facing front, both ships visible. It is
+ * the prefers-reduced-motion frame, and the one saved as
+ * public/brand/fleet-crest.png, shown until the animation has loaded.
+ */
+const STILL_POSE_TIME = Math.PI / (2 * SHIP_OMEGA);
+
 const TWINKLE_MS = 420;
 const TICK_MS = 66; // about 15 frames/s
 
@@ -369,9 +376,13 @@ type PixelLogoProps = {
   size: number;
   /** Main menu: missed laser shots escape and fly across the screen. */
   fx?: boolean;
+  /** Start on the still pose, to take over seamlessly from the still image. */
+  fromStillPose?: boolean;
+  /** Called once the first frame is drawn. */
+  onReady?: () => void;
 };
 
-export default function PixelLogo({ size, fx = false }: PixelLogoProps) {
+export default function PixelLogo({ size, fx = false, fromStillPose = false, onReady }: PixelLogoProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const screenRef = useRef<HTMLCanvasElement>(null);
 
@@ -530,27 +541,33 @@ export default function PixelLogo({ size, fx = false }: PixelLogoProps) {
     ).matches;
     if (reducedMotion) {
       // Still pose: crest facing front, both ships visible.
-      drawScene(sceneCtx, sprites, Math.PI / (2 * SHIP_OMEGA), []);
+      drawScene(sceneCtx, sprites, STILL_POSE_TIME, []);
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(sceneCanvas, 0, 0, backing, backing);
       if (screenCanvas) window.removeEventListener("resize", sizeScreen);
+      onReady?.();
       return;
     }
 
+    const startAt = fromStillPose ? STILL_POSE_TIME : 0;
     const start = performance.now();
-    let prev = 0;
+    let prev = startAt;
     const interval = window.setInterval(() => {
-      const t = (performance.now() - start) / 1000;
+      const t = startAt + (performance.now() - start) / 1000;
       render(t, Math.min(t - prev, 0.2));
       prev = t;
     }, TICK_MS);
-    render(0, 0);
+    render(startAt, 0);
+    onReady?.();
 
     return () => {
       window.clearInterval(interval);
       if (screenCanvas) window.removeEventListener("resize", sizeScreen);
     };
-  }, [size, fx]);
+    // `onReady` is a one-shot notification: a new callback identity must not
+    // restart the animation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [size, fx, fromStillPose]);
 
   const glow = Math.max(4, Math.round(size / 14));
   return (

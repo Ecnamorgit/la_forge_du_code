@@ -1,6 +1,6 @@
 "use client";
 
-import { REPLAY_INTRO_EVENT } from "./IntroCinematicMount";
+import { REPLAY_INTRO_EVENT } from "@/lib/intro";
 
 export default function ReplayIntroButton() {
   return (

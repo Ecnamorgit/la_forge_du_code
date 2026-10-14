@@ -6,6 +6,9 @@
 
 export const INTRO_STORAGE_KEY = "nc_intro_seen";
 
+/** Window event that triggers a replay from any button. */
+export const REPLAY_INTRO_EVENT = "nebula:replay-intro";
+
 /** How long a scene is shown before auto-advancing (ms). */
 export const INTRO_SCENE_DURATION_MS = 4500;
 

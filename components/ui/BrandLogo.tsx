@@ -1,6 +1,4 @@
-"use client";
-
-import PixelLogo from "./PixelLogo";
+import LazyPixelLogo from "./LazyPixelLogo";
 
 type BrandLogoProps = {
   size?: number;
@@ -23,7 +21,7 @@ export default function BrandLogo({
       style={{ width: size, height: size }}
       aria-hidden="true"
     >
-      <PixelLogo size={size} fx={fx} />
+      <LazyPixelLogo size={size} fx={fx} />
     </div>
   );
 }
