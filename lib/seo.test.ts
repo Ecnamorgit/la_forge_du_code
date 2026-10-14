@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import sitemap from "@/app/sitemap";
 
-import { buildHomeJsonLd, HOME_IMAGES, LOGO_IMAGE, serializeJsonLd } from "./seo";
+import { buildHomeJsonLd, HOME_IMAGES, isSiteOrigin, LOGO_IMAGE, serializeJsonLd } from "./seo";
 
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
 
@@ -51,5 +51,27 @@ describe("sitemap images", () => {
   it("does not attach images to the other pages", () => {
     const others = sitemap().filter((entry) => new URL(entry.url).pathname !== "/");
     expect(others.every((entry) => entry.images === undefined)).toBe(true);
+  });
+});
+
+describe("isSiteOrigin", () => {
+  const APP_URL = "https://www.laforgeducode.fr";
+
+  it("accepts the site's host, with or without www", () => {
+    expect(isSiteOrigin("https://www.laforgeducode.fr", APP_URL)).toBe(true);
+    expect(isSiteOrigin("https://laforgeducode.fr", APP_URL)).toBe(true);
+  });
+
+  it("rejects the sandbox subdomain and the .vercel.app address", () => {
+    expect(isSiteOrigin("https://bac-a-sable.laforgeducode.fr", APP_URL)).toBe(false);
+    expect(isSiteOrigin("https://la-forge-du-code.vercel.app", APP_URL)).toBe(false);
+  });
+
+  it("does not tell local hosts apart without APP_URL", () => {
+    expect(isSiteOrigin("http://127.0.0.1:3000", undefined)).toBe(true);
+  });
+
+  it("keeps the page indexable when the origin cannot be read", () => {
+    expect(isSiteOrigin("", APP_URL)).toBe(true);
   });
 });

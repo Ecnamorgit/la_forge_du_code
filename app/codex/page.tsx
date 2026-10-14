@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Codex — La Forge du Code",
   description:
     "L'univers de la Coalition Nebula : la flotte, la menace Spectre et le rôle du Cadet-Ingénieur.",
+  alternates: { canonical: "/codex" },
 };
 
 export default function CodexPage() {
