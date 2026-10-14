@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-4";
 
 /**
- * Chapitre 4 — Flexbox : activer le conteneur, puis répartir et aligner.
+ * Chapter 4 — Flexbox: enable the container, then distribute and align.
  */
 
-/** Page complète avec le CSS donné, et un .container à mettre en flex. */
+/** Full page with the given CSS, and a .container to turn into flex. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -24,69 +24,69 @@ function page(css: string): string {
 </html>`;
 }
 
-describe("CSS chapitre 4 — etape 1 (activer flex)", () => {
+describe("CSS chapter 4 — step 1 (enable flex)", () => {
   const validate = validators[0];
 
-  it("accepte display: flex sur .container", () => {
+  it("accepts display: flex on .container", () => {
     expect(validate(page(".container { display: flex; }")).ok).toBe(true);
   });
 
-  it("refuse display: block, qui n'active pas Flexbox", () => {
-    // Échec ciblé : la propriété est là, mais pas la valeur qui active flex.
+  it("rejects display: block, which does not enable Flexbox", () => {
+    // Targeted failure: the property is there, but not the value that enables flex.
     expect(validate(page(".container { display: block; }")).ok).toBe(false);
   });
 
-  it("refuse flex pose sur un autre selecteur", () => {
+  it("rejects flex set on another selector", () => {
     expect(validate(page(".carte { display: flex; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 4 — etape 2 (repartition horizontale)", () => {
+describe("CSS chapter 4 — step 2 (horizontal distribution)", () => {
   const validate = validators[1];
 
-  it("accepte justify-content sur .container", () => {
+  it("accepts justify-content on .container", () => {
     expect(
       validate(page(".container { display: flex; justify-content: space-between; }")).ok
     ).toBe(true);
   });
 
-  it("refuse align-items, qui aligne sur l'autre axe", () => {
+  it("rejects align-items, which aligns on the other axis", () => {
     expect(validate(page(".container { display: flex; align-items: center; }")).ok).toBe(
       false
     );
   });
 });
 
-describe("CSS chapitre 4 — etape 3 (alignement vertical)", () => {
+describe("CSS chapter 4 — step 3 (vertical alignment)", () => {
   const validate = validators[2];
 
-  it("accepte align-items sur .container", () => {
+  it("accepts align-items on .container", () => {
     expect(validate(page(".container { display: flex; align-items: center; }")).ok).toBe(
       true
     );
   });
 
-  it("refuse justify-content, qui repartit sur l'axe principal", () => {
+  it("rejects justify-content, which distributes along the main axis", () => {
     expect(
       validate(page(".container { display: flex; justify-content: center; }")).ok
     ).toBe(false);
   });
 });
 
-describe("CSS chapitre 4 — etape 4 (espacement entre elements)", () => {
+describe("CSS chapter 4 — step 4 (spacing between items)", () => {
   const validate = validators[3];
 
-  it("accepte la propriete courte gap", () => {
+  it("accepts the gap shorthand property", () => {
     expect(validate(page(".container { display: flex; gap: 12px; }")).ok).toBe(true);
   });
 
-  it("accepte column-gap", () => {
+  it("accepts column-gap", () => {
     expect(validate(page(".container { display: flex; column-gap: 12px; }")).ok).toBe(
       true
     );
   });
 
-  it("refuse un margin sur les enfants, qui n'est pas la propriete demandee", () => {
+  it("rejects a margin on the children, which is not the requested property", () => {
     expect(validate(page(".container { display: flex; } .carte { margin: 12px; }")).ok).toBe(
       false
     );

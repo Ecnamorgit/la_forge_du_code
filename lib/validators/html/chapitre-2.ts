@@ -11,7 +11,7 @@ function tagInner(code: string, tag: string): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : un <a> externe avec href et target="_blank"
+  // Step 1: an external <a> with href and target="_blank"
   (code) => {
     const clean = stripHtmlComments(code);
     const link = clean.match(
@@ -28,7 +28,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Passerelle externe ouverte.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : deux <section id="..."> aux id distincts
+  // Step 2: two <section id="..."> with distinct ids
   (code) => {
     const clean = stripHtmlComments(code);
     const sections = [
@@ -47,7 +47,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Repères établis.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : au moins 2 liens internes href="#..." vers des id existants
+  // Step 3: at least 2 internal href="#..." links to existing ids
   (code) => {
     const clean = stripHtmlComments(code);
     const anchorLinks = [
@@ -73,7 +73,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Saut vérifié.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : une <nav> d'au moins 3 liens, dont l'externe et 2 ancres
+  // Step 4: a <nav> with at least 3 links, including the external one and 2 anchors
   (code) => {
     const clean = stripHtmlComments(code);
     const navInner = tagInner(clean, "nav");

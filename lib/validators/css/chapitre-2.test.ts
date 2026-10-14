@@ -2,14 +2,14 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-2";
 
 /**
- * Chapitre 2 — les sélecteurs et la couleur.
+ * Chapter 2 — selectors and color.
  *
- * Chaque étape a un cas passant tiré du `hint` du cours, et un cas d'échec qui
- * rate sur la seule exigence de l'étape. Jamais de chaîne vide comme cas
- * d'échec : elle échouerait de toute façon et ne prouverait rien.
+ * Each step has a passing case taken from the course `hint`, and a failing case
+ * that misses only that step's requirement. Never an empty string as a failing
+ * case: it would fail anyway and prove nothing.
  */
 
-/** Enveloppe le CSS donné dans une page complète, comme le startCode du cours. */
+/** Wraps the given CSS in a full page, like the course startCode. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -27,75 +27,75 @@ function page(css: string): string {
 </html>`;
 }
 
-describe("CSS chapitre 2 — etape 1 (selecteur de classe)", () => {
+describe("CSS chapter 2 — step 1 (class selector)", () => {
   const validate = validators[0];
 
-  it("accepte une regle .alert { color }", () => {
+  it("accepts an .alert { color } rule", () => {
     expect(validate(page(".alert { color: red; }")).ok).toBe(true);
   });
 
-  it("refuse une regle qui cible la balise au lieu de la classe", () => {
-    // Échec ciblé : il y a bien un color sur un <p>, mais pas sur .alert.
+  it("rejects a rule that targets the tag instead of the class", () => {
+    // Targeted failure: there is a color on a <p>, but not on .alert.
     expect(validate(page("p { color: red; }")).ok).toBe(false);
   });
 
-  it("refuse un document sans balise <style>", () => {
+  it("rejects a document without a <style> tag", () => {
     expect(validate("<html><body><h1>x</h1></body></html>").ok).toBe(false);
   });
 
-  it("refuse background-color, qui n'est pas la propriete demandee", () => {
-    // `background-color` contient « color » : une vérification par \b
-    // l'accepterait à tort.
+  it("rejects background-color, which is not the requested property", () => {
+    // `background-color` contains "color": a \b-based check
+    // would wrongly accept it.
     expect(validate(page(".alert { background-color: red; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 2 — etape 2 (selecteur d'id)", () => {
+describe("CSS chapter 2 — step 2 (id selector)", () => {
   const validate = validators[1];
 
-  it("accepte une regle #status { color }", () => {
+  it("accepts a #status { color } rule", () => {
     expect(validate(page("#status { color: cyan; }")).ok).toBe(true);
   });
 
-  it("refuse une classe .status a la place de l'id", () => {
+  it("rejects a .status class instead of the id", () => {
     expect(validate(page(".status { color: cyan; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 2 — etape 3 (couleur hex ou rgb)", () => {
+describe("CSS chapter 2 — step 3 (hex or rgb color)", () => {
   const validate = validators[2];
 
-  it("accepte un hexadecimal a six chiffres", () => {
+  it("accepts a six-digit hexadecimal", () => {
     expect(validate(page("h1 { color: #ff6b2c; }")).ok).toBe(true);
   });
 
-  it("accepte la notation rgb()", () => {
+  it("accepts the rgb() notation", () => {
     expect(validate(page("h1 { color: rgb(255, 107, 44); }")).ok).toBe(true);
   });
 
-  it("refuse un nom de couleur, qui n'est ni hex ni rgb", () => {
+  it("rejects a color name, which is neither hex nor rgb", () => {
     expect(validate(page("h1 { color: orange; }")).ok).toBe(false);
   });
 
-  it("refuse un canal rgb hors bornes", () => {
+  it("rejects an out-of-range rgb channel", () => {
     expect(validate(page("h1 { color: rgb(300, 0, 0); }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 2 — etape 4 (typographie sur deux selecteurs)", () => {
+describe("CSS chapter 2 — step 4 (typography on two selectors)", () => {
   const validate = validators[3];
 
-  it("accepte text-align sur h1 et font-weight sur .alert", () => {
+  it("accepts text-align on h1 and font-weight on .alert", () => {
     expect(
       validate(page("h1 { text-align: center; } .alert { font-weight: bold; }")).ok
     ).toBe(true);
   });
 
-  it("refuse quand seul text-align est pose", () => {
+  it("rejects when only text-align is set", () => {
     expect(validate(page("h1 { text-align: center; }")).ok).toBe(false);
   });
 
-  it("refuse quand seul font-weight est pose", () => {
+  it("rejects when only font-weight is set", () => {
     expect(validate(page(".alert { font-weight: bold; }")).ok).toBe(false);
   });
 });

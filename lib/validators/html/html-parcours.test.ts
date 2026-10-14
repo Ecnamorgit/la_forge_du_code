@@ -12,17 +12,17 @@ import { chapter8 } from "@/data/courses/html/chapitre-8";
 import { VALIDATORS_BY_CHAPTER } from "./index";
 
 /**
- * Couverture complète du parcours HTML (8 chapitres, 31 étapes).
+ * Full coverage of the HTML track (8 chapters, 31 steps).
  *
- * Le cours est cumulatif : le `startCode` de l'étape N+1 est la solution
- * attendue de l'étape N. Chaque validateur doit donc refuser le `startCode` de
- * sa propre étape, accepter le suivant (ou une solution écrite à la main pour
- * la dernière étape), et renvoyer un `objList` identique aux `objectives`
- * déclarés dans le chapitre.
+ * The course is cumulative: the `startCode` of step N+1 is the expected
+ * solution of step N. Each validator must therefore reject its own step's
+ * `startCode`, accept the next one (or a hand-written solution for the
+ * last step), and return an `objList` identical to the `objectives`
+ * declared in the chapter.
  */
 
-// Solution de la dernière étape de chaque chapitre, qui n'a pas de
-// `startCode` suivant d'où la dériver.
+// Solution for the last step of each chapter, which has no following
+// `startCode` to derive it from.
 const LAST_STEP_SOLUTION: Record<string, string> = {
   "chapitre-1":
     "<!DOCTYPE html><html><head><title>T</title></head><body><h1>Hello World</h1></body></html>",
@@ -57,7 +57,7 @@ for (const chapter of CHAPTERS) {
   const validators = VALIDATORS_BY_CHAPTER[chapter.slug];
 
   describe(`html / ${chapter.slug}`, () => {
-    it("a exactement un validateur par étape", () => {
+    it("has exactly one validator per step", () => {
       expect(validators).toBeDefined();
       expect(validators.length).toBe(chapter.steps.length);
     });
@@ -68,11 +68,11 @@ for (const chapter of CHAPTERS) {
         ? LAST_STEP_SOLUTION[chapter.slug]
         : chapter.steps[i + 1].startCode;
 
-      it(`étape ${i + 1} : refuse le code de départ`, () => {
+      it(`step ${i + 1}: rejects the starting code`, () => {
         expect(validators[i](step.startCode).ok).toBe(false);
       });
 
-      it(`étape ${i + 1} : accepte une solution valide et renvoie les bons objectifs`, () => {
+      it(`step ${i + 1}: accepts a valid solution and returns the right objectives`, () => {
         const result = validators[i](solution);
         expect(result.ok).toBe(true);
         expect(new Set(result.objList)).toEqual(
@@ -81,7 +81,7 @@ for (const chapter of CHAPTERS) {
       });
     });
 
-    it("seul le dernier validateur marque l'étape comme finale", () => {
+    it("only the last validator marks the step as final", () => {
       validators.forEach((validate, i) => {
         const isLast = i === chapter.steps.length - 1;
         const solution = isLast

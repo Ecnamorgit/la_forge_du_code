@@ -1,9 +1,9 @@
 /**
- * Inspection du CSS d'un bloc <style> par expressions régulières (pas un vrai
- * parseur CSS).
+ * Inspects the CSS of a <style> block with regular expressions (not a real
+ * CSS parser).
  */
 
-/** Retire les commentaires CSS, qui pourraient sinon tromper les vérifications. */
+/** Strips CSS comments, which could otherwise fool the checks. */
 export function stripCssComments(css: string): string {
   return css.replace(/\/\*[\s\S]*?\*\//g, "");
 }
@@ -13,7 +13,7 @@ export function extractStyleContent(code: string): string | null {
   return match ? stripCssComments(match[1]) : null;
 }
 
-/** Corps de la première règle CSS du sélecteur donné, ou null. */
+/** Body of the first CSS rule for the given selector, or null. */
 export function ruleBody(css: string, selector: string): string | null {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const re = new RegExp(
@@ -25,15 +25,15 @@ export function ruleBody(css: string, selector: string): string | null {
 }
 
 /**
- * Motif d'un nom de propriété en début de déclaration. `\b` ne suffit pas :
- * dans `background-color`, le `-` est un non-mot, donc `\bcolor` y trouverait
- * `color`. Le lookbehind refuse un `-` ou un caractère de mot devant.
+ * Pattern for a property name at the start of a declaration. `\b` is not enough:
+ * in `background-color`, the `-` is a non-word character, so `\bcolor` would
+ * match `color` there. The lookbehind rejects a preceding `-` or word character.
  */
 function propertyRegex(property: string, suffix = ""): RegExp {
   return new RegExp(`(?<![-\\w])${property}\\s*:${suffix}`, "i");
 }
 
-/** Vrai si une règle `selector` existe et déclare `property`. */
+/** True if a `selector` rule exists and declares `property`. */
 export function hasProperty(
   css: string,
   selector: string,
@@ -44,7 +44,7 @@ export function hasProperty(
   return propertyRegex(property).test(body);
 }
 
-/** Comme `hasProperty`, en testant aussi la valeur déclarée avec `valueRegex`. */
+/** Like `hasProperty`, but also tests the declared value against `valueRegex`. */
 export function hasPropertyWithValue(
   css: string,
   selector: string,

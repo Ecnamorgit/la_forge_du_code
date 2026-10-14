@@ -2,13 +2,13 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-3";
 
 /**
- * Chapitre 3 — le modèle de boîte : dimensions, padding, margin, border.
+ * Chapter 3 — the box model: dimensions, padding, margin, border.
  *
- * Les étapes 2 et 3 acceptent la propriété courte comme les quatre variantes
- * directionnelles ; les tests couvrent les deux formes.
+ * Steps 2 and 3 accept the shorthand property as well as the four directional
+ * variants; the tests cover both forms.
  */
 
-/** Page complète avec le CSS donné, et un élément .module à styler. */
+/** Full page with the given CSS, and a .module element to style. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -24,71 +24,71 @@ function page(css: string): string {
 </html>`;
 }
 
-describe("CSS chapitre 3 — etape 1 (dimensions)", () => {
+describe("CSS chapter 3 — step 1 (dimensions)", () => {
   const validate = validators[0];
 
-  it("accepte width et height sur .module", () => {
+  it("accepts width and height on .module", () => {
     expect(validate(page(".module { width: 200px; height: 120px; }")).ok).toBe(true);
   });
 
-  it("refuse width seul", () => {
-    // Échec ciblé : l'étape demande les deux dimensions.
+  it("rejects width alone", () => {
+    // Targeted failure: the step asks for both dimensions.
     expect(validate(page(".module { width: 200px; }")).ok).toBe(false);
   });
 
-  it("refuse height seul", () => {
+  it("rejects height alone", () => {
     expect(validate(page(".module { height: 120px; }")).ok).toBe(false);
   });
 
-  it("refuse des dimensions posees sur un autre selecteur", () => {
+  it("rejects dimensions set on another selector", () => {
     expect(validate(page("div { width: 200px; height: 120px; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 3 — etape 2 (padding)", () => {
+describe("CSS chapter 3 — step 2 (padding)", () => {
   const validate = validators[1];
 
-  it("accepte la propriete courte padding", () => {
+  it("accepts the padding shorthand property", () => {
     expect(validate(page(".module { padding: 16px; }")).ok).toBe(true);
   });
 
-  it("accepte une variante directionnelle padding-left", () => {
+  it("accepts a directional variant, padding-left", () => {
     expect(validate(page(".module { padding-left: 16px; }")).ok).toBe(true);
   });
 
-  it("refuse margin, qui pousse depuis l'exterieur et non l'interieur", () => {
+  it("rejects margin, which pushes from the outside rather than the inside", () => {
     expect(validate(page(".module { margin: 16px; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 3 — etape 3 (margin)", () => {
+describe("CSS chapter 3 — step 3 (margin)", () => {
   const validate = validators[2];
 
-  it("accepte la propriete courte margin", () => {
+  it("accepts the margin shorthand property", () => {
     expect(validate(page(".module { margin: 24px; }")).ok).toBe(true);
   });
 
-  it("accepte une variante directionnelle margin-top", () => {
+  it("accepts a directional variant, margin-top", () => {
     expect(validate(page(".module { margin-top: 24px; }")).ok).toBe(true);
   });
 
-  it("refuse padding, qui n'ecarte pas les modules entre eux", () => {
+  it("rejects padding, which does not space the modules apart", () => {
     expect(validate(page(".module { padding: 24px; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 3 — etape 4 (bordure)", () => {
+describe("CSS chapter 3 — step 4 (border)", () => {
   const validate = validators[3];
 
-  it("accepte une border visible", () => {
+  it("accepts a visible border", () => {
     expect(validate(page(".module { border: 2px solid #ff6b2c; }")).ok).toBe(true);
   });
 
-  it("refuse border: none, qui n'affiche aucune bordure", () => {
+  it("rejects border: none, which displays no border", () => {
     expect(validate(page(".module { border: none; }")).ok).toBe(false);
   });
 
-  it("refuse border-radius, qui arrondit sans tracer de bordure", () => {
+  it("rejects border-radius, which rounds corners without drawing a border", () => {
     expect(validate(page(".module { border-radius: 8px; }")).ok).toBe(false);
   });
 });

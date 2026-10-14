@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasProperty, hasPropertyWithValue } from "./_utils";
 
 export const validators: Validator[] = [
-  // Étape 1 : .module { width; height }
+  // Step 1: .module { width; height }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -26,7 +26,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Étape 2 : padding (ou une variante directionnelle) sur .module
+  // Step 2: padding (or a directional variant) on .module
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -50,7 +50,7 @@ export const validators: Validator[] = [
       objList: ["o2a"],
     };
   },
-  // Étape 3 : margin (ou une variante directionnelle) sur .module
+  // Step 3: margin (or a directional variant) on .module
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -74,7 +74,7 @@ export const validators: Validator[] = [
       objList: ["o3a"],
     };
   },
-  // Étape 4 : border sur .module
+  // Step 4: border on .module
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -86,7 +86,7 @@ export const validators: Validator[] = [
         msg: "Ajoute une border sur .module.",
       };
     }
-    // `border: none` ne compte pas.
+    // `border: none` does not count.
     if (hasPropertyWithValue(css, ".module", "border", /^\s*none\s*$/i)) {
       return {
         ok: false,

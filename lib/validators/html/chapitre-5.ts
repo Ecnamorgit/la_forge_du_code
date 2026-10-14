@@ -16,13 +16,13 @@ function findFormInner(code: string): string | null {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : <form>, <input type="text"> et <label for=...>
+  // Step 1: <form>, <input type="text"> and <label for=...>
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {
       return { ok: false, msg: "Encadre les champs dans une balise <form>." };
     }
-    // Un <input> sans attribut type est un champ texte.
+    // An <input> without a type attribute is a text field.
     const hasTextInput =
       hasInputOfType(inner, "text") ||
       /<input\b(?![^>]*\btype\s*=)[^>]*>/i.test(inner);
@@ -58,7 +58,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Étape 2 : <input type="email"> et <input type="password">
+  // Step 2: <input type="email"> and <input type="password">
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {
@@ -82,7 +82,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Étape 3 : <textarea> et <button type="submit">
+  // Step 3: <textarea> and <button type="submit">
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {
@@ -94,8 +94,8 @@ export const validators: Validator[] = [
         msg: "Ajoute une balise <textarea> dans le formulaire.",
       };
     }
-    // Un <button> sans attribut type soumet le formulaire (type par défaut) ;
-    // seuls type="button" et type="reset" ne l'envoient pas.
+    // A <button> without a type attribute submits the form (default type);
+    // only type="button" and type="reset" do not submit it.
     const buttons = inner.match(/<button\b[^>]*>[\s\S]*?<\/button>/gi) ?? [];
     const submits = buttons.some((b) => {
       const type = b.match(/^<button\b[^>]*(?<![-\w])type\s*=\s*["']?([a-z]+)/i);
@@ -115,7 +115,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Étape 4 : <select> avec au moins 2 <option>
+  // Step 4: <select> with at least 2 <option>
   (code) => {
     const inner = findFormInner(code);
     if (inner === null) {

@@ -12,7 +12,7 @@ function countItemsInsideList(
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : <ul> avec au moins 3 <li>
+  // Step 1: <ul> with at least 3 <li>
   (code) => {
     const { found, itemCount } = countItemsInsideList(code, "ul");
     if (!found) {
@@ -30,7 +30,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Étape 2 : <ol> avec au moins 3 <li>
+  // Step 2: <ol> with at least 3 <li>
   (code) => {
     const { found, itemCount } = countItemsInsideList(code, "ol");
     if (!found) {
@@ -48,7 +48,7 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Étape 3 : <table> d'au moins 2 <tr>, chacune avec au moins 2 <td>
+  // Step 3: <table> with at least 2 <tr>, each with at least 2 <td>
   (code) => {
     const tableMatch = code.match(/<table\b[^>]*>([\s\S]*?)<\/table>/i);
     if (!tableMatch) {
@@ -77,7 +77,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Étape 4 : des <th> dans un <thead>
+  // Step 4: <th> elements inside a <thead>
   (code) => {
     const theadMatch = code.match(/<thead\b[^>]*>([\s\S]*?)<\/thead>/i);
     if (!theadMatch) {

@@ -5,7 +5,7 @@ function stripHtmlComments(code: string): string {
 }
 
 export const validators: Validator[] = [
-  // Étape 1 : lang="fr", charset UTF-8 et viewport
+  // Step 1: lang="fr", UTF-8 charset and viewport
   (code) => {
     const clean = stripHtmlComments(code);
     if (!/<html\b[^>]*\blang\s*=\s*["']fr["']/i.test(clean)) {
@@ -22,7 +22,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Encodage stabilisé.", objList: ["o1a", "o1b"] };
   },
-  // Étape 2 : <meta name="description"> d'au moins 30 caractères
+  // Step 2: <meta name="description"> of at least 30 characters
   (code) => {
     const clean = stripHtmlComments(code);
     const m = clean.match(
@@ -39,7 +39,7 @@ export const validators: Validator[] = [
     }
     return { ok: true, msg: "Résumé émis.", objList: ["o2a", "o2b"] };
   },
-  // Étape 3 : og:title, og:description et og:image
+  // Step 3: og:title, og:description and og:image
   (code) => {
     const clean = stripHtmlComments(code);
     const hasOg = (prop: string) =>
@@ -54,7 +54,7 @@ export const validators: Validator[] = [
       return { ok: false, msg: 'Ajoute <meta property="og:image" content="https://...">.' };
     return { ok: true, msg: "Preview déployée.", objList: ["o3a", "o3b"] };
   },
-  // Étape 4 : lien vers un favicon
+  // Step 4: link to a favicon
   (code) => {
     const clean = stripHtmlComments(code);
     const m = clean.match(

@@ -2,7 +2,7 @@ import type { Validator } from "@/data/courses/html/types";
 import { extractStyleContent, hasProperty, hasPropertyWithValue } from "./_utils";
 
 export const validators: Validator[] = [
-  // Étape 1 : .alert { color: ... }
+  // Step 1: .alert { color: ... }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -20,7 +20,7 @@ export const validators: Validator[] = [
       objList: ["o1a", "o1b"],
     };
   },
-  // Étape 2 : #status { color: ... }
+  // Step 2: #status { color: ... }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
@@ -38,13 +38,13 @@ export const validators: Validator[] = [
       objList: ["o2a", "o2b"],
     };
   },
-  // Étape 3 : h1 { color } en hexadécimal ou en rgb()
+  // Step 3: h1 { color } in hexadecimal or rgb()
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {
       return { ok: false, msg: "La balise <style> est manquante." };
     }
-    // Hex : #rgb, #rrggbb ou #rrggbbaa. RGB : canaux de 0 à 255.
+    // Hex: #rgb, #rrggbb or #rrggbbaa. RGB: channels from 0 to 255.
     const hex = /#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})\b/i;
     const channel = "(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)";
     const rgb = new RegExp(
@@ -66,7 +66,7 @@ export const validators: Validator[] = [
       objList: ["o3a", "o3b"],
     };
   },
-  // Étape 4 : h1 { text-align } et .alert { font-weight }
+  // Step 4: h1 { text-align } and .alert { font-weight }
   (code) => {
     const css = extractStyleContent(code);
     if (css === null) {

@@ -2,10 +2,10 @@ import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-10";
 
 /**
- * Chapitre 10 — variables CSS et design system.
+ * Chapter 10 — CSS variables and design system.
  */
 
-/** Page complète avec le CSS donné. */
+/** Full page with the given CSS. */
 function page(css: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -21,27 +21,27 @@ function page(css: string): string {
 </html>`;
 }
 
-describe("CSS chapitre 10 — etape 1 (declarer une variable)", () => {
+describe("CSS chapter 10 — step 1 (declare a variable)", () => {
   const validate = validators[0];
 
-  it("accepte --color-primary declaree dans :root", () => {
+  it("accepts --color-primary declared in :root", () => {
     expect(validate(page(":root { --color-primary: #00b8d4; }")).ok).toBe(true);
   });
 
-  it("refuse une variable declaree ailleurs que dans :root", () => {
-    // Échec ciblé : la variable existe, mais pas là où l'étape la demande.
+  it("rejects a variable declared somewhere other than :root", () => {
+    // Targeted failure: the variable exists, but not where the step asks for it.
     expect(validate(page(".btn { --color-primary: #00b8d4; }")).ok).toBe(false);
   });
 
-  it("refuse un autre nom de variable", () => {
+  it("rejects a different variable name", () => {
     expect(validate(page(":root { --couleur: #00b8d4; }")).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 10 — etape 2 (centraliser la couleur)", () => {
+describe("CSS chapter 10 — step 2 (centralize the color)", () => {
   const validate = validators[1];
 
-  it("accepte trois usages de var() et plus aucune valeur en dur", () => {
+  it("accepts three uses of var() and no hard-coded value left", () => {
     const css = `:root { --color-primary: #00b8d4; }
       .btn { color: var(--color-primary); }
       .card { border-color: var(--color-primary); }
@@ -49,15 +49,15 @@ describe("CSS chapitre 10 — etape 2 (centraliser la couleur)", () => {
     expect(validate(page(css)).ok).toBe(true);
   });
 
-  it("refuse deux usages seulement", () => {
+  it("rejects only two uses", () => {
     const css = `:root { --color-primary: #00b8d4; }
       .btn { color: var(--color-primary); }
       .card { border-color: var(--color-primary); }`;
     expect(validate(page(css)).ok).toBe(false);
   });
 
-  it("refuse un #00b8d4 laisse en dur hors de :root", () => {
-    // Échec ciblé : le compte d'usages est bon, la centralisation ne l'est pas.
+  it("rejects a #00b8d4 left hard-coded outside :root", () => {
+    // Targeted failure: the usage count is right, the centralization is not.
     const css = `:root { --color-primary: #00b8d4; }
       .btn { color: var(--color-primary); }
       .card { border-color: var(--color-primary); }
@@ -66,45 +66,45 @@ describe("CSS chapitre 10 — etape 2 (centraliser la couleur)", () => {
   });
 });
 
-describe("CSS chapitre 10 — etape 3 (variables d'espacement)", () => {
+describe("CSS chapter 10 — step 3 (spacing variables)", () => {
   const validate = validators[2];
 
-  it("accepte --space-md declaree et utilisee en padding", () => {
+  it("accepts --space-md declared and used for padding", () => {
     const css = `:root { --space-md: 16px; }
       .card { padding: var(--space-md); }`;
     expect(validate(page(css)).ok).toBe(true);
   });
 
-  it("accepte une variable de rayon utilisee en border-radius", () => {
+  it("accepts a radius variable used for border-radius", () => {
     const css = `:root { --radius-md: 8px; }
       .card { border-radius: var(--radius-md); }`;
     expect(validate(page(css)).ok).toBe(true);
   });
 
-  it("refuse une variable declaree mais jamais utilisee", () => {
+  it("rejects a variable that is declared but never used", () => {
     const css = `:root { --space-md: 16px; }
       .card { padding: 16px; }`;
     expect(validate(page(css)).ok).toBe(false);
   });
 });
 
-describe("CSS chapitre 10 — etape 4 (theme alternatif)", () => {
+describe("CSS chapter 10 — step 4 (alternate theme)", () => {
   const validate = validators[3];
 
-  it("accepte un bloc [data-theme] qui redefinit une variable", () => {
+  it("accepts a [data-theme] block that redefines a variable", () => {
     const css = `:root { --color-primary: #00b8d4; }
       [data-theme="clair"] { --color-primary: #005f6b; }`;
     expect(validate(page(css)).ok).toBe(true);
   });
 
-  it("refuse un bloc [data-theme] qui ne redefinit aucune variable", () => {
-    // Échec ciblé : le sélecteur est bon, il ne rethématise rien.
+  it("rejects a [data-theme] block that redefines no variable", () => {
+    // Targeted failure: the selector is right, but it re-themes nothing.
     const css = `:root { --color-primary: #00b8d4; }
       [data-theme="clair"] { background: white; }`;
     expect(validate(page(css)).ok).toBe(false);
   });
 
-  it("refuse une classe .theme-clair a la place de l'attribut", () => {
+  it("rejects a .theme-clair class instead of the attribute", () => {
     const css = `:root { --color-primary: #00b8d4; }
       .theme-clair { --color-primary: #005f6b; }`;
     expect(validate(page(css)).ok).toBe(false);
