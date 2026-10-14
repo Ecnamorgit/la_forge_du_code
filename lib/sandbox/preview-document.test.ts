@@ -12,7 +12,7 @@ describe("buildPreviewDocument", () => {
   const html = buildPreviewDocument();
 
   it("sets up a mount container", () => {
-    expect(html).toContain('id="racine"');
+    expect(html).toContain('id="root"');
   });
 
   it("loads the runtime through a RELATIVE URL on the dedicated origin", () => {
@@ -21,7 +21,7 @@ describe("buildPreviewDocument", () => {
     const srcs = [...html.matchAll(/<script[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1]!);
     expect(srcs).toContain("/react-runtime/runtime.js");
     for (const src of srcs) {
-      expect(src.startsWith("http"), `src absolue trouvée : ${src}`).toBe(false);
+      expect(src.startsWith("http"), `absolute src found: ${src}`).toBe(false);
     }
   });
 
@@ -63,8 +63,8 @@ describe("buildPreviewDocument", () => {
   it("derives the React globals instead of listing them", () => {
     expect(html).toContain("Object.keys(React)");
     for (const hook of ["useState", "useRef", "useContext", "useMemo", "useEffect"]) {
-      expect(html, `hook ${hook} énuméré en dur`).not.toContain(`"${hook}"`);
-      expect(html, `hook ${hook} énuméré en dur`).not.toContain(`'${hook}'`);
+      expect(html, `hook ${hook} hard-coded in the list`).not.toContain(`"${hook}"`);
+      expect(html, `hook ${hook} hard-coded in the list`).not.toContain(`'${hook}'`);
     }
   });
 

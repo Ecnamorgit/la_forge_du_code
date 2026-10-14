@@ -40,12 +40,12 @@ export function buildHtmlPreviewDocument(): string {
           if (parentOrigin === null) parentOrigin = event.origin;
           else if (event.origin !== parentOrigin) return;
           if (typeof data.html !== "string") return;
-          // La scène imbriquée est un srcdoc : elle hérite de la CSP de CETTE
-          // coquille (permissive), pas de celle de l'application.
+          // The nested scene is a srcdoc: it inherits the CSP of THIS
+          // shell (permissive), not the application's.
           scene.srcdoc = data.html;
         });
-        // Poignée de main : ni la coquille ni le parent ne connaissent encore
-        // l'origine de l'autre, d'où "*". Elle ne porte rien.
+        // Handshake: neither the shell nor the parent knows the other's
+        // origin yet, hence "*". It carries nothing.
         parent.postMessage({ type: "html:ready" }, "*");
       })();
     </script>
