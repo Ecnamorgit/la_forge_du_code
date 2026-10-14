@@ -23,7 +23,7 @@ export async function GET(
   }
 
   const url = new URL(req.url);
-  const pseudo = sanitizeShareName(url.searchParams.get("u"));
+  const shareName = sanitizeShareName(url.searchParams.get("u"));
   const xp = parseShareXp(url.searchParams.get("xp"));
 
   return new ImageResponse(
@@ -46,7 +46,7 @@ export async function GET(
           <div style={{ fontSize: 30, letterSpacing: 6, color: "#00f0ff" }}>
             LA FORGE DU CODE
           </div>
-          <div style={{ fontSize: 26, color: "#7c8aa0" }}>{pseudo}</div>
+          <div style={{ fontSize: 26, color: "#7c8aa0" }}>{shareName}</div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>

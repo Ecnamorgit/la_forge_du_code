@@ -96,7 +96,7 @@ function gradeIndex(id: string): number {
   return GRADES.findIndex((g) => g.id === id);
 }
 
-/** Évalue une condition et, si elle n'est pas remplie, dit ce qui manque. */
+/** Évalue une condition et, si elle n'est pas remplie, dit ce qui missing. */
 function check(
   condition: UnlockCondition,
   ctx: UnlockContext
@@ -105,45 +105,45 @@ function check(
     case "default":
       return { ok: true, remaining: null };
     case "streak": {
-      const manque = condition.days - ctx.streak;
-      return manque <= 0
+      const missing = condition.days - ctx.streak;
+      return missing <= 0
         ? { ok: true, remaining: null }
-        : { ok: false, remaining: `encore ${manque} jour${manque > 1 ? "s" : ""} de liaison` };
+        : { ok: false, remaining: `encore ${missing} jour${missing > 1 ? "s" : ""} de liaison` };
     }
     case "quests": {
-      const manque = condition.count - ctx.questsCompleted;
-      return manque <= 0
+      const missing = condition.count - ctx.questsCompleted;
+      return missing <= 0
         ? { ok: true, remaining: null }
-        : { ok: false, remaining: `encore ${manque} ordre${manque > 1 ? "s" : ""}` };
+        : { ok: false, remaining: `encore ${missing} ordre${missing > 1 ? "s" : ""}` };
     }
     case "grade": {
-      const atteint = gradeIndex(gradeFromXp(ctx.totalXp).id);
-      const vise = gradeIndex(condition.gradeId);
-      if (atteint >= vise) return { ok: true, remaining: null };
-      const seuil = GRADES[vise];
-      return { ok: false, remaining: `grade ${seuil.label} (${seuil.threshold - ctx.totalXp} XP)` };
+      const reached = gradeIndex(gradeFromXp(ctx.totalXp).id);
+      const targetIndex = gradeIndex(condition.gradeId);
+      if (reached >= targetIndex) return { ok: true, remaining: null };
+      const threshold = GRADES[targetIndex];
+      return { ok: false, remaining: `grade ${threshold.label} (${threshold.threshold - ctx.totalXp} XP)` };
     }
     case "badge":
       return ctx.badges.includes(condition.badgeId)
         ? { ok: true, remaining: null }
         : { ok: false, remaining: "badge requis non obtenu" };
     case "xp": {
-      const manque = condition.amount - ctx.totalXp;
-      return manque <= 0
+      const missing = condition.amount - ctx.totalXp;
+      return missing <= 0
         ? { ok: true, remaining: null }
-        : { ok: false, remaining: `encore ${manque} XP` };
+        : { ok: false, remaining: `encore ${missing} XP` };
     }
     case "coursesComplete": {
-      const manque = condition.count - ctx.coursesComplete;
-      return manque <= 0
+      const missing = condition.count - ctx.coursesComplete;
+      return missing <= 0
         ? { ok: true, remaining: null }
-        : { ok: false, remaining: `encore ${manque} cursus à terminer` };
+        : { ok: false, remaining: `encore ${missing} cursus à terminer` };
     }
     case "chaptersComplete": {
-      const manque = condition.count - ctx.chaptersComplete;
-      return manque <= 0
+      const missing = condition.count - ctx.chaptersComplete;
+      return missing <= 0
         ? { ok: true, remaining: null }
-        : { ok: false, remaining: `encore ${manque} chapitre${manque > 1 ? "s" : ""}` };
+        : { ok: false, remaining: `encore ${missing} chapitre${missing > 1 ? "s" : ""}` };
     }
   }
 }
@@ -154,10 +154,10 @@ function check(
  * `ctx.owned`, même si la condition redevient fausse (rupture de liaison).
  */
 export function evaluateUnlocks(ctx: UnlockContext): UnlockStatus[] {
-  const possede = new Set(ctx.owned);
+  const ownedSet = new Set(ctx.owned);
   return UNLOCKS.map((def) => {
     const { ok, remaining } = check(def.condition, ctx);
-    const unlocked = ok || possede.has(def.id);
+    const unlocked = ok || ownedSet.has(def.id);
     return { def, unlocked, remaining: unlocked ? null : remaining };
   });
 }
@@ -178,8 +178,8 @@ export function nextUnlock(ctx: UnlockContext): UnlockStatus | null {
       case "xp":
         return (c.amount - ctx.totalXp) / 100;
       case "grade": {
-        const seuil = GRADES[gradeIndex(c.gradeId)];
-        return (seuil.threshold - ctx.totalXp) / 100;
+        const threshold = GRADES[gradeIndex(c.gradeId)];
+        return (threshold.threshold - ctx.totalXp) / 100;
       }
       case "chaptersComplete":
         return (c.count - ctx.chaptersComplete) * 3;
@@ -190,11 +190,11 @@ export function nextUnlock(ctx: UnlockContext): UnlockStatus | null {
     }
   };
 
-  const verrouilles = evaluateUnlocks(ctx).filter((u) => !u.unlocked);
-  if (verrouilles.length === 0) return null;
+  const locked = evaluateUnlocks(ctx).filter((u) => !u.unlocked);
+  if (locked.length === 0) return null;
 
-  return verrouilles.reduce((meilleur, courant) =>
-    distance(courant.def.condition) < distance(meilleur.def.condition) ? courant : meilleur
+  return locked.reduce((bestSoFar, current) =>
+    distance(current.def.condition) < distance(bestSoFar.def.condition) ? current : bestSoFar
   );
 }
 
@@ -213,11 +213,11 @@ export const CARD_BG_IMAGE: Record<string, string> = {
 
 /**
  * Fichier de décor du fond porté. Retombe sur le fond par défaut quand rien
- * n'est choisi (`null`) ou que l'identifiant stocké n'est plus au catalogue.
+ * n'est chosen (`null`) ou que l'identifiant stocké n'est plus au catalogue.
  */
 export function cardBgImage(id: string | null): string {
-  const choisi = id === null ? undefined : CARD_BG_IMAGE[id];
-  return choisi ?? CARD_BG_IMAGE[defaultFor("cardBg").id];
+  const chosen = id === null ? undefined : CARD_BG_IMAGE[id];
+  return chosen ?? CARD_BG_IMAGE[defaultFor("cardBg").id];
 }
 
 /** Objet par défaut d'un axe, porté tant que rien n'a été choisi. */

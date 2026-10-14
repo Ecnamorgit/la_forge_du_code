@@ -7,8 +7,8 @@ import { crossOriginRefusal } from "@/lib/same-origin";
 import { isTrackEvent } from "@/lib/track";
 
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   // Sans limite, le compteur est trivialement falsifiable.
   const limit = await rateLimit(`track:${getClientIp(req)}`, {

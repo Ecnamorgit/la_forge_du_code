@@ -30,15 +30,15 @@ export function sandboxOriginFor(appOrigin: string): string {
   }
 
   // Production : `bac-a-sable.` sur le domaine nu, sans l'éventuel `www.`.
-  const hote = url.hostname.replace(/^www\./, "");
-  url.hostname = `bac-a-sable.${hote}`;
+  const bareHost = url.hostname.replace(/^www\./, "");
+  url.hostname = `bac-a-sable.${bareHost}`;
   return url.origin;
 }
 
 /**
  * Inverse de `sandboxOriginFor` : les origines de l'application autorisées à
  * encadrer un document du bac à sable (`frame-ancestors`). En local, l'autre
- * hôte local ; en production, le domaine nu et sa forme `www.`, le site
+ * hôte local ; en production, le domaine appHost et sa forme `www.`, le site
  * redirigeant l'un vers l'autre. Tableau vide si l'origine est illisible :
  * l'appelant émet alors `'none'`.
  */
@@ -54,12 +54,12 @@ export function appOriginsForSandbox(sandboxOrigin: string): string[] {
     return [sandboxOriginFor(url.origin)];
   }
 
-  const nu = url.hostname.replace(/^bac-a-sable\./, "");
-  const sansWww = new URL(url.origin);
-  sansWww.hostname = nu;
-  const avecWww = new URL(url.origin);
-  avecWww.hostname = `www.${nu}`;
-  return [sansWww.origin, avecWww.origin];
+  const appHost = url.hostname.replace(/^bac-a-sable\./, "");
+  const withoutWww = new URL(url.origin);
+  withoutWww.hostname = appHost;
+  const withWww = new URL(url.origin);
+  withWww.hostname = `www.${appHost}`;
+  return [withoutWww.origin, withWww.origin];
 }
 
 /**
@@ -68,18 +68,18 @@ export function appOriginsForSandbox(sandboxOrigin: string): string[] {
  * `x-forwarded-host` et `x-forwarded-proto` (comme Next et `lib/same-origin.ts`),
  * puis `host`, et enfin l'URL de la requête.
  */
-export function originDeLaRequete(req: { headers: Headers; url: string }): string {
-  const premier = (valeur: string | null) => valeur?.split(",")[0]?.trim() || null;
-  const host = premier(req.headers.get("x-forwarded-host")) ?? premier(req.headers.get("host"));
-  let depuisUrl: URL | null = null;
+export function requestOrigin(req: { headers: Headers; url: string }): string {
+  const firstValue = (value: string | null) => value?.split(",")[0]?.trim() || null;
+  const host = firstValue(req.headers.get("x-forwarded-host")) ?? firstValue(req.headers.get("host"));
+  let fromUrl: URL | null = null;
   try {
-    depuisUrl = new URL(req.url);
+    fromUrl = new URL(req.url);
   } catch {
-    depuisUrl = null;
+    fromUrl = null;
   }
-  if (!host) return depuisUrl?.origin ?? "";
+  if (!host) return fromUrl?.origin ?? "";
   const proto =
-    premier(req.headers.get("x-forwarded-proto")) ?? depuisUrl?.protocol.replace(/:$/, "") ?? "https";
+    firstValue(req.headers.get("x-forwarded-proto")) ?? fromUrl?.protocol.replace(/:$/, "") ?? "https";
   return `${proto}://${host}`;
 }
 

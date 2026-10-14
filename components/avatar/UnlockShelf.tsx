@@ -5,7 +5,7 @@ import { EMBLEM_OPTIONS } from "@/lib/emblems";
 import Sprite from "@/components/ui/Sprite";
 import { BADGE_ICONS, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 
-const TITRES: Record<UnlockAxis, string> = {
+const AXIS_TITLES: Record<UnlockAxis, string> = {
   frame: "Cadres",
   title: "Titres",
   uniform: "Uniformes",
@@ -21,21 +21,21 @@ interface UnlockShelfProps {
 }
 
 /**
- * Rayon d'objets déblocables pour un axe. Les objets non obtenus restent
+ * Rayon d'items déblocables pour un axe. Les items non obtenus restent
  * visibles, grisés, avec leur condition et la distance restante. Un objet
  * obtenu ne redevient jamais verrouillé : `ctx.owned` (`UserState.unlocks`)
  * le garantit même quand le streak retombe.
  */
 export default function UnlockShelf({ axis, ctx, selected, onSelect }: UnlockShelfProps) {
-  const objets = evaluateUnlocks(ctx).filter((u) => u.def.axis === axis);
+  const items = evaluateUnlocks(ctx).filter((u) => u.def.axis === axis);
 
   return (
     <section className="mb-8">
       <h3 className="mb-3 font-tech text-sm uppercase tracking-widest text-nebula-cyan">
-        {TITRES[axis]}
+        {AXIS_TITLES[axis]}
       </h3>
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-        {objets.map(({ def, unlocked, remaining }) => (
+        {items.map(({ def, unlocked, remaining }) => (
           <button
             key={def.id}
             type="button"

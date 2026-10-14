@@ -11,11 +11,11 @@ import path from "node:path";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const source = path.join(root, "node_modules", "sql.js", "dist");
-const cible = path.join(root, "public", "sql");
+const targetDir = path.join(root, "public", "sql");
 
-await mkdir(cible, { recursive: true });
-for (const fichier of ["sql-wasm.wasm", "sql-wasm-browser.wasm"]) {
-  await copyFile(path.join(source, fichier), path.join(cible, fichier));
+await mkdir(targetDir, { recursive: true });
+for (const file of ["sql-wasm.wasm", "sql-wasm-browser.wasm"]) {
+  await copyFile(path.join(source, file), path.join(targetDir, file));
 }
 
 console.log("[copy-sql-wasm] sql-wasm.wasm + sql-wasm-browser.wasm -> public/sql/");

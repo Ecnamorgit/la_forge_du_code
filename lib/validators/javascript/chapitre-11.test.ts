@@ -10,52 +10,52 @@ import { validators } from "./chapitre-11";
  */
 
 describe("JS chapitre 11 — etape 1 (premier appel)", () => {
-  const valider = validators[0];
+  const validate = validators[0];
 
   it("valide un fetch chaine a un then qui logue", () => {
     const code = `fetch('https://api.codeforge.space/ping')
   .then((r) => console.log(r));`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un fetch sans then", () => {
-    expect(valider(`fetch('https://api.codeforge.space/ping');`).ok).toBe(false);
+    expect(validate(`fetch('https://api.codeforge.space/ping');`).ok).toBe(false);
   });
 
   it("refuse un appel vers une autre URL", () => {
     // Échec ciblé : l'étape nomme explicitement l'endpoint.
     const code = `fetch('https://api.codeforge.space/status')
   .then((r) => console.log(r));`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("JS chapitre 11 — etape 2 (decoder le JSON)", () => {
-  const valider = validators[1];
+  const validate = validators[1];
 
   it("valide deux then dont un json()", () => {
     const code = `fetch('https://api.codeforge.space/vaisseau')
   .then((response) => response.json())
   .then((data) => console.log(data));`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un seul then, sans decodage", () => {
     const code = `fetch('https://api.codeforge.space/vaisseau')
   .then((response) => console.log(response));`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un json() sans second then pour l'exploiter", () => {
     // Échec ciblé : les données sont décodées puis perdues.
     const code = `fetch('https://api.codeforge.space/vaisseau')
   .then((response) => response.json());`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("JS chapitre 11 — etape 3 (passer a async/await)", () => {
-  const valider = validators[2];
+  const validate = validators[2];
 
   it("valide un await sur le fetch et sur le json", () => {
     const code = `async function charger() {
@@ -63,7 +63,7 @@ describe("JS chapitre 11 — etape 3 (passer a async/await)", () => {
   const data = await response.json();
   console.log(data);
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un await sur le fetch seul", () => {
@@ -73,7 +73,7 @@ describe("JS chapitre 11 — etape 3 (passer a async/await)", () => {
   const data = response.json();
   console.log(data);
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse une fonction non async", () => {
@@ -81,12 +81,12 @@ describe("JS chapitre 11 — etape 3 (passer a async/await)", () => {
   const response = fetch('https://api.codeforge.space/vaisseau');
   console.log(response);
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("JS chapitre 11 — etape 4 (gerer la panne)", () => {
-  const valider = validators[3];
+  const validate = validators[3];
 
   const OK = `async function charger() {
   try {
@@ -99,7 +99,7 @@ describe("JS chapitre 11 — etape 4 (gerer la panne)", () => {
 }`;
 
   it("valide un try/catch avec verification de response.ok", () => {
-    const r = valider(OK);
+    const r = validate(OK);
     expect(r.ok).toBe(true);
     expect(r.final).toBe(true);
   });
@@ -114,7 +114,7 @@ describe("JS chapitre 11 — etape 4 (gerer la panne)", () => {
     console.log('Erreur de transmission : ' + e.message);
   }
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un catch au message different de celui demande", () => {
@@ -126,6 +126,6 @@ describe("JS chapitre 11 — etape 4 (gerer la panne)", () => {
     console.log('Oups : ' + e.message);
   }
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db";
-import { compteVerrouille, hashFactice, noterEchecConnexion } from "@/lib/login-guard";
+import { isAccountLocked, dummyHash, recordLoginFailure } from "@/lib/login-guard";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
 import { crossOriginRefusal } from "@/lib/same-origin";
 
@@ -13,8 +13,8 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   // Même compteur que la connexion : cette route confirme un mot de passe
   // correct, et un compteur séparé doublerait le budget de force brute.
@@ -40,8 +40,8 @@ export async function POST(req: Request) {
 
   // Même verrou par compte que la connexion (audit SRV-07), sinon cette route
   // permettrait d'essayer des mots de passe sur un compte verrouillé.
-  if (await compteVerrouille(email)) {
-    await bcrypt.compare(password, await hashFactice());
+  if (await isAccountLocked(email)) {
+    await bcrypt.compare(password, await dummyHash());
     return NextResponse.json({ unverified: false });
   }
 
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   if (!user || !user.password) {
     // Comparaison factice : le temps de réponse ne trahit pas l'existence de
     // l'adresse.
-    await bcrypt.compare(password, await hashFactice());
+    await bcrypt.compare(password, await dummyHash());
     return NextResponse.json({ unverified: false });
   }
 
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     // La page de connexion appelle cette route après un échec déjà compté par
     // `authorize` : on ne compte que le cas où la réponse apprend quelque chose
     // (compte non vérifié).
-    if (!user.emailVerified) await noterEchecConnexion(email);
+    if (!user.emailVerified) await recordLoginFailure(email);
     return NextResponse.json({ unverified: false });
   }
 

@@ -7,9 +7,9 @@ import { z } from "zod";
 
 import { authConfig } from "@/auth.config";
 import { prisma } from "@/lib/db";
-import { compteVerrouille, hashFactice, noterEchecConnexion } from "@/lib/login-guard";
+import { isAccountLocked, dummyHash, recordLoginFailure } from "@/lib/login-guard";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
-import { sessionEstValide } from "@/lib/session-guard";
+import { isSessionValid } from "@/lib/session-guard";
 
 declare module "next-auth" {
   interface Session {
@@ -50,7 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Requêtes suivantes : on refuse le jeton si le mot de passe a changé
       // depuis son émission. Renvoyer null détruit la session.
       if (typeof token.id === "string") {
-        const ok = await sessionEstValide(token.id, token.sessionVersion);
+        const ok = await isSessionValid(token.id, token.sessionVersion);
         if (!ok) return null;
       }
       return token;
@@ -79,7 +79,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Limite par compte (audit SRV-07), contre un attaquant aux IP
         // multiples : après 10 échecs en 15 minutes, même le bon mot de passe
         // est refusé jusqu'à la fin de la fenêtre.
-        if (await compteVerrouille(email)) return null;
+        if (await isAccountLocked(email)) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: email.toLowerCase() },
@@ -97,14 +97,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!user || !user.password) {
           // Comparaison factice : le temps de réponse ne révèle pas que
           // l'adresse n'a pas de compte (audit SRV-07).
-          await bcrypt.compare(password, await hashFactice());
-          await noterEchecConnexion(email);
+          await bcrypt.compare(password, await dummyHash());
+          await recordLoginFailure(email);
           return null;
         }
 
         const ok = await bcrypt.compare(password, user.password);
         if (!ok) {
-          await noterEchecConnexion(email);
+          await recordLoginFailure(email);
           return null;
         }
 

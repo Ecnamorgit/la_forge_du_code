@@ -9,9 +9,9 @@
  * sur la même origine.
  */
 
-const ORIGINE_FICTIVE = "https://origine.invalid";
+const PLACEHOLDER_ORIGIN = "https://origine.invalid";
 
-const ANTISLASH = 0x5c;
+const BACKSLASH = 0x5c;
 const DEL = 0x7f;
 
 /**
@@ -19,23 +19,23 @@ const DEL = 0x7f;
  * (tabulation, retour à la ligne…), qu'il retire des URL : les deux peuvent
  * reformer un `//` après notre contrôle.
  */
-function contientCaractereTrompeur(valeur: string): boolean {
-  for (let i = 0; i < valeur.length; i++) {
-    const code = valeur.charCodeAt(i);
-    if (code < 0x20 || code === DEL || code === ANTISLASH) return true;
+function hasMisleadingCharacter(value: string): boolean {
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code < 0x20 || code === DEL || code === BACKSLASH) return true;
   }
   return false;
 }
 
 export function safeInternalPath(raw: string | null | undefined, fallback = "/dashboard"): string {
-  if (!raw || !raw.startsWith("/") || contientCaractereTrompeur(raw)) return fallback;
+  if (!raw || !raw.startsWith("/") || hasMisleadingCharacter(raw)) return fallback;
 
   let url: URL;
   try {
-    url = new URL(raw, ORIGINE_FICTIVE);
+    url = new URL(raw, PLACEHOLDER_ORIGIN);
   } catch {
     return fallback;
   }
-  if (url.origin !== ORIGINE_FICTIVE) return fallback;
+  if (url.origin !== PLACEHOLDER_ORIGIN) return fallback;
   return `${url.pathname}${url.search}${url.hash}`;
 }

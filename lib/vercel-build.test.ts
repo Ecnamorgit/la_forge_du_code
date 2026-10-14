@@ -11,14 +11,14 @@ import { describe, it, expect } from "vitest";
  * production, avant toute relecture.
  */
 
-const RACINE = process.cwd();
-const SCRIPT = path.join(RACINE, "scripts", "migrer-si-production.mjs");
-const vercel = JSON.parse(fs.readFileSync(path.join(RACINE, "vercel.json"), "utf8")) as {
+const ROOT = process.cwd();
+const SCRIPT = path.join(ROOT, "scripts", "migrer-si-production.mjs");
+const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8")) as {
   buildCommand: string;
 };
 
 /** Lance le script en simulation (il ne touche jamais à Prisma), avec l'environnement donné. */
-function lancer(env: Record<string, string>): string {
+function runScript(env: Record<string, string>): string {
   return execFileSync(process.execPath, [SCRIPT, "--simulation"], {
     env: { ...process.env, VERCEL: "", VERCEL_ENV: "", ...env },
     encoding: "utf8",
@@ -35,14 +35,14 @@ describe("build Vercel : migrations de la base", () => {
   });
 
   it("n'applique pas les migrations sur une préversion", () => {
-    expect(lancer({ VERCEL: "1", VERCEL_ENV: "preview" })).toMatch(/ignorées/);
+    expect(runScript({ VERCEL: "1", VERCEL_ENV: "preview" })).toMatch(/ignorées/);
   });
 
   it("applique les migrations au déploiement de production", () => {
-    expect(lancer({ VERCEL: "1", VERCEL_ENV: "production" })).toMatch(/appliquées/);
+    expect(runScript({ VERCEL: "1", VERCEL_ENV: "production" })).toMatch(/appliquées/);
   });
 
   it("fait échouer le build sur Vercel si VERCEL_ENV est absent, au lieu de sauter les migrations", () => {
-    expect(() => lancer({ VERCEL: "1" })).toThrow();
+    expect(() => runScript({ VERCEL: "1" })).toThrow();
   });
 });

@@ -1,4 +1,4 @@
-// Déploie `main` en production sur Vercel, depuis une copie sans dossier .git.
+// Déploie `main` en production sur Vercel, depuis une copyDir sans dossier .git.
 //
 // Sur le plan Hobby, un dépôt privé ne peut être déployé que si l'auteur du
 // commit est le compte GitHub relié à Vercel, y compris avec `vercel --prod`
@@ -16,14 +16,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const REF = "main";
-const LIEN = join(".vercel", "project.json");
+const LINK_FILE = join(".vercel", "project.json");
 
 function git(args) {
   return execSync(`git ${args}`, { encoding: "utf8" }).trim();
 }
 
-if (!existsSync(LIEN)) {
-  console.error(`Dossier non lié au projet Vercel (${LIEN} absent) : lance d'abord \`npx vercel link\`.`);
+if (!existsSync(LINK_FILE)) {
+  console.error(`Dossier non lié au projet Vercel (${LINK_FILE} absent) : lance d'abord \`npx vercel link\`.`);
   process.exit(1);
 }
 
@@ -38,22 +38,22 @@ if (local !== distant) {
   process.exit(1);
 }
 
-const copie = mkdtempSync(join(tmpdir(), "forge-deploy-"));
+const copyDir = mkdtempSync(join(tmpdir(), "forge-deploy-"));
 try {
   // `git archive` n'emporte que les fichiers suivis : ni .git, ni .env, ni node_modules.
-  const archive = join(copie, "source.tar");
+  const archive = join(copyDir, "source.tar");
   execSync(`git archive --format=tar --output="${archive}" ${REF}`);
-  // Extraction avec un chemin RELATIF, depuis le dossier de la copie : le tar de
+  // Extraction avec un chemin RELATIF, depuis le dossier de la copyDir : le tar de
   // Windows (bsdtar) lirait le `C:` d'un chemin absolu comme un hôte distant
   // (« Cannot connect to C: resolve failed »).
-  execSync("tar -xf source.tar", { cwd: copie });
+  execSync("tar -xf source.tar", { cwd: copyDir });
   rmSync(archive);
-  mkdirSync(join(copie, ".vercel"));
-  cpSync(LIEN, join(copie, LIEN));
+  mkdirSync(join(copyDir, ".vercel"));
+  cpSync(LINK_FILE, join(copyDir, LINK_FILE));
 
-  console.log(`Déploiement de ${REF} (${local.slice(0, 7)}) en production, depuis ${copie}`);
+  console.log(`Déploiement de ${REF} (${local.slice(0, 7)}) en production, depuis ${copyDir}`);
   const res = spawnSync("npx", ["vercel", "--prod", "--yes"], {
-    cwd: copie,
+    cwd: copyDir,
     stdio: "inherit",
     shell: true,
   });
@@ -63,8 +63,8 @@ try {
   // fin de la CLI : on réessaie, et un échec de nettoyage n'annule pas un
   // déploiement réussi — on le signale seulement.
   try {
-    rmSync(copie, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
+    rmSync(copyDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
   } catch (err) {
-    console.warn(`Copie temporaire non supprimée (${err.code ?? err.message}) : ${copie}`);
+    console.warn(`Copie temporaire non supprimée (${err.code ?? err.message}) : ${copyDir}`);
   }
 }

@@ -12,7 +12,7 @@ import {
   playSystemOnline,
 } from "@/lib/audio";
 import { runJs } from "@/lib/sandbox/run-js";
-import { protegerScriptsHtml } from "@/lib/sandbox/loop-protect";
+import { guardHtmlScripts } from "@/lib/sandbox/loop-protect";
 import { SANDBOX_HTML_PATH, sandboxOriginFor } from "@/lib/sandbox/sandbox-origin";
 import { runSql, type SqlRunOptions } from "@/lib/sandbox/run-sql";
 import type { SqlQueryResult } from "@/data/courses/html/types";
@@ -117,8 +117,8 @@ export default function ChapterWorkspace({
   // hériterait de la CSP du site. `src` est résolu après le montage :
   // `sandboxOriginFor` a besoin de `window.location.origin`, et le calculer au
   // rendu créerait un écart d'hydratation.
-  const htmlPretRef = useRef(false);
-  const htmlEnAttenteRef = useRef<string | null>(null);
+  const htmlReadyRef = useRef(false);
+  const pendingHtmlRef = useRef<string | null>(null);
   const [htmlSandboxSrc, setHtmlSandboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
@@ -129,13 +129,13 @@ export default function ChapterWorkspace({
 
   /** Poste le HTML à la coquille, ou le met en file tant qu'elle n'est pas prête. */
   const posterHtml = useCallback((html: string) => {
-    const fenetre = iframeRef.current?.contentWindow;
-    if (htmlPretRef.current && fenetre) {
+    const targetWindow = iframeRef.current?.contentWindow;
+    if (htmlReadyRef.current && targetWindow) {
       // Coquille à origine opaque : "*" est la seule cible ; elle vérifie
       // `event.source === parent`. Le HTML n'est pas un secret.
-      fenetre.postMessage({ type: "html:render", html }, "*");
+      targetWindow.postMessage({ type: "html:render", html }, "*");
     } else {
-      htmlEnAttenteRef.current = html;
+      pendingHtmlRef.current = html;
     }
   }, []);
 
@@ -145,11 +145,11 @@ export default function ChapterWorkspace({
     const onMessage = (event: MessageEvent) => {
       if (event.source !== iframeRef.current?.contentWindow) return;
       if ((event.data as { type?: string } | null)?.type !== "html:ready") return;
-      htmlPretRef.current = true;
-      const enFile = htmlEnAttenteRef.current;
-      if (enFile !== null) {
-        htmlEnAttenteRef.current = null;
-        posterHtml(enFile);
+      htmlReadyRef.current = true;
+      const queued = pendingHtmlRef.current;
+      if (queued !== null) {
+        pendingHtmlRef.current = null;
+        posterHtml(queued);
       }
     };
     window.addEventListener("message", onMessage);
@@ -173,7 +173,7 @@ export default function ChapterWorkspace({
 
   useEffect(() => {
     if (isHtml) {
-      posterHtml(protegerScriptsHtml(step.startCode));
+      posterHtml(guardHtmlScripts(step.startCode));
     }
   }, [isHtml, step.startCode, posterHtml]);
 
@@ -239,7 +239,7 @@ export default function ChapterWorkspace({
     } else {
       // Les boucles des scripts de l'apprenant sont interrompues au lieu de
       // figer l'onglet (audit EXE-02).
-      posterHtml(protegerScriptsHtml(code));
+      posterHtml(guardHtmlScripts(code));
       result = validate(code);
     }
 

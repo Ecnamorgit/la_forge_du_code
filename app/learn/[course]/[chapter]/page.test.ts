@@ -21,7 +21,7 @@ vi.mock("./ChapterClient", () => ({ default: () => null }));
 
 import ChapterPage from "./page";
 
-const ouvrir = (course: string, chapter: string) =>
+const openChapter = (course: string, chapter: string) =>
   ChapterPage({ params: Promise.resolve({ course, chapter }) });
 
 describe("page chapitre, sans compter sur le proxy", () => {
@@ -30,19 +30,19 @@ describe("page chapitre, sans compter sur le proxy", () => {
   });
 
   it("renvoie vers la connexion un visiteur sans session sur un chapitre protégé", async () => {
-    await expect(ouvrir("html", "chapitre-5")).rejects.toThrow("NEXT_REDIRECT:/login");
+    await expect(openChapter("html", "chapitre-5")).rejects.toThrow("NEXT_REDIRECT:/login");
   });
 
   it("renvoie vers la connexion un visiteur sans session sur un autre cursus", async () => {
-    await expect(ouvrir("css", "chapitre-1")).rejects.toThrow("NEXT_REDIRECT:/login");
+    await expect(openChapter("css", "chapitre-1")).rejects.toThrow("NEXT_REDIRECT:/login");
   });
 
   it("sert un chapitre d'essai sans session", async () => {
-    await expect(ouvrir("html", "chapitre-1")).resolves.toBeTruthy();
+    await expect(openChapter("html", "chapitre-1")).resolves.toBeTruthy();
   });
 
   it("sert un chapitre protégé à un compte connecté", async () => {
     session.value = { user: { id: "cadet" } };
-    await expect(ouvrir("html", "chapitre-5")).resolves.toBeTruthy();
+    await expect(openChapter("html", "chapitre-5")).resolves.toBeTruthy();
   });
 });

@@ -36,11 +36,11 @@ export const validators: Validator[] = [
     }
     // On retire la déstructuration avant de chercher l'affichage : elle s'écrit
     // elle-même `{ id }` et validerait un code qui ne rend jamais le paramètre.
-    const sansDestructuration = c.replace(
+    const withoutDestructuring = c.replace(
       /(?:const|let|var)\s*\{\s*id\s*\}\s*=\s*useParams\s*\(\s*\)\s*;?/,
       ""
     );
-    if (!/\{\s*id\s*\}/.test(sansDestructuration)) {
+    if (!/\{\s*id\s*\}/.test(withoutDestructuring)) {
       return fail("Affiche l'id lu depuis l'URL : <div>Vaisseau : {id}</div>.");
     }
     return pass("URL décodée.", ["o3a", "o3b"]);

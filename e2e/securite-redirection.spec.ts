@@ -12,22 +12,22 @@ import { STORAGE_STATE } from "./global-setup";
 
 test.use({ storageState: STORAGE_STATE });
 
-const PIEGE = "https://piege.invalid/";
+const TRAP_URL = "https://piege.invalid/";
 
 test("après l'enregistrement de l'avatar, un lien piégé ne fait pas quitter le site", async ({
   page,
   baseURL,
 }) => {
-  await page.route(`${PIEGE}**`, (route) =>
+  await page.route(`${TRAP_URL}**`, (route) =>
     route.fulfill({ contentType: "text/html", body: "<h1>Site piege</h1>" })
   );
 
-  await page.goto(`/avatar?from=${encodeURIComponent(PIEGE)}`);
+  await page.goto(`/avatar?from=${encodeURIComponent(TRAP_URL)}`);
 
   // En mode édition, le lien « Annuler » reprend la même destination.
-  const annuler = page.getByRole("link", { name: "Annuler" });
-  if (await annuler.count()) {
-    expect.soft(await annuler.getAttribute("href")).not.toContain("piege");
+  const cancelLink = page.getByRole("link", { name: "Annuler" });
+  if (await cancelLink.count()) {
+    expect.soft(await cancelLink.getAttribute("href")).not.toContain("piege");
   }
 
   await page.getByRole("button", { name: /Confirmer et embarquer|Sauvegarder/ }).click();

@@ -23,8 +23,8 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   const session = await auth();
   if (!session?.user?.id) {
@@ -54,10 +54,10 @@ export async function POST(req: Request) {
   const { course, chapter, stepIndex, code } = parsed.data;
 
   // Une étape ne se déclare pas : il faut la solution qui la valide.
-  const preuve = verifyStepProof(course, chapter, stepIndex, code);
-  if (!preuve.ok) {
+  const proof = verifyStepProof(course, chapter, stepIndex, code);
+  if (!proof.ok) {
     logger.warn("step_refused", { reason: "proof", course, chapter, stepIndex });
-    return NextResponse.json({ error: preuve.reason }, { status: 422 });
+    return NextResponse.json({ error: proof.reason }, { status: 422 });
   }
 
   try {

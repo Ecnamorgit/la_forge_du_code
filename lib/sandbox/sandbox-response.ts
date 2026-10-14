@@ -9,15 +9,15 @@
  * Ces routes sont exclues des en-têtes globaux de `next.config.ts`.
  */
 
-import { appOriginsForSandbox, originDeLaRequete } from "./sandbox-origin";
+import { appOriginsForSandbox, requestOrigin } from "./sandbox-origin";
 
 /**
  * CSP d'un document du bac à sable. Les origines autorisées à l'encadrer sont
  * dérivées de la requête (`appOriginsForSandbox`) : aucune origine de
  * développement n'est livrée en production.
  */
-export function cspBacASable(req: { headers: Headers; url: string }): string {
-  const ancetres = appOriginsForSandbox(originDeLaRequete(req));
+export function sandboxCsp(req: { headers: Headers; url: string }): string {
+  const ancestors = appOriginsForSandbox(requestOrigin(req));
   return [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'",
@@ -29,16 +29,16 @@ export function cspBacASable(req: { headers: Headers; url: string }): string {
     "base-uri 'none'",
     "object-src 'none'",
     "form-action 'none'",
-    `frame-ancestors ${ancetres.length > 0 ? ancetres.join(" ") : "'none'"}`,
+    `frame-ancestors ${ancestors.length > 0 ? ancestors.join(" ") : "'none'"}`,
   ].join("; ");
 }
 
 /** Réponse HTML d'un document du bac à sable, avec sa CSP dédiée. */
-export function reponseBacASable(html: string, req: { headers: Headers; url: string }): Response {
+export function sandboxResponse(html: string, req: { headers: Headers; url: string }): Response {
   return new Response(html, {
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Content-Security-Policy": cspBacASable(req),
+      "Content-Security-Policy": sandboxCsp(req),
       "X-Content-Type-Options": "nosniff",
       "Cache-Control": "no-store",
     },

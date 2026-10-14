@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { validators } from "./chapitre-6";
-import { chapitre6 } from "@/data/courses/react/chapitre-6";
+import { chapter6 } from "@/data/courses/react/chapitre-6";
 
 describe("React chapitre 6 — etape 1 (input controle, piege Spectre)", () => {
   const v = validators[0];
@@ -321,7 +321,7 @@ describe("React chapitre 6 — etape 4 (disabled derive de l'etat)", () => {
 
 describe("React chapitre 6 — hints valides par leur propre validateur", () => {
   it("chaque hint passe son propre validateur", () => {
-    chapitre6.steps.forEach((step, i) => {
+    chapter6.steps.forEach((step, i) => {
       const r = validators[i](step.hint);
       expect(r.ok, `hint etape ${i + 1} rejete : ${!r.ok ? r.msg : ""}`).toBe(true);
     });

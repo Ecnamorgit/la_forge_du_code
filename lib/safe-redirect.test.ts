@@ -5,8 +5,8 @@ import { safeInternalPath } from "./safe-redirect";
 describe("safeInternalPath", () => {
   it.each(["/dashboard", "/profil", "/learn/html/chapitre-2", "/profil?onglet=badges#cadre"])(
     "garde le chemin interne %s",
-    (chemin) => {
-      expect(safeInternalPath(chemin)).toBe(chemin);
+    (inputPath) => {
+      expect(safeInternalPath(inputPath)).toBe(inputPath);
     }
   );
 
@@ -21,8 +21,8 @@ describe("safeInternalPath", () => {
     ["tabulation qui reforme //", "/\t/piege.example"],
     ["retour à la ligne qui reforme //", "/\n/piege.example"],
     ["schéma javascript", "javascript:alert(1)"],
-  ])("rejette %s", (_cas, valeur) => {
-    expect(safeInternalPath(valeur)).toBe("/dashboard");
+  ])("rejette %s", (_label, value) => {
+    expect(safeInternalPath(value)).toBe("/dashboard");
   });
 
   it("utilise la destination de repli fournie", () => {

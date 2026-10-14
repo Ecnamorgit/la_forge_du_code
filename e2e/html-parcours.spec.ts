@@ -8,7 +8,7 @@ import { E2E_USER, STORAGE_STATE } from "./global-setup";
  * Efface la progression du compte e2e sur un chapitre : l'interface ouvre la
  * première étape non faite, et le compte est partagé entre tests et specs.
  */
-async function repartirDuDebut(course: string, chapter: string): Promise<void> {
+async function resetProgress(course: string, chapter: string): Promise<void> {
   assertTestDatabaseUrl(process.env.DATABASE_URL);
   const client = new Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
@@ -59,21 +59,21 @@ test.describe("aperçu HTML sur l'origine dédiée", () => {
   test.use({ storageState: STORAGE_STATE });
 
   test("l'aperçu HTML est rendu depuis une origine distincte", async ({ page }) => {
-  await repartirDuDebut("html", "chapitre-1");
+  await resetProgress("html", "chapitre-1");
   await page.goto("/learn/html/chapitre-1");
   await expect(page.locator(".monaco-editor").first()).toBeVisible({ timeout: 30_000 });
 
-  const apercu = page.locator('iframe[title="Apercu"]');
-  await expect(apercu).toHaveCount(1);
-  const src = await apercu.getAttribute("src");
+  const preview = page.locator('iframe[title="Apercu"]');
+  await expect(preview).toHaveCount(1);
+  const src = await preview.getAttribute("src");
   expect(src, "l'aperçu doit être chargé par src, plus par srcDoc").not.toBeNull();
-  const origineApercu = new URL(src!).origin;
-  const origineApp = new URL(page.url()).origin;
+  const previewOrigin = new URL(src!).origin;
+  const appOrigin = new URL(page.url()).origin;
   expect(new URL(src!).pathname).toBe("/bac-a-sable/html");
   expect(
-    origineApercu,
-    `l'aperçu (${origineApercu}) doit être servi depuis une autre origine que l'app (${origineApp})`
-  ).not.toBe(origineApp);
+    previewOrigin,
+    `l'aperçu (${previewOrigin}) doit être servi depuis une autre origine que l'app (${appOrigin})`
+  ).not.toBe(appOrigin);
 
   // Sans <!DOCTYPE>, ce HTML se rend sans valider l'étape : seul le rendu
   // est vérifié ici.
@@ -93,7 +93,7 @@ test("chapitre 1 HTML : jouable de bout en bout jusqu'à la complétion", async 
   page,
 }) => {
   // Indépendant de ce qui a tourné avant sur ce compte partagé.
-  await repartirDuDebut("html", "chapitre-1");
+  await resetProgress("html", "chapitre-1");
   await login(page);
   await page.goto("/learn/html/chapitre-1");
 

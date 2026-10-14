@@ -8,12 +8,12 @@ import {
 } from "./conduct-badges";
 import type { CompletionRecord } from "./quests";
 
-function step(course: string, jour: string, heure = "10"): CompletionRecord {
+function step(course: string, day: string, hour = "10"): CompletionRecord {
   return {
     course,
     chapter: "chapitre-1",
     stepIndex: 0,
-    completedAt: `${jour}T${heure}:00:00.000Z`,
+    completedAt: `${day}T${hour}:00:00.000Z`,
   };
 }
 
@@ -30,9 +30,9 @@ function ctx(p: Partial<ConductContext> = {}): ConductContext {
 
 describe("CONDUCT_BADGES", () => {
   it("n'entre jamais en collision avec les badges de cursus", () => {
-    const cursus = new Set(BADGES.map((b) => b.id));
+    const courseBadgeIds = new Set(BADGES.map((b) => b.id));
     for (const c of CONDUCT_BADGES) {
-      expect(cursus.has(c.id)).toBe(false);
+      expect(courseBadgeIds.has(c.id)).toBe(false);
     }
   });
 

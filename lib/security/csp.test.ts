@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildCsp, cspDirectives, scriptSrc, tokensDeDirective } from "./csp";
+import { buildCsp, cspDirectives, scriptSrc, directiveTokens } from "./csp";
 
 const NONCE = "abc123==";
 const SANDBOX = "https://bac-a-sable.laforgeducode.fr";
@@ -8,40 +8,40 @@ const SANDBOX = "https://bac-a-sable.laforgeducode.fr";
 const PROD = { nonce: NONCE, sandboxOrigin: SANDBOX };
 
 /** Message d'échec : rappelle pourquoi `script-src` doit rester strict. */
-const POURQUOI =
+const WHY =
   "Le code des apprenants s'exécute depuis une origine dédiée (/bac-a-sable*, " +
   "lib/sandbox/sandbox-response.ts), qui porte seule la CSP permissive. " +
   "script-src doit donc rester à nonce + 'strict-dynamic', sans 'unsafe-inline' " +
   "ni 'unsafe-eval'. Voir docs/audit-securite/corrections/EXE-03.md.";
 
 describe("CSP — script-src (production)", () => {
-  const script = () => tokensDeDirective(cspDirectives(PROD), "script-src");
+  const script = () => directiveTokens(cspDirectives(PROD), "script-src");
 
   it("porte le nonce de la requête", () => {
-    expect(script(), POURQUOI).toContain(`'nonce-${NONCE}'`);
+    expect(script(), WHY).toContain(`'nonce-${NONCE}'`);
   });
 
   it("porte 'strict-dynamic'", () => {
-    expect(script(), POURQUOI).toContain("'strict-dynamic'");
+    expect(script(), WHY).toContain("'strict-dynamic'");
   });
 
   it("porte 'wasm-unsafe-eval' (sql.js dans un Worker)", () => {
     // WebAssembly seule, pas eval : retirer casserait le cursus SQL.
-    expect(script(), POURQUOI).toContain("'wasm-unsafe-eval'");
+    expect(script(), WHY).toContain("'wasm-unsafe-eval'");
   });
 
   it("ne porte PAS 'unsafe-inline' — le cœur du constat EXE-03", () => {
-    expect(script(), POURQUOI).not.toContain("'unsafe-inline'");
+    expect(script(), WHY).not.toContain("'unsafe-inline'");
   });
 
   it("ne porte PAS 'unsafe-eval' en production", () => {
-    expect(script(), POURQUOI).not.toContain("'unsafe-eval'");
+    expect(script(), WHY).not.toContain("'unsafe-eval'");
   });
 });
 
 describe("CSP — script-src (développement)", () => {
   it("ajoute 'unsafe-eval' en dev (React l'utilise pour le débogage)", () => {
-    const dev = tokensDeDirective(cspDirectives({ ...PROD, isDev: true }), "script-src");
+    const dev = directiveTokens(cspDirectives({ ...PROD, isDev: true }), "script-src");
     expect(dev).toContain("'unsafe-eval'");
     // mais jamais 'unsafe-inline', même en dev.
     expect(dev).not.toContain("'unsafe-inline'");
@@ -55,7 +55,7 @@ describe("CSP — script-src (développement)", () => {
 
 describe("CSP — encadrement des aperçus", () => {
   it("frame-src n'autorise que 'self' et l'origine du bac à sable de la requête", () => {
-    const frame = tokensDeDirective(cspDirectives(PROD), "frame-src");
+    const frame = directiveTokens(cspDirectives(PROD), "frame-src");
     expect(frame).toEqual(["'self'", SANDBOX]);
   });
 
@@ -66,7 +66,7 @@ describe("CSP — encadrement des aperçus", () => {
   });
 
   it("en local, frame-src porte l'autre hôte local, pas le sous-domaine", () => {
-    const frame = tokensDeDirective(
+    const frame = directiveTokens(
       cspDirectives({ nonce: NONCE, sandboxOrigin: "http://127.0.0.1:3000" }),
       "frame-src"
     );
@@ -74,7 +74,7 @@ describe("CSP — encadrement des aperçus", () => {
   });
 
   it("l'application elle-même ne peut pas être encadrée", () => {
-    const anc = tokensDeDirective(cspDirectives(PROD), "frame-ancestors");
+    const anc = directiveTokens(cspDirectives(PROD), "frame-ancestors");
     expect(anc).toEqual(["'none'"]);
   });
 });
@@ -91,18 +91,18 @@ describe("tokensDeDirective", () => {
   const directives = cspDirectives(PROD);
 
   it("isole les tokens d'une directive sans son nom", () => {
-    expect(tokensDeDirective(directives, "object-src")).toEqual(["'none'"]);
+    expect(directiveTokens(directives, "object-src")).toEqual(["'none'"]);
   });
 
   it("isole style-src de script-src", () => {
     // style-src garde 'unsafe-inline' ; le test de script-src ci-dessus ne
     // doit pas passer au vert grâce à cette présence dans style-src.
-    expect(tokensDeDirective(directives, "style-src")).toEqual(["'self'", "'unsafe-inline'"]);
+    expect(directiveTokens(directives, "style-src")).toEqual(["'self'", "'unsafe-inline'"]);
   });
 
   it("ne confond pas une directive avec une autre au préfixe commun", () => {
     // `script-src-elem` commence par `script-src` : demander l'une ne doit
     // jamais renvoyer les tokens de l'autre.
-    expect(tokensDeDirective(directives, "script-src-elem")).toEqual([]);
+    expect(directiveTokens(directives, "script-src-elem")).toEqual([]);
   });
 });

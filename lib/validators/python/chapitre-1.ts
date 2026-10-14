@@ -27,8 +27,8 @@ export const validators: Validator[] = [
     }
     // On retire la déclaration avant de chercher un appel : elle contient
     // elle-même « calculer_xp( » et validerait une fonction jamais appelée.
-    const sansDeclaration = c.replace(/def\s+calculer_xp\s*\([^)]*\)\s*:/, "");
-    if (!/calculer_xp\s*\(/.test(sansDeclaration) || !/print\s*\(/.test(c)) {
+    const withoutDeclaration = c.replace(/def\s+calculer_xp\s*\([^)]*\)\s*:/, "");
+    if (!/calculer_xp\s*\(/.test(withoutDeclaration) || !/print\s*\(/.test(c)) {
       return fail("Appelle calculer_xp(5, 20) et affiche le resultat avec print.");
     }
     return pass("Fonction créée.", ["o2a", "o2b"]);

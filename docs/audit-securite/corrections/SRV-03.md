@@ -52,5 +52,5 @@ Note sur `securite-session.spec.ts` : il s'authentifie par l'API avec une adress
 ## Risque résiduel
 
 - **Le middleware ne révoque pas.** Il ne lit pas la base (edge). Une session révoquée franchit encore le middleware, mais est refusée dès qu'une route ou une page appelle `auth()` — c'est-à-dire à tout accès réel à des données. Aucun contenu sensible n'est servi sur le seul passage du middleware (voir SRV-10).
-- **Coût** : chaque vérification de session fait une lecture indexée par clé primaire. En cas de panne de base, `sessionEstValide` répond `true` (fail-open) : la révocation est différée le temps de la panne, plutôt que de déconnecter tout le monde.
+- **Coût** : chaque vérification de session fait une lecture indexée par clé primaire. En cas de panne de base, `isSessionValid` répond `true` (fail-open) : la révocation est différée le temps de la panne, plutôt que de déconnecter tout le monde.
 - **La suppression de compte** (`DELETE /api/me`) supprime la ligne `User` : la session suivante trouve un compte absent et reçoit 401.

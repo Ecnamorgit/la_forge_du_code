@@ -29,19 +29,19 @@ export function checkStepOrder(
   if (position === -1) return { ok: false, reason: "Chapitre hors du parcours." };
 
   if (stepIndex > 0) {
-    const precedenteFaite = done.some(
+    const previousDone = done.some(
       (d) => d.chapter === chapter && d.stepIndex === stepIndex - 1
     );
-    return precedenteFaite
+    return previousDone
       ? { ok: true }
       : { ok: false, reason: "Termine d'abord l'étape précédente." };
   }
 
   if (position === 0) return { ok: true };
 
-  const precedent = chapters[position - 1];
-  const faites = done.filter((d) => d.chapter === precedent.slug).length;
-  return faites >= precedent.totalSteps
+  const previousChapter = chapters[position - 1];
+  const doneCount = done.filter((d) => d.chapter === previousChapter.slug).length;
+  return doneCount >= previousChapter.totalSteps
     ? { ok: true }
     : { ok: false, reason: "Termine d'abord le chapitre précédent." };
 }

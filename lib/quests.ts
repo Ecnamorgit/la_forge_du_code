@@ -119,8 +119,8 @@ function chaptersInProgress(
   ctx: QuestContext
 ): { course: string; chapter: string; done: number; total: number }[] {
   const out: { course: string; chapter: string; done: number; total: number }[] = [];
-  for (const [course, chapitres] of Object.entries(ctx.chaptersByCourse)) {
-    for (const ch of chapitres) {
+  for (const [course, courseChapters] of Object.entries(ctx.chaptersByCourse)) {
+    for (const ch of courseChapters) {
       const done = stepsDone(ctx.past, course, ch.slug);
       if (done > 0 && done < ch.totalSteps) {
         out.push({ course, chapter: ch.slug, done, total: ch.totalSteps });
@@ -161,13 +161,13 @@ const ARCHETYPES: Archetype[] = [
     id: "boucler-chapitre",
     slot: "effort",
     feasible: (ctx) => {
-      const cible = chaptersInProgress(ctx).find((c) => c.done / c.total >= 0.5);
-      if (!cible) return null;
+      const target = chaptersInProgress(ctx).find((c) => c.done / c.total >= 0.5);
+      if (!target) return null;
       return {
-        course: cible.course,
-        chapter: cible.chapter,
-        target: cible.total - cible.done,
-        name: cible.chapter.replace("chapitre-", "chapitre "),
+        course: target.course,
+        chapter: target.chapter,
+        target: target.total - target.done,
+        name: target.chapter.replace("chapitre-", "chapitre "),
       };
     },
     label: (p) => `Boucle le ${p.name} de ${p.course?.toUpperCase()}`,
@@ -185,13 +185,13 @@ const ARCHETYPES: Archetype[] = [
     id: "serie-chapitre",
     slot: "effort",
     feasible: (ctx) => {
-      const cible = chaptersInProgress(ctx).find((c) => c.total - c.done >= 3);
-      if (!cible) return null;
+      const target = chaptersInProgress(ctx).find((c) => c.total - c.done >= 3);
+      if (!target) return null;
       return {
-        course: cible.course,
-        chapter: cible.chapter,
+        course: target.course,
+        chapter: target.chapter,
         target: 3,
-        name: cible.chapter.replace("chapitre-", "chapitre "),
+        name: target.chapter.replace("chapitre-", "chapitre "),
       };
     },
     label: (p) => `3 étapes dans le ${p.name} de ${p.course?.toUpperCase()}`,
@@ -216,9 +216,9 @@ const ARCHETYPES: Archetype[] = [
         .map((course) => ({ course, last: lastDayOfCourse(ctx.past, course) }))
         .filter((c) => c.last !== null && daysSince(c.last, ctx.todayIso) >= DORMANT_DAYS)
         .sort((a, b) => a.course.localeCompare(b.course));
-      const cible = dormants[0];
-      if (!cible) return null;
-      return { course: cible.course, chapter: null, target: 1, name: cible.course.toUpperCase() };
+      const target = dormants[0];
+      if (!target) return null;
+      return { course: target.course, chapter: null, target: 1, name: target.course.toUpperCase() };
     },
     label: (p) => `Reprends ${p.name}, délaissé depuis une semaine`,
     progress: (p, today) => today.filter((r) => r.course === p.course).length,
@@ -227,12 +227,12 @@ const ARCHETYPES: Archetype[] = [
     id: "premiere-fois",
     slot: "curiosite",
     feasible: (ctx) => {
-      const touches = coursesTouched(ctx.past);
-      const vierge = Object.keys(ctx.chaptersByCourse)
-        .filter((c) => !touches.has(c))
+      const touched = coursesTouched(ctx.past);
+      const untouched = Object.keys(ctx.chaptersByCourse)
+        .filter((c) => !touched.has(c))
         .sort()[0];
-      if (!vierge) return null;
-      return { course: vierge, chapter: null, target: 1, name: vierge.toUpperCase() };
+      if (!untouched) return null;
+      return { course: untouched, chapter: null, target: 1, name: untouched.toUpperCase() };
     },
     label: (p) => `Ouvre le cursus ${p.name}`,
     progress: (p, today) => today.filter((r) => r.course === p.course).length,
@@ -261,14 +261,14 @@ export function buildBriefing(ctx: QuestContext): Briefing {
   const quests: Quest[] = [];
 
   for (const slot of SLOTS) {
-    const candidats = ARCHETYPES.filter((a) => a.slot === slot)
+    const candidates = ARCHETYPES.filter((a) => a.slot === slot)
       .map((a) => ({ a, p: a.feasible(ctx) }))
       .filter((c): c is { a: Archetype; p: Params } => c.p !== null);
 
-    if (candidats.length === 0) continue;
+    if (candidates.length === 0) continue;
 
-    const index = hash(`${ctx.userId}:${ctx.todayIso}:${slot}`) % candidats.length;
-    const { a, p } = candidats[index];
+    const index = hash(`${ctx.userId}:${ctx.todayIso}:${slot}`) % candidates.length;
+    const { a, p } = candidates[index];
     const progress = Math.min(a.progress(p, ctx.today), p.target);
 
     quests.push({

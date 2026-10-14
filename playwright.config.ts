@@ -7,7 +7,7 @@ import { defineConfig, devices } from "@playwright/test";
  * comme la CI. En local, `pnpm start` exige aussi une APP_URL https
  * non-localhost et une RESEND_API_KEY (`lib/env.ts`), d'où l'interrupteur.
  */
-const enProduction = process.env.E2E_PROD === "1";
+const isProduction = process.env.E2E_PROD === "1";
 
 /**
  * Tests e2e. `e2e/global-setup.ts` crée l'utilisateur vérifié. En local, il
@@ -32,10 +32,10 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: enProduction ? "pnpm build && pnpm start" : "pnpm dev",
+    command: isProduction ? "pnpm build && pnpm start" : "pnpm dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     // Le build de production s'ajoute au démarrage : 2 min ne suffisent pas.
-    timeout: enProduction ? 300_000 : 120_000,
+    timeout: isProduction ? 300_000 : 120_000,
   },
 });

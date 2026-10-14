@@ -20,22 +20,22 @@ const STRIP_STRINGS = /(['"`])(?:\\.|(?!\1)[^\\])*\1/g;
 const STRIP_COMMENTS = /\/\*[\s\S]*?\*\/|\/\/[^\n]*/g;
 
 /** Motifs de condition toujours vraie, dans une boucle. */
-const MOTIFS: readonly { re: RegExp; forme: string }[] = [
-  { re: /\bwhile\s*\(\s*true\s*\)/, forme: "while (true)" },
-  { re: /\bwhile\s*\(\s*1\s*\)/, forme: "while (1)" },
-  { re: /\bwhile\s*\(\s*!\s*(?:0|false)\s*\)/, forme: "while (!0)" },
-  { re: /\bfor\s*\(\s*;\s*;\s*\)/, forme: "for (;;)" },
-  { re: /\bfor\s*\(\s*[^;]*;\s*true\s*;/, forme: "for (… ; true ; …)" },
+const PATTERNS: readonly { re: RegExp; snippet: string }[] = [
+  { re: /\bwhile\s*\(\s*true\s*\)/, snippet: "while (true)" },
+  { re: /\bwhile\s*\(\s*1\s*\)/, snippet: "while (1)" },
+  { re: /\bwhile\s*\(\s*!\s*(?:0|false)\s*\)/, snippet: "while (!0)" },
+  { re: /\bfor\s*\(\s*;\s*;\s*\)/, snippet: "for (;;)" },
+  { re: /\bfor\s*\(\s*[^;]*;\s*true\s*;/, snippet: "for (… ; true ; …)" },
 ];
 
 /**
- * Renvoie la forme littérale détectée, ou null. Les chaînes sont retirées
+ * Renvoie la snippet littérale détectée, ou null. Les chaînes sont retirées
  * avant analyse : `console.log("while (true)")` n'est pas une boucle.
  */
-export function detecterBoucleInfinie(code: string): string | null {
-  const nettoye = code.replace(STRIP_COMMENTS, " ").replace(STRIP_STRINGS, '""');
-  for (const { re, forme } of MOTIFS) {
-    if (re.test(nettoye)) return forme;
+export function detectInfiniteLoop(code: string): string | null {
+  const stripped = code.replace(STRIP_COMMENTS, " ").replace(STRIP_STRINGS, '""');
+  for (const { re, snippet } of PATTERNS) {
+    if (re.test(stripped)) return snippet;
   }
   return null;
 }
@@ -45,9 +45,9 @@ export function detecterBoucleInfinie(code: string): string | null {
  * conditionnel : `while (true) { … break; }` est légitime mais refusé quand
  * même, le détecteur ne sachant pas lire un `break`.
  */
-export function messageBoucleInfinie(forme: string): string {
+export function infiniteLoopMessage(snippet: string): string {
   return (
-    `Déploiement refusé : ${forme} risque de ne jamais se terminer. ` +
+    `Déploiement refusé : ${snippet} risque de ne jamais se terminer. ` +
     "Une boucle sans fin fige l'onglet entier, aperçu compris, et il faudrait " +
     "recharger la page — l'aperçu ne peut pas s'en remettre tout seul. " +
     "Donne-lui une condition d'arrêt visible, puis redéploie."

@@ -3,18 +3,18 @@ import { describe, it, expect } from "vitest";
 import {
   UnsafeE2eDatabaseError,
   UnsafeE2eTargetError,
-  VARIABLE_ECHAPPEMENT,
-  VARIABLE_ECHAPPEMENT_APP,
+  DB_OVERRIDE_VARIABLE,
+  APP_OVERRIDE_VARIABLE,
   assertLocalAppUnderTest,
   assertTestDatabaseUrl,
 } from "./e2e-db-guard";
 
-const SANS_ECHAPPEMENT: Record<string, string | undefined> = {};
-const AVEC_ECHAPPEMENT: Record<string, string | undefined> = {
-  [VARIABLE_ECHAPPEMENT]: "1",
+const WITHOUT_OVERRIDE: Record<string, string | undefined> = {};
+const WITH_OVERRIDE: Record<string, string | undefined> = {
+  [DB_OVERRIDE_VARIABLE]: "1",
 };
 
-function refuse(url: string | undefined, env = SANS_ECHAPPEMENT) {
+function refuse(url: string | undefined, env = WITHOUT_OVERRIDE) {
   expect(() => assertTestDatabaseUrl(url, env)).toThrow(UnsafeE2eDatabaseError);
 }
 
@@ -23,7 +23,7 @@ describe("assertTestDatabaseUrl — ce qui passe", () => {
     expect(() =>
       assertTestDatabaseUrl(
         "postgresql://postgres:test@localhost:5432/codeforge_test",
-        SANS_ECHAPPEMENT
+        WITHOUT_OVERRIDE
       )
     ).not.toThrow();
   });
@@ -31,16 +31,16 @@ describe("assertTestDatabaseUrl — ce qui passe", () => {
   it("accepte l'URL du service Postgres de la CI", () => {
     // .github/workflows/ci.yml, job e2e. La garde ne doit pas casser la CI.
     expect(() =>
-      assertTestDatabaseUrl("postgresql://ci:ci@localhost:5432/ci", SANS_ECHAPPEMENT)
+      assertTestDatabaseUrl("postgresql://ci:ci@localhost:5432/ci", WITHOUT_OVERRIDE)
     ).not.toThrow();
   });
 
   it("accepte 127.0.0.1 et ::1", () => {
     expect(() =>
-      assertTestDatabaseUrl("postgres://u:p@127.0.0.1:5432/app", SANS_ECHAPPEMENT)
+      assertTestDatabaseUrl("postgres://u:p@127.0.0.1:5432/app", WITHOUT_OVERRIDE)
     ).not.toThrow();
     expect(() =>
-      assertTestDatabaseUrl("postgres://u:p@[::1]:5432/app", SANS_ECHAPPEMENT)
+      assertTestDatabaseUrl("postgres://u:p@[::1]:5432/app", WITHOUT_OVERRIDE)
     ).not.toThrow();
   });
 
@@ -48,7 +48,7 @@ describe("assertTestDatabaseUrl — ce qui passe", () => {
     expect(() =>
       assertTestDatabaseUrl(
         "postgresql://u:p@db.interne.exemple:5432/codeforge_e2e",
-        AVEC_ECHAPPEMENT
+        WITH_OVERRIDE
       )
     ).not.toThrow();
   });
@@ -82,9 +82,9 @@ describe("assertTestDatabaseUrl — ce qui est refusé", () => {
   it("refuse un hébergeur géré MÊME avec l'échappatoire et un nom en « test »", () => {
     refuse(
       "postgresql://postgres:x@db.abcdefgh.supabase.co:5432/codeforge_test",
-      AVEC_ECHAPPEMENT
+      WITH_OVERRIDE
     );
-    refuse("postgresql://u:p@ep-x-y.eu-central-1.aws.neon.tech:5432/e2e", AVEC_ECHAPPEMENT);
+    refuse("postgresql://u:p@ep-x-y.eu-central-1.aws.neon.tech:5432/e2e", WITH_OVERRIDE);
   });
 
   it("refuse un hôte distant sans échappatoire, même nommé test", () => {
@@ -92,21 +92,21 @@ describe("assertTestDatabaseUrl — ce qui est refusé", () => {
   });
 
   it("refuse un hôte distant avec l'échappatoire mais sans marqueur de test", () => {
-    refuse("postgresql://u:p@db.interne.exemple:5432/codeforge", AVEC_ECHAPPEMENT);
+    refuse("postgresql://u:p@db.interne.exemple:5432/codeforge", WITH_OVERRIDE);
   });
 
   it("explique comment corriger", () => {
     try {
       assertTestDatabaseUrl(
         "postgresql://postgres:x@db.abcdefgh.supabase.co:5432/postgres",
-        SANS_ECHAPPEMENT
+        WITHOUT_OVERRIDE
       );
       expect.unreachable("la garde aurait dû lever");
     } catch (err) {
       const message = (err as Error).message;
       expect(message).toContain("DATABASE_URL");
       expect(message).toContain("migrate deploy");
-      expect(message).toContain(VARIABLE_ECHAPPEMENT);
+      expect(message).toContain(DB_OVERRIDE_VARIABLE);
     }
   });
 });
@@ -131,7 +131,7 @@ describe("assertTestDatabaseUrl — le paramètre « host » qui écrase l'hôte
   it("refuse même avec l'échappatoire : la cible est indécidable, pas seulement distante", () => {
     refuse(
       "postgresql://u:p@localhost:5432/codeforge_test?host=db.abcdefgh.supabase.co",
-      AVEC_ECHAPPEMENT
+      WITH_OVERRIDE
     );
   });
 
@@ -139,56 +139,56 @@ describe("assertTestDatabaseUrl — le paramètre « host » qui écrase l'hôte
     expect(() =>
       assertTestDatabaseUrl(
         "postgresql://postgres:test@localhost:5432/codeforge_test?sslmode=disable&connect_timeout=5",
-        SANS_ECHAPPEMENT
+        WITHOUT_OVERRIDE
       )
     ).not.toThrow();
   });
 });
 
 describe("assertLocalAppUnderTest", () => {
-  const SANS: Record<string, string | undefined> = {};
-  const AVEC: Record<string, string | undefined> = {
-    [VARIABLE_ECHAPPEMENT_APP]: "1",
+  const WITHOUT: Record<string, string | undefined> = {};
+  const WITH: Record<string, string | undefined> = {
+    [APP_OVERRIDE_VARIABLE]: "1",
   };
 
   it("accepte l'absence d'URL : Playwright démarre alors sa propre application", () => {
-    expect(() => assertLocalAppUnderTest(undefined, SANS)).not.toThrow();
-    expect(() => assertLocalAppUnderTest("", SANS)).not.toThrow();
-    expect(() => assertLocalAppUnderTest("   ", SANS)).not.toThrow();
+    expect(() => assertLocalAppUnderTest(undefined, WITHOUT)).not.toThrow();
+    expect(() => assertLocalAppUnderTest("", WITHOUT)).not.toThrow();
+    expect(() => assertLocalAppUnderTest("   ", WITHOUT)).not.toThrow();
   });
 
   it("accepte une application locale", () => {
-    expect(() => assertLocalAppUnderTest("http://localhost:3000", SANS)).not.toThrow();
-    expect(() => assertLocalAppUnderTest("http://127.0.0.1:3000", SANS)).not.toThrow();
-    expect(() => assertLocalAppUnderTest("https://localhost:8443", SANS)).not.toThrow();
+    expect(() => assertLocalAppUnderTest("http://localhost:3000", WITHOUT)).not.toThrow();
+    expect(() => assertLocalAppUnderTest("http://127.0.0.1:3000", WITHOUT)).not.toThrow();
+    expect(() => assertLocalAppUnderTest("https://localhost:8443", WITHOUT)).not.toThrow();
   });
 
   it("accepte un sous-domaine de localhost, qui résout en boucle locale", () => {
-    expect(() => assertLocalAppUnderTest("http://app.localhost:3000", SANS)).not.toThrow();
+    expect(() => assertLocalAppUnderTest("http://app.localhost:3000", WITHOUT)).not.toThrow();
   });
 
   it("refuse une application distante : sa base n'est pas celle qu'on a ensemencée", () => {
-    expect(() => assertLocalAppUnderTest("https://laforgeducode.fr", SANS)).toThrow(
+    expect(() => assertLocalAppUnderTest("https://laforgeducode.fr", WITHOUT)).toThrow(
       UnsafeE2eTargetError
     );
   });
 
   it("refuse une URL illisible plutôt que de deviner", () => {
-    expect(() => assertLocalAppUnderTest("pas une url", SANS)).toThrow(UnsafeE2eTargetError);
+    expect(() => assertLocalAppUnderTest("pas une url", WITHOUT)).toThrow(UnsafeE2eTargetError);
   });
 
   it("cède devant une échappatoire explicite", () => {
-    expect(() => assertLocalAppUnderTest("https://staging.exemple", AVEC)).not.toThrow();
+    expect(() => assertLocalAppUnderTest("https://staging.exemple", WITH)).not.toThrow();
   });
 
   it("explique pourquoi, et comment corriger", () => {
     try {
-      assertLocalAppUnderTest("https://laforgeducode.fr", SANS);
+      assertLocalAppUnderTest("https://laforgeducode.fr", WITHOUT);
       expect.unreachable("la garde aurait dû lever");
     } catch (err) {
       const message = (err as Error).message;
       expect(message).toContain("E2E_BASE_URL");
-      expect(message).toContain(VARIABLE_ECHAPPEMENT_APP);
+      expect(message).toContain(APP_OVERRIDE_VARIABLE);
     }
   });
 });

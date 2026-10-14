@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { chapitre7 } from "@/data/courses/react/chapitre-7";
+import { chapter7 } from "@/data/courses/react/chapitre-7";
 import { validators } from "./chapitre-7";
 
-const [etape1, etape2, etape3, etape4] = validators;
+const [step1, step2, step3, step4] = validators;
 
 describe("react/chapitre-7 — etape 1 : extraire un hook", () => {
   it("accepte un hook declare avec function, appele depuis le composant", () => {
@@ -15,7 +15,7 @@ function Reacteur() {
   const { n } = useCompteur();
   return <button>{n}</button>;
 }`;
-    expect(etape1!(code).ok).toBe(true);
+    expect(step1!(code).ok).toBe(true);
   });
 
   it("accepte la forme flechee const useX = () => { ... }", () => {
@@ -27,7 +27,7 @@ function Reacteur() {
   const { n } = useCompteur();
   return <button>{n}</button>;
 }`;
-    expect(etape1!(code).ok).toBe(true);
+    expect(step1!(code).ok).toBe(true);
   });
 
   it("refuse une fonction non prefixee par use", () => {
@@ -39,7 +39,7 @@ function Reacteur() {
   const { n } = compteur();
   return <button>{n}</button>;
 }`;
-    const r = etape1!(code);
+    const r = step1!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/use/i);
   });
@@ -53,7 +53,7 @@ function Reacteur() {
   useCompteur();
   return <button>{n}</button>;
 }`;
-    const r = etape1!(code);
+    const r = step1!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/useState/);
   });
@@ -66,7 +66,7 @@ function Reacteur() {
 function Reacteur() {
   return <button>0</button>;
 }`;
-    const r = etape1!(code);
+    const r = step1!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/jamais appelé/);
   });
@@ -85,7 +85,7 @@ function Bouclier() {
   const { charge, recharger } = useBouclier();
   return <div onClick={recharger}>{charge}</div>;
 }`;
-    expect(etape2!(code).ok).toBe(true);
+    expect(step2!(code).ok).toBe(true);
   });
 
   it("accepte un retour tableau destructure par le composant", () => {
@@ -97,7 +97,7 @@ function Bouclier() {
   const [charge, recharger] = useBouclier();
   return <div onClick={recharger}>{charge}</div>;
 }`;
-    expect(etape2!(code).ok).toBe(true);
+    expect(step2!(code).ok).toBe(true);
   });
 
   it("refuse un hook qui ne retourne rien (le startCode)", () => {
@@ -108,7 +108,7 @@ function Bouclier() {
 function Bouclier() {
   return <div>???</div>;
 }`;
-    const r = etape2!(code);
+    const r = step2!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/retourne rien/);
   });
@@ -123,7 +123,7 @@ function Bouclier() {
   const { etat, recharger } = useBouclier();
   return <div onClick={recharger}>{etat.charge.valeur}</div>;
 }`;
-    expect(etape2!(code).ok).toBe(true);
+    expect(step2!(code).ok).toBe(true);
   });
 
   it("refuse un retour a une seule sortie", () => {
@@ -135,7 +135,7 @@ function Bouclier() {
   const { charge } = useBouclier();
   return <div>{charge}</div>;
 }`;
-    const r = etape2!(code);
+    const r = step2!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/DEUX/);
   });
@@ -146,14 +146,14 @@ function Bouclier() {
   const b = useBouclier();
   return <div>{b.charge}</div>;
 }`;
-    const r = etape2!(code);
+    const r = step2!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/Destructure/);
   });
 });
 
 describe("react/chapitre-7 — etape 3 : abonnement et cleanup", () => {
-  const complet = `function useLargeurHublot() {
+  const fullSolution = `function useLargeurHublot() {
   const [largeur, setLargeur] = useState(window.innerWidth);
   useEffect(() => {
     const surResize = () => setLargeur(window.innerWidth);
@@ -168,7 +168,7 @@ function Hublot() {
 }`;
 
   it("accepte un hook qui s'abonne et se desabonne", () => {
-    expect(etape3!(complet).ok).toBe(true);
+    expect(step3!(fullSolution).ok).toBe(true);
   });
 
   it("refuse un abonnement sans cleanup", () => {
@@ -179,7 +179,7 @@ function Hublot() {
   }, []);
   return largeur;
 }`;
-    const r = etape3!(code);
+    const r = step3!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/cleanup/);
   });
@@ -193,7 +193,7 @@ function Hublot() {
   }, []);
   return largeur;
 }`;
-    const r = etape3!(code);
+    const r = step3!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/cleanup/);
   });
@@ -208,7 +208,7 @@ function Hublot() {
   }, []);
   return largeur;
 }`;
-    const r = etape3!(code);
+    const r = step3!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/cleanup/);
   });
@@ -226,7 +226,7 @@ function Hublot() {
   }, []);
   return largeur;
 }`;
-    expect(etape3!(code).ok).toBe(true);
+    expect(step3!(code).ok).toBe(true);
   });
 
   it("refuse un hook sans etat (l'affichage ne se mettrait jamais a jour)", () => {
@@ -239,7 +239,7 @@ function Hublot() {
   }, []);
   return largeur;
 }`;
-    const r = etape3!(code);
+    const r = step3!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/useState/);
   });
@@ -258,7 +258,7 @@ function useLargeurHublot() {
   }, []);
   return largeur;
 }`;
-    expect(etape3!(code).ok).toBe(false);
+    expect(step3!(code).ok).toBe(false);
   });
 });
 
@@ -269,7 +269,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
   if (!visible) return null;
   return <div>{mode}</div>;
 }`;
-    expect(etape4!(code).ok).toBe(true);
+    expect(step4!(code).ok).toBe(true);
   });
 
   it("refuse un appel de hook enferme dans un if (le startCode)", () => {
@@ -280,7 +280,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
   }
   return null;
 }`;
-    const r = etape4!(code);
+    const r = step4!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/if/);
   });
@@ -293,7 +293,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
   }
   return <div>{mode}</div>;
 }`;
-    expect(etape4!(code).ok).toBe(false);
+    expect(step4!(code).ok).toBe(false);
   });
 
   it("refuse la suppression du comportement conditionnel", () => {
@@ -301,7 +301,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
   const [mode, setMode] = useState('auto');
   return <div>{mode}</div>;
 }`;
-    const r = etape4!(code);
+    const r = step4!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/conditionnel/);
   });
@@ -312,7 +312,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
   const [mode, setMode] = useState('auto');
   return <div>{mode}</div>;
 }`;
-    const r = etape4!(code);
+    const r = step4!(code);
     expect(r.ok).toBe(false);
     expect(r.msg).toMatch(/précéder|première ligne/);
   });
@@ -322,7 +322,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
   const [mode, setMode] = useState('auto');
   return visible ? <div>{mode}</div> : null;
 }`;
-    expect(etape4!(code).ok).toBe(true);
+    expect(step4!(code).ok).toBe(true);
   });
 
   it("accepte && comme comportement conditionnel (finding 1)", () => {
@@ -330,7 +330,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
   const [mode, setMode] = useState('auto');
   return <div>{visible && <span>Mode : {mode}</span>}</div>;
 }`;
-    expect(etape4!(code).ok).toBe(true);
+    expect(step4!(code).ok).toBe(true);
   });
 });
 
@@ -340,7 +340,7 @@ describe("react/chapitre-7 — etape 4 : regles des hooks", () => {
  */
 describe("react/chapitre-7 — chaque hint passe son propre validateur", () => {
   it("valide les quatre hints", () => {
-    chapitre7.steps.forEach((step, i) => {
+    chapter7.steps.forEach((step, i) => {
       const r = validators[i]!(step.hint);
       expect(r.ok, `etape ${i + 1} : hint refuse — ${r.msg}`).toBe(true);
     });

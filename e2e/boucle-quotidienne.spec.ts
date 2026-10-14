@@ -4,7 +4,7 @@ import { STORAGE_STATE } from "./global-setup";
 
 /**
  * Étapes 1 et 2 du chapitre 1 JavaScript, la progression HTML étant observée
- * par d'autres specs. Deux étapes, car l'ordre de reprise du briefing vise 1
+ * par d'autres specs. Deux étapes, car l'ordre de resumeQuest du briefing vise 1
  * ou 2 étapes selon le tirage du jour (lib/quests.ts).
  */
 const SOLUTIONS_JS_CH1 = [
@@ -12,7 +12,7 @@ const SOLUTIONS_JS_CH1 = [
   'let cadet = "Nova";\nconsole.log(cadet);',
 ];
 
-interface Ordre {
+interface DailyOrder {
   id: string;
   slot: string;
   label: string;
@@ -21,15 +21,15 @@ interface Ordre {
   done: boolean;
 }
 
-interface EtatServeur {
+interface ServerState {
   totalXp: number;
   completedSteps: Record<string, number[]>;
-  briefing: { quests: Ordre[]; complete: boolean } | null;
+  briefing: { quests: DailyOrder[]; complete: boolean } | null;
   liaison: { streak: number; activeToday: boolean };
 }
 
 /** État vu par le serveur, et non lu dans le DOM. */
-async function lireEtat(page: Page): Promise<EtatServeur> {
+async function readState(page: Page): Promise<ServerState> {
   const res = await page.request.get("/api/me");
   expect(res.ok(), `GET /api/me a échoué : ${res.status()}`).toBeTruthy();
   return res.json();
@@ -40,20 +40,20 @@ async function lireEtat(page: Page): Promise<EtatServeur> {
  * seconde fois guillemets et parenthèses à la frappe. Le `onChange` React est
  * déclenché comme pour une vraie saisie.
  */
-async function definirCodeEditeur(page: Page, code: string): Promise<void> {
+async function setEditorCode(page: Page, code: string): Promise<void> {
   await expect(page.locator(".monaco-editor").first()).toBeVisible({ timeout: 30_000 });
-  const resultat = await page.evaluate((value) => {
+  const result = await page.evaluate((value) => {
     const monaco = (window as unknown as { monaco?: typeof import("monaco-editor") }).monaco;
     if (!monaco) return "no-monaco";
     // `ChapterWorkspace` est remonté à chaque étape : `getModels()` peut encore
     // porter le modèle précédent, d'où la préférence pour l'éditeur monté.
-    const editeurs = monaco.editor.getEditors();
-    const model = editeurs.length ? editeurs[0].getModel() : (monaco.editor.getModels()[0] ?? null);
+    const editors = monaco.editor.getEditors();
+    const model = editors.length ? editors[0].getModel() : (monaco.editor.getModels()[0] ?? null);
     if (!model) return "no-models";
     model.setValue(value);
     return "ok";
   }, code);
-  expect(resultat, "impossible de poser le code sur le modèle Monaco").toBe("ok");
+  expect(result, "impossible de poser le code sur le modèle Monaco").toBe("ok");
 }
 
 /**
@@ -62,31 +62,31 @@ async function definirCodeEditeur(page: Page, code: string): Promise<void> {
  * Utile quand Playwright relance le test sans rejouer `globalSetup` : les
  * étapes déjà validées feraient reprendre `ChapterClient` plus loin. Il
  * affiche l'étape 1 tant que `GET /api/me` n'a pas répondu, d'où l'attente de
- * cette réponse avant de lire l'état des boutons.
+ * cette réponse before de lire l'état des boutons.
  */
-async function ouvrirChapitreAEtape1(page: Page, url: string): Promise<void> {
-  const hydratation = page
+async function openChapterAtStep1(page: Page, url: string): Promise<void> {
+  const hydration = page
     .waitForResponse(
       (r) => r.url().includes("/api/me") && r.request().method() === "GET",
       { timeout: 15_000 }
     )
     .catch(() => null);
   await page.goto(url);
-  await hydratation;
+  await hydration;
 
-  const precedent = page.getByRole("button", { name: /précédent/i });
-  await expect(precedent).toBeVisible({ timeout: 30_000 });
+  const previousButton = page.getByRole("button", { name: /précédent/i });
+  await expect(previousButton).toBeVisible({ timeout: 30_000 });
   // Le chapitre compte 4 étapes : 3 clics ramènent toujours à la première.
   for (let i = 0; i < 3; i++) {
-    if (await precedent.isDisabled()) break;
-    await precedent.click();
+    if (await previousButton.isDisabled()) break;
+    await previousButton.click();
   }
-  await expect(precedent).toBeDisabled();
+  await expect(previousButton).toBeDisabled();
 }
 
 /** Échappe une chaîne pour l'insérer telle quelle dans une RegExp. */
-function echapper(texte: string): string {
-  return texte.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function escapeForRegex(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 /**
@@ -149,19 +149,19 @@ test.describe("boucle quotidienne", () => {
     // le budget par défaut de 30 s est trop juste.
     test.slow();
 
-    const avant = await lireEtat(page);
-    const dejaFaites = new Set(avant.completedSteps["javascript/chapitre-1"] ?? []);
+    const before = await readState(page);
+    const alreadyDone = new Set(before.completedSteps["javascript/chapitre-1"] ?? []);
 
     await page.goto("/dashboard");
     await expect(page.getByText(/ordre du jour|briefing complet/i)).toBeVisible();
 
-    await ouvrirChapitreAEtape1(page, "/learn/javascript/chapitre-1");
+    await openChapterAtStep1(page, "/learn/javascript/chapitre-1");
 
-    for (const [etape, code] of SOLUTIONS_JS_CH1.entries()) {
-      // `ChapterClient` sauvegarde sans attendre (`void completeStep(...)`), et
+    for (const [step, code] of SOLUTIONS_JS_CH1.entries()) {
+      // `ChapterClient` saved sans attendre (`void completeStep(...)`), et
       // seulement si l'étape n'était pas déjà validée. On n'attend donc la
       // requête que si elle doit partir, sinon le délai complet s'écoulerait.
-      const sauvegarde = dejaFaites.has(etape)
+      const saved = alreadyDone.has(step)
         ? null
         : page
             .waitForResponse(
@@ -170,43 +170,43 @@ test.describe("boucle quotidienne", () => {
             )
             .catch(() => null);
 
-      await definirCodeEditeur(page, code);
+      await setEditorCode(page, code);
       await page.getByRole("button", { name: /DEPLOYER/ }).click();
 
       await expect(page.getByText("SYSTÈME EN LIGNE")).toBeVisible({ timeout: 15_000 });
-      if (sauvegarde) await sauvegarde;
-      const suivant = page.getByRole("button", { name: /SYSTÈME SUIVANT/ });
-      await expect(suivant).toBeVisible({ timeout: 15_000 });
-      await suivant.click();
+      if (saved) await saved;
+      const nextButton = page.getByRole("button", { name: /SYSTÈME SUIVANT/ });
+      await expect(nextButton).toBeVisible({ timeout: 15_000 });
+      await nextButton.click();
     }
 
-    const apres = await lireEtat(page);
+    const after = await readState(page);
 
-    expect(apres.completedSteps["javascript/chapitre-1"]).toEqual(
+    expect(after.completedSteps["javascript/chapitre-1"]).toEqual(
       expect.arrayContaining([0, 1])
     );
 
     // Une étape déjà validée ne rapporte pas d'XP : la comparaison stricte
     // suppose qu'au moins une des deux était neuve.
-    expect(apres.totalXp).toBeGreaterThan(0);
-    if (dejaFaites.size < SOLUTIONS_JS_CH1.length) {
-      expect(apres.totalXp).toBeGreaterThan(avant.totalXp);
+    expect(after.totalXp).toBeGreaterThan(0);
+    if (alreadyDone.size < SOLUTIONS_JS_CH1.length) {
+      expect(after.totalXp).toBeGreaterThan(before.totalXp);
     }
 
     // La liaison ne compte que le travail réel, pas la visite du dashboard.
-    expect(apres.liaison.activeToday).toBe(true);
+    expect(after.liaison.activeToday).toBe(true);
 
-    // L'ordre de reprise est toujours tiré, avec une cible d'au plus 2
+    // L'ordre de resumeQuest est toujours tiré, avec une cible d'au plus 2
     // (lib/quests.ts).
-    const reprise = apres.briefing?.quests.find((q) => q.slot === "reprise");
-    expect(reprise, "le briefing doit toujours porter un ordre de reprise").toBeDefined();
-    expect(reprise!.progress).toBeGreaterThanOrEqual(reprise!.target);
-    expect(reprise!.done).toBe(true);
+    const resumeQuest = after.briefing?.quests.find((q) => q.slot === "reprise");
+    expect(resumeQuest, "le briefing doit toujours porter un ordre de reprise").toBeDefined();
+    expect(resumeQuest!.progress).toBeGreaterThanOrEqual(resumeQuest!.target);
+    expect(resumeQuest!.done).toBe(true);
 
     // `QuestLine` préfixe l'ordre accompli d'un ✓ ; le libellé vient du serveur.
     await page.goto("/dashboard");
     await expect(
-      page.getByText(new RegExp(`✓\\s*${echapper(reprise!.label)}`))
+      page.getByText(new RegExp(`✓\\s*${escapeForRegex(resumeQuest!.label)}`))
     ).toBeVisible();
   });
 });

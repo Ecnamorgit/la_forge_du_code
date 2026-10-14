@@ -26,10 +26,10 @@ function page(css: string): string {
 }
 
 describe("CSS chapitre 1 — etape 1 (<style> dans le <head>)", () => {
-  const valider = validators[0];
+  const validate = validators[0];
 
   it("accepte un <style> place dans le <head>", () => {
-    expect(valider(page("h1 { color: white; }")).ok).toBe(true);
+    expect(validate(page("h1 { color: white; }")).ok).toBe(true);
   });
 
   it("refuse un <style> place hors du <head>", () => {
@@ -42,54 +42,54 @@ describe("CSS chapitre 1 — etape 1 (<style> dans le <head>)", () => {
     <h1>Statut</h1>
   </body>
 </html>`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un document sans <head>", () => {
-    expect(valider("<html><body><h1>Statut</h1></body></html>").ok).toBe(false);
+    expect(validate("<html><body><h1>Statut</h1></body></html>").ok).toBe(false);
   });
 });
 
 describe("CSS chapitre 1 — etape 2 (couleur du titre)", () => {
-  const valider = validators[1];
+  const validate = validators[1];
 
   it("accepte une regle h1 { color }", () => {
-    expect(valider(page("h1 { color: #ff6b2c; }")).ok).toBe(true);
+    expect(validate(page("h1 { color: #ff6b2c; }")).ok).toBe(true);
   });
 
   it("refuse background-color, qui n'est pas la couleur du texte", () => {
-    expect(valider(page("h1 { background-color: #ff6b2c; }")).ok).toBe(false);
+    expect(validate(page("h1 { background-color: #ff6b2c; }")).ok).toBe(false);
   });
 
   it("refuse une couleur posee sur un autre selecteur", () => {
-    expect(valider(page("p { color: #ff6b2c; }")).ok).toBe(false);
+    expect(validate(page("p { color: #ff6b2c; }")).ok).toBe(false);
   });
 });
 
 describe("CSS chapitre 1 — etape 3 (fond de la page)", () => {
-  const valider = validators[2];
+  const validate = validators[2];
 
   it("accepte une regle body { background-color }", () => {
-    expect(valider(page("body { background-color: #03060d; }")).ok).toBe(true);
+    expect(validate(page("body { background-color: #03060d; }")).ok).toBe(true);
   });
 
   it("refuse color seul, qui n'est pas le fond", () => {
-    expect(valider(page("body { color: white; }")).ok).toBe(false);
+    expect(validate(page("body { color: white; }")).ok).toBe(false);
   });
 });
 
 describe("CSS chapitre 1 — etape 4 (taille du texte)", () => {
-  const valider = validators[3];
+  const validate = validators[3];
 
   it("accepte une regle p { font-size }", () => {
-    expect(valider(page("p { font-size: 18px; }")).ok).toBe(true);
+    expect(validate(page("p { font-size: 18px; }")).ok).toBe(true);
   });
 
   it("refuse font-size pose sur le titre au lieu du paragraphe", () => {
-    expect(valider(page("h1 { font-size: 18px; }")).ok).toBe(false);
+    expect(validate(page("h1 { font-size: 18px; }")).ok).toBe(false);
   });
 
   it("refuse font-weight, qui n'est pas la taille", () => {
-    expect(valider(page("p { font-weight: bold; }")).ok).toBe(false);
+    expect(validate(page("p { font-weight: bold; }")).ok).toBe(false);
   });
 });

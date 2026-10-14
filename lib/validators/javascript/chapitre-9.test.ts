@@ -13,30 +13,30 @@ const ctx = (logs: string[], error: string | null = null): ValidatorContext => (
 });
 
 describe("JS chapitre 9 — etape 1 (creer une promesse)", () => {
-  const valider = validators[0];
+  const validate = validators[0];
 
   const CODE = `const p = new Promise((resolve) => setTimeout(() => resolve("OK"), 10));
 p.then((v) => console.log(v));`;
 
   it("valide une promesse consommee par then", () => {
-    expect(valider(CODE, ctx(["OK"])).ok).toBe(true);
+    expect(validate(CODE, ctx(["OK"])).ok).toBe(true);
   });
 
   it("refuse un setTimeout sans promesse", () => {
     // Échec ciblé : le différé est là, l'objet Promise n'y est pas.
     const code = `setTimeout(() => console.log("OK"), 10);`;
-    expect(valider(code, ctx(["OK"])).ok).toBe(false);
+    expect(validate(code, ctx(["OK"])).ok).toBe(false);
   });
 
   it("refuse une promesse creee mais jamais consommee", () => {
     const code = `const p = new Promise((resolve) => resolve("OK"));
 console.log("OK");`;
-    expect(valider(code, ctx(["OK"])).ok).toBe(false);
+    expect(validate(code, ctx(["OK"])).ok).toBe(false);
   });
 });
 
 describe("JS chapitre 9 — etape 2 (async / await)", () => {
-  const valider = validators[1];
+  const validate = validators[1];
 
   const CODE = `async function lancer() {
   const mission = await Promise.resolve("Mission lunaire");
@@ -45,22 +45,22 @@ describe("JS chapitre 9 — etape 2 (async / await)", () => {
 lancer();`;
 
   it("valide une fonction async qui attend sa valeur", () => {
-    expect(valider(CODE, ctx(["Mission lunaire"])).ok).toBe(true);
+    expect(validate(CODE, ctx(["Mission lunaire"])).ok).toBe(true);
   });
 
   it("refuse un then a la place de await", () => {
     // Échec ciblé : l'étape enseigne await, pas le chaînage.
     const code = `Promise.resolve("Mission lunaire").then((m) => console.log(m));`;
-    expect(valider(code, ctx(["Mission lunaire"])).ok).toBe(false);
+    expect(validate(code, ctx(["Mission lunaire"])).ok).toBe(false);
   });
 
   it("refuse une sortie differente", () => {
-    expect(valider(CODE, ctx(["Mission martienne"])).ok).toBe(false);
+    expect(validate(CODE, ctx(["Mission martienne"])).ok).toBe(false);
   });
 });
 
 describe("JS chapitre 9 — etape 3 (intercepter une erreur)", () => {
-  const valider = validators[2];
+  const validate = validators[2];
 
   const CODE = `async function lancer() {
   try {
@@ -72,12 +72,12 @@ describe("JS chapitre 9 — etape 3 (intercepter une erreur)", () => {
 lancer();`;
 
   it("valide un try/catch autour d'un await", () => {
-    expect(valider(CODE, ctx(["Echec : timeout"])).ok).toBe(true);
+    expect(validate(CODE, ctx(["Echec : timeout"])).ok).toBe(true);
   });
 
   it("refuse un catch de promesse sans try", () => {
     const code = `Promise.reject(new Error("timeout")).catch((e) => console.log(e.message));`;
-    expect(valider(code, ctx(["timeout"])).ok).toBe(false);
+    expect(validate(code, ctx(["timeout"])).ok).toBe(false);
   });
 
   it("refuse un try/catch sans await a l'interieur", () => {
@@ -87,12 +87,12 @@ lancer();`;
 } catch (e) {
   console.log(e.message);
 }`;
-    expect(valider(code, ctx(["timeout"])).ok).toBe(false);
+    expect(validate(code, ctx(["timeout"])).ok).toBe(false);
   });
 });
 
 describe("JS chapitre 9 — etape 4 (paralleliser)", () => {
-  const valider = validators[3];
+  const validate = validators[3];
 
   const CODE = `async function lancer() {
   const r = await Promise.all([
@@ -105,7 +105,7 @@ describe("JS chapitre 9 — etape 4 (paralleliser)", () => {
 lancer();`;
 
   it("valide un Promise.all et marque l'etape finale", () => {
-    const r = valider(CODE, ctx(["[ 1, 2, 3 ]"]));
+    const r = validate(CODE, ctx(["[ 1, 2, 3 ]"]));
     expect(r.ok).toBe(true);
     expect(r.final).toBe(true);
   });
@@ -118,10 +118,10 @@ lancer();`;
   console.log([a, b, c]);
 }
 lancer();`;
-    expect(valider(code, ctx(["[ 1, 2, 3 ]"])).ok).toBe(false);
+    expect(validate(code, ctx(["[ 1, 2, 3 ]"])).ok).toBe(false);
   });
 
   it("refuse un resultat incomplet", () => {
-    expect(valider(CODE, ctx(["[ 1, 2 ]"])).ok).toBe(false);
+    expect(validate(CODE, ctx(["[ 1, 2 ]"])).ok).toBe(false);
   });
 });

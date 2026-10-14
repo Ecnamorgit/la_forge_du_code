@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { chapitre1 as htmlCh1 } from "@/data/courses/html/chapitre-1";
-import { chapitre2 as htmlCh2 } from "@/data/courses/html/chapitre-2";
-import { chapitre3 as htmlCh3 } from "@/data/courses/html/chapitre-3";
+import { chapter1 as htmlCh1 } from "@/data/courses/html/chapitre-1";
+import { chapter2 as htmlCh2 } from "@/data/courses/html/chapitre-2";
+import { chapter3 as htmlCh3 } from "@/data/courses/html/chapitre-3";
 import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 import {
   applyTrialStep,

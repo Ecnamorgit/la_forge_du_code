@@ -1,6 +1,6 @@
 import type { DocEntry } from "../types";
 
-export const fonctions: DocEntry = {
+export const functions: DocEntry = {
   id: "js/fonctions",
   domain: "js",
   term: "function",

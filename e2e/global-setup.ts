@@ -56,21 +56,21 @@ export default async function globalSetup(config: FullConfig): Promise<void> {
     await client.end();
   }
 
-  await enregistrerSessionPartagee(config);
+  await saveSharedSession(config);
 }
 
 /**
  * Se connecte une fois et écrit l'état de session sur disque, repris par les
  * specs qui déclarent `storageState: STORAGE_STATE`.
  */
-async function enregistrerSessionPartagee(config: FullConfig): Promise<void> {
+async function saveSharedSession(config: FullConfig): Promise<void> {
   const baseURL =
     config.projects[0]?.use?.baseURL ?? process.env.E2E_BASE_URL ?? "http://localhost:3000";
 
-  const navigateur = await chromium.launch();
+  const browser = await chromium.launch();
   try {
-    const contexte = await navigateur.newContext({ baseURL });
-    const page = await contexte.newPage();
+    const browserContext = await browser.newContext({ baseURL });
+    const page = await browserContext.newPage();
 
     await page.goto("/login");
     await page.locator("#email").fill(E2E_USER.email);
@@ -100,8 +100,8 @@ async function enregistrerSessionPartagee(config: FullConfig): Promise<void> {
       );
     }
 
-    await contexte.storageState({ path: STORAGE_STATE });
+    await browserContext.storageState({ path: STORAGE_STATE });
   } finally {
-    await navigateur.close();
+    await browser.close();
   }
 }

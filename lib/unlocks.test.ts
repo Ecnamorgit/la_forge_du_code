@@ -30,8 +30,8 @@ describe("UNLOCKS", () => {
 
   it("expose exactement un défaut par axe", () => {
     for (const axe of ["frame", "title", "uniform", "cardBg"] as const) {
-      const defauts = UNLOCKS.filter((u) => u.axis === axe && u.condition.kind === "default");
-      expect(defauts).toHaveLength(1);
+      const defaults = UNLOCKS.filter((u) => u.axis === axe && u.condition.kind === "default");
+      expect(defaults).toHaveLength(1);
     }
   });
 
@@ -42,70 +42,70 @@ describe("UNLOCKS", () => {
 
 describe("evaluateUnlocks", () => {
   it("donne les défauts à un cadet neuf, et rien d'autre", () => {
-    const debloque = evaluateUnlocks(ctx()).filter((u) => u.unlocked);
-    expect(debloque).toHaveLength(4);
-    expect(debloque.every((u) => u.def.condition.kind === "default")).toBe(true);
+    const unlockedItems = evaluateUnlocks(ctx()).filter((u) => u.unlocked);
+    expect(unlockedItems).toHaveLength(4);
+    expect(unlockedItems.every((u) => u.def.condition.kind === "default")).toBe(true);
   });
 
   it("débloque sur palier de liaison", () => {
-    const statuts = evaluateUnlocks(ctx({ streak: 7 }));
-    expect(statuts.find((u) => u.def.id === "orbital")?.unlocked).toBe(true);
-    expect(statuts.find((u) => u.def.id === "blanc-glacier")?.unlocked).toBe(false);
+    const statuses = evaluateUnlocks(ctx({ streak: 7 }));
+    expect(statuses.find((u) => u.def.id === "orbital")?.unlocked).toBe(true);
+    expect(statuses.find((u) => u.def.id === "blanc-glacier")?.unlocked).toBe(false);
   });
 
   it("débloque sur grade", () => {
-    const statuts = evaluateUnlocks(ctx({ totalXp: 10000 }));
-    expect(statuts.find((u) => u.def.id === "frame-amiral")?.unlocked).toBe(true);
+    const statuses = evaluateUnlocks(ctx({ totalXp: 10000 }));
+    expect(statuses.find((u) => u.def.id === "frame-amiral")?.unlocked).toBe(true);
   });
 
   it("débloque sur badge possédé", () => {
-    const statuts = evaluateUnlocks(ctx({ badges: ["security-shield"] }));
-    expect(statuts.find((u) => u.def.id === "corrompu")?.unlocked).toBe(true);
-    expect(statuts.find((u) => u.def.id === "rouge-spectre")?.unlocked).toBe(true);
+    const statuses = evaluateUnlocks(ctx({ badges: ["security-shield"] }));
+    expect(statuses.find((u) => u.def.id === "corrompu")?.unlocked).toBe(true);
+    expect(statuses.find((u) => u.def.id === "rouge-spectre")?.unlocked).toBe(true);
   });
 
   it("annonce la distance restante d'un objet verrouillé", () => {
-    const statut = evaluateUnlocks(ctx({ streak: 4 })).find((u) => u.def.id === "orbital");
-    expect(statut?.unlocked).toBe(false);
-    expect(statut?.remaining).toContain("3");
+    const unlockStatus = evaluateUnlocks(ctx({ streak: 4 })).find((u) => u.def.id === "orbital");
+    expect(unlockStatus?.unlocked).toBe(false);
+    expect(unlockStatus?.remaining).toContain("3");
   });
 
   it("n'annonce aucune distance sur un objet obtenu", () => {
-    const statut = evaluateUnlocks(ctx({ streak: 7 })).find((u) => u.def.id === "orbital");
-    expect(statut?.remaining).toBeNull();
+    const unlockStatus = evaluateUnlocks(ctx({ streak: 7 })).find((u) => u.def.id === "orbital");
+    expect(unlockStatus?.remaining).toBeNull();
   });
 
   // Un objet obtenu ne redevient jamais verrouillé, même quand le streak
   // retombe à 1 à la rupture : le cadet garde sa ligne `UserUnlock`.
   it("garde obtenu un objet possédé dont la condition est redevenue fausse", () => {
-    const apresRupture = ctx({ streak: 1, owned: ["blanc-glacier", "orbital", "double"] });
-    const statuts = evaluateUnlocks(apresRupture);
+    const afterBreak = ctx({ streak: 1, owned: ["blanc-glacier", "orbital", "double"] });
+    const statuses = evaluateUnlocks(afterBreak);
     for (const id of ["blanc-glacier", "orbital", "double"]) {
-      const statut = statuts.find((u) => u.def.id === id);
-      expect(statut?.unlocked, id).toBe(true);
-      expect(statut?.remaining, id).toBeNull();
+      const unlockStatus = statuses.find((u) => u.def.id === id);
+      expect(unlockStatus?.unlocked, id).toBe(true);
+      expect(unlockStatus?.remaining, id).toBeNull();
     }
   });
 
   it("laisse verrouillé ce qui n'est ni satisfait ni possédé", () => {
-    const statuts = evaluateUnlocks(ctx({ streak: 1, owned: ["blanc-glacier"] }));
-    expect(statuts.find((u) => u.def.id === "orbital")?.unlocked).toBe(false);
-    expect(statuts.find((u) => u.def.id === "orbital")?.remaining).toContain("6");
+    const statuses = evaluateUnlocks(ctx({ streak: 1, owned: ["blanc-glacier"] }));
+    expect(statuses.find((u) => u.def.id === "orbital")?.unlocked).toBe(false);
+    expect(statuses.find((u) => u.def.id === "orbital")?.remaining).toContain("6");
   });
 });
 
 describe("nextUnlock", () => {
   it("désigne l'objet verrouillé le plus proche", () => {
-    const suivant = nextUnlock(ctx({ streak: 4 }));
-    expect(suivant).not.toBeNull();
-    expect(suivant?.unlocked).toBe(false);
+    const nextItem = nextUnlock(ctx({ streak: 4 }));
+    expect(nextItem).not.toBeNull();
+    expect(nextItem?.unlocked).toBe(false);
     // Avec streak: 4, le plus proche est double (streak 5, distance = 1)
-    expect(suivant?.def.id).toBe("double");
+    expect(nextItem?.def.id).toBe("double");
   });
 
   it("classe les badges après les conditions mesurables", () => {
     // Contexte où toutes les conditions mesurables sont satisfaites, mais aucun badge
-    const toutSaufBadges = ctx({
+    const allButBadges = ctx({
       streak: 100,
       questsCompleted: 500,
       totalXp: 20000,
@@ -113,27 +113,27 @@ describe("nextUnlock", () => {
       coursesComplete: 14,
       chaptersComplete: 51,
     });
-    const suivant = nextUnlock(toutSaufBadges);
-    expect(suivant).not.toBeNull();
+    const nextItem = nextUnlock(allButBadges);
+    expect(nextItem).not.toBeNull();
     // Le seul objet verrouillé restant est conditionné par un badge
-    expect(suivant?.def.condition.kind).toBe("badge");
+    expect(nextItem?.def.condition.kind).toBe("badge");
     // Les badges sont à égalité (distance infinie) : l'ordre du catalogue
     // tranche, c'est le premier objet à condition badge.
     const firstBadgeUnlock = UNLOCKS.find((u) => u.condition.kind === "badge");
-    expect(suivant?.def.id).toBe(firstBadgeUnlock?.id);
+    expect(nextItem?.def.id).toBe(firstBadgeUnlock?.id);
   });
 
   it("ne propose jamais un objet déjà possédé", () => {
     // Avec un streak de 4, `double` (5 j) serait la cible la plus proche, mais
     // il est déjà possédé : c'est `orbital` (7 j) qui doit suivre.
-    const suivant = nextUnlock(ctx({ streak: 4, owned: ["double"] }));
-    expect(suivant?.def.id).toBe("orbital");
+    const nextItem = nextUnlock(ctx({ streak: 4, owned: ["double"] }));
+    expect(nextItem?.def.id).toBe("orbital");
   });
 
   it("retourne null quand tout est obtenu", () => {
     // Tous les badges dont dépend un titre doivent figurer ici, sinon les
     // titres correspondants restent verrouillés et nextUnlock n'est pas null.
-    const tout = ctx({
+    const everything = ctx({
       streak: 100,
       questsCompleted: 500,
       totalXp: 20000,
@@ -152,7 +152,7 @@ describe("nextUnlock", () => {
       coursesComplete: 14,
       chaptersComplete: 51,
     });
-    expect(nextUnlock(tout)).toBeNull();
+    expect(nextUnlock(everything)).toBeNull();
   });
 });
 
@@ -178,9 +178,9 @@ describe("cardBgImage", () => {
   });
 
   it("retombe sur le fond par défaut quand rien n'est choisi ou que l'id est inconnu", () => {
-    const parDefaut = CARD_BG_IMAGE[defaultFor("cardBg").id];
-    expect(cardBgImage(null)).toBe(parDefaut);
-    expect(cardBgImage("fond-inconnu")).toBe(parDefaut);
+    const defaultImage = CARD_BG_IMAGE[defaultFor("cardBg").id];
+    expect(cardBgImage(null)).toBe(defaultImage);
+    expect(cardBgImage("fond-inconnu")).toBe(defaultImage);
   });
 
   it("rend le fichier du fond porté", () => {

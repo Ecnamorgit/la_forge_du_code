@@ -36,8 +36,8 @@ const deleteSchema = z.object({ password: z.string().min(1).max(128) });
  * qu'une session volée ne suffise pas à effacer le compte (audit SRV-09).
  */
 export async function DELETE(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   const session = await auth();
   if (!session?.user?.id) {

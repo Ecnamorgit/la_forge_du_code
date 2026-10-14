@@ -78,12 +78,12 @@ export function buildCsp(options: CspOptions): string {
 }
 
 /**
- * Jetons d'une directive, sans son nom (tableau vide si elle est absente).
+ * Jetons d'une directive, sans son directiveName (tableau vide si elle est absente).
  * Chercher dans la chaîne entière confondrait les directives :
  * `'unsafe-inline'` figure dans `style-src`.
  */
-export function tokensDeDirective(directives: string[], nom: string): string[] {
-  const directive = directives.find((d) => d === nom || d.startsWith(`${nom} `));
+export function directiveTokens(directives: string[], directiveName: string): string[] {
+  const directive = directives.find((d) => d === directiveName || d.startsWith(`${directiveName} `));
   if (directive === undefined) return [];
   return directive.split(/\s+/).slice(1);
 }

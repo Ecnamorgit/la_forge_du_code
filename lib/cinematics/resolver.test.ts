@@ -55,14 +55,14 @@ describe("getCinematic — repli générique", () => {
   });
 
   it("aucune narration générique ne double les guillemets", () => {
-    const echantillon = [
+    const sample = [
       getCinematic("css", { kind: "intro" }),
       getCinematic("css", { kind: "finale" }),
       getCinematic("css", { kind: "chapter", chapter: "chapitre-1" }),
       getCinematic("css", { kind: "chapter", chapter: "chapitre-2" }),
       getCinematic("css", { kind: "chapter", chapter: "chapitre-3" }),
     ];
-    for (const cine of echantillon) {
+    for (const cine of sample) {
       for (const scene of cine.scenes) {
         expect(scene.narration).not.toContain("««");
         expect(scene.narration).not.toContain("»»");

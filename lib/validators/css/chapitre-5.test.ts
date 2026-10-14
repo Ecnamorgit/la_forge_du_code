@@ -30,80 +30,80 @@ function page(css: string): string {
 }
 
 describe("CSS chapitre 5 — etape 1 (activer grid)", () => {
-  const valider = validators[0];
+  const validate = validators[0];
 
   it("accepte display: grid sur .grid", () => {
-    expect(valider(page(".grid { display: grid; }")).ok).toBe(true);
+    expect(validate(page(".grid { display: grid; }")).ok).toBe(true);
   });
 
   it("refuse display: flex, qui est l'autre modele de mise en page", () => {
-    expect(valider(page(".grid { display: flex; }")).ok).toBe(false);
+    expect(validate(page(".grid { display: flex; }")).ok).toBe(false);
   });
 });
 
 describe("CSS chapitre 5 — etape 2 (au moins trois colonnes)", () => {
-  const valider = validators[1];
+  const validate = validators[1];
 
   it("accepte trois pistes ecrites une par une", () => {
     expect(
-      valider(page(".grid { display: grid; grid-template-columns: 1fr 1fr 1fr; }")).ok
+      validate(page(".grid { display: grid; grid-template-columns: 1fr 1fr 1fr; }")).ok
     ).toBe(true);
   });
 
   it("accepte repeat(3, 1fr), qui produit trois pistes", () => {
     expect(
-      valider(page(".grid { display: grid; grid-template-columns: repeat(3, 1fr); }")).ok
+      validate(page(".grid { display: grid; grid-template-columns: repeat(3, 1fr); }")).ok
     ).toBe(true);
   });
 
   it("refuse deux colonnes seulement", () => {
     // Échec ciblé : la propriété est correcte, le compte ne l'est pas.
     expect(
-      valider(page(".grid { display: grid; grid-template-columns: 1fr 1fr; }")).ok
+      validate(page(".grid { display: grid; grid-template-columns: 1fr 1fr; }")).ok
     ).toBe(false);
   });
 
   it("refuse repeat(2, 1fr), qui n'en produit que deux", () => {
     expect(
-      valider(page(".grid { display: grid; grid-template-columns: repeat(2, 1fr); }")).ok
+      validate(page(".grid { display: grid; grid-template-columns: repeat(2, 1fr); }")).ok
     ).toBe(false);
   });
 
   it("refuse grid-template-rows a la place des colonnes", () => {
     expect(
-      valider(page(".grid { display: grid; grid-template-rows: 1fr 1fr 1fr; }")).ok
+      validate(page(".grid { display: grid; grid-template-rows: 1fr 1fr 1fr; }")).ok
     ).toBe(false);
   });
 });
 
 describe("CSS chapitre 5 — etape 3 (espacement de la grille)", () => {
-  const valider = validators[2];
+  const validate = validators[2];
 
   it("accepte la propriete courte gap", () => {
-    expect(valider(page(".grid { display: grid; gap: 10px; }")).ok).toBe(true);
+    expect(validate(page(".grid { display: grid; gap: 10px; }")).ok).toBe(true);
   });
 
   it("accepte row-gap", () => {
-    expect(valider(page(".grid { display: grid; row-gap: 10px; }")).ok).toBe(true);
+    expect(validate(page(".grid { display: grid; row-gap: 10px; }")).ok).toBe(true);
   });
 
   it("refuse padding, qui espace le bord et non les cellules", () => {
-    expect(valider(page(".grid { display: grid; padding: 10px; }")).ok).toBe(false);
+    expect(validate(page(".grid { display: grid; padding: 10px; }")).ok).toBe(false);
   });
 });
 
 describe("CSS chapitre 5 — etape 4 (lignes de la grille)", () => {
-  const valider = validators[3];
+  const validate = validators[3];
 
   it("accepte grid-template-rows sur .grid", () => {
     expect(
-      valider(page(".grid { display: grid; grid-template-rows: 80px 80px; }")).ok
+      validate(page(".grid { display: grid; grid-template-rows: 80px 80px; }")).ok
     ).toBe(true);
   });
 
   it("refuse grid-template-columns, qui trace l'autre axe", () => {
     expect(
-      valider(page(".grid { display: grid; grid-template-columns: 1fr 1fr; }")).ok
+      validate(page(".grid { display: grid; grid-template-columns: 1fr 1fr; }")).ok
     ).toBe(false);
   });
 });

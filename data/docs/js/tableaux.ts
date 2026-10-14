@@ -1,6 +1,6 @@
 import type { DocEntry } from "../types";
 
-export const tableaux: DocEntry = {
+export const arrays: DocEntry = {
   id: "js/tableaux",
   domain: "js",
   term: "Array",

@@ -25,7 +25,7 @@ const ALL_BADGES = BADGES;
 // `state.badges` mêle badges de cursus et badges de conduite
 // (lib/conduct-badges.ts) : le compteur ne retient que les premiers, rapportés
 // à leur propre total.
-const CURSUS_BADGE_IDS = new Set(ALL_BADGES.map((b) => b.id));
+const COURSE_BADGE_IDS = new Set(ALL_BADGES.map((b) => b.id));
 
 const COURSES_LIST = COURSES_CATALOG.map((c) => ({
   slug: c.slug,
@@ -61,7 +61,7 @@ function getCourseSlugByBadgeId(id: string): string {
   return "html";
 }
 
-export default function ProfilPage() {
+export default function ProfilePage() {
   const { state, hydrated, renameUser, reset } = useUser();
   const [editing, setEditing] = useState(false);
   const [editValue, setEditValue] = useState("");
@@ -77,7 +77,7 @@ export default function ProfilPage() {
   // Source unique du compteur de liaison côté client : `state.liaison`.
   const streak = state.liaison.streak || 1;
   const joined = state.joinedAt || "—";
-  const cursusBadgeCount = state.badges.filter((id) => CURSUS_BADGE_IDS.has(id)).length;
+  const courseBadgeCount = state.badges.filter((id) => COURSE_BADGE_IDS.has(id)).length;
 
   const computeProgress = (course: string, chapters: ChapterMetaFull[]) => {
     const totalSteps = chapters.reduce((s, c) => s + c.totalSteps, 0);
@@ -276,7 +276,7 @@ export default function ProfilPage() {
             <BigStat label="Rang" value={rank} accent="orange" />
             <BigStat
               label="Badges"
-              value={`${cursusBadgeCount}/${ALL_BADGES.length}`}
+              value={`${courseBadgeCount}/${ALL_BADGES.length}`}
               accent="blue"
             />
             <BigStat label="Liaison" value={`${streak}j`} accent="green" />

@@ -15,10 +15,10 @@ export default async function ChapterPage({
 
   // Défense en profondeur si le proxy est contourné (audit SRV-10). Même règle
   // que lui : sans session, seuls les chapitres d'essai sont ouverts.
-  const chemin = `/learn/${course}/${chapter}`;
-  if (!isPublicRoute(chemin)) {
+  const chapterPath = `/learn/${course}/${chapter}`;
+  if (!isPublicRoute(chapterPath)) {
     const session = await auth();
-    if (!session?.user?.id) redirect(`/login?from=${encodeURIComponent(chemin)}`);
+    if (!session?.user?.id) redirect(`/login?from=${encodeURIComponent(chapterPath)}`);
   }
 
   const chapterData = await getChapterData(course, chapter);

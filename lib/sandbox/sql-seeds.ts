@@ -7,12 +7,12 @@
 
 import type { SqlRunOptions } from "./run-sql";
 
-const PILOTES_SEED =
+const PILOTS_SEED =
   "CREATE TABLE pilotes (id INTEGER PRIMARY KEY, nom VARCHAR(50) NOT NULL, niveau INTEGER DEFAULT 1);" +
   "INSERT INTO pilotes (id, nom, niveau) VALUES " +
   "(1,'Lia',5),(2,'Bo',2),(3,'Kal',8),(4,'Ino',6),(5,'Sora',1);";
 
-const PILOTES_VAISSEAUX_SEED =
+const PILOTS_SHIPS_SEED =
   "CREATE TABLE pilotes (id INTEGER PRIMARY KEY, nom VARCHAR(50) NOT NULL);" +
   "INSERT INTO pilotes (id, nom) VALUES (1,'Lia'),(2,'Bo'),(3,'Kal');" +
   "CREATE TABLE vaisseaux (id INTEGER PRIMARY KEY, modele VARCHAR(50), pilote_id INTEGER);" +
@@ -24,11 +24,11 @@ const SQL_STEP_CONFIG: Record<string, SqlRunOptions[]> = {
     // Étape 1 : CREATE TABLE + INSERT sur une base vide, puis relecture.
     { verify: "SELECT id, nom, niveau FROM pilotes ORDER BY id" },
     // Étape 2 : SELECT sur une table préremplie.
-    { seed: PILOTES_SEED },
+    { seed: PILOTS_SEED },
     // Étape 3 : UPDATE + DELETE, puis relecture.
-    { seed: PILOTES_SEED, verify: "SELECT id, niveau FROM pilotes ORDER BY id" },
+    { seed: PILOTS_SEED, verify: "SELECT id, niveau FROM pilotes ORDER BY id" },
     // Étape 4 : INNER JOIN entre deux tables liées.
-    { seed: PILOTES_VAISSEAUX_SEED },
+    { seed: PILOTS_SHIPS_SEED },
   ],
 };
 

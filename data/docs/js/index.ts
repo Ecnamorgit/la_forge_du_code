@@ -1,9 +1,9 @@
 import type { DocEntry } from "../types";
 import { jsConsole } from "./console";
 import { conditions } from "./conditions";
-import { fonctions } from "./fonctions";
-import { tableaux } from "./tableaux";
-import { objets } from "./objets";
+import { functions } from "./fonctions";
+import { arrays } from "./tableaux";
+import { objects } from "./objets";
 import { arrayMethods } from "./array-methods";
 import { dom } from "./dom";
 import { events } from "./events";
@@ -16,9 +16,9 @@ import { rest } from "./rest";
 const ALL_JS_DOCS: DocEntry[] = [
   jsConsole,
   conditions,
-  fonctions,
-  tableaux,
-  objets,
+  functions,
+  arrays,
+  objects,
   arrayMethods,
   dom,
   events,

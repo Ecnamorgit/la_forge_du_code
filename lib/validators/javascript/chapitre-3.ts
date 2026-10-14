@@ -63,20 +63,20 @@ export const validators: Validator[] = [
     // corps a son exigence : un corps entre accolades contient toujours un `+`
     // ici, il ne doit donc pas profiter de la tolérance de l'arrow concise, sinon
     // `{ console.log(a + b); }` passerait.
-    const corpsAccolades =
+    const braceBody =
       stripped.match(/\bfunction\s+addXp\s*\([^)]*\)\s*\{([\s\S]*?)\}/) ||
       stripped.match(/\baddXp\s*=\s*(?:function\s*\([^)]*\)|\([^)]*\)\s*=>)\s*\{([\s\S]*?)\}/);
 
-    const manqueLeRetour = corpsAccolades
+    const missingReturn = braceBody
       ? // Corps entre accolades : le `return` doit être écrit.
-        !/\breturn\b/.test(corpsAccolades[1])
+        !/\breturn\b/.test(braceBody[1])
       : // Arrow concise (`=> base + bonus`) : return implicite, l'addition doit
         // être la valeur de l'expression.
         !/\+/.test(
           stripped.match(/\baddXp\s*=\s*\([^)]*\)\s*=>\s*([^;\n]+)/)?.[1] ?? ""
         );
 
-    if (manqueLeRetour) {
+    if (missingReturn) {
       return {
         ok: false,
         msg: "addXp doit retourner la somme avec return (ne pas seulement faire console.log à l'intérieur).",

@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { transformJsx } from "@/lib/sandbox/jsx-transform";
-import { detecterBoucleInfinie, messageBoucleInfinie } from "@/lib/sandbox/loop-guard";
-import { protegerBoucles } from "@/lib/sandbox/loop-protect";
+import { detectInfiniteLoop, infiniteLoopMessage } from "@/lib/sandbox/loop-guard";
+import { guardLoops } from "@/lib/sandbox/loop-protect";
 import {
   PREVIEW_MOUNT_NAME_RE,
   parsePreviewMessage,
@@ -25,7 +25,7 @@ interface ReactPreviewProps {
   className?: string;
 }
 
-type Etat =
+type PreviewState =
   | { phase: "attente" }
   | { phase: "indisponible" }
   | { phase: "rendu" }
@@ -35,7 +35,7 @@ type Etat =
  * Aperçu exécuté du composant de l'apprenant.
  *
  * Pas de chien de garde côté parent : dans Chromium, l'iframe peut partager le
- * thread principal de la page, si bien qu'une boucle synchrone gèle tout
+ * thread principal de la page, si bien qu'une infiniteLoop synchrone gèle tout
  * l'onglet et qu'aucun minuteur du parent ne s'exécute. Aucune récupération
  * n'étant possible après l'envoi, le code suspect n'est pas envoyé (voir
  * `lib/sandbox/loop-guard.ts`).
@@ -47,19 +47,19 @@ export default function ReactPreview({
   className = "",
 }: ReactPreviewProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [etat, setEtat] = useState<Etat>({ phase: "attente" });
+  const [previewState, setPreviewState] = useState<PreviewState>({ phase: "attente" });
 
   // Disponibilité de l'iframe dans un ref et non un état : en dépendance de
   // l'effet de déploiement, elle ferait monter le composant deux fois quand
   // un déploiement précède la poignée de main.
-  const pretRef = useRef(false);
+  const readyRef = useRef(false);
 
   // Dernier code transformé, gardé en file tant que l'iframe n'a pas envoyé
   // `ready` : un postMessage envoyé trop tôt est perdu sans erreur.
-  const enAttenteRef = useRef<{ js: string; mount: string } | null>(null);
+  const pendingRef = useRef<{ js: string; mount: string } | null>(null);
   const fileRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const arreterAttenteFile = useCallback(() => {
+  const stopQueueWait = useCallback(() => {
     if (fileRef.current !== null) {
       clearTimeout(fileRef.current);
       fileRef.current = null;
@@ -71,35 +71,35 @@ export default function ReactPreview({
    * jamais, l'apprenant resterait devant un cadre blanc (le filet initial ne
    * couvre que l'état de départ).
    */
-  const demarrerAttenteFile = useCallback(() => {
-    arreterAttenteFile();
+  const startQueueWait = useCallback(() => {
+    stopQueueWait();
     fileRef.current = setTimeout(() => {
       fileRef.current = null;
-      if (pretRef.current) return;
-      enAttenteRef.current = null;
-      setEtat({ phase: "indisponible" });
+      if (readyRef.current) return;
+      pendingRef.current = null;
+      setPreviewState({ phase: "indisponible" });
     }, READY_TIMEOUT_MS);
-  }, [arreterAttenteFile]);
+  }, [stopQueueWait]);
 
   /** Poste vers l'iframe. Renvoie false si la frame n'est pas joignable. */
-  const envoyer = useCallback((payload: { js: string; mount: string }) => {
-    const fenetre = iframeRef.current?.contentWindow;
-    if (!fenetre) return false;
+  const sendPayload = useCallback((payload: { js: string; mount: string }) => {
+    const targetWindow = iframeRef.current?.contentWindow;
+    if (!targetWindow) return false;
     // Iframe à origine opaque : "*" est la seule cible possible. La charge
     // utile (le code de l'apprenant) n'est pas un secret, et l'iframe vérifie
     // `event.source === parent`.
-    fenetre.postMessage({ type: "preview:render", ...payload }, "*");
+    targetWindow.postMessage({ type: "preview:render", ...payload }, "*");
     return true;
   }, []);
 
   // Si l'envoi échoue, la charge repart en file plutôt que d'être perdue.
-  const envoyerOuMettreEnFile = useCallback(
+  const sendOrQueue = useCallback(
     (payload: { js: string; mount: string }) => {
-      if (envoyer(payload)) return;
-      enAttenteRef.current = payload;
-      demarrerAttenteFile();
+      if (sendPayload(payload)) return;
+      pendingRef.current = payload;
+      startQueueWait();
     },
-    [envoyer, demarrerAttenteFile]
+    [sendPayload, startQueueWait]
   );
 
   // Écoute des messages de l'iframe.
@@ -109,37 +109,37 @@ export default function ReactPreview({
       if (!msg) return;
 
       if (msg.type === "ready") {
-        pretRef.current = true;
-        arreterAttenteFile();
-        const enFile = enAttenteRef.current;
-        if (enFile) {
-          enAttenteRef.current = null;
-          envoyerOuMettreEnFile(enFile);
+        readyRef.current = true;
+        stopQueueWait();
+        const queued = pendingRef.current;
+        if (queued) {
+          pendingRef.current = null;
+          sendOrQueue(queued);
         }
         return;
       }
 
-      arreterAttenteFile();
-      setEtat({ phase: "erreur", kind: msg.kind, message: msg.message });
+      stopQueueWait();
+      setPreviewState({ phase: "erreur", kind: msg.kind, message: msg.message });
     };
 
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [envoyerOuMettreEnFile, arreterAttenteFile]);
+  }, [sendOrQueue, stopQueueWait]);
 
   // Filet initial : si `ready` n'arrive jamais alors que rien n'a encore été
   // déployé, l'aperçu se déclare indisponible et la leçon continue.
   useEffect(() => {
     const t = setTimeout(() => {
-      if (!pretRef.current) {
-        setEtat((e) => (e.phase === "attente" ? { phase: "indisponible" } : e));
+      if (!readyRef.current) {
+        setPreviewState((e) => (e.phase === "attente" ? { phase: "indisponible" } : e));
       }
     }, READY_TIMEOUT_MS);
     return () => clearTimeout(t);
   }, []);
 
   // Aucun minuteur ne doit survivre au démontage du composant.
-  useEffect(() => arreterAttenteFile, [arreterAttenteFile]);
+  useEffect(() => stopQueueWait, [stopQueueWait]);
 
   // Code courant lu au déploiement, via un ref : mettre `code` dans les deps
   // de l'effet de déploiement remonterait l'aperçu à chaque frappe.
@@ -154,7 +154,7 @@ export default function ReactPreview({
 
     if (!PREVIEW_MOUNT_NAME_RE.test(mount)) {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- réaction à une donnée de cours invalide, pas une resynchronisation différée
-      setEtat({
+      setPreviewState({
         phase: "erreur",
         kind: "mount",
         message: `Nom de composant invalide dans les données du cours : « ${mount} ».`,
@@ -162,42 +162,42 @@ export default function ReactPreview({
       return;
     }
 
-    let annule = false;
+    let cancelled = false;
     void (async () => {
       const source = codeRef.current;
 
-      // Garde-fou avant toute transformation : une boucle infinie déjà
+      // Garde-fou avant toute transformation : une infiniteLoop infinie déjà
       // envoyée ne peut plus être rattrapée.
-      const boucle = detecterBoucleInfinie(source);
-      if (boucle) {
-        setEtat({ phase: "erreur", kind: "boucle", message: messageBoucleInfinie(boucle) });
+      const infiniteLoop = detectInfiniteLoop(source);
+      if (infiniteLoop) {
+        setPreviewState({ phase: "erreur", kind: "boucle", message: infiniteLoopMessage(infiniteLoop) });
         return;
       }
 
       const r = await transformJsx(source);
-      if (annule) return;
+      if (cancelled) return;
 
       if (!r.ok) {
-        setEtat({ phase: "erreur", kind: "transform", message: r.error });
+        setPreviewState({ phase: "erreur", kind: "transform", message: r.error });
         return;
       }
 
-      setEtat({ phase: "rendu" });
+      setPreviewState({ phase: "rendu" });
       // Les boucles que le filtre littéral ci-dessus laisse passer sont
       // interrompues à l'exécution, au lieu de figer l'onglet (audit EXE-02).
-      const payload = { js: protegerBoucles(r.js), mount };
-      if (pretRef.current) {
-        envoyerOuMettreEnFile(payload);
+      const payload = { js: guardLoops(r.js), mount };
+      if (readyRef.current) {
+        sendOrQueue(payload);
       } else {
-        enAttenteRef.current = payload;
-        demarrerAttenteFile();
+        pendingRef.current = payload;
+        startQueueWait();
       }
     })();
 
     return () => {
-      annule = true;
+      cancelled = true;
     };
-  }, [deployNonce, mount, envoyerOuMettreEnFile, demarrerAttenteFile]);
+  }, [deployNonce, mount, sendOrQueue, startQueueWait]);
 
   // Document du bac à sable sur son origine dédiée (audit EXE-03), chargé par
   // `src` : un `srcDoc` hériterait de la CSP du site. Résolu après le montage,
@@ -212,16 +212,16 @@ export default function ReactPreview({
   // Dérivé au rendu plutôt que posé par un effet : un effet ferait clignoter
   // l'invitation « Déploie… » pendant une frame sur un chapitre qui n'a jamais
   // d'aperçu, et resterait bloqué si `mount` devenait défini plus tard.
-  const sansApercu = !mount;
-  const sansIframe = sansApercu || etat.phase === "indisponible";
+  const noPreview = !mount;
+  const noIframe = noPreview || previewState.phase === "indisponible";
 
-  const titreErreur =
-    etat.phase === "erreur"
-      ? etat.kind === "transform"
+  const errorTitle =
+    previewState.phase === "erreur"
+      ? previewState.kind === "transform"
         ? "Syntaxe refusée"
-        : etat.kind === "mount"
+        : previewState.kind === "mount"
           ? "Composant introuvable"
-          : etat.kind === "boucle"
+          : previewState.kind === "boucle"
             ? "Boucle sans fin"
             : "Erreur à l'exécution"
       : "";
@@ -232,23 +232,23 @@ export default function ReactPreview({
         {"> "}Aperçu du composant
       </div>
 
-      {etat.phase === "erreur" && (
+      {previewState.phase === "erreur" && (
         <div className="shrink-0 border-b border-nebula-red/40 bg-nebula-red/10 px-5 py-3">
           <p className="mb-1 font-tech text-[10px] uppercase tracking-widest text-nebula-red">
-            {titreErreur}
+            {errorTitle}
           </p>
-          <p className="font-code text-xs leading-relaxed text-nebula-red/90">{etat.message}</p>
+          <p className="font-code text-xs leading-relaxed text-nebula-red/90">{previewState.message}</p>
         </div>
       )}
 
-      {sansApercu && (
+      {noPreview && (
         <p className="px-5 py-4 font-body text-sm leading-relaxed text-nebula-text-dim">
           Ce chapitre n&apos;a pas d&apos;aperçu : il enseigne la navigation, qui demande un
           routeur autour de tes composants. Ton code reste analysé et validable normalement.
         </p>
       )}
 
-      {!sansApercu && etat.phase === "indisponible" && (
+      {!noPreview && previewState.phase === "indisponible" && (
         // L'iframe est démontée ici, mais l'état n'est pas verrouillé : un
         // déploiement ultérieur la remonte, elle envoie une nouvelle poignée de
         // main et l'aperçu repart.
@@ -257,7 +257,7 @@ export default function ReactPreview({
         </p>
       )}
 
-      {!sansIframe && (
+      {!noIframe && (
         <>
           {deployNonce === 0 && (
             <p className="px-5 py-4 font-body text-sm text-nebula-text-dim">

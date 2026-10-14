@@ -35,7 +35,7 @@ function toResult(exec: { columns: string[]; values: unknown[][] }[]): SqlQueryR
   return { columns: last.columns, rows: last.values };
 }
 
-export function executerSql(SQL: SqlJsStatic, code: string, options: SqlRunOptions = {}): SqlRun {
+export function executeSql(SQL: SqlJsStatic, code: string, options: SqlRunOptions = {}): SqlRun {
   const db = new SQL.Database();
   try {
     if (options.seed) db.run(options.seed);

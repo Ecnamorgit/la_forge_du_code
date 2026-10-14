@@ -27,7 +27,7 @@ const signupSchema = z.object({
 });
 
 /** Même réponse que l'adresse soit libre ou déjà inscrite (audit SRV-05). */
-function reponseInscription(mail: { ok: boolean; error?: string }) {
+function signupResponse(mail: { ok: boolean; error?: string }) {
   return NextResponse.json({
     ok: true,
     emailSent: mail.ok,
@@ -36,8 +36,8 @@ function reponseInscription(mail: { ok: boolean; error?: string }) {
 }
 
 export async function POST(request: Request) {
-  const refus = crossOriginRefusal(request);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(request);
+  if (rejection) return rejection;
 
   // Limite par IP contre les inscriptions en masse.
   const limit = await rateLimit(`signup:${getClientIp(request)}`, {
@@ -68,32 +68,32 @@ export async function POST(request: Request) {
   // Adresse déjà inscrite : le titulaire reçoit un e-mail « tu as déjà un
   // compte » et la réponse est celle d'une inscription réussie. Le hachage est
   // calculé quand même pour que le temps de réponse ne trahisse rien.
-  const dejaInscrit = await prisma.user.findUnique({
+  const existingUser = await prisma.user.findUnique({
     where: { email: emailLower },
     select: { id: true },
   });
-  if (dejaInscrit) {
+  if (existingUser) {
     await bcrypt.hash(password, 12);
-    // Au plus 3 avis par adresse et par jour, pour ne pas inonder la boîte
-    // d'un tiers. La clé est une empreinte : l'adresse n'apparaît pas dans le
+    // Au plus 3 notice par adresse et par jour, pour ne pas inonder la boîte
+    // d'un tiers. La clé est une emailHash : l'adresse n'apparaît pas dans le
     // limiteur.
-    const empreinte = crypto.createHash("sha256").update(emailLower).digest("hex");
-    const avis = await rateLimit(`signup-exists:${empreinte}`, {
+    const emailHash = crypto.createHash("sha256").update(emailLower).digest("hex");
+    const notice = await rateLimit(`signup-exists:${emailHash}`, {
       limit: 3,
       windowMs: 24 * 60 * 60 * 1000,
     });
-    const mailRes = avis.ok ? await sendAccountExistsEmail({ to: emailLower }) : { ok: true };
-    logger.info("signup_existing_email", { noticeSent: avis.ok });
-    return reponseInscription(mailRes);
+    const mailRes = notice.ok ? await sendAccountExistsEmail({ to: emailLower }) : { ok: true };
+    logger.info("signup_existing_email", { noticeSent: notice.ok });
+    return signupResponse(mailRes);
   }
 
   // Les pseudos sont publics (classement) : dire qu'un pseudo est pris ne
   // révèle rien.
-  const pseudoPris = await prisma.user.findUnique({
+  const usernameTaken = await prisma.user.findUnique({
     where: { username },
     select: { id: true },
   });
-  if (pseudoPris) {
+  if (usernameTaken) {
     return NextResponse.json(
       { error: "Ce pseudo est déjà pris", field: "username" },
       { status: 409 }
@@ -123,5 +123,5 @@ export async function POST(request: Request) {
   // Comptage anonyme, qui ne doit pas faire échouer l'inscription.
   await prisma.trackEvent.create({ data: { name: "inscription" } }).catch(() => {});
 
-  return reponseInscription(mailRes);
+  return signupResponse(mailRes);
 }

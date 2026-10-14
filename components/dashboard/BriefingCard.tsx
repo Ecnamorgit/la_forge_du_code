@@ -25,8 +25,8 @@ export default function BriefingCard({
   hrefForQuest,
 }: BriefingCardProps) {
   const effort = briefing?.quests.find((q) => q.slot === "effort") ?? null;
-  const autres = briefing?.quests.filter((q) => q.slot !== "effort") ?? [];
-  const termine = briefing?.complete ?? false;
+  const otherQuests = briefing?.quests.filter((q) => q.slot !== "effort") ?? [];
+  const isDone = briefing?.complete ?? false;
 
   return (
     <article className="relative overflow-hidden rounded-sm border border-nebula-cyan/40 bg-nebula-bg-panel/85 p-5 backdrop-blur-md shadow-[0_0_40px_rgba(0,240,255,0.08)] lg:p-7">
@@ -56,10 +56,10 @@ export default function BriefingCard({
         </div>
 
         <div className="mb-2 font-tech text-xs uppercase tracking-[0.22em] text-nebula-text-dim">
-          {termine ? "BRIEFING COMPLET" : "ORDRE DU JOUR"}
+          {isDone ? "BRIEFING COMPLET" : "ORDRE DU JOUR"}
         </div>
 
-        {termine ? (
+        {isDone ? (
           <>
             <h3 className="mb-3 font-tech text-3xl uppercase tracking-wider text-nebula-green">
               Mission du jour accomplie
@@ -90,9 +90,9 @@ export default function BriefingCard({
           <span className="terminal-cursor">_</span>
         </Link>
 
-        {autres.length > 0 && (
+        {otherQuests.length > 0 && (
           <div className="mt-6 space-y-2.5">
-            {autres.map((q) => (
+            {otherQuests.map((q) => (
               <QuestLine key={q.id} quest={q} href={hrefForQuest(q.course, q.chapter)} />
             ))}
           </div>

@@ -13,8 +13,8 @@ import { crossOriginRefusal } from "@/lib/same-origin";
 import { filterTrialCinematics, filterTrialSteps } from "@/lib/trial-import";
 
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   const session = await auth();
   if (!session?.user?.id) {
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       if (!result.alreadyDone) imported += 1;
     } catch (err) {
       // Une étape refusée ne fait pas échouer l'onboarding. Les étapes
-      // arrivent triées : un refus d'ordre signale un trou dans la progression
+      // arrivent triées : un rejection d'ordre signale un trou dans la progression
       // d'essai, et les suivantes seront refusées aussi.
       if (err instanceof InvalidStepError || err instanceof StepOrderError) continue;
       throw err;

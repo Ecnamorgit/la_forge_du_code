@@ -72,13 +72,13 @@ interface RawUserBundle {
   }[];
 }
 
-/** Les 7 derniers jours : un booléen par jour, du plus ancien au plus récent. */
+/** Les 7 derniers days : un booléen par jour, du plus ancien au plus récent. */
 function weekDots(records: CompletionRecord[], todayIso: string): boolean[] {
-  const jours = new Set(records.map((r) => r.completedAt.slice(0, 10)));
+  const days = new Set(records.map((r) => r.completedAt.slice(0, 10)));
   const dots: boolean[] = [];
   for (let i = 6; i >= 0; i--) {
     const t = Date.parse(`${todayIso}T00:00:00Z`) - i * 86_400_000;
-    dots.push(jours.has(new Date(t).toISOString().slice(0, 10)));
+    dots.push(days.has(new Date(t).toISOString().slice(0, 10)));
   }
   return dots;
 }
@@ -324,12 +324,12 @@ export async function completeStep(
     // Ordre de progression (audit EXE-01) : vérifié après le test
     // d'idempotence, pour qu'une étape déjà faite reste une réponse normale,
     // et dans la transaction, sur les complétions qu'elle voit.
-    const faites = await tx.stepCompletion.findMany({
+    const completed = await tx.stepCompletion.findMany({
       where: { userId, course },
       select: { chapter: true, stepIndex: true },
     });
-    const ordre = checkStepOrder(CHAPTERS_BY_COURSE[course] ?? [], faites, chapter, stepIndex);
-    if (!ordre.ok) throw new StepOrderError(ordre.reason);
+    const orderCheck = checkStepOrder(CHAPTERS_BY_COURSE[course] ?? [], completed, chapter, stepIndex);
+    if (!orderCheck.ok) throw new StepOrderError(orderCheck.reason);
 
     await tx.stepCompletion.create({
       data: { userId, course, chapter, stepIndex },
@@ -375,9 +375,9 @@ export async function completeStep(
     }
 
     // Boucle quotidienne : liaison, ordres, badges de conduite.
-    const jour = todayIso();
+    const today = todayIso();
 
-    const brut = await tx.user.findUnique({
+    const rawUser = await tx.user.findUnique({
       where: { id: userId },
       select: {
         totalXp: true,
@@ -393,151 +393,151 @@ export async function completeStep(
         dailyClaimed: true,
       },
     });
-    if (!brut) throw new UserNotFoundError();
+    if (!rawUser) throw new UserNotFoundError();
 
-    const toutes = await tx.stepCompletion.findMany({
+    const allCompletions = await tx.stepCompletion.findMany({
       where: { userId },
       select: { course: true, chapter: true, stepIndex: true, completedAt: true },
     });
-    const records: CompletionRecord[] = toutes.map((r) => ({
+    const records: CompletionRecord[] = allCompletions.map((r) => ({
       course: r.course,
       chapter: r.chapter,
       stepIndex: r.stepIndex,
       completedAt: r.completedAt.toISOString(),
     }));
-    const { past, today: todayRecords } = splitCompletions(records, jour);
+    const { past, today: todayRecords } = splitCompletions(records, today);
 
     const briefing = buildBriefing({
       // Identifiant de compte, jamais le pseudo : cf. `RawUserBundle.id`.
       userId,
-      todayIso: jour,
+      todayIso: today,
       past,
       today: todayRecords,
       chaptersByCourse: CHAPTERS_BY_COURSE,
     });
 
-    // L'arithmétique du versement (bits, bonus de clôture, série de briefings
+    // L'arithmétique du payout (bits, bonus de clôture, série de briefings
     // parfaits, remise à zéro du masque) vit dans `applyBriefingPayout`, pure
     // et testée : ce module importe `server-only` et échappe à vitest.
-    const versement = applyBriefingPayout(
+    const payout = applyBriefingPayout(
       briefing,
       {
-        claimedMask: brut.dailyClaimed,
-        claimedDay: brut.lastDailyMission,
-        perfectRun: brut.perfectBriefingRun,
-        lastPerfectDay: brut.lastPerfectDay,
+        claimedMask: rawUser.dailyClaimed,
+        claimedDay: rawUser.lastDailyMission,
+        perfectRun: rawUser.perfectBriefingRun,
+        lastPerfectDay: rawUser.lastPerfectDay,
       },
-      jour
+      today
     );
 
     // La liaison avance sans condition : on n'arrive ici que pour une étape
     // nouvelle (la transaction sort plus haut si `alreadyDone`). Le déclencheur
-    // est l'étape et non l'ordre accompli : un ordre peut demander plusieurs
+    // est l'étape et non l'orderCheck accompli : un orderCheck peut demander plusieurs
     // étapes, et un cadet qui n'en fait qu'une a quand même travaillé.
     // `advanceLiaison` est idempotente sur la journée.
     const transition = advanceLiaison(
       {
-        streak: brut.streak,
-        bestStreak: brut.bestStreak,
-        shields: brut.streakShields,
-        shieldEverGranted: brut.shieldEverGranted,
-        lastActiveDay: brut.lastVisit,
+        streak: rawUser.streak,
+        bestStreak: rawUser.bestStreak,
+        shields: rawUser.streakShields,
+        shieldEverGranted: rawUser.shieldEverGranted,
+        lastActiveDay: rawUser.lastVisit,
       },
-      jour
+      today
     );
 
-    const liaisonApres = transition.next;
+    const liaisonAfter = transition.next;
 
-    const questsCompletedApres = brut.questsCompleted + versement.questsPaid;
-    const xpApres = Math.min(brut.totalXp + versement.bonusXp, MAX_XP);
+    const questsCompletedAfter = rawUser.questsCompleted + payout.questsPaid;
+    const xpAfter = Math.min(rawUser.totalXp + payout.bonusXp, MAX_XP);
 
     await tx.user.update({
       where: { id: userId },
       data: {
-        totalXp: xpApres,
-        dailyClaimed: versement.nextMask,
-        lastDailyMission: jour,
-        questsCompleted: questsCompletedApres,
-        perfectBriefingRun: versement.perfectRun,
-        lastPerfectDay: versement.lastPerfectDay,
-        streak: liaisonApres.streak,
-        bestStreak: liaisonApres.bestStreak,
-        streakShields: liaisonApres.shields,
-        shieldEverGranted: liaisonApres.shieldEverGranted,
-        lastVisit: liaisonApres.lastActiveDay,
+        totalXp: xpAfter,
+        dailyClaimed: payout.nextMask,
+        lastDailyMission: today,
+        questsCompleted: questsCompletedAfter,
+        perfectBriefingRun: payout.perfectRun,
+        lastPerfectDay: payout.lastPerfectDay,
+        streak: liaisonAfter.streak,
+        bestStreak: liaisonAfter.bestStreak,
+        streakShields: liaisonAfter.shields,
+        shieldEverGranted: liaisonAfter.shieldEverGranted,
+        lastVisit: liaisonAfter.lastActiveDay,
       },
     });
 
-    awardedXp += xpApres - brut.totalXp;
-    questXp = xpApres - brut.totalXp;
+    awardedXp += xpAfter - rawUser.totalXp;
+    questXp = xpAfter - rawUser.totalXp;
     // Seuls les ordres payés à cet instant : filtrer `briefing.quests` sur
     // `done` réannoncerait les ordres déjà payés plus tôt dans la journée.
-    completedQuests = versement.paidLabels;
+    completedQuests = payout.paidLabels;
 
     if (transition.shieldsConsumed) {
-      notice = `Un relais de secours a couvert ton absence. Il t'en reste ${liaisonApres.shields}.`;
+      notice = `Un relais de secours a couvert ton absence. Il t'en reste ${liaisonAfter.shields}.`;
     } else if (transition.broken) {
-      notice = `Liaison rompue. Ton record de ${liaisonApres.bestStreak} jours reste acquis.`;
+      notice = `Liaison rompue. Ton record de ${liaisonAfter.bestStreak} jours reste acquis.`;
     }
 
     // Badges de conduite mérités mais non encore attribués.
-    const merites = evaluateConductBadges({
-      streak: liaisonApres.streak,
-      questsCompleted: questsCompletedApres,
-      perfectBriefingRun: versement.perfectRun,
+    const earnedConductBadges = evaluateConductBadges({
+      streak: liaisonAfter.streak,
+      questsCompleted: questsCompletedAfter,
+      perfectBriefingRun: payout.perfectRun,
       completions: records,
       justReturned: transition.earnedReturn,
     });
-    const dejaLa = new Set(
+    const alreadyOwned = new Set(
       (await tx.userBadge.findMany({ where: { userId }, select: { badgeId: true } })).map(
         (b) => b.badgeId
       )
     );
-    for (const id of merites) {
-      if (dejaLa.has(id)) continue;
+    for (const id of earnedConductBadges) {
+      if (alreadyOwned.has(id)) continue;
       await tx.userBadge.create({ data: { userId, badgeId: id } });
       newConductBadges.push(id);
     }
 
     // Déblocables cosmétiques nouvellement atteints.
-    const chapitresFinis = Object.entries(CHAPTERS_BY_COURSE).reduce(
-      (n, [course, chapitres]) =>
+    const chaptersFinished = Object.entries(CHAPTERS_BY_COURSE).reduce(
+      (n, [course, courseChapters]) =>
         n +
-        chapitres.filter(
+        courseChapters.filter(
           (ch) =>
             records.filter((r) => r.course === course && r.chapter === ch.slug).length >=
             ch.totalSteps
         ).length,
       0
     );
-    const cursusFinis = Object.entries(CHAPTERS_BY_COURSE).filter(([course, chapitres]) =>
-      chapitres.every(
+    const coursesFinished = Object.entries(CHAPTERS_BY_COURSE).filter(([course, courseChapters]) =>
+      courseChapters.every(
         (ch) =>
           records.filter((r) => r.course === course && r.chapter === ch.slug).length >=
           ch.totalSteps
       )
     ).length;
 
-    const dejaDebloques = new Set(
+    const alreadyUnlocked = new Set(
       (await tx.userUnlock.findMany({ where: { userId }, select: { itemId: true } })).map(
         (u) => u.itemId
       )
     );
-    const statuts = evaluateUnlocks({
-      streak: liaisonApres.streak,
-      questsCompleted: questsCompletedApres,
-      totalXp: xpApres,
-      badges: [...dejaLa, ...merites],
-      coursesComplete: cursusFinis,
-      chaptersComplete: chapitresFinis,
-      owned: [...dejaDebloques],
+    const unlockStatuses = evaluateUnlocks({
+      streak: liaisonAfter.streak,
+      questsCompleted: questsCompletedAfter,
+      totalXp: xpAfter,
+      badges: [...alreadyOwned, ...earnedConductBadges],
+      coursesComplete: coursesFinished,
+      chaptersComplete: chaptersFinished,
+      owned: [...alreadyUnlocked],
     });
-    for (const s of statuts) {
+    for (const s of unlockStatuses) {
       // Les objets par défaut sont acquis d'office et `setCosmetics` les
       // accepte sans ligne en base : leur créer un `UserUnlock` les ferait
       // annoncer comme nouveaux déblocables.
       if (!s.unlocked || s.def.condition.kind === "default") continue;
-      if (dejaDebloques.has(s.def.id)) continue;
+      if (alreadyUnlocked.has(s.def.id)) continue;
       await tx.userUnlock.create({ data: { userId, itemId: s.def.id } });
       newUnlocks.push(s.def.id);
     }
@@ -671,8 +671,8 @@ export async function setCosmetics(
     prisma.userUnlock.findMany({ where: { userId }, select: { itemId: true } }),
     prisma.userBadge.findMany({ where: { userId }, select: { badgeId: true } }),
   ]);
-  const possede = new Set(unlocks.map((u) => u.itemId));
-  const badgesPossedes = new Set(badges.map((b) => b.badgeId));
+  const ownedSet = new Set(unlocks.map((u) => u.itemId));
+  const ownedBadges = new Set(badges.map((b) => b.badgeId));
 
   // Objet de mise à jour construit clé par clé : passer `choices` tel quel à
   // Prisma laisserait une route qui relaie le corps JSON brut écrire n'importe
@@ -696,14 +696,14 @@ export async function setCosmetics(
     if (def.axis !== slot.axis) {
       throw new InvalidCosmeticError("Cet objet n'appartient pas à cet emplacement");
     }
-    if (def.condition.kind !== "default" && !possede.has(id)) {
+    if (def.condition.kind !== "default" && !ownedSet.has(id)) {
       throw new InvalidCosmeticError("Cet objet n'est pas débloqué");
     }
     data[slot.column] = id;
   }
 
   if (choices.emblem !== undefined) {
-    if (!badgesPossedes.has(choices.emblem)) {
+    if (!ownedBadges.has(choices.emblem)) {
       throw new InvalidCosmeticError("Ce badge n'est pas obtenu");
     }
     data.emblem = choices.emblem;

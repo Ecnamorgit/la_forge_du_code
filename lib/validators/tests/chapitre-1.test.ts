@@ -11,7 +11,7 @@ import { validators } from "./chapitre-1";
  */
 
 describe("Tests — etape 2 (cas limite et toEqual)", () => {
-  const valider = validators[1];
+  const validate = validators[1];
 
   it("accepte deux cas dont le tableau vide, compares avec toEqual", () => {
     const code = `describe('filtrerActifs', () => {
@@ -22,7 +22,7 @@ describe("Tests — etape 2 (cas limite et toEqual)", () => {
     expect(filtrerActifs([])).toEqual([]);
   });
 });`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un seul cas, sans le tableau vide", () => {
@@ -31,7 +31,7 @@ describe("Tests — etape 2 (cas limite et toEqual)", () => {
     expect(filtrerActifs([{ actif: true }])).toEqual([{ actif: true }]);
   });
 });`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse toBe pour comparer des tableaux d'objets", () => {
@@ -44,12 +44,12 @@ describe("Tests — etape 2 (cas limite et toEqual)", () => {
     expect(filtrerActifs([]).length).toBe(0);
   });
 });`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("Tests — etape 3 (composant et interaction)", () => {
-  const valider = validators[2];
+  const validate = validators[2];
 
   it("accepte un rendu suivi d'un clic verifie", () => {
     const code = `it('incremente', () => {
@@ -57,7 +57,7 @@ describe("Tests — etape 3 (composant et interaction)", () => {
   fireEvent.click(getByText('+'));
   expect(getByText('Score : 1')).toBeInTheDocument();
 });`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un rendu sans interaction", () => {
@@ -66,7 +66,7 @@ describe("Tests — etape 3 (composant et interaction)", () => {
   render(<Compteur />);
   expect(getByText('Score : 0')).toBeInTheDocument();
 });`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un clic dont le resultat n'est pas verifie", () => {
@@ -75,12 +75,12 @@ describe("Tests — etape 3 (composant et interaction)", () => {
   getByText('+');
   fireEvent.click(getByText('+'));
 });`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("Tests — etape 4 (parcours de bout en bout)", () => {
-  const valider = validators[3];
+  const validate = validators[3];
 
   it("accepte une navigation, un clic et une verification d'URL", () => {
     const code = `test('navigue vers le dashboard', async ({ page }) => {
@@ -88,14 +88,14 @@ describe("Tests — etape 4 (parcours de bout en bout)", () => {
   await page.click('text=Connexion');
   await expect(page).toHaveURL(/dashboard/);
 });`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse une visite sans clic ni verification", () => {
     const code = `test('ouvre la page', async ({ page }) => {
   await page.goto('http://localhost:3000');
 });`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un clic sans verification de l'URL atteinte", () => {
@@ -104,6 +104,6 @@ describe("Tests — etape 4 (parcours de bout en bout)", () => {
   await page.goto('http://localhost:3000');
   await page.click('text=Connexion');
 });`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });

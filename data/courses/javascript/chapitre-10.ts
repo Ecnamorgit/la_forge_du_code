@@ -1,6 +1,6 @@
 import type { ChapterData } from "@/data/courses/html/types";
 
-export const chapitre10: ChapterData = {
+export const chapter10: ChapterData = {
   slug: "chapitre-10",
   tag: "MISSION : MÉMOIRE PERSISTANTE",
   title: "STOCKAGE\nLOCAL",

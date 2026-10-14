@@ -52,21 +52,21 @@ export interface ConductContext {
 
 /** Nombre maximal d'étapes validées dans une même journée UTC. */
 function maxStepsInOneDay(completions: CompletionRecord[]): number {
-  const parJour = new Map<string, number>();
+  const perDay = new Map<string, number>();
   for (const c of completions) {
-    const jour = c.completedAt.slice(0, 10);
-    parJour.set(jour, (parJour.get(jour) ?? 0) + 1);
+    const day = c.completedAt.slice(0, 10);
+    perDay.set(day, (perDay.get(day) ?? 0) + 1);
   }
   let max = 0;
-  for (const n of parJour.values()) if (n > max) max = n;
+  for (const n of perDay.values()) if (n > max) max = n;
   return max;
 }
 
 /** Vrai si une étape a été validée entre 0 h et 5 h UTC. */
 function hasNightStep(completions: CompletionRecord[]): boolean {
   return completions.some((c) => {
-    const heure = Number(c.completedAt.slice(11, 13));
-    return heure >= 0 && heure < 5;
+    const hour = Number(c.completedAt.slice(11, 13));
+    return hour >= 0 && hour < 5;
   });
 }
 
@@ -75,23 +75,23 @@ function hasNightStep(completions: CompletionRecord[]): boolean {
  * serveur ne crée que ceux qui manquent en base.
  */
 export function evaluateConductBadges(ctx: ConductContext): string[] {
-  const merites: string[] = [];
-  const cursus = new Set(ctx.completions.map((c) => c.course)).size;
+  const earned: string[] = [];
+  const courseCount = new Set(ctx.completions.map((c) => c.course)).size;
 
-  if (ctx.streak >= 7) merites.push("liaison-7");
-  if (ctx.streak >= 30) merites.push("liaison-30");
-  if (ctx.streak >= 100) merites.push("liaison-100");
+  if (ctx.streak >= 7) earned.push("liaison-7");
+  if (ctx.streak >= 30) earned.push("liaison-30");
+  if (ctx.streak >= 100) earned.push("liaison-100");
 
-  if (ctx.questsCompleted >= 10) merites.push("quetes-10");
-  if (ctx.questsCompleted >= 50) merites.push("quetes-50");
-  if (ctx.questsCompleted >= 200) merites.push("quetes-200");
+  if (ctx.questsCompleted >= 10) earned.push("quetes-10");
+  if (ctx.questsCompleted >= 50) earned.push("quetes-50");
+  if (ctx.questsCompleted >= 200) earned.push("quetes-200");
 
-  if (ctx.perfectBriefingRun >= 5) merites.push("briefing-5");
-  if (cursus >= 5) merites.push("polyglotte");
-  if (cursus >= 10) merites.push("confins");
-  if (maxStepsInOneDay(ctx.completions) >= 10) merites.push("sprint");
-  if (hasNightStep(ctx.completions)) merites.push("veilleur");
-  if (ctx.justReturned) merites.push("retour");
+  if (ctx.perfectBriefingRun >= 5) earned.push("briefing-5");
+  if (courseCount >= 5) earned.push("polyglotte");
+  if (courseCount >= 10) earned.push("confins");
+  if (maxStepsInOneDay(ctx.completions) >= 10) earned.push("sprint");
+  if (hasNightStep(ctx.completions)) earned.push("veilleur");
+  if (ctx.justReturned) earned.push("retour");
 
-  return merites;
+  return earned;
 }

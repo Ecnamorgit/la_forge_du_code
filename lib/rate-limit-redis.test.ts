@@ -8,12 +8,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
  * `UPSTASH_REDIS_REST_*`.
  */
 
-const clientsCrees = vi.hoisted(() => [] as unknown[]);
+const createdClients = vi.hoisted(() => [] as unknown[]);
 
 vi.mock("@upstash/redis", () => ({
   Redis: class {
     constructor(config: unknown) {
-      clientsCrees.push(config);
+      createdClients.push(config);
     }
     incr = async () => 1;
     pexpire = async () => 1;
@@ -30,22 +30,22 @@ const VARIABLES = [
 ] as const;
 
 describe("limiteur de débit : Redis partagé", () => {
-  const sauvegarde: Partial<Record<(typeof VARIABLES)[number], string>> = {};
+  const saved: Partial<Record<(typeof VARIABLES)[number], string>> = {};
 
   beforeEach(() => {
     // Le limiteur mémorise sa configuration au premier appel : module neuf.
     vi.resetModules();
-    clientsCrees.length = 0;
+    createdClients.length = 0;
     for (const v of VARIABLES) {
-      sauvegarde[v] = process.env[v];
+      saved[v] = process.env[v];
       delete process.env[v];
     }
   });
 
   afterEach(() => {
     for (const v of VARIABLES) {
-      if (sauvegarde[v] === undefined) delete process.env[v];
-      else process.env[v] = sauvegarde[v];
+      if (saved[v] === undefined) delete process.env[v];
+      else process.env[v] = saved[v];
     }
   });
 
@@ -54,7 +54,7 @@ describe("limiteur de débit : Redis partagé", () => {
     process.env.KV_REST_API_TOKEN = "jeton-kv";
     const { rateLimit } = await import("./rate-limit");
     await rateLimit("srv01", { limit: 5, windowMs: 1000 });
-    expect(clientsCrees).toEqual([{ url: "https://exemple.upstash.io", token: "jeton-kv" }]);
+    expect(createdClients).toEqual([{ url: "https://exemple.upstash.io", token: "jeton-kv" }]);
   });
 
   it("utilise toujours les noms UPSTASH_REDIS_REST_*", async () => {
@@ -62,12 +62,12 @@ describe("limiteur de débit : Redis partagé", () => {
     process.env.UPSTASH_REDIS_REST_TOKEN = "jeton-upstash";
     const { rateLimit } = await import("./rate-limit");
     await rateLimit("srv01", { limit: 5, windowMs: 1000 });
-    expect(clientsCrees).toEqual([{ url: "https://autre.upstash.io", token: "jeton-upstash" }]);
+    expect(createdClients).toEqual([{ url: "https://autre.upstash.io", token: "jeton-upstash" }]);
   });
 
   it("reste en mémoire sans aucune variable Redis", async () => {
     const { rateLimit } = await import("./rate-limit");
     await rateLimit("srv01", { limit: 5, windowMs: 1000 });
-    expect(clientsCrees).toEqual([]);
+    expect(createdClients).toEqual([]);
   });
 });

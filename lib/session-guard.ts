@@ -13,7 +13,7 @@ import { prisma } from "@/lib/db";
  */
 
 /** Incrémente la version de session : révoque tous les jetons déjà émis. */
-export async function revoquerSessions(userId: string): Promise<void> {
+export async function revokeSessions(userId: string): Promise<void> {
   await prisma.user.update({
     where: { id: userId },
     data: { sessionVersion: { increment: 1 } },
@@ -25,15 +25,15 @@ export async function revoquerSessions(userId: string): Promise<void> {
  * d'erreur de base, on répond `true` pour ne pas déconnecter tout le monde à
  * la moindre panne : la révocation est seulement différée.
  */
-export async function sessionEstValide(userId: string, versionJeton: unknown): Promise<boolean> {
-  if (typeof versionJeton !== "number") return false;
+export async function isSessionValid(userId: string, tokenVersion: unknown): Promise<boolean> {
+  if (typeof tokenVersion !== "number") return false;
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: { sessionVersion: true },
     });
     if (!user) return false;
-    return user.sessionVersion === versionJeton;
+    return user.sessionVersion === tokenVersion;
   } catch {
     return true;
   }

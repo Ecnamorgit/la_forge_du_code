@@ -7,7 +7,7 @@ import { PREVIEW_EXEMPT } from "./preview-exemptions";
 
 /**
  * Chaque étape React a un `previewMount` valide, ou son chapitre est exempté
- * avec une raison écrite. Sans ce test, un oubli laisserait un aperçu vide.
+ * avec une reason écrite. Sans ce test, un oubli laisserait un aperçu vide.
  */
 describe("previewMount du cursus React", () => {
   const slugs = CHAPTER_SUMMARIES.react.map((c) => c.slug);
@@ -43,21 +43,21 @@ describe("previewMount du cursus React", () => {
       const data = getChapterData("react", slug)!;
 
       data.steps.forEach((step, i) => {
-        const nom = step.previewMount!;
+        const mountName = step.previewMount!;
         const declare = new RegExp(
-          `(?:function\\s+${nom}\\s*\\(|(?:const|let|var)\\s+${nom}\\s*=)`
+          `(?:function\\s+${mountName}\\s*\\(|(?:const|let|var)\\s+${mountName}\\s*=)`
         ).test(step.hint);
         expect(
           declare,
-          `react/${slug} etape ${i + 1} : « ${nom} » n'est pas declare dans le hint`
+          `react/${slug} etape ${i + 1} : « ${mountName} » n'est pas declare dans le hint`
         ).toBe(true);
       });
     }
   });
 
   it("chaque exemption porte une raison non vide", () => {
-    for (const [cle, raison] of Object.entries(PREVIEW_EXEMPT)) {
-      expect(raison.trim().length, `${cle} : raison vide`).toBeGreaterThan(20);
+    for (const [key, reason] of Object.entries(PREVIEW_EXEMPT)) {
+      expect(reason.trim().length, `${key} : raison vide`).toBeGreaterThan(20);
     }
   });
 });

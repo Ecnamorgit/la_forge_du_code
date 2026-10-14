@@ -27,8 +27,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   const session = await auth();
   if (!session?.user?.id) {

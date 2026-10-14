@@ -28,74 +28,74 @@ function page(css: string): string {
 }
 
 describe("CSS chapitre 2 — etape 1 (selecteur de classe)", () => {
-  const valider = validators[0];
+  const validate = validators[0];
 
   it("accepte une regle .alert { color }", () => {
-    expect(valider(page(".alert { color: red; }")).ok).toBe(true);
+    expect(validate(page(".alert { color: red; }")).ok).toBe(true);
   });
 
   it("refuse une regle qui cible la balise au lieu de la classe", () => {
     // Échec ciblé : il y a bien un color sur un <p>, mais pas sur .alert.
-    expect(valider(page("p { color: red; }")).ok).toBe(false);
+    expect(validate(page("p { color: red; }")).ok).toBe(false);
   });
 
   it("refuse un document sans balise <style>", () => {
-    expect(valider("<html><body><h1>x</h1></body></html>").ok).toBe(false);
+    expect(validate("<html><body><h1>x</h1></body></html>").ok).toBe(false);
   });
 
   it("refuse background-color, qui n'est pas la propriete demandee", () => {
     // `background-color` contient « color » : une vérification par \b
     // l'accepterait à tort.
-    expect(valider(page(".alert { background-color: red; }")).ok).toBe(false);
+    expect(validate(page(".alert { background-color: red; }")).ok).toBe(false);
   });
 });
 
 describe("CSS chapitre 2 — etape 2 (selecteur d'id)", () => {
-  const valider = validators[1];
+  const validate = validators[1];
 
   it("accepte une regle #status { color }", () => {
-    expect(valider(page("#status { color: cyan; }")).ok).toBe(true);
+    expect(validate(page("#status { color: cyan; }")).ok).toBe(true);
   });
 
   it("refuse une classe .status a la place de l'id", () => {
-    expect(valider(page(".status { color: cyan; }")).ok).toBe(false);
+    expect(validate(page(".status { color: cyan; }")).ok).toBe(false);
   });
 });
 
 describe("CSS chapitre 2 — etape 3 (couleur hex ou rgb)", () => {
-  const valider = validators[2];
+  const validate = validators[2];
 
   it("accepte un hexadecimal a six chiffres", () => {
-    expect(valider(page("h1 { color: #ff6b2c; }")).ok).toBe(true);
+    expect(validate(page("h1 { color: #ff6b2c; }")).ok).toBe(true);
   });
 
   it("accepte la notation rgb()", () => {
-    expect(valider(page("h1 { color: rgb(255, 107, 44); }")).ok).toBe(true);
+    expect(validate(page("h1 { color: rgb(255, 107, 44); }")).ok).toBe(true);
   });
 
   it("refuse un nom de couleur, qui n'est ni hex ni rgb", () => {
-    expect(valider(page("h1 { color: orange; }")).ok).toBe(false);
+    expect(validate(page("h1 { color: orange; }")).ok).toBe(false);
   });
 
   it("refuse un canal rgb hors bornes", () => {
-    expect(valider(page("h1 { color: rgb(300, 0, 0); }")).ok).toBe(false);
+    expect(validate(page("h1 { color: rgb(300, 0, 0); }")).ok).toBe(false);
   });
 });
 
 describe("CSS chapitre 2 — etape 4 (typographie sur deux selecteurs)", () => {
-  const valider = validators[3];
+  const validate = validators[3];
 
   it("accepte text-align sur h1 et font-weight sur .alert", () => {
     expect(
-      valider(page("h1 { text-align: center; } .alert { font-weight: bold; }")).ok
+      validate(page("h1 { text-align: center; } .alert { font-weight: bold; }")).ok
     ).toBe(true);
   });
 
   it("refuse quand seul text-align est pose", () => {
-    expect(valider(page("h1 { text-align: center; }")).ok).toBe(false);
+    expect(validate(page("h1 { text-align: center; }")).ok).toBe(false);
   });
 
   it("refuse quand seul font-weight est pose", () => {
-    expect(valider(page(".alert { font-weight: bold; }")).ok).toBe(false);
+    expect(validate(page(".alert { font-weight: bold; }")).ok).toBe(false);
   });
 });

@@ -13,7 +13,7 @@ import {
   type QuestSlot,
 } from "./quests";
 
-const CHAPITRES = {
+const CHAPTERS = {
   html: [
     { slug: "chapitre-1", totalSteps: 4 },
     { slug: "chapitre-2", totalSteps: 4 },
@@ -26,9 +26,9 @@ function step(
   course: string,
   chapter: string,
   stepIndex: number,
-  jour: string
+  day: string
 ): CompletionRecord {
-  return { course, chapter, stepIndex, completedAt: `${jour}T10:00:00.000Z` };
+  return { course, chapter, stepIndex, completedAt: `${day}T10:00:00.000Z` };
 }
 
 function ctx(p: Partial<QuestContext> = {}): QuestContext {
@@ -37,20 +37,20 @@ function ctx(p: Partial<QuestContext> = {}): QuestContext {
     todayIso: "2026-08-19",
     past: [],
     today: [],
-    chaptersByCourse: CHAPITRES,
+    chaptersByCourse: CHAPTERS,
     ...p,
   };
 }
 
-/** N jours ISO consécutifs à partir de `depart`, pour balayer le tirage. */
-function joursConsecutifs(depart: string, n: number): string[] {
-  const jours: string[] = [];
-  const d = new Date(`${depart}T00:00:00.000Z`);
+/** N days ISO consécutifs à partir de `start`, pour balayer le tirage. */
+function consecutiveDays(start: string, n: number): string[] {
+  const days: string[] = [];
+  const d = new Date(`${start}T00:00:00.000Z`);
   for (let i = 0; i < n; i++) {
-    jours.push(d.toISOString().slice(0, 10));
+    days.push(d.toISOString().slice(0, 10));
     d.setUTCDate(d.getUTCDate() + 1);
   }
-  return jours;
+  return days;
 }
 
 describe("splitCompletions", () => {
@@ -73,7 +73,7 @@ describe("splitCompletions", () => {
  * (cursus-dormant), javascript jamais ouvert (premiere-fois), deux cursus
  * touchés (second-front).
  */
-const PASSE_RICHE: CompletionRecord[] = [
+const RICH_PAST: CompletionRecord[] = [
   step("html", "chapitre-1", 0, "2026-08-18"),
   step("html", "chapitre-1", 1, "2026-08-18"),
   step("html", "chapitre-1", 2, "2026-08-18"),
@@ -81,45 +81,45 @@ const PASSE_RICHE: CompletionRecord[] = [
   step("css", "chapitre-1", 0, "2026-08-01"),
 ];
 
-const EMPLACEMENTS = ["reprise", "effort", "curiosite"] as const;
+const SLOTS = ["reprise", "effort", "curiosite"] as const;
 
 describe("buildBriefing — déterminisme", () => {
   it("rend le même briefing pour le même cadet le même jour", () => {
-    const a = buildBriefing(ctx({ past: PASSE_RICHE }));
-    const b = buildBriefing(ctx({ past: PASSE_RICHE }));
+    const a = buildBriefing(ctx({ past: RICH_PAST }));
+    const b = buildBriefing(ctx({ past: RICH_PAST }));
     expect(a.quests.map((q) => q.id)).toEqual(b.quests.map((q) => q.id));
   });
 
   it("chaque emplacement varie d'un jour à l'autre", () => {
-    const jours = joursConsecutifs("2026-08-19", 20);
-    for (const slot of EMPLACEMENTS) {
-      const idsParJour = jours.map(
+    const days = consecutiveDays("2026-08-19", 20);
+    for (const slot of SLOTS) {
+      const idsPerDay = days.map(
         (j) =>
-          buildBriefing(ctx({ past: PASSE_RICHE, todayIso: j })).quests.find(
+          buildBriefing(ctx({ past: RICH_PAST, todayIso: j })).quests.find(
             (q) => q.slot === slot
           )?.id
       );
-      const distincts = new Set(idsParJour);
+      const distinctIds = new Set(idsPerDay);
       expect(
-        distincts.size,
-        `emplacement ${slot} sur ${jours.length} jours : ${idsParJour.join(", ")}`
+        distinctIds.size,
+        `emplacement ${slot} sur ${days.length} jours : ${idsPerDay.join(", ")}`
       ).toBeGreaterThanOrEqual(2);
     }
   });
 
   it("chaque emplacement varie d'un cadet à l'autre", () => {
     const cadets = Array.from({ length: 10 }, (_, i) => `cadet-${i + 1}`);
-    for (const slot of EMPLACEMENTS) {
-      const idsParCadet = cadets.map(
+    for (const slot of SLOTS) {
+      const idsPerCadet = cadets.map(
         (u) =>
-          buildBriefing(ctx({ past: PASSE_RICHE, userId: u })).quests.find(
+          buildBriefing(ctx({ past: RICH_PAST, userId: u })).quests.find(
             (q) => q.slot === slot
           )?.id
       );
-      const distincts = new Set(idsParCadet);
+      const distinctIds = new Set(idsPerCadet);
       expect(
-        distincts.size,
-        `emplacement ${slot} sur ${cadets.length} cadets : ${idsParCadet.join(", ")}`
+        distinctIds.size,
+        `emplacement ${slot} sur ${cadets.length} cadets : ${idsPerCadet.join(", ")}`
       ).toBeGreaterThanOrEqual(2);
     }
   });
@@ -132,11 +132,11 @@ describe("buildBriefing — le piège de la faisabilité", () => {
       step("html", "chapitre-1", 1, "2026-08-01"),
       step("html", "chapitre-1", 2, "2026-08-01"),
     ];
-    const avant = buildBriefing(ctx({ past }));
-    const apres = buildBriefing(
+    const before = buildBriefing(ctx({ past }));
+    const after = buildBriefing(
       ctx({ past, today: [step("html", "chapitre-1", 3, "2026-08-19")] })
     );
-    expect(apres.quests.map((q) => q.id)).toEqual(avant.quests.map((q) => q.id));
+    expect(after.quests.map((q) => q.id)).toEqual(before.quests.map((q) => q.id));
   });
 });
 
@@ -145,20 +145,20 @@ describe("buildBriefing — progression", () => {
     const b = buildBriefing(
       ctx({ today: [step("html", "chapitre-1", 0, "2026-08-19")] })
     );
-    const reprise = b.quests.find((q) => q.slot === "reprise");
-    expect(reprise?.progress).toBe(1);
+    const resumeQuest = b.quests.find((q) => q.slot === "reprise");
+    expect(resumeQuest?.progress).toBe(1);
   });
 
   it("ne compte jamais les étapes d'hier", () => {
     const b = buildBriefing(
       ctx({ past: [step("html", "chapitre-1", 0, "2026-08-18")] })
     );
-    const reprise = b.quests.find((q) => q.slot === "reprise");
-    expect(reprise?.progress).toBe(0);
+    const resumeQuest = b.quests.find((q) => q.slot === "reprise");
+    expect(resumeQuest?.progress).toBe(0);
   });
 
   it("marque le briefing complet quand tous les ordres sont atteints", () => {
-    // Passé vide : reprise (1 ou 2 étapes), effort (5 étapes), curiosité
+    // Passé vide : resumeQuest (1 ou 2 étapes), effort (5 étapes), curiosité
     // (ouvrir le premier cursus vierge par ordre alphabétique, css).
     const today = [
       ...Array.from({ length: 6 }, (_, i) => step("html", "chapitre-1", i % 4, "2026-08-19")),
@@ -189,7 +189,7 @@ describe("buildBriefing — faisabilité", () => {
 
   it("ne propose jamais de boucler un chapitre déjà bouclé", () => {
     // html/chapitre-1 est terminé (4/4) : boucler-chapitre ne peut viser que
-    // html/chapitre-2, entamé à 50 %. `tire` garantit que l'archétype a bien
+    // html/chapitre-2, entamé à 50 %. `drawn` garantit que l'archétype a bien
     // été tiré au moins une fois.
     const past = [
       step("html", "chapitre-1", 0, "2026-08-01"),
@@ -199,36 +199,36 @@ describe("buildBriefing — faisabilité", () => {
       step("html", "chapitre-2", 0, "2026-08-01"),
       step("html", "chapitre-2", 1, "2026-08-01"),
     ];
-    const jours = joursConsecutifs("2026-08-19", 20);
-    let tire = false;
-    for (const jour of jours) {
-      const b = buildBriefing(ctx({ past, todayIso: jour }));
-      const boucle = b.quests.find((q) => q.id === "boucler-chapitre");
-      if (boucle) {
-        tire = true;
-        expect(`${boucle.course}/${boucle.chapter}`).toBe("html/chapitre-2");
+    const days = consecutiveDays("2026-08-19", 20);
+    let drawn = false;
+    for (const day of days) {
+      const b = buildBriefing(ctx({ past, todayIso: day }));
+      const finishQuest = b.quests.find((q) => q.id === "boucler-chapitre");
+      if (finishQuest) {
+        drawn = true;
+        expect(`${finishQuest.course}/${finishQuest.chapter}`).toBe("html/chapitre-2");
       }
     }
-    expect(tire, `boucler-chapitre jamais tiré sur ${jours.length} jours`).toBe(true);
+    expect(drawn, `boucler-chapitre jamais tiré sur ${days.length} jours`).toBe(true);
   });
 
   it("ne propose pas d'ouvrir un cursus quand tous sont entamés", () => {
     const past = ["html", "css", "javascript"].map((c) =>
       step(c, "chapitre-1", 0, "2026-08-01")
     );
-    for (const jour of ["2026-08-19", "2026-08-20", "2026-08-21", "2026-08-22"]) {
-      const b = buildBriefing(ctx({ past, todayIso: jour }));
+    for (const day of ["2026-08-19", "2026-08-20", "2026-08-21", "2026-08-22"]) {
+      const b = buildBriefing(ctx({ past, todayIso: day }));
       expect(b.quests.some((q) => q.id === "premiere-fois")).toBe(false);
     }
   });
 
   it("émet moins de trois ordres quand un emplacement n'a rien de faisable", () => {
     // Un seul cursus, déjà entamé hier : aucun archétype de curiosité ne tient.
-    // second-front veut 2 cursus, cursus-dormant veut 7 jours d'oubli,
+    // second-front veut 2 cursus, cursus-dormant veut 7 days d'oubli,
     // premiere-fois veut un cursus vierge.
     const b = buildBriefing(
       ctx({
-        chaptersByCourse: { html: CHAPITRES.html },
+        chaptersByCourse: { html: CHAPTERS.html },
         past: [step("html", "chapitre-1", 0, "2026-08-18")],
       })
     );
@@ -268,7 +268,7 @@ function briefing(quests: Quest[], dateIso = "2026-08-19"): Briefing {
   };
 }
 
-function etat(p: Partial<BriefingPayoutState> = {}): BriefingPayoutState {
+function payoutState(p: Partial<BriefingPayoutState> = {}): BriefingPayoutState {
   return {
     claimedMask: 0,
     claimedDay: "",
@@ -281,7 +281,7 @@ function etat(p: Partial<BriefingPayoutState> = {}): BriefingPayoutState {
 describe("applyBriefingPayout", () => {
   it("ne paie rien quand aucun ordre n'est accompli", () => {
     const b = briefing([quest("reprise", false), quest("effort", false)]);
-    const out = applyBriefingPayout(b, etat(), "2026-08-19");
+    const out = applyBriefingPayout(b, payoutState(), "2026-08-19");
 
     expect(out.bonusXp).toBe(0);
     expect(out.questsPaid).toBe(0);
@@ -291,19 +291,19 @@ describe("applyBriefingPayout", () => {
 
   it("paie les ordres accomplis sur un masque vierge", () => {
     const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", false)]);
-    const out = applyBriefingPayout(b, etat(), "2026-08-19");
+    const out = applyBriefingPayout(b, payoutState(), "2026-08-19");
 
     expect(out.bonusXp).toBe(QUEST_XP.reprise + QUEST_XP.effort);
     expect(out.questsPaid).toBe(2);
     expect(out.paidLabels).toEqual(["ordre reprise", "ordre effort"]);
-    // bit 0 (reprise) + bit 1 (effort), la curiosité reste à payer.
+    // bit 0 (resumeQuest) + bit 1 (effort), la curiosité reste à payer.
     expect(out.nextMask).toBe(0b011);
   });
 
   it("ne repaie pas un ordre déjà payé aujourd'hui", () => {
     const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", false)]);
-    const dejaPaye = etat({ claimedMask: 0b001, claimedDay: "2026-08-19" });
-    const out = applyBriefingPayout(b, dejaPaye, "2026-08-19");
+    const alreadyPaid = payoutState({ claimedMask: 0b001, claimedDay: "2026-08-19" });
+    const out = applyBriefingPayout(b, alreadyPaid, "2026-08-19");
 
     expect(out.bonusXp).toBe(QUEST_XP.effort);
     expect(out.questsPaid).toBe(1);
@@ -317,7 +317,7 @@ describe("applyBriefingPayout", () => {
     const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", true)]);
     const out = applyBriefingPayout(
       b,
-      etat({ claimedMask: 0b011, claimedDay: "2026-08-19" }),
+      payoutState({ claimedMask: 0b011, claimedDay: "2026-08-19" }),
       "2026-08-19"
     );
 
@@ -326,12 +326,12 @@ describe("applyBriefingPayout", () => {
   });
 
   it("ignore un masque hérité d'un autre jour", () => {
-    // Le cadet a tout bouclé il y a trois jours ; son masque est plein. Il ne
+    // Le cadet a tout bouclé il y a trois days ; son masque est plein. Il ne
     // doit pas empêcher le versement d'aujourd'hui.
     const b = briefing([quest("reprise", true), quest("effort", false)]);
     const out = applyBriefingPayout(
       b,
-      etat({ claimedMask: 0b1111, claimedDay: "2026-08-16" }),
+      payoutState({ claimedMask: 0b1111, claimedDay: "2026-08-16" }),
       "2026-08-19"
     );
 
@@ -342,7 +342,7 @@ describe("applyBriefingPayout", () => {
 
   it("verse le bonus de clôture quand tous les ordres sont accomplis", () => {
     const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", true)]);
-    const out = applyBriefingPayout(b, etat(), "2026-08-19");
+    const out = applyBriefingPayout(b, payoutState(), "2026-08-19");
 
     expect(out.bonusXp).toBe(
       QUEST_XP.reprise + QUEST_XP.effort + QUEST_XP.curiosite + CLOSING_XP
@@ -355,14 +355,14 @@ describe("applyBriefingPayout", () => {
 
   it("atteint exactement le plafond de 60 XP sur un briefing complet", () => {
     const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", true)]);
-    expect(applyBriefingPayout(b, etat(), "2026-08-19").bonusXp).toBe(60);
+    expect(applyBriefingPayout(b, payoutState(), "2026-08-19").bonusXp).toBe(60);
   });
 
   it("ne verse pas deux fois le bonus de clôture", () => {
     const b = briefing([quest("reprise", true), quest("effort", true), quest("curiosite", true)]);
     const out = applyBriefingPayout(
       b,
-      etat({ claimedMask: 0b1111, claimedDay: "2026-08-19", perfectRun: 1, lastPerfectDay: "2026-08-19" }),
+      payoutState({ claimedMask: 0b1111, claimedDay: "2026-08-19", perfectRun: 1, lastPerfectDay: "2026-08-19" }),
       "2026-08-19"
     );
 
@@ -375,7 +375,7 @@ describe("applyBriefingPayout", () => {
     const b = briefing([quest("reprise", true), quest("effort", true)]);
     const out = applyBriefingPayout(
       b,
-      etat({ perfectRun: 4, lastPerfectDay: "2026-08-18" }),
+      payoutState({ perfectRun: 4, lastPerfectDay: "2026-08-18" }),
       "2026-08-19"
     );
 
@@ -387,7 +387,7 @@ describe("applyBriefingPayout", () => {
     const b = briefing([quest("reprise", true), quest("effort", true)]);
     const out = applyBriefingPayout(
       b,
-      etat({ perfectRun: 9, lastPerfectDay: "2026-08-16" }),
+      payoutState({ perfectRun: 9, lastPerfectDay: "2026-08-16" }),
       "2026-08-19"
     );
 
@@ -397,7 +397,7 @@ describe("applyBriefingPayout", () => {
 
   it("démarre la série parfaite à 1 quand il n'y en avait jamais eu", () => {
     const b = briefing([quest("reprise", true)]);
-    const out = applyBriefingPayout(b, etat(), "2026-08-19");
+    const out = applyBriefingPayout(b, payoutState(), "2026-08-19");
 
     expect(out.perfectRun).toBe(1);
     expect(out.lastPerfectDay).toBe("2026-08-19");
@@ -407,7 +407,7 @@ describe("applyBriefingPayout", () => {
     const b = briefing([quest("reprise", true), quest("effort", false)]);
     const out = applyBriefingPayout(
       b,
-      etat({ perfectRun: 3, lastPerfectDay: "2026-08-18" }),
+      payoutState({ perfectRun: 3, lastPerfectDay: "2026-08-18" }),
       "2026-08-19"
     );
 
@@ -419,7 +419,7 @@ describe("applyBriefingPayout", () => {
     // Briefing dégradé : la curiosité est le seul ordre émis, donc à l'index 0.
     // Son bit doit rester celui de la curiosité (2).
     const b = briefing([quest("curiosite", true)]);
-    const out = applyBriefingPayout(b, etat(), "2026-08-19");
+    const out = applyBriefingPayout(b, payoutState(), "2026-08-19");
 
     expect(out.nextMask & 0b100).toBe(0b100);
     expect(out.nextMask & 0b001).toBe(0);
@@ -431,7 +431,7 @@ describe("applyBriefingPayout", () => {
     const b = briefing([quest("curiosite", true)]);
     const out = applyBriefingPayout(
       b,
-      etat({ claimedMask: 0b100, claimedDay: "2026-08-19" }),
+      payoutState({ claimedMask: 0b100, claimedDay: "2026-08-19" }),
       "2026-08-19"
     );
 
@@ -444,7 +444,7 @@ describe("applyBriefingPayout", () => {
     const b = briefing([quest("curiosite", true)]);
     const out = applyBriefingPayout(
       b,
-      etat({ claimedMask: 0b1100, claimedDay: "2026-08-19" }),
+      payoutState({ claimedMask: 0b1100, claimedDay: "2026-08-19" }),
       "2026-08-19"
     );
 

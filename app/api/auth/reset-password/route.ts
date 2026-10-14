@@ -18,8 +18,8 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const refus = crossOriginRefusal(req);
-  if (refus) return refus;
+  const rejection = crossOriginRefusal(req);
+  if (rejection) return rejection;
 
   // Limite par IP : freine l'essai de jetons au hasard et borne le coût des
   // bcrypt.hash.

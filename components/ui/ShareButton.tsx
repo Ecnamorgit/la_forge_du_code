@@ -23,8 +23,8 @@ export default function ShareButton({ badgeId, badgeLabel, xp = 0 }: ShareButton
   const buildUrl = useCallback(() => {
     const origin =
       typeof window !== "undefined" ? window.location.origin : "";
-    const pseudo = sanitizeShareName(state?.username);
-    const params = new URLSearchParams({ u: pseudo, xp: String(xp) });
+    const shareName = sanitizeShareName(state?.username);
+    const params = new URLSearchParams({ u: shareName, xp: String(xp) });
     return `${origin}/share/${badgeId}?${params.toString()}`;
   }, [badgeId, state?.username, xp]);
 

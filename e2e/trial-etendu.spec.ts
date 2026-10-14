@@ -20,10 +20,10 @@ test("la carte HTML est publique, avec verrous d'inscription au-delà du chapitr
   // Nœuds hors essai : liens vers l'inscription, signalés dans l'info-bulle
   // qui s'affiche au survol. Le lien enveloppe un bloc positionné en absolu
   // et n'a pas de taille propre : on survole ce bloc.
-  const chapitre4 = page.getByRole("link", { name: /\bCH\.4\b/ });
-  await expect(chapitre4).toHaveAttribute("href", "/signup");
-  await chapitre4.locator(":scope > div").hover();
-  await expect(chapitre4.getByText("Inscription requise")).toBeVisible();
+  const chapter4Link = page.getByRole("link", { name: /\bCH\.4\b/ });
+  await expect(chapter4Link).toHaveAttribute("href", "/signup");
+  await chapter4Link.locator(":scope > div").hover();
+  await expect(chapter4Link.getByText("Inscription requise")).toBeVisible();
 
   // Une fois vue (nc_cine_seen), elle ne se relance pas au rechargement.
   await page.reload();

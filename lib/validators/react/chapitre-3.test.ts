@@ -8,7 +8,7 @@ import { validators } from "./chapitre-3";
 const IMPORT = `import { useState, useEffect } from 'react';`;
 
 describe("React chapitre 3 — etape 1 (effet au montage)", () => {
-  const valider = validators[0];
+  const validate = validators[0];
 
   it("accepte un effet logue avec un tableau de dependances vide", () => {
     const code = `${IMPORT}
@@ -18,7 +18,7 @@ function Station() {
   }, []);
   return <div>Station</div>;
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un effet sans tableau de dependances", () => {
@@ -30,7 +30,7 @@ function Station() {
   });
   return <div>Station</div>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un useEffect non importe", () => {
@@ -41,12 +41,12 @@ function Station() {
   }, []);
   return <div>Station</div>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("React chapitre 3 — etape 2 (effet dependant d'une valeur)", () => {
-  const valider = validators[1];
+  const validate = validators[1];
 
   it("accepte document.title synchronise sur count", () => {
     const code = `${IMPORT}
@@ -57,7 +57,7 @@ function Compteur() {
   }, [count]);
   return <div>{count}</div>;
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un effet qui ne declare pas count en dependance", () => {
@@ -70,7 +70,7 @@ function Compteur() {
   }, []);
   return <div>{count}</div>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un effet qui ne touche pas au titre", () => {
@@ -82,12 +82,12 @@ function Compteur() {
   }, [count]);
   return <div>{count}</div>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("React chapitre 3 — etape 3 (nettoyage de l'intervalle)", () => {
-  const valider = validators[2];
+  const validate = validators[2];
 
   it("accepte un setInterval nettoye au demontage", () => {
     const code = `${IMPORT}
@@ -98,7 +98,7 @@ function Horloge() {
   }, []);
   return <div>Horloge</div>;
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un intervalle jamais nettoye", () => {
@@ -110,7 +110,7 @@ function Horloge() {
   }, []);
   return <div>Horloge</div>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un cleanup qui n'arrete pas l'intervalle", () => {
@@ -122,12 +122,12 @@ function Horloge() {
   }, []);
   return <div>Horloge</div>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("React chapitre 3 — etape 4 (chargement de donnees)", () => {
-  const valider = validators[3];
+  const validate = validators[3];
 
   it("accepte un fetch au montage avec etat de chargement", () => {
     const code = `${IMPORT}
@@ -139,7 +139,7 @@ function Flotte() {
   if (data === null) return <div>Chargement...</div>;
   return <div>{data.length}</div>;
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un fetch sans etat de chargement", () => {
@@ -152,7 +152,7 @@ function Flotte() {
   }, []);
   return <div>{data.length}</div>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un composant sans fetch", () => {
@@ -165,6 +165,6 @@ function Flotte() {
   if (data === null) return <div>Chargement...</div>;
   return <div>{data.length}</div>;
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });

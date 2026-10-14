@@ -10,13 +10,13 @@
  */
 
 /** Hôtes considérés comme locaux : la machine du développeur ou le service CI. */
-const HOTES_LOCAUX = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0"]);
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0"]);
 
 /**
  * Fragments d'hôte d'hébergeurs gérés, refusés même avec la variable
  * d'échappement : l'URL de production de ce projet a cette forme.
  */
-const HOTES_INTERDITS = [
+const FORBIDDEN_HOSTS = [
   "supabase",
   "neon.tech",
   "rds.amazonaws.com",
@@ -32,14 +32,14 @@ const HOTES_INTERDITS = [
 ];
 
 /** Variable d'échappement, pour une base de test réellement distante. */
-export const VARIABLE_ECHAPPEMENT = "E2E_ALLOW_NON_LOCAL_DB";
+export const DB_OVERRIDE_VARIABLE = "E2E_ALLOW_NON_LOCAL_DB";
 
 /** Marqueurs acceptés dans le nom de base quand l'hôte n'est pas local. */
-const MARQUEURS_DE_TEST = ["test", "e2e"];
+const TEST_MARKERS = ["test", "e2e"];
 
 export class UnsafeE2eDatabaseError extends Error {}
 
-function aide(url: string): string {
+function help(url: string): string {
   return [
     `Base refusée par la garde e2e : ${url}`,
     "",
@@ -55,19 +55,19 @@ function aide(url: string): string {
     "  3. applique le schéma :  pnpm prisma migrate deploy",
     "  4. relance :             pnpm test:e2e",
     "",
-    `Base de test réellement distante ? Nomme-la avec « test » ou « e2e » et pose ${VARIABLE_ECHAPPEMENT}=1.`,
+    `Base de test réellement distante ? Nomme-la avec « test » ou « e2e » et pose ${DB_OVERRIDE_VARIABLE}=1.`,
     "Les hébergeurs gérés (Supabase, Neon, RDS…) restent refusés dans tous les cas.",
   ].join("\n");
 }
 
-function hote(u: URL): string {
+function hostOf(u: URL): string {
   // `new URL` rend « [::1] » pour une adresse IPv6 : on retire les crochets
   // pour comparer à la liste ci-dessus.
   return u.hostname.replace(/^\[|\]$/g, "").toLowerCase();
 }
 
 /** Nom de base, sans le « / » initial ni les paramètres. */
-function baseDeDonnees(u: URL): string {
+function databaseName(u: URL): string {
   return decodeURIComponent(u.pathname.replace(/^\//, "")).toLowerCase();
 }
 
@@ -83,7 +83,7 @@ export function assertTestDatabaseUrl(
 ): asserts raw is string {
   if (!raw || raw.trim() === "") {
     throw new UnsafeE2eDatabaseError(
-      `DATABASE_URL est vide.\n\n${aide("(vide)")}`
+      `DATABASE_URL est vide.\n\n${help("(vide)")}`
     );
   }
 
@@ -93,50 +93,50 @@ export function assertTestDatabaseUrl(
   } catch {
     // URL illisible : cible indécidable, donc refusée.
     throw new UnsafeE2eDatabaseError(
-      `DATABASE_URL n'est pas une URL analysable.\n\n${aide(raw)}`
+      `DATABASE_URL n'est pas une URL analysable.\n\n${help(raw)}`
     );
   }
 
   if (!/^postgres(ql)?:$/.test(url.protocol)) {
     throw new UnsafeE2eDatabaseError(
-      `Protocole inattendu (${url.protocol}).\n\n${aide(raw)}`
+      `Protocole inattendu (${url.protocol}).\n\n${help(raw)}`
     );
   }
 
   // `pg` (pg-connection-string) laisse un paramètre « host » ou « hostaddr »
   // écraser l'hôte de l'URL : `localhost:5432/codeforge_test?host=db.xxx.supabase.co`
   // se connecte ailleurs. Cible indécidable, donc refusée.
-  for (const cle of ["host", "hostaddr"]) {
-    if (url.searchParams.has(cle)) {
+  for (const key of ["host", "hostaddr"]) {
+    if (url.searchParams.has(key)) {
       throw new UnsafeE2eDatabaseError(
-        `Paramètre « ${cle} » dans l'URL : il écrase l'hôte et rend la cible réelle indécidable.\n\n${aide(raw)}`
+        `Paramètre « ${key} » dans l'URL : il écrase l'hôte et rend la cible réelle indécidable.\n\n${help(raw)}`
       );
     }
   }
 
-  const h = hote(url);
-  const base = baseDeDonnees(url);
+  const h = hostOf(url);
+  const base = databaseName(url);
 
   if (base === "") {
     throw new UnsafeE2eDatabaseError(
-      `DATABASE_URL ne nomme aucune base de données.\n\n${aide(raw)}`
+      `DATABASE_URL ne nomme aucune base de données.\n\n${help(raw)}`
     );
   }
 
-  const interdit = HOTES_INTERDITS.find((f) => h.includes(f));
-  if (interdit) {
+  const forbidden = FORBIDDEN_HOSTS.find((f) => h.includes(f));
+  if (forbidden) {
     throw new UnsafeE2eDatabaseError(
-      `Hôte d'hébergeur géré (« ${interdit} ») : c'est la forme de la base de production.\n\n${aide(raw)}`
+      `Hôte d'hébergeur géré (« ${forbidden} ») : c'est la forme de la base de production.\n\n${help(raw)}`
     );
   }
 
-  if (HOTES_LOCAUX.has(h)) return;
+  if (LOCAL_HOSTS.has(h)) return;
 
-  const marque = MARQUEURS_DE_TEST.some((m) => base.includes(m));
-  if (env[VARIABLE_ECHAPPEMENT] === "1" && marque) return;
+  const hasTestMarker = TEST_MARKERS.some((m) => base.includes(m));
+  if (env[DB_OVERRIDE_VARIABLE] === "1" && hasTestMarker) return;
 
   throw new UnsafeE2eDatabaseError(
-    `Hôte non local (« ${h} ») et base « ${base} ».\n\n${aide(raw)}`
+    `Hôte non local (« ${h} ») et base « ${base} ».\n\n${help(raw)}`
   );
 }
 
@@ -146,11 +146,11 @@ export function assertTestDatabaseUrl(
  * Variable d'échappement pour tester une application réellement distante.
  * Distincte de celle de la base : ce sont deux risques différents.
  */
-export const VARIABLE_ECHAPPEMENT_APP = "E2E_ALLOW_REMOTE_APP";
+export const APP_OVERRIDE_VARIABLE = "E2E_ALLOW_REMOTE_APP";
 
 export class UnsafeE2eTargetError extends Error {}
 
-function aideApp(url: string): string {
+function appHelp(url: string): string {
   return [
     `Application testée refusée par la garde e2e : ${url}`,
     "",
@@ -166,7 +166,7 @@ function aideApp(url: string): string {
     "Laisse E2E_BASE_URL vide pour que Playwright démarre lui-même",
     "l'application (webServer), sur la base que la garde a validée.",
     "",
-    `Cible distante volontaire ? Pose ${VARIABLE_ECHAPPEMENT_APP}=1.`,
+    `Cible distante volontaire ? Pose ${APP_OVERRIDE_VARIABLE}=1.`,
   ].join("\n");
 }
 
@@ -185,22 +185,22 @@ export function assertLocalAppUnderTest(
   env: Record<string, string | undefined> = process.env
 ): void {
   if (!raw || raw.trim() === "") return;
-  if (env[VARIABLE_ECHAPPEMENT_APP] === "1") return;
+  if (env[APP_OVERRIDE_VARIABLE] === "1") return;
 
   let url: URL;
   try {
     url = new URL(raw);
   } catch {
     throw new UnsafeE2eTargetError(
-      `E2E_BASE_URL n'est pas une URL analysable.\n\n${aideApp(raw)}`
+      `E2E_BASE_URL n'est pas une URL analysable.\n\n${appHelp(raw)}`
     );
   }
 
-  const h = hote(url);
+  const h = hostOf(url);
   // `*.localhost` résout en boucle locale et sert au multi-tenant en dev.
-  if (HOTES_LOCAUX.has(h) || h.endsWith(".localhost")) return;
+  if (LOCAL_HOSTS.has(h) || h.endsWith(".localhost")) return;
 
   throw new UnsafeE2eTargetError(
-    `Application distante (« ${h} ») : sa base n'est pas celle qui vient d'être ensemencée.\n\n${aideApp(raw)}`
+    `Application distante (« ${h} ») : sa base n'est pas celle qui vient d'être ensemencée.\n\n${appHelp(raw)}`
   );
 }

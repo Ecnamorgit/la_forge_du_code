@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { appOriginsForSandbox, originDeLaRequete, sandboxOriginFor } from "./sandbox-origin";
+import { appOriginsForSandbox, requestOrigin, sandboxOriginFor } from "./sandbox-origin";
 
 describe("sandboxOriginFor", () => {
   it("bascule localhost vers 127.0.0.1, même port", () => {
@@ -65,7 +65,7 @@ describe("originDeLaRequete", () => {
 
   it("derrière un proxy, lit x-forwarded-host et x-forwarded-proto", () => {
     expect(
-      originDeLaRequete(
+      requestOrigin(
         req("http://interne:3000/learn", {
           host: "interne:3000",
           "x-forwarded-host": "www.laforgeducode.fr",
@@ -76,19 +76,19 @@ describe("originDeLaRequete", () => {
   });
 
   it("sans proxy, lit host et le protocole de l'URL", () => {
-    expect(originDeLaRequete(req("http://localhost:3000/x", { host: "localhost:3000" }))).toBe(
+    expect(requestOrigin(req("http://localhost:3000/x", { host: "localhost:3000" }))).toBe(
       "http://localhost:3000"
     );
   });
 
   it("ne garde que le premier hôte d'une liste", () => {
     expect(
-      originDeLaRequete(req("https://a/", { "x-forwarded-host": "www.laforgeducode.fr, autre" }))
+      requestOrigin(req("https://a/", { "x-forwarded-host": "www.laforgeducode.fr, autre" }))
     ).toBe("https://www.laforgeducode.fr");
   });
 
   it("sans aucun en-tête, se rabat sur l'URL", () => {
-    expect(originDeLaRequete(req("https://www.laforgeducode.fr/x", {}))).toBe(
+    expect(requestOrigin(req("https://www.laforgeducode.fr/x", {}))).toBe(
       "https://www.laforgeducode.fr"
     );
   });

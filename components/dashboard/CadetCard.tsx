@@ -75,7 +75,7 @@ export default function CadetCard({
     chaptersComplete,
     owned: unlocks,
   };
-  const prochain = nextUnlock(unlockCtx);
+  const nextItem = nextUnlock(unlockCtx);
 
   const titleLabel = title
     ? (UNLOCKS.find((u) => u.id === title && u.axis === "title")?.label ?? null)
@@ -156,14 +156,14 @@ export default function CadetCard({
         </div>
 
         {/* Prochain déblocable */}
-        {prochain && (
+        {nextItem && (
           <div className="mt-4 rounded-sm border border-nebula-orange/40 bg-nebula-bg-darkest/50 px-3 py-2.5">
             <div className="font-tech text-[10px] uppercase tracking-widest text-nebula-text-dim">
               Prochain déblocable
             </div>
-            <div className="font-tech text-sm text-nebula-orange">{prochain.def.label}</div>
+            <div className="font-tech text-sm text-nebula-orange">{nextItem.def.label}</div>
             <div className="font-tech text-[10px] tracking-wider text-nebula-text-secondary">
-              {prochain.remaining}
+              {nextItem.remaining}
             </div>
           </div>
         )}

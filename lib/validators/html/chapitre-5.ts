@@ -96,15 +96,15 @@ export const validators: Validator[] = [
     }
     // Un <button> sans attribut type soumet le formulaire (type par défaut) ;
     // seuls type="button" et type="reset" ne l'envoient pas.
-    const boutons = inner.match(/<button\b[^>]*>[\s\S]*?<\/button>/gi) ?? [];
-    const envoie = boutons.some((b) => {
+    const buttons = inner.match(/<button\b[^>]*>[\s\S]*?<\/button>/gi) ?? [];
+    const submits = buttons.some((b) => {
       const type = b.match(/^<button\b[^>]*(?<![-\w])type\s*=\s*["']?([a-z]+)/i);
       return !type || type[1].toLowerCase() === "submit";
     });
-    if (!envoie) {
+    if (!submits) {
       return {
         ok: false,
-        msg: boutons.length
+        msg: buttons.length
           ? 'Ce bouton n\'envoie pas le formulaire : utilise type="submit".'
           : 'Ajoute un <button type="submit"> pour envoyer le formulaire.',
       };

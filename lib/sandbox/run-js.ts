@@ -5,7 +5,7 @@
  * `/bac-a-sable/js` et reçoit le code par message après sa poignée de main.
  */
 
-import { protegerBoucles } from "./loop-protect";
+import { guardLoops } from "./loop-protect";
 import { SANDBOX_JS_PATH, sandboxOriginFor } from "./sandbox-origin";
 
 export interface JsRunResult {
@@ -33,7 +33,7 @@ export function runJs(code: string): Promise<JsRunResult> {
 
     // Avant l'envoi : l'iframe peut partager le fil de la page, et le délai
     // ci-dessous ne peut rien contre une boucle synchrone (audit EXE-02).
-    const codeProtege = protegerBoucles(code);
+    const guardedCode = guardLoops(code);
 
     // Origine dédiée : le document y porte sa propre CSP permissive au lieu
     // d'hériter de celle, stricte, de l'application (audit EXE-03).
@@ -66,7 +66,7 @@ export function runJs(code: string): Promise<JsRunResult> {
       // pas un secret, et le document vérifie `event.source === parent`.
       if (data?.type === "sandbox:ready") {
         iframe.contentWindow?.postMessage(
-          { type: "sandbox:run", code: codeProtege },
+          { type: "sandbox:run", code: guardedCode },
           "*"
         );
         return;

@@ -1,6 +1,6 @@
 import type { ChapterData } from "./types";
 
-export const chapitre1: ChapterData = {
+export const chapter1: ChapterData = {
   slug: "chapitre-1",
   tag: "MISSION : SÉLÉNÉ",
   title: "ÉTABLISSEMENT\nDE LA BASE LUNAIRE",

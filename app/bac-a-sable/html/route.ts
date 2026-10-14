@@ -1,5 +1,5 @@
 import { buildHtmlPreviewDocument } from "@/lib/sandbox/html-preview-document";
-import { reponseBacASable } from "@/lib/sandbox/sandbox-response";
+import { sandboxResponse } from "@/lib/sandbox/sandbox-response";
 
 /**
  * Coquille de l'aperçu HTML, servie depuis l'origine dédiée. `ChapterWorkspace`
@@ -7,5 +7,5 @@ import { reponseBacASable } from "@/lib/sandbox/sandbox-response";
  * une iframe imbriquée.
  */
 export function GET(req: Request): Response {
-  return reponseBacASable(buildHtmlPreviewDocument(), req);
+  return sandboxResponse(buildHtmlPreviewDocument(), req);
 }

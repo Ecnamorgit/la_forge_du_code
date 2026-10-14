@@ -15,22 +15,22 @@ import { isRateLimited, rateLimit } from "@/lib/rate-limit";
  * Les adresses sans compte sont comptées de la même façon pour ne pas révéler
  * qui est inscrit. La clé est une empreinte de l'adresse.
  */
-const ECHECS = { limit: 10, windowMs: 15 * 60 * 1000 };
+const FAILURES = { limit: 10, windowMs: 15 * 60 * 1000 };
 
-function cle(email: string): string {
-  const empreinte = crypto.createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
-  return `login-fail:${empreinte}`;
+function failureKey(email: string): string {
+  const emailHash = crypto.createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
+  return `login-fail:${emailHash}`;
 }
 
-export function compteVerrouille(email: string): Promise<boolean> {
-  return isRateLimited(cle(email), ECHECS);
+export function isAccountLocked(email: string): Promise<boolean> {
+  return isRateLimited(failureKey(email), FAILURES);
 }
 
-export async function noterEchecConnexion(email: string): Promise<void> {
-  await rateLimit(cle(email), ECHECS);
+export async function recordLoginFailure(email: string): Promise<void> {
+  await rateLimit(failureKey(email), FAILURES);
 }
 
-let hashFacticeEnCours: Promise<string> | null = null;
+let pendingDummyHash: Promise<string> | null = null;
 
 /**
  * Hash factice, comparé quand l'adresse n'a pas de compte : le temps de
@@ -38,7 +38,7 @@ let hashFacticeEnCours: Promise<string> | null = null;
  * compte. Calculé au premier besoin, car `auth.ts` est chargé par toutes les
  * routes et chaque démarrage à froid paierait sinon un bcrypt de coût 12.
  */
-export function hashFactice(): Promise<string> {
-  hashFacticeEnCours ??= bcrypt.hash("connexion-timing-guard", 12);
-  return hashFacticeEnCours;
+export function dummyHash(): Promise<string> {
+  pendingDummyHash ??= bcrypt.hash("connexion-timing-guard", 12);
+  return pendingDummyHash;
 }

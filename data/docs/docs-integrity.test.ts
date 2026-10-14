@@ -2,24 +2,24 @@ import { describe, it, expect } from "vitest";
 import { htmlDocs, getDocEntry } from "./html";
 import { extractDocTokenIds } from "@/lib/markdown";
 import type { ChapterData } from "@/data/courses/html/types";
-import { chapitre1 } from "@/data/courses/html/chapitre-1";
-import { chapitre2 } from "@/data/courses/html/chapitre-2";
-import { chapitre3 } from "@/data/courses/html/chapitre-3";
-import { chapitre4 } from "@/data/courses/html/chapitre-4";
-import { chapitre5 } from "@/data/courses/html/chapitre-5";
-import { chapitre6 } from "@/data/courses/html/chapitre-6";
-import { chapitre7 } from "@/data/courses/html/chapitre-7";
-import { chapitre8 } from "@/data/courses/html/chapitre-8";
+import { chapter1 } from "@/data/courses/html/chapitre-1";
+import { chapter2 } from "@/data/courses/html/chapitre-2";
+import { chapter3 } from "@/data/courses/html/chapitre-3";
+import { chapter4 } from "@/data/courses/html/chapitre-4";
+import { chapter5 } from "@/data/courses/html/chapitre-5";
+import { chapter6 } from "@/data/courses/html/chapitre-6";
+import { chapter7 } from "@/data/courses/html/chapitre-7";
+import { chapter8 } from "@/data/courses/html/chapitre-8";
 
 const CHAPTERS: ChapterData[] = [
-  chapitre1,
-  chapitre2,
-  chapitre3,
-  chapitre4,
-  chapitre5,
-  chapitre6,
-  chapitre7,
-  chapitre8,
+  chapter1,
+  chapter2,
+  chapter3,
+  chapter4,
+  chapter5,
+  chapter6,
+  chapter7,
+  chapter8,
 ];
 
 describe("intégrité des renvois de fiches", () => {

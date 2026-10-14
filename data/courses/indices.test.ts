@@ -8,16 +8,16 @@ import { getChapterData, listChapterSlugs, listCourseSlugs } from "@/lib/courses
  * Le test parcourt les registres, et couvre ainsi tout nouveau chapitre.
  */
 
-const ENTITE_HTML = /&(?:[a-z]+|#\d+|#x[0-9a-f]+);/i;
+const HTML_ENTITY = /&(?:[a-z]+|#\d+|#x[0-9a-f]+);/i;
 
-const CHAPITRES = listCourseSlugs().flatMap((course) =>
+const CHAPTERS = listCourseSlugs().flatMap((course) =>
   listChapterSlugs(course).map((chapter) => ({ course, chapter }))
 );
 
 describe("indices affichés en texte", () => {
-  it.each(CHAPITRES)("$course / $chapter : aucune entité HTML", ({ course, chapter }) => {
+  it.each(CHAPTERS)("$course / $chapter : aucune entité HTML", ({ course, chapter }) => {
     getChapterData(course, chapter)!.steps.forEach((step, i) => {
-      expect(ENTITE_HTML.test(step.hint), `étape ${i + 1} : ${step.hint}`).toBe(false);
+      expect(HTML_ENTITY.test(step.hint), `étape ${i + 1} : ${step.hint}`).toBe(false);
     });
   });
 });

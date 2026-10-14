@@ -50,7 +50,7 @@ export function advanceLiaison(
   current: LiaisonState,
   todayIso: string
 ): LiaisonTransition {
-  const inchange: LiaisonTransition = {
+  const unchanged: LiaisonTransition = {
     next: current,
     changed: false,
     shieldsConsumed: 0,
@@ -59,8 +59,8 @@ export function advanceLiaison(
     shieldEarned: false,
   };
 
-  if (!todayIso) return inchange;
-  if (current.lastActiveDay === todayIso) return inchange;
+  if (!todayIso) return unchanged;
+  if (current.lastActiveDay === todayIso) return unchanged;
 
   let streak: number;
   let shields = current.shields;
@@ -72,14 +72,14 @@ export function advanceLiaison(
     streak = 1;
   } else {
     const gap = daysBetweenIso(current.lastActiveDay, todayIso);
-    if (gap <= 0) return inchange; // horloge incohérente : ne rien casser
+    if (gap <= 0) return unchanged; // horloge incohérente : ne rien casser
     if (gap === 1) {
       streak = current.streak + 1;
     } else {
-      const manques = gap - 1;
-      if (manques <= shields) {
-        shields -= manques;
-        shieldsConsumed = manques;
+      const missed = gap - 1;
+      if (missed <= shields) {
+        shields -= missed;
+        shieldsConsumed = missed;
         streak = current.streak + 1;
       } else {
         broken = true;
@@ -97,9 +97,9 @@ export function advanceLiaison(
     shieldEverGranted = true;
     shieldEarned = true;
   } else if (streak > 0 && streak % 7 === 0) {
-    const avant = shields;
+    const before = shields;
     shields = Math.min(shields + 1, MAX_SHIELDS);
-    shieldEarned = shields > avant;
+    shieldEarned = shields > before;
   }
 
   return {

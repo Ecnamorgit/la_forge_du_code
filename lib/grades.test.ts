@@ -76,7 +76,7 @@ describe("levelFromXp", () => {
 
 describe("GRADES", () => {
   it("est trié par seuil croissant", () => {
-    const seuils = GRADES.map((g) => g.threshold);
-    expect([...seuils].sort((a, b) => a - b)).toEqual(seuils);
+    const thresholds = GRADES.map((g) => g.threshold);
+    expect([...thresholds].sort((a, b) => a - b)).toEqual(thresholds);
   });
 });

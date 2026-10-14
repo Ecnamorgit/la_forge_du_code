@@ -46,23 +46,23 @@ test("sous CSP de production, script-src est à nonce et sans unsafe-*", async (
   // frame-src autorise l'origine du bac à sable, et elle seule : les deux
   // origines sont dérivées de la requête, sans liste codée en dur.
   const app = new URL(page.url()).origin;
-  const bacASable = sandboxOriginFor(app);
+  const sandboxOrigin = sandboxOriginFor(app);
   const frameSrc = csp!
     .split(";")
     .map((d) => d.trim())
     .find((d) => d.startsWith("frame-src "));
   expect(frameSrc, "frame-src doit valoir exactement 'self' + l'origine du bac à sable.").toBe(
-    `frame-src 'self' ${bacASable}`
+    `frame-src 'self' ${sandboxOrigin}`
   );
 
   // Réciproquement, le bac à sable n'accepte d'être encadré que par l'app.
-  const doc = await page.request.get(`${bacASable}/bac-a-sable/html`);
-  const cspBac = doc.headers()["content-security-policy"] ?? "";
-  const ancetres = cspBac
+  const doc = await page.request.get(`${sandboxOrigin}/bac-a-sable/html`);
+  const sandboxCspHeader = doc.headers()["content-security-policy"] ?? "";
+  const ancestors = sandboxCspHeader
     .split(";")
     .map((d) => d.trim())
     .find((d) => d.startsWith("frame-ancestors "));
-  expect(ancetres, "frame-ancestors du bac à sable doit valoir exactement l'origine de l'app.").toBe(
+  expect(ancestors, "frame-ancestors du bac à sable doit valoir exactement l'origine de l'app.").toBe(
     `frame-ancestors ${app}`
   );
 

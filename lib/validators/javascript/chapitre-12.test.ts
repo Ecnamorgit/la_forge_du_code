@@ -9,14 +9,14 @@ import { getChapterData } from "@/lib/courses-registry";
  */
 
 describe("JS chapitre 12 — etape 1 (lire la flotte)", () => {
-  const valider = validators[0];
+  const validate = validators[0];
 
   it("valide un GET verifie et logue", () => {
     const code = `const response = await fetch('https://api.codeforge.space/vaisseaux');
 if (response.ok) {
   console.log(await response.json());
 }`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un GET explicite avec des options", () => {
@@ -25,18 +25,18 @@ if (response.ok) {
 if (response.ok) {
   console.log(await response.json());
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un appel dont on ne verifie pas le statut", () => {
     const code = `const response = await fetch('https://api.codeforge.space/vaisseaux');
 console.log(await response.json());`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("JS chapitre 12 — etape 2 (creer)", () => {
-  const valider = validators[1];
+  const validate = validators[1];
 
   it("valide un POST complet", () => {
     const code = `await fetch('https://api.codeforge.space/vaisseaux', {
@@ -44,7 +44,7 @@ describe("JS chapitre 12 — etape 2 (creer)", () => {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ nom: 'Phoenix', classe: 'cargo' }),
 });`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un body non serialise", () => {
@@ -54,7 +54,7 @@ describe("JS chapitre 12 — etape 2 (creer)", () => {
   headers: { 'Content-Type': 'application/json' },
   body: { nom: 'Phoenix', classe: 'cargo' },
 });`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un POST sans headers", () => {
@@ -62,12 +62,12 @@ describe("JS chapitre 12 — etape 2 (creer)", () => {
   method: 'POST',
   body: JSON.stringify({ nom: 'Phoenix', classe: 'cargo' }),
 });`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("JS chapitre 12 — etape 3 (mettre a jour)", () => {
-  const valider = validators[2];
+  const validate = validators[2];
 
   it("valide un PUT sur la ressource ciblee", () => {
     const code = `await fetch('https://api.codeforge.space/vaisseaux/42', {
@@ -75,7 +75,7 @@ describe("JS chapitre 12 — etape 3 (mettre a jour)", () => {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ nom: 'Phoenix II', classe: 'combat' }),
 });`;
-    expect(valider(code).ok).toBe(true);
+    expect(validate(code).ok).toBe(true);
   });
 
   it("refuse un PUT sur la collection au lieu de la ressource", () => {
@@ -84,7 +84,7 @@ describe("JS chapitre 12 — etape 3 (mettre a jour)", () => {
   method: 'PUT',
   body: JSON.stringify({ nom: 'Phoenix II', classe: 'combat' }),
 });`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("refuse un POST la ou un PUT est attendu", () => {
@@ -92,12 +92,12 @@ describe("JS chapitre 12 — etape 3 (mettre a jour)", () => {
   method: 'POST',
   body: JSON.stringify({ nom: 'Phoenix II', classe: 'combat' }),
 });`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });
 
 describe("JS chapitre 12 — etape 4 (supprimer)", () => {
-  const valider = validators[3];
+  const validate = validators[3];
 
   const OK = `const response = await fetch('https://api.codeforge.space/vaisseaux/13', {
   method: 'DELETE',
@@ -107,7 +107,7 @@ if (response.ok) {
 }`;
 
   it("valide un DELETE confirme et marque l'etape finale", () => {
-    const r = valider(OK);
+    const r = validate(OK);
     expect(r.ok).toBe(true);
     expect(r.final).toBe(true);
   });
@@ -115,16 +115,16 @@ if (response.ok) {
   it("refuse une suppression dont on ne verifie pas le succes", () => {
     const code = `await fetch('https://api.codeforge.space/vaisseaux/13', { method: 'DELETE' });
 console.log('Vaisseau retiré de la flotte');`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 
   it("valide l'indice donné dans la leçon", () => {
     const hint = getChapterData("javascript", "chapitre-12")!.steps[3].hint;
-    expect(valider(hint).ok).toBe(true);
+    expect(validate(hint).ok).toBe(true);
   });
 
   it("accepte le message sans accent", () => {
-    expect(valider(OK.replace("retiré", "retire")).ok).toBe(true);
+    expect(validate(OK.replace("retiré", "retire")).ok).toBe(true);
   });
 
   it("refuse une suppression sur un autre identifiant", () => {
@@ -134,6 +134,6 @@ console.log('Vaisseau retiré de la flotte');`;
 if (response.ok) {
   console.log('Vaisseau retiré de la flotte');
 }`;
-    expect(valider(code).ok).toBe(false);
+    expect(validate(code).ok).toBe(false);
   });
 });

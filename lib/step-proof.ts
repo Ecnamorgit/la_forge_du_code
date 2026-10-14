@@ -27,12 +27,12 @@ export function verifyStepProof(
 ): StepProofVerdict {
   if (isRuntimeChapter(course, chapter)) return { ok: true, mode: "declared" };
 
-  const valider = getValidators(course, chapter)[stepIndex];
-  if (!valider) return { ok: false, reason: "Étape sans validateur." };
+  const validate = getValidators(course, chapter)[stepIndex];
+  if (!validate) return { ok: false, reason: "Étape sans validateur." };
   if (code === undefined) return { ok: false, reason: "Solution manquante." };
 
   try {
-    if (valider(code).ok) return { ok: true, mode: "revalidated" };
+    if (validate(code).ok) return { ok: true, mode: "revalidated" };
   } catch {
     // Un validateur qui lève sur une entrée arbitraire ne vaut pas réussite.
   }

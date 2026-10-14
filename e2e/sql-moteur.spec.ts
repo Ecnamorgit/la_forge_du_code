@@ -11,16 +11,16 @@ import { STORAGE_STATE } from "./global-setup";
 test.use({ storageState: STORAGE_STATE });
 
 test("le cursus SQL exécute une requête et valide l'étape", async ({ page }) => {
-  const erreurs: string[] = [];
+  const errors: string[] = [];
   page.on("console", (m) => {
-    if (m.type() === "error") erreurs.push(m.text());
+    if (m.type() === "error") errors.push(m.text());
   });
-  page.on("pageerror", (e) => erreurs.push(e.message));
+  page.on("pageerror", (e) => errors.push(e.message));
 
   await page.goto("/learn/sql/chapitre-1");
-  const editeur = page.locator(".monaco-editor").first();
-  await expect(editeur).toBeVisible({ timeout: 30_000 });
-  await editeur.click();
+  const editor = page.locator(".monaco-editor").first();
+  await expect(editor).toBeVisible({ timeout: 30_000 });
+  await editor.click();
   await page.keyboard.press("Control+A");
   await page.keyboard.insertText(
     "CREATE TABLE pilotes (id INTEGER PRIMARY KEY, nom VARCHAR(50) NOT NULL, niveau INTEGER DEFAULT 1);\n" +
@@ -33,6 +33,6 @@ test("le cursus SQL exécute une requête et valide l'étape", async ({ page }) 
   });
 
   await test.step("aucune erreur de chargement du moteur", async () => {
-    expect.soft(erreurs.filter((e) => /wasm/i.test(e))).toEqual([]);
+    expect.soft(errors.filter((e) => /wasm/i.test(e))).toEqual([]);
   });
 });

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 import { authConfig } from "@/auth.config";
 import { PROTECTED_PREFIXES, isPublicRoute } from "@/lib/public-routes";
-import { originDeLaRequete, sandboxOriginFor } from "@/lib/sandbox/sandbox-origin";
+import { requestOrigin, sandboxOriginFor } from "@/lib/sandbox/sandbox-origin";
 import { buildCsp } from "@/lib/security/csp";
 
 const { auth } = NextAuth(authConfig);
@@ -16,7 +16,7 @@ const AUTH_PAGES = new Set(["/login", "/signup"]);
 const CSP_ACTIVE = process.env.NODE_ENV === "production";
 
 /** Nonce unique par requête. */
-function genererNonce(): string {
+function generateNonce(): string {
   return btoa(crypto.randomUUID());
 }
 
@@ -26,13 +26,13 @@ export default auth((req) => {
 
   // Les documents du bac à sable posent eux-mêmes leur CSP permissive, que la
   // CSP stricte de l'app ne doit pas remplacer.
-  const estBacASable = pathname === "/bac-a-sable" || pathname.startsWith("/bac-a-sable/");
+  const isSandboxPath = pathname === "/bac-a-sable" || pathname.startsWith("/bac-a-sable/");
 
   // `frame-src` n'autorise que l'origine du bac à sable dérivée de la requête
   // (sous-domaine dédié en production, autre hôte local en CI).
-  const nonce = CSP_ACTIVE && !estBacASable ? genererNonce() : null;
+  const nonce = CSP_ACTIVE && !isSandboxPath ? generateNonce() : null;
   const csp = nonce
-    ? buildCsp({ nonce, sandboxOrigin: sandboxOriginFor(originDeLaRequete(req)) })
+    ? buildCsp({ nonce, sandboxOrigin: sandboxOriginFor(requestOrigin(req)) })
     : null;
 
   const isProtected =
