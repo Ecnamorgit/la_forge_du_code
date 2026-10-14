@@ -1,23 +1,23 @@
 /**
- * Filtrage des étapes remontées par le mode essai.
+ * Filtering of the steps sent up by trial mode.
  *
- * Le serveur ne doit accorder que ce que le visiteur pouvait déjà atteindre
- * sans compte : sans ce filtre, /api/me/trial-import deviendrait un
- * « valide-moi tout le cursus » en un appel.
+ * The server must only grant what the visitor could already reach without an
+ * account: without this filter, /api/me/trial-import would become a
+ * "complete the whole course for me" in a single call.
  */
 
 import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
 import type { TrialStepRef } from "./trial-user";
 
-/** Borne défensive : les chapitres d'essai n'ont qu'une poignée d'étapes. */
+/** Defensive cap: the trial chapters only have a handful of steps. */
 const MAX_STEPS = 50;
 
 const TRIAL_CHAPTER_SET = new Set(TRIAL_CHAPTERS);
 
-// Deux protections indépendantes, à garder toutes les deux : les rejets en
-// égalité stricte écartent toute entrée hors du périmètre d'essai, quelle que
-// soit sa forme, et l'objet renvoyé reconstruit `course` et `chapter` depuis
-// TRIAL_COURSE et TRIAL_CHAPTERS sans jamais recopier l'entrée.
+// Two independent protections, keep both: the strict-equality rejections
+// discard any entry outside the trial scope, whatever its shape, and the
+// returned object rebuilds `course` and `chapter` from TRIAL_COURSE and
+// TRIAL_CHAPTERS without ever copying the entry.
 export function filterTrialSteps(steps: unknown): TrialStepRef[] {
   if (!Array.isArray(steps)) return [];
 
@@ -33,7 +33,7 @@ export function filterTrialSteps(steps: unknown): TrialStepRef[] {
     if (typeof chapter !== "string" || !TRIAL_CHAPTER_SET.has(chapter)) continue;
     if (typeof stepIndex !== "number") continue;
     if (!Number.isInteger(stepIndex) || stepIndex < 0) continue;
-    // Valeur canonique reprise du périmètre, jamais de l'entrée.
+    // Canonical value taken from the scope, never from the entry.
     const canonicalChapter = TRIAL_CHAPTERS[TRIAL_CHAPTERS.indexOf(chapter)];
     const key = `${canonicalChapter}:${stepIndex}`;
     if (seen.has(key)) continue;
@@ -42,9 +42,9 @@ export function filterTrialSteps(steps: unknown): TrialStepRef[] {
     kept.push({ course: TRIAL_COURSE, chapter: canonicalChapter, stepIndex });
   }
 
-  // Dans l'ordre du parcours : le serveur n'accorde une étape qu'après la
-  // précédente (lib/step-order.ts), et rien ne garantit l'ordre dans lequel le
-  // navigateur remonte les étapes de l'essai.
+  // In journey order: the server only grants a step after the previous one
+  // (lib/step-order.ts), and nothing guarantees the order in which the
+  // browser sends up the trial steps.
   return kept.sort(
     (a, b) =>
       TRIAL_CHAPTERS.indexOf(a.chapter) - TRIAL_CHAPTERS.indexOf(b.chapter) ||
@@ -52,7 +52,7 @@ export function filterTrialSteps(steps: unknown): TrialStepRef[] {
   );
 }
 
-/** Ids de cinématiques atteignables en essai, construits en dur et jamais dérivés de l'entrée. */
+/** Cutscene ids reachable in the trial, hard-coded and never derived from the input. */
 const TRIAL_CINEMATIC_IDS: readonly string[] = [
   `${TRIAL_COURSE}:intro`,
   ...TRIAL_CHAPTERS.map((c) => `${TRIAL_COURSE}:chapter:${c}`),

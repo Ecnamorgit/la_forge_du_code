@@ -5,10 +5,10 @@ import path from "node:path";
 import { describe, it, expect } from "vitest";
 
 /**
- * Audit INF-01 : dans Vercel, `DATABASE_URL` et `DIRECT_URL` valent pour la
- * production et les préversions. Un `prisma migrate deploy` dans la commande
- * de build appliquerait donc les migrations d'une branche poussée à la base de
- * production, avant toute relecture.
+ * Audit INF-01: in Vercel, `DATABASE_URL` and `DIRECT_URL` apply to both
+ * production and previews. A `prisma migrate deploy` in the build command
+ * would therefore apply a pushed branch's migrations to the production
+ * database, before any review.
  */
 
 const ROOT = process.cwd();
@@ -17,7 +17,7 @@ const vercel = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8"
   buildCommand: string;
 };
 
-/** Lance le script en simulation (il ne touche jamais à Prisma), avec l'environnement donné. */
+/** Runs the script in simulation mode (it never touches Prisma), with the given environment. */
 function runScript(env: Record<string, string>): string {
   return execFileSync(process.execPath, [SCRIPT, "--simulation"], {
     env: { ...process.env, VERCEL: "", VERCEL_ENV: "", ...env },
@@ -25,24 +25,24 @@ function runScript(env: Record<string, string>): string {
   });
 }
 
-describe("build Vercel : migrations de la base", () => {
-  it("n'applique pas les migrations directement dans la commande de build", () => {
+describe("Vercel build: database migrations", () => {
+  it("does not apply migrations directly in the build command", () => {
     expect(vercel.buildCommand).not.toMatch(/prisma migrate deploy/);
   });
 
-  it("passe par le script qui ne migre qu'en production", () => {
+  it("goes through the script that only migrates in production", () => {
     expect(vercel.buildCommand).toContain("node scripts/migrer-si-production.mjs");
   });
 
-  it("n'applique pas les migrations sur une préversion", () => {
+  it("does not apply migrations on a preview", () => {
     expect(runScript({ VERCEL: "1", VERCEL_ENV: "preview" })).toMatch(/ignorées/);
   });
 
-  it("applique les migrations au déploiement de production", () => {
+  it("applies migrations on a production deployment", () => {
     expect(runScript({ VERCEL: "1", VERCEL_ENV: "production" })).toMatch(/appliquées/);
   });
 
-  it("fait échouer le build sur Vercel si VERCEL_ENV est absent, au lieu de sauter les migrations", () => {
+  it("fails the build on Vercel if VERCEL_ENV is missing, instead of skipping migrations", () => {
     expect(() => runScript({ VERCEL: "1" })).toThrow();
   });
 });

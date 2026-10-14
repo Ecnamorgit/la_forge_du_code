@@ -1,17 +1,17 @@
 /**
- * Refus des requêtes venues d'une autre origine (audit SRV-09).
+ * Rejection of requests coming from another origin (audit SRV-09).
  *
- * Le cookie de session SameSite=Lax n'est pas envoyé sur un POST venu d'un
- * site tiers, mais SameSite raisonne par site et non par origine : le bac à
- * sable, servi depuis un sous-domaine (audit EXE-03), pourrait sinon envoyer
- * des requêtes authentifiées aux API.
+ * The SameSite=Lax session cookie is not sent on a POST from a third-party
+ * site, but SameSite works per site, not per origin: the sandbox, served from
+ * a subdomain (audit EXE-03), could otherwise send authenticated requests to
+ * the APIs.
  *
- * L'en-tête Origin, posé par le navigateur, est comparé à l'hôte de la requête
- * comme le fait Next pour ses server actions (`x-forwarded-host`, puis `host`) :
- * derrière un proxy, `req.url` peut différer de l'adresse publique. Sans
- * Origin, on se rabat sur Sec-Fetch-Site. Sans l'un ni l'autre (client hors
- * navigateur comme curl), aucune CSRF n'est possible : la requête passe et
- * l'authentification fait le reste.
+ * The Origin header, set by the browser, is compared with the request host
+ * the way Next does for its server actions (`x-forwarded-host`, then `host`):
+ * behind a proxy, `req.url` can differ from the public address. Without
+ * Origin, we fall back to Sec-Fetch-Site. With neither (a non-browser client
+ * such as curl), no CSRF is possible: the request goes through and
+ * authentication does the rest.
  */
 export function isCrossOriginRequest(req: Request): boolean {
   const origin = req.headers.get("origin");
@@ -20,7 +20,7 @@ export function isCrossOriginRequest(req: Request): boolean {
     try {
       return new URL(origin).host !== host;
     } catch {
-      // Origin « null » : iframe sandboxée ou document opaque, jamais légitime ici.
+      // Origin "null": sandboxed iframe or opaque document, never legitimate here.
       return true;
     }
   }
@@ -28,7 +28,7 @@ export function isCrossOriginRequest(req: Request): boolean {
   return site !== null && site !== "same-origin" && site !== "none";
 }
 
-/** Réponse 403 si la requête vient d'une autre origine, sinon `null`. */
+/** 403 response if the request comes from another origin, otherwise `null`. */
 export function crossOriginRefusal(req: Request): Response | null {
   return isCrossOriginRequest(req)
     ? Response.json({ error: "Origine de la requête non autorisée" }, { status: 403 })

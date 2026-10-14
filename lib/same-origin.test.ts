@@ -6,13 +6,13 @@ const makeRequest = (headers: Record<string, string>) =>
   new Request("http://interne:3000/api/me/visit", { method: "POST", headers });
 
 describe("isCrossOriginRequest", () => {
-  it("accepte la même origine", () => {
+  it("accepts the same origin", () => {
     expect(
       isCrossOriginRequest(makeRequest({ origin: "https://www.laforgeducode.fr", host: "www.laforgeducode.fr" }))
     ).toBe(false);
   });
 
-  it("compare à x-forwarded-host avant host, comme derrière Vercel", () => {
+  it("compares against x-forwarded-host before host, as behind Vercel", () => {
     const req = makeRequest({
       origin: "https://www.laforgeducode.fr",
       host: "interne:3000",
@@ -21,13 +21,13 @@ describe("isCrossOriginRequest", () => {
     expect(isCrossOriginRequest(req)).toBe(false);
   });
 
-  it("refuse une autre origine", () => {
+  it("rejects another origin", () => {
     expect(
       isCrossOriginRequest(makeRequest({ origin: "https://piege.example", host: "www.laforgeducode.fr" }))
     ).toBe(true);
   });
 
-  it("refuse un sous-domaine, que SameSite laisserait passer", () => {
+  it("rejects a subdomain, which SameSite would let through", () => {
     expect(
       isCrossOriginRequest(
         makeRequest({ origin: "https://bac-a-sable.laforgeducode.fr", host: "www.laforgeducode.fr" })
@@ -35,28 +35,28 @@ describe("isCrossOriginRequest", () => {
     ).toBe(true);
   });
 
-  it("refuse l'origine opaque « null » d'une iframe sandboxée", () => {
+  it("rejects the opaque 'null' origin of a sandboxed iframe", () => {
     expect(isCrossOriginRequest(makeRequest({ origin: "null", host: "www.laforgeducode.fr" }))).toBe(true);
   });
 
-  it("se rabat sur Sec-Fetch-Site sans en-tête Origin", () => {
+  it("falls back to Sec-Fetch-Site without an Origin header", () => {
     expect(isCrossOriginRequest(makeRequest({ "sec-fetch-site": "cross-site" }))).toBe(true);
     expect(isCrossOriginRequest(makeRequest({ "sec-fetch-site": "same-site" }))).toBe(true);
     expect(isCrossOriginRequest(makeRequest({ "sec-fetch-site": "same-origin" }))).toBe(false);
   });
 
-  it("laisse passer un client hors navigateur, sans Origin ni Sec-Fetch-Site", () => {
+  it("lets a non-browser client through, without Origin or Sec-Fetch-Site", () => {
     expect(isCrossOriginRequest(makeRequest({}))).toBe(false);
   });
 });
 
 describe("crossOriginRefusal", () => {
-  it("répond 403 à une autre origine", async () => {
+  it("responds 403 to another origin", async () => {
     const res = crossOriginRefusal(makeRequest({ origin: "https://piege.example", host: "www.laforgeducode.fr" }));
     expect(res?.status).toBe(403);
   });
 
-  it("ne répond rien à la même origine", () => {
+  it("returns nothing for the same origin", () => {
     expect(
       crossOriginRefusal(makeRequest({ origin: "https://www.laforgeducode.fr", host: "www.laforgeducode.fr" }))
     ).toBeNull();

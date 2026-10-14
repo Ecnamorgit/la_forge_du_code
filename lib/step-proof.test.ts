@@ -6,31 +6,31 @@ import { verifyStepProof } from "./step-proof";
 const CH1_STEP_0 = "<!DOCTYPE html>\n<html></html>";
 
 describe("verifyStepProof", () => {
-  it("revalide une vraie solution", () => {
+  it("revalidates a real solution", () => {
     expect(verifyStepProof("html", "chapitre-1", 0, CH1_STEP_0)).toEqual({
       ok: true,
       mode: "revalidated",
     });
   });
 
-  it("refuse le code de départ", () => {
+  it("rejects the starter code", () => {
     const starterCode = getChapterData("html", "chapitre-1")!.steps[0].startCode;
     expect(verifyStepProof("html", "chapitre-1", 0, starterCode).ok).toBe(false);
   });
 
-  it("refuse l'absence de code", () => {
+  it("rejects missing code", () => {
     expect(verifyStepProof("html", "chapitre-1", 0, undefined).ok).toBe(false);
   });
 
-  it("refuse la solution d'une autre étape", () => {
+  it("rejects the solution of another step", () => {
     expect(verifyStepProof("html", "chapitre-1", 1, CH1_STEP_0).ok).toBe(false);
   });
 
-  it("refuse une étape sans validateur", () => {
+  it("rejects a step without a validator", () => {
     expect(verifyStepProof("html", "chapitre-1", 99, CH1_STEP_0).ok).toBe(false);
   });
 
-  it("laisse déclarées les étapes jugées sur une exécution", () => {
+  it("leaves runtime-judged steps as declared", () => {
     expect(verifyStepProof("javascript", "chapitre-1", 0, undefined)).toEqual({
       ok: true,
       mode: "declared",

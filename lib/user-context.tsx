@@ -8,34 +8,34 @@ import { useTrialUser } from "./use-trial-user";
 import { useUser, type UseUserReturn } from "./use-user";
 
 export type UserContextValue = UseUserReturn & {
-  /** Vrai quand la progression est locale (visiteur sans compte). */
+  /** True when progress is local (visitor without an account). */
   isTrial: boolean;
 };
 
-/** Statuts exposés par `useSession()` (next-auth/react). */
+/** Statuses exposed by `useSession()` (next-auth/react). */
 export type SessionStatus = "authenticated" | "unauthenticated" | "loading";
 
 export interface UserModeState {
-  /** Une session authentifiée a-t-elle déjà existé depuis le montage ? */
+  /** Has an authenticated session existed since mount? */
   everAuthenticated: boolean;
 }
 
 export interface UserModeDecision extends UserModeState {
-  /** Visiteur jamais connecté : progression locale légitime. */
+  /** Visitor never signed in: legitimate local progress. */
   isTrial: boolean;
-  /** Session qui vient d'expirer en cours d'usage : doit renvoyer vers /login. */
+  /** Session that just expired during use: must send back to /login. */
   sessionExpired: boolean;
 }
 
 /**
- * Décide du mode utilisateur à partir du statut de session et du fait qu'une
- * session authentifiée a déjà existé pendant ce montage.
+ * Decides the user mode from the session status and whether an
+ * authenticated session has already existed during this mount.
  *
- * `status === "unauthenticated"` seul ne distingue pas un visiteur jamais
- * connecté (mode essai légitime) d'une session expirée en cours d'usage (JWT
- * expiré, relu par `SessionProvider` au retour du focus). Sans cette
- * distinction, l'utilisateur basculerait sur le stockage local et ce qu'il
- * valide ne serait plus écrit sur son compte.
+ * `status === "unauthenticated"` alone does not distinguish a visitor who
+ * never signed in (legitimate trial mode) from a session that expired during
+ * use (expired JWT, re-read by `SessionProvider` when focus returns). Without
+ * this distinction, the user would switch to local storage and what they
+ * complete would no longer be written to their account.
  */
 export function decideUserMode(
   status: SessionStatus,
@@ -52,12 +52,12 @@ export function decideUserMode(
 const UserContext = createContext<UserContextValue | null>(null);
 
 /**
- * Choisit la source de progression selon la session. Monté uniquement sur le
- * sous-arbre /learn, seul endroit où un visiteur anonyme manipule un
- * UserState ; le tableau de bord, le profil et l'avatar restent protégés par
- * `proxy.ts` et appellent useUser() directement.
+ * Picks the progress source based on the session. Mounted only on the
+ * /learn subtree, the only place where an anonymous visitor handles a
+ * UserState; the dashboard, profile and avatar stay protected by
+ * `proxy.ts` and call useUser() directly.
  *
- * Les deux hooks sont appelés sans condition (règles des hooks).
+ * Both hooks are called unconditionally (rules of hooks).
  */
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
@@ -69,9 +69,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [prevStatus, setPrevStatus] = useState<SessionStatus>(status);
   const [everAuthenticated, setEverAuthenticated] = useState(status === "authenticated");
 
-  // Ajusté pendant le rendu (comme `prevOpen`/`index` dans IntroCinematic) et
-  // non dans un effet : un effet ne s'exécuterait qu'après la peinture, et le
-  // bandeau « mode essai » pourrait apparaître une frame avant la redirection.
+  // Adjusted during render (like `prevOpen`/`index` in IntroCinematic), not
+  // in an effect: an effect would only run after paint, and the "mode essai"
+  // banner could show for one frame before the redirect.
   if (status !== prevStatus) {
     setPrevStatus(status);
     if (status === "authenticated") setEverAuthenticated(true);
@@ -79,8 +79,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const { isTrial, sessionExpired } = decideUserMode(status, { everAuthenticated });
 
-  // Session expirée : la redirection est un effet de bord, elle reste dans un
-  // effet.
+  // Expired session: the redirect is a side effect, so it stays in an
+  // effect.
   useEffect(() => {
     if (!sessionExpired) return;
     router.replace(`/login?from=${encodeURIComponent(pathname)}`);

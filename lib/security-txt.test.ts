@@ -4,10 +4,10 @@ import path from "node:path";
 import { describe, it, expect } from "vitest";
 
 /**
- * /.well-known/security.txt (RFC 9116, audit SUP-01). La RFC exige `Contact`
- * et `Expires`, et recommande une expiration à moins d'un an. Le test échoue
- * une fois la date passée : c'est le rappel de renouveler le fichier et de
- * vérifier que l'adresse de contact reçoit bien le courrier.
+ * /.well-known/security.txt (RFC 9116, audit SUP-01). The RFC requires
+ * `Contact` and `Expires`, and recommends an expiry less than a year away. The
+ * test fails once the date has passed: that is the reminder to renew the file
+ * and to check that the contact address actually receives mail.
  */
 
 const FILE_PATH = path.join(process.cwd(), "public", ".well-known", "security.txt");
@@ -22,13 +22,13 @@ const fieldValues = (text: string, fieldName: string) =>
 describe("security.txt", () => {
   const text = fs.readFileSync(FILE_PATH, "utf8");
 
-  it("donne au moins un contact", () => {
+  it("provides at least one contact", () => {
     const contacts = fieldValues(text, "Contact");
     expect(contacts.length).toBeGreaterThan(0);
     for (const c of contacts) expect(c).toMatch(/^(mailto:|https:\/\/)/);
   });
 
-  it("expire dans le futur, à moins d'un an", () => {
+  it("expires in the future, less than a year away", () => {
     const [expires] = fieldValues(text, "Expires");
     const date = Date.parse(expires);
     expect(Number.isNaN(date), `Expires illisible : ${expires}`).toBe(false);
@@ -36,7 +36,7 @@ describe("security.txt", () => {
     expect(date - Date.now(), "Expires à plus d'un an").toBeLessThan(ONE_YEAR_MS);
   });
 
-  it("indique son adresse canonique en https", () => {
+  it("states its canonical address over https", () => {
     expect(fieldValues(text, "Canonical")[0]).toMatch(/^https:\/\/.+\/\.well-known\/security\.txt$/);
   });
 });

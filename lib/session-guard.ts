@@ -3,16 +3,16 @@ import "server-only";
 import { prisma } from "@/lib/db";
 
 /**
- * Révocation des sessions JWT après une réinitialisation de mot de passe
- * (audit SRV-03). Les JWT signés ne sont pas stockés : sans ce mécanisme, une
- * session volée resterait valable jusqu'à son expiration.
+ * Revocation of JWT sessions after a password reset (audit SRV-03).
+ * Signed JWTs are not stored: without this mechanism, a stolen session would
+ * stay valid until it expires.
  *
- * Le compte porte une `sessionVersion`, que le jeton reprend à la connexion et
- * que la réinitialisation incrémente. À chaque `auth()`, une divergence fait
- * refuser la session.
+ * The account carries a `sessionVersion`, which the token copies at login and
+ * which the reset increments. On every `auth()`, a mismatch causes the session
+ * to be rejected.
  */
 
-/** Incrémente la version de session : révoque tous les jetons déjà émis. */
+/** Increments the session version: revokes every token already issued. */
 export async function revokeSessions(userId: string): Promise<void> {
   await prisma.user.update({
     where: { id: userId },
@@ -21,9 +21,9 @@ export async function revokeSessions(userId: string): Promise<void> {
 }
 
 /**
- * Vrai si la version portée par le jeton est encore celle du compte. En cas
- * d'erreur de base, on répond `true` pour ne pas déconnecter tout le monde à
- * la moindre panne : la révocation est seulement différée.
+ * True if the version carried by the token still matches the account's. On a
+ * database error, we return `true` so we do not sign everyone out at the
+ * slightest outage: revocation is only delayed.
  */
 export async function isSessionValid(userId: string, tokenVersion: unknown): Promise<boolean> {
   if (typeof tokenVersion !== "number") return false;

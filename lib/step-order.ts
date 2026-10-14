@@ -1,10 +1,10 @@
 /**
- * Ordre de progression appliqué par le serveur (audit EXE-01). Il reprend les
- * deux règles de l'interface : dans un chapitre, l'étape n n'est proposée
- * qu'après la réussite de l'étape n-1 ; sur la carte, un chapitre n'est
- * déverrouillé qu'une fois le précédent terminé (`LevelNode`, via
- * `isChapterComplete`). Plus stricte, la règle bloquerait un apprenant
- * honnête ; plus lâche, un script sauterait tout le parcours.
+ * Progression order enforced by the server (audit EXE-01). It mirrors the
+ * two UI rules: within a chapter, step n is only offered once step n-1 is
+ * passed; on the map, a chapter is only unlocked once the previous one is
+ * finished (`LevelNode`, via `isChapterComplete`). Any stricter and the rule
+ * would block an honest learner; any looser and a script could skip the
+ * whole journey.
  */
 
 export interface ChapterSteps {

@@ -10,9 +10,9 @@ function subscribe(callback: () => void): () => void {
 }
 
 /**
- * Préférence de son réactive, stockée dans localStorage. `setSoundEnabled`
- * écrit la valeur et émet "nebula:sound-changed", auquel `useSyncExternalStore`
- * s'abonne. Vaut `true` côté serveur et pendant l'hydratation.
+ * Reactive sound preference, stored in localStorage. `setSoundEnabled`
+ * writes the value and emits "nebula:sound-changed", which `useSyncExternalStore`
+ * subscribes to. It is `true` on the server and during hydration.
  */
 export function useSoundPreference(): {
   enabled: boolean;

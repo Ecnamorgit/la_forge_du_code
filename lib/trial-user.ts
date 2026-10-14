@@ -1,9 +1,9 @@
 /**
- * État de progression du mode essai (visiteur sans compte), indexé par slug
- * de chapitre de TRIAL_CHAPTERS (lib/public-routes.ts).
+ * Progress state for trial mode (visitor without an account), keyed by the
+ * chapter slugs of TRIAL_CHAPTERS (lib/public-routes.ts).
  *
- * Logique pure, sans React ; les accès au storage sont gardés par
- * `typeof window`, comme dans `lib/intro.ts`.
+ * Pure logic, no React; storage access is guarded by
+ * `typeof window`, as in `lib/intro.ts`.
  */
 
 import { TRIAL_CHAPTERS, TRIAL_COURSE } from "./public-routes";
@@ -13,7 +13,7 @@ import { xpForStep } from "./xp";
 export const TRIAL_STORAGE_KEY = "nc_trial_state";
 
 export interface TrialState {
-  /** Index des étapes validées, triés, par slug de chapitre d'essai. */
+  /** Sorted indexes of completed steps, per trial chapter slug. */
   chapters: Record<string, number[]>;
   xp: number;
 }
@@ -30,7 +30,7 @@ export interface TrialStepRef {
   stepIndex: number;
 }
 
-/** État vide, nouveau littéral à chaque appel (cf. `parseTrialState`). */
+/** Empty state, a new literal on every call (see `parseTrialState`). */
 export function emptyTrialState(): TrialState {
   return { chapters: {}, xp: 0 };
 }
@@ -39,39 +39,39 @@ function sanitizeChapters(value: unknown): Record<string, number[]> | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
   const out: Record<string, number[]> = {};
   for (const [chapter, steps] of Object.entries(value)) {
-    // Forme validée avant le filtre de périmètre : une entrée malformée, même
-    // hors périmètre, invalide tout l'état.
+    // Shape validated before the scope filter: a malformed entry, even
+    // out of scope, invalidates the whole state.
     if (!Array.isArray(steps) || !steps.every((n) => typeof n === "number")) return null;
-    if (!TRIAL_CHAPTERS.includes(chapter)) continue; // hors périmètre : ignoré
+    if (!TRIAL_CHAPTERS.includes(chapter)) continue; // out of scope: ignored
     out[chapter] = [...steps];
   }
   return out;
 }
 
 /**
- * Décode l'état d'essai stocké. Le décodage vit ici, en pur, pour être testé
- * sous node ; `readTrialState` n'enveloppe que `localStorage`. Renvoie l'état
- * vide si l'entrée est absente, corrompue ou invalide, sans jamais lever.
+ * Decodes the stored trial state. Decoding lives here, as pure code, so it can
+ * be tested under node; `readTrialState` only wraps `localStorage`. Returns the
+ * empty state if the entry is missing, corrupted or invalid, without ever throwing.
  *
- * Migre l'ancienne forme `{ completedSteps, xp }` (un seul chapitre implicite)
- * vers `{ chapters, xp }`.
+ * Migrates the legacy `{ completedSteps, xp }` shape (a single implicit chapter)
+ * to `{ chapters, xp }`.
  */
 export function parseTrialState(raw: string | null): TrialState {
-  // Chaque retour par défaut est un littéral frais : avec une constante
-  // partagée, une mutation de `chapters` par un appelant corromprait l'état
-  // par défaut pour tout le processus.
+  // Every default return is a fresh literal: with a shared constant, a
+  // caller mutating `chapters` would corrupt the default state for the
+  // whole process.
   if (!raw) return emptyTrialState();
   try {
     const parsed: unknown = JSON.parse(raw);
     if (typeof parsed !== "object" || parsed === null) return emptyTrialState();
     const v = parsed as Record<string, unknown>;
     if (typeof v.xp !== "number") return emptyTrialState();
-    // Forme neuve.
+    // New shape.
     if ("chapters" in v) {
       const chapters = sanitizeChapters(v.chapters);
       return chapters ? { chapters, xp: v.xp } : emptyTrialState();
     }
-    // Ancienne forme { completedSteps, xp } : migration.
+    // Legacy { completedSteps, xp } shape: migration.
     if (Array.isArray(v.completedSteps) && v.completedSteps.every((n) => typeof n === "number")) {
       return {
         chapters: { [TRIAL_CHAPTERS[0]]: [...v.completedSteps] },
@@ -84,7 +84,7 @@ export function parseTrialState(raw: string | null): TrialState {
   }
 }
 
-/** Lit l'état d'essai ; état vide si le storage est indisponible. */
+/** Reads the trial state; empty state if storage is unavailable. */
 export function readTrialState(): TrialState {
   if (typeof window === "undefined") return emptyTrialState();
   try {
@@ -94,13 +94,13 @@ export function readTrialState(): TrialState {
   }
 }
 
-/** Persiste l'état ; sans effet si le storage est indisponible ou plein. */
+/** Persists the state; no effect if storage is unavailable or full. */
 export function writeTrialState(state: TrialState): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(TRIAL_STORAGE_KEY, JSON.stringify(state));
   } catch {
-    /* navigation privée ou quota dépassé : l'essai continue en mémoire */
+    /* private browsing or quota exceeded: the trial continues in memory */
   }
 }
 
@@ -114,8 +114,8 @@ export function clearTrialState(): void {
 }
 
 /**
- * Applique une validation d'étape pour un chapitre d'essai. Même calcul d'XP
- * que `me-server.ts` (`xpForStep`).
+ * Applies a step completion for a trial chapter. Same XP calculation as
+ * `me-server.ts` (`xpForStep`).
  */
 export function applyTrialStep(
   state: TrialState,
@@ -149,18 +149,18 @@ export function applyTrialStep(
   };
 }
 
-/** Projette l'état d'essai dans la forme `UserState` consommée par l'UI. */
+/** Projects the trial state into the `UserState` shape consumed by the UI. */
 export function trialStateToUserState(state: TrialState): UserState {
   return {
     ...DEFAULT_USER,
-    // Le spread ne clone pas les champs de type référence de `DEFAULT_USER`,
-    // partagé par tout le processus (cf. lib/use-user.ts) : un `push` sur
-    // l'état d'essai le corromprait. D'où les copies explicites.
+    // The spread does not clone the reference-type fields of `DEFAULT_USER`,
+    // which is shared by the whole process (see lib/use-user.ts): a `push` on
+    // the trial state would corrupt it. Hence the explicit copies.
     badges: [...DEFAULT_USER.badges],
     unlocks: [...DEFAULT_USER.unlocks],
     liaison: { ...DEFAULT_USER.liaison, week: [...DEFAULT_USER.liaison.week] },
-    // Le briefing est calculé serveur ; un visiteur sans compte n'atteint pas
-    // le tableau de bord (proxy.ts), il n'en a donc aucun.
+    // The briefing is computed server-side; a visitor without an account cannot
+    // reach the dashboard (proxy.ts), so they have none.
     briefing: null,
     username: "Cadet",
     totalXp: state.xp,
@@ -174,7 +174,7 @@ export function trialStateToUserState(state: TrialState): UserState {
   };
 }
 
-/** Liste les étapes validées, au format attendu par /api/me/trial-import. */
+/** Lists the completed steps, in the format expected by /api/me/trial-import. */
 export function trialCompletedSteps(state: TrialState): TrialStepRef[] {
   return TRIAL_CHAPTERS.flatMap((chapter) =>
     (state.chapters[chapter] ?? []).map((stepIndex) => ({

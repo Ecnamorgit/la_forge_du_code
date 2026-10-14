@@ -1,9 +1,9 @@
 /**
- * Comptage minimal du tunnel d'acquisition.
+ * Minimal counting for the acquisition funnel.
  *
- * Aucune donnée personnelle, aucun identifiant de visiteur persistant : on
- * compte des occurrences horodatées, pas des personnes. Ni cookie ni
- * sous-traitant tiers (docs/RGPD.md).
+ * No personal data, no persistent visitor id: we count timestamped
+ * occurrences, not people. No cookie and no third-party processor
+ * (docs/RGPD.md).
  */
 
 export const TRACK_EVENTS = ["landing_vue", "essai_lance", "inscription"] as const;

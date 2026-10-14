@@ -13,20 +13,20 @@ function liaisonState(p: Partial<LiaisonState> = {}): LiaisonState {
 }
 
 describe("daysBetweenIso", () => {
-  it("compte les jours entre deux dates ISO", () => {
+  it("counts the days between two ISO dates", () => {
     expect(daysBetweenIso("2026-08-18", "2026-08-19")).toBe(1);
     expect(daysBetweenIso("2026-08-01", "2026-08-19")).toBe(18);
   });
 });
 
 describe("advanceLiaison", () => {
-  it("ne fait rien si le jour est déjà compté", () => {
+  it("does nothing if the day is already counted", () => {
     const t = advanceLiaison(liaisonState({ streak: 5, lastActiveDay: "2026-08-19" }), "2026-08-19");
     expect(t.changed).toBe(false);
     expect(t.next.streak).toBe(5);
   });
 
-  it("refuse une journée antérieure à la dernière activité", () => {
+  it("rejects a day earlier than the last activity", () => {
     const t = advanceLiaison(
       liaisonState({ streak: 5, shields: 1, bestStreak: 10, lastActiveDay: "2026-08-19" }),
       "2026-08-18"
@@ -37,19 +37,19 @@ describe("advanceLiaison", () => {
     expect(t.next.bestStreak).toBe(10);
   });
 
-  it("incrémente au lendemain", () => {
+  it("increments on the next day", () => {
     const t = advanceLiaison(liaisonState({ streak: 5 }), "2026-08-19");
     expect(t.next.streak).toBe(6);
     expect(t.broken).toBe(false);
   });
 
-  it("démarre à 1 pour un cadet jamais actif", () => {
+  it("starts at 1 for a cadet who was never active", () => {
     const t = advanceLiaison(liaisonState({ lastActiveDay: "", streak: 1 }), "2026-08-19");
     expect(t.next.streak).toBe(1);
     expect(t.next.lastActiveDay).toBe("2026-08-19");
   });
 
-  it("consomme un relais pour couvrir un jour manqué", () => {
+  it("consumes a relay to cover a missed day", () => {
     const t = advanceLiaison(
       liaisonState({ streak: 9, shields: 1, lastActiveDay: "2026-08-17" }),
       "2026-08-19"
@@ -60,7 +60,7 @@ describe("advanceLiaison", () => {
     expect(t.broken).toBe(false);
   });
 
-  it("consomme deux relais pour couvrir deux jours manqués", () => {
+  it("consumes two relays to cover two missed days", () => {
     const t = advanceLiaison(
       liaisonState({ streak: 9, shields: 2, lastActiveDay: "2026-08-16" }),
       "2026-08-19"
@@ -70,7 +70,7 @@ describe("advanceLiaison", () => {
     expect(t.next.streak).toBe(10);
   });
 
-  it("rompt la liaison quand les relais ne suffisent pas", () => {
+  it("breaks the liaison when the relays are not enough", () => {
     const t = advanceLiaison(
       liaisonState({ streak: 9, shields: 1, lastActiveDay: "2026-08-10" }),
       "2026-08-19"
@@ -81,7 +81,7 @@ describe("advanceLiaison", () => {
     expect(t.next.shields).toBe(1);
   });
 
-  it("conserve le record quand la liaison est rompue", () => {
+  it("keeps the record when the liaison is broken", () => {
     const t = advanceLiaison(
       liaisonState({ streak: 20, bestStreak: 20, lastActiveDay: "2026-08-01" }),
       "2026-08-19"
@@ -90,7 +90,7 @@ describe("advanceLiaison", () => {
     expect(t.next.bestStreak).toBe(20);
   });
 
-  it("attribue Le Retour seulement si la série rompue valait 7 jours ou plus", () => {
+  it("awards Le Retour only if the broken streak was 7 days or more", () => {
     const large = advanceLiaison(
       liaisonState({ streak: 7, lastActiveDay: "2026-08-01" }),
       "2026-08-19"
@@ -104,7 +104,7 @@ describe("advanceLiaison", () => {
     expect(small.earnedReturn).toBe(false);
   });
 
-  it("offre le premier relais au 3e jour, une seule fois", () => {
+  it("grants the first relay on day 3, only once", () => {
     const t = advanceLiaison(liaisonState({ streak: 2 }), "2026-08-19");
     expect(t.next.streak).toBe(3);
     expect(t.next.shields).toBe(1);
@@ -117,7 +117,7 @@ describe("advanceLiaison", () => {
     expect(replayed.next.shields).toBe(0);
   });
 
-  it("donne un relais tous les 7 jours", () => {
+  it("gives a relay every 7 days", () => {
     const t = advanceLiaison(
       liaisonState({ streak: 6, shieldEverGranted: true }),
       "2026-08-19"
@@ -127,7 +127,7 @@ describe("advanceLiaison", () => {
     expect(t.next.shields).toBe(1);
   });
 
-  it("ne dépasse jamais le plafond de relais", () => {
+  it("never exceeds the relay cap", () => {
     const t = advanceLiaison(
       liaisonState({ streak: 13, shields: MAX_SHIELDS, shieldEverGranted: true }),
       "2026-08-19"
@@ -136,7 +136,7 @@ describe("advanceLiaison", () => {
     expect(t.next.shields).toBe(MAX_SHIELDS);
   });
 
-  it("met à jour le record quand la série dépasse l'ancien", () => {
+  it("updates the record when the streak beats the old one", () => {
     const t = advanceLiaison(liaisonState({ streak: 9, bestStreak: 9 }), "2026-08-19");
     expect(t.next.bestStreak).toBe(10);
   });

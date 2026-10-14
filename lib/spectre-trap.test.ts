@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { getChapterData } from "@/lib/courses-registry";
 
-/** Étapes converties en pièges du Spectre (course, chapter, index d'étape). */
+/** Steps turned into Spectre traps (course, chapter, step index). */
 const TRAPS: Array<[string, string, number]> = [
   ["html", "chapitre-2", 0],
   ["css", "chapitre-4", 0],
@@ -9,9 +9,9 @@ const TRAPS: Array<[string, string, number]> = [
   ["react", "chapitre-6", 0],
 ];
 
-describe("Étapes-pièges du Spectre", () => {
+describe("Spectre trap steps", () => {
   for (const [course, chapter, step] of TRAPS) {
-    it(`${course}/${chapter} étape ${step + 1} porte un spectreTrap non vide`, () => {
+    it(`${course}/${chapter} step ${step + 1} carries a non-empty spectreTrap`, () => {
       const data = getChapterData(course, chapter);
       expect(data, `${course}/${chapter} introuvable`).not.toBeNull();
       const trap = data!.steps[step]?.spectreTrap;

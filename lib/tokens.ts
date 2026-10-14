@@ -11,9 +11,9 @@ const TTL_MS: Record<TokenKind, number> = {
 };
 
 /**
- * Crée un jeton à usage unique et invalide les jetons inutilisés du même type
- * pour cet utilisateur : redemander un e-mail de vérification annule l'ancien
- * lien.
+ * Creates a single-use token and invalidates unused tokens of the same kind
+ * for this user: requesting a new verification email cancels the old
+ * link.
  */
 export async function createToken(args: {
   userId: string;
@@ -23,7 +23,7 @@ export async function createToken(args: {
   const expiresAt = new Date(Date.now() + TTL_MS[args.kind]);
 
   await prisma.$transaction([
-    // Invalide les jetons inutilisés du même type.
+    // Invalidates unused tokens of the same kind.
     prisma.oneTimeToken.updateMany({
       where: { userId: args.userId, kind: args.kind, usedAt: null },
       data: { usedAt: new Date() },
@@ -56,8 +56,8 @@ export class TokenError extends Error {
 }
 
 /**
- * Consomme un jeton : vérifie l'expiration et l'usage unique, puis le marque
- * utilisé de façon atomique. Lève TokenError en cas d'échec.
+ * Consumes a token: checks expiry and single use, then marks it as used
+ * atomically. Throws TokenError on failure.
  */
 export async function consumeToken(args: {
   token: string;
@@ -81,8 +81,8 @@ export async function consumeToken(args: {
     throw new TokenError("Lien expiré, demande-en un nouveau.", "expired");
   }
 
-  // Garde atomique : la mise à jour n'a lieu que si le jeton est encore
-  // inutilisé. Si une requête concurrente l'a consommé entre-temps, count vaut 0.
+  // Atomic guard: the update only happens if the token is still unused.
+  // If a concurrent request consumed it in the meantime, count is 0.
   const result = await prisma.oneTimeToken.updateMany({
     where: { id: record.id, usedAt: null },
     data: { usedAt: new Date() },

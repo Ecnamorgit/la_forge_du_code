@@ -13,29 +13,29 @@ const doneSteps = (...steps: [string, number][]): DoneStep[] =>
   steps.map(([chapter, stepIndex]) => ({ chapter, stepIndex }));
 
 describe("checkStepOrder", () => {
-  it("accepte la première étape du premier chapitre", () => {
+  it("accepts the first step of the first chapter", () => {
     expect(checkStepOrder(CHAPTERS, [], "chapitre-1", 0)).toEqual({ ok: true });
   });
 
-  it("accepte l'étape qui suit une étape faite", () => {
+  it("accepts the step that follows a completed step", () => {
     expect(checkStepOrder(CHAPTERS, doneSteps(["chapitre-1", 0]), "chapitre-1", 1).ok).toBe(true);
   });
 
-  it("refuse une étape dont la précédente manque", () => {
+  it("rejects a step whose previous step is missing", () => {
     expect(checkStepOrder(CHAPTERS, doneSteps(["chapitre-1", 0]), "chapitre-1", 2).ok).toBe(false);
   });
 
-  it("refuse le début d'un chapitre tant que le précédent n'est pas terminé", () => {
+  it("rejects the start of a chapter while the previous one is not finished", () => {
     const done = doneSteps(["chapitre-1", 0], ["chapitre-1", 1]);
     expect(checkStepOrder(CHAPTERS, done, "chapitre-2", 0).ok).toBe(false);
   });
 
-  it("accepte le début d'un chapitre quand le précédent est terminé", () => {
+  it("accepts the start of a chapter once the previous one is finished", () => {
     const done = doneSteps(["chapitre-1", 0], ["chapitre-1", 1], ["chapitre-1", 2]);
     expect(checkStepOrder(CHAPTERS, done, "chapitre-2", 0).ok).toBe(true);
   });
 
-  it("ne confond pas chapitre-1 et chapitre-10", () => {
+  it("does not confuse chapitre-1 with chapitre-10", () => {
     const journey = [
       { slug: "chapitre-1", totalSteps: 1 },
       { slug: "chapitre-10", totalSteps: 1 },
@@ -44,18 +44,18 @@ describe("checkStepOrder", () => {
     expect(checkStepOrder(journey, doneSteps(["chapitre-1", 0]), "chapitre-11", 0).ok).toBe(false);
   });
 
-  it("refuse un chapitre absent du parcours", () => {
+  it("rejects a chapter missing from the journey", () => {
     expect(checkStepOrder(CHAPTERS, [], "chapitre-9", 0).ok).toBe(false);
   });
 });
 
 /**
- * Le serveur ordonne les chapitres selon `getChaptersMeta` (la chapterMap) et
- * compte les étapes selon le registre de contenu : s'ils divergeaient, il
- * refuserait des étapes que l'interface propose. L'invariant est dérivé des
- * registres et couvre donc les chapitres ajoutés.
+ * The server orders chapters by `getChaptersMeta` (the chapterMap) and
+ * counts steps from the content registry: if they diverged, it would reject
+ * steps the UI offers. The invariant is derived from the registries, so it
+ * covers newly added chapters.
  */
-describe("la carte et le registre décrivent le même parcours", () => {
+describe("the map and the registry describe the same journey", () => {
   it.each(listCourseSlugs())("%s", (course) => {
     const chapterMap = getChaptersMeta(course);
     expect(chapterMap.map((c) => c.slug)).toEqual(listChapterSlugs(course));

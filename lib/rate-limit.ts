@@ -6,16 +6,16 @@ import { Redis } from "@upstash/redis";
 import { logger } from "@/lib/logger";
 
 /**
- * Limiteur de débit à fenêtre fixe.
+ * Fixed-window rate limiter.
  *
- * Par défaut, les compteurs vivent en mémoire du processus, ce qui suffit pour
- * une instance unique (`next start`, VPS, conteneur). Si `UPSTASH_REDIS_REST_URL`
- * et `UPSTASH_REDIS_REST_TOKEN` (ou `KV_REST_API_URL` et `KV_REST_API_TOKEN`,
- * noms de l'intégration Upstash de Vercel) sont définis, ils sont partagés via
- * Upstash Redis entre toutes les instances ; `lib/env.ts` l'exige sur Vercel.
+ * By default, counters live in process memory, which is enough for a single
+ * instance (`next start`, VPS, container). If `UPSTASH_REDIS_REST_URL`
+ * and `UPSTASH_REDIS_REST_TOKEN` (or `KV_REST_API_URL` and `KV_REST_API_TOKEN`,
+ * the names used by Vercel's Upstash integration) are set, they are shared via
+ * Upstash Redis across all instances; `lib/env.ts` requires this on Vercel.
  *
- * En cas de panne Redis, on bascule en mémoire (fail-open) plutôt que de
- * bloquer l'authentification.
+ * If Redis goes down, we fall back to memory (fail-open) rather than
+ * blocking authentication.
  */
 
 interface Bucket {
@@ -25,7 +25,7 @@ interface Bucket {
 
 const store = new Map<string, Bucket>();
 
-// Purge opportuniste, pour que la table ne grossisse pas sans limite sous attaque.
+// Opportunistic sweep, so the table does not grow without bound under attack.
 let lastSweep = Date.now();
 function sweep(now: number): void {
   if (now - lastSweep < 60_000) return;
@@ -37,9 +37,9 @@ function sweep(now: number): void {
 
 export interface RateLimitResult {
   ok: boolean;
-  /** Requêtes encore autorisées dans la fenêtre. */
+  /** Requests still allowed in the window. */
   remaining: number;
-  /** Secondes avant la fin de la fenêtre (0 si non limité). */
+  /** Seconds until the window ends (0 if not limited). */
   retryAfter: number;
 }
 
@@ -69,14 +69,14 @@ function memoryRateLimit(key: string, opts: RateLimitOptions): RateLimitResult {
   return { ok: true, remaining: opts.limit - bucket.count, retryAfter: 0 };
 }
 
-// Client Upstash, créé une seule fois si la configuration est présente.
+// Upstash client, created only once if the config is present.
 let redis: Redis | null = null;
 let redisChecked = false;
 function getRedis(): Redis | null {
   if (redisChecked) return redis;
   redisChecked = true;
-  // Noms Upstash, sinon ceux de l'intégration Upstash de Vercel, seuls fournis
-  // par le Redis de production (audit SRV-01).
+  // Upstash names, otherwise those of Vercel's Upstash integration, the only
+  // ones provided by the production Redis (audit SRV-01).
   const [url, token] =
     process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
       ? [process.env.UPSTASH_REDIS_REST_URL, process.env.UPSTASH_REDIS_REST_TOKEN]
@@ -95,7 +95,7 @@ async function redisRateLimit(
 ): Promise<RateLimitResult> {
   const redisKey = `rl:${key}`;
   const count = await client.incr(redisKey);
-  // Premier appel de la fenêtre : poser l'expiration.
+  // First call in the window: set the expiry.
   if (count === 1) {
     await client.pexpire(redisKey, opts.windowMs);
   }
@@ -116,7 +116,7 @@ export async function rateLimit(
     try {
       return await redisRateLimit(client, key, opts);
     } catch (err) {
-      // Fail-open : ne pas bloquer l'utilisateur si Redis est injoignable.
+      // Fail-open: do not block the user if Redis is unreachable.
       logger.warn("rate_limit_redis_error_fallback_memory", {
         message: err instanceof Error ? err.message : String(err),
       });
@@ -127,9 +127,9 @@ export async function rateLimit(
 }
 
 /**
- * Dit si `key` a déjà atteint sa limite, sans compter d'essai. Sert quand
- * seuls les échecs comptent (lib/login-guard.ts) : on regarde avant l'action,
- * on compte après un échec.
+ * Tells whether `key` has already hit its limit, without counting an attempt.
+ * Used when only failures count (lib/login-guard.ts): check before the action,
+ * count after a failure.
  */
 export async function isRateLimited(key: string, opts: RateLimitOptions): Promise<boolean> {
   const client = getRedis();
@@ -148,13 +148,13 @@ export async function isRateLimited(key: string, opts: RateLimitOptions): Promis
 }
 
 /**
- * IP client dérivée des en-têtes de proxy, résistante à l'usurpation.
+ * Client IP derived from proxy headers, resistant to spoofing.
  *
- * Dans `X-Forwarded-For` (`client, proxy1, proxy2, …`), le client contrôle les
- * entrées de gauche : prendre la première laisserait un attaquant changer de
- * clé de limitation à chaque requête. On prend l'entrée ajoutée par notre
- * infrastructure, la `TRUSTED_PROXY_HOPS`-ième depuis la droite (1 par défaut,
- * correct pour Vercel et un reverse-proxy unique).
+ * In `X-Forwarded-For` (`client, proxy1, proxy2, …`), the client controls the
+ * leftmost entries: taking the first one would let an attacker change the
+ * rate-limit key on every request. We take the entry added by our
+ * infrastructure, the `TRUSTED_PROXY_HOPS`-th from the right (1 by default,
+ * correct for Vercel and a single reverse proxy).
  */
 export function getClientIp(req: Request): string {
   const xff = req.headers.get("x-forwarded-for");
@@ -175,7 +175,7 @@ export function getClientIp(req: Request): string {
   return req.headers.get("x-real-ip") ?? "unknown";
 }
 
-/** Réponse 429 avec l'en-tête Retry-After. */
+/** 429 response with the Retry-After header. */
 export function tooManyRequests(retryAfter: number): NextResponse {
   return NextResponse.json(
     { error: `Trop de tentatives. Reessaie dans ${retryAfter}s.` },

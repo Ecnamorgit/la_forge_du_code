@@ -2,17 +2,17 @@ import { getValidators } from "@/lib/validators";
 import { isRuntimeChapter } from "@/lib/validators/runtime";
 
 /**
- * Preuve de réussite d'une étape, vérifiée par le serveur (audit EXE-01). Le
- * navigateur envoie le code qui vient de passer le validateur et le serveur
- * rejoue ce validateur : il faut soumettre une solution, pas seulement
- * déclarer l'étape.
+ * Proof that a step was passed, verified by the server (audit EXE-01). The
+ * browser sends the code that just passed the validator and the server
+ * replays that validator: you have to submit a solution, not just declare
+ * the step.
  *
- * Exception : les chapitres jugés sur une exécution (`RUNTIME_CHAPTERS`), qu'il
- * faudrait exécuter côté serveur. Leur réussite reste déclarée ; risque
- * résiduel décrit dans docs/audit-securite/corrections/EXE-01.md.
+ * Exception: chapters judged on an execution (`RUNTIME_CHAPTERS`), which
+ * would have to run server-side. Their success stays declared; the residual
+ * risk is described in docs/audit-securite/corrections/EXE-01.md.
  */
 
-/** Taille maximale du code soumis : borne le coût des expressions régulières des validateurs. */
+/** Maximum size of submitted code: bounds the cost of the validators' regular expressions. */
 export const MAX_CODE_LENGTH = 20_000;
 
 export type StepProofVerdict =
@@ -34,7 +34,7 @@ export function verifyStepProof(
   try {
     if (validate(code).ok) return { ok: true, mode: "revalidated" };
   } catch {
-    // Un validateur qui lève sur une entrée arbitraire ne vaut pas réussite.
+    // A validator that throws on arbitrary input does not count as a pass.
   }
   return { ok: false, reason: "Solution non valide pour cette étape." };
 }
