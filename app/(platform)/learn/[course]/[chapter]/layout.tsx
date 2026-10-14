@@ -19,6 +19,7 @@ export async function generateMetadata({
   return {
     title: `La Forge du Code — ${data.tag} : ${cleanTitle}`,
     description: data.subtitle,
+    alternates: { canonical: `/learn/${course}/${chapter}` },
   };
 }
 

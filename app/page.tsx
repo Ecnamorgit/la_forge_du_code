@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import BrandLogo from "@/components/ui/BrandLogo";
@@ -8,6 +9,12 @@ import PublicHeader from "@/components/ui/PublicHeader";
 import TrackLandingView from "@/components/ui/TrackLandingView";
 import TrialCtaLink from "@/components/ui/TrialCtaLink";
 import { buildHomeJsonLd, serializeJsonLd, siteUrl } from "@/lib/seo";
+
+// Canonical URLs resolve against `metadataBase` (APP_URL): copies served on
+// another host point search engines back to the site.
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function LandingPage() {
   return (
