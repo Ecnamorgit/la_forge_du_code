@@ -13,3 +13,16 @@ describe("canonical URLs of the public pages", () => {
     expect(codexMetadata.alternates?.canonical).toBe("/codex");
   });
 });
+
+describe("landing page title and description", () => {
+  it("names the site and what it teaches, short enough for Google to show whole", () => {
+    const title = String(homeMetadata.title);
+    expect(title).toMatch(/^La Forge du Code/);
+    expect(title).toMatch(/apprendre à coder/i);
+    expect(title.length).toBeLessThanOrEqual(65);
+  });
+
+  it("describes the courses instead of the layout's generic sentence", () => {
+    expect(String(homeMetadata.description)).toMatch(/HTML, CSS, JavaScript/);
+  });
+});

@@ -8,11 +8,13 @@ import PixelImage from "@/components/ui/PixelImage";
 import PublicHeader from "@/components/ui/PublicHeader";
 import TrackLandingView from "@/components/ui/TrackLandingView";
 import TrialCtaLink from "@/components/ui/TrialCtaLink";
-import { buildHomeJsonLd, serializeJsonLd, siteUrl } from "@/lib/seo";
+import { buildHomeJsonLd, HOME_TITLE, serializeJsonLd, SITE_DESCRIPTION, siteUrl } from "@/lib/seo";
 
 // Canonical URLs resolve against `metadataBase` (APP_URL): copies served on
 // another host point search engines back to the site.
 export const metadata: Metadata = {
+  title: HOME_TITLE,
+  description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
 };
 
