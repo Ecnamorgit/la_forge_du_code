@@ -1,0 +1,73 @@
+name: Audit SEO
+
+# Every Monday, checks what Google can read on the live site (robots.txt,
+# sitemap, title, description, canonical URL, noindex of every public page)
+# with scripts/audit-seo.ts.
+#
+# A blocking problem opens an issue labelled `seo-audit` (or comments on the
+# open one) and turns the run red, which emails the repository owner. Once the
+# problems are gone, the next run comments on the issue and closes it. Warnings
+# only go to the run summary.
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    name: Audit du site en ligne
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The audit only imports lib/seo-audit.ts and lib/seo.ts, which have no
+      # dependency: tsx alone is enough, no `pnpm install`.
+      - name: Run the audit
+        id: audit
+        continue-on-error: true
+        run: >-
+          npx --yes tsx@4.19.2 scripts/audit-seo.ts https://www.laforgeducode.fr
+          --other-host https://la-forge-du-code-virid.vercel.app
+          --other-host https://bac-a-sable.laforgeducode.fr
+          --report seo-report.md
+
+      - name: Write the summary
+        if: always()
+        run: |
+          if [ ! -f seo-report.md ]; then
+            echo "L'audit SEO n'a pas pu s'exécuter : voir le journal de l'étape « Run the audit »." > seo-report.md
+          fi
+          cat seo-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Update the tracking issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OUTCOME: ${{ steps.audit.outcome }}
+        run: |
+          gh label create seo-audit --color D93F0B --description "Problème signalé par l'audit SEO hebdomadaire" --force
+          number=$(gh issue list --label seo-audit --state open --limit 1 --json number --jq '.[0].number // empty')
+          if [ "$OUTCOME" = "failure" ]; then
+            if [ -z "$number" ]; then
+              gh issue create --title "Audit SEO : problème bloquant sur le site en ligne" --label seo-audit --body-file seo-report.md
+            else
+              gh issue comment "$number" --body-file seo-report.md
+            fi
+          elif [ -n "$number" ]; then
+            gh issue comment "$number" --body-file seo-report.md
+            gh issue close "$number" --reason completed
+          fi
+
+      - name: Fail on blocking problems
+        if: steps.audit.outcome == 'failure'
+        run: exit 1
