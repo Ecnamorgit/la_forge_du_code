@@ -8,6 +8,13 @@ export const SITE_NAME = "La Forge du Code";
 export const SITE_DESCRIPTION =
   "Apprends à coder dans un univers spatial où chaque chapitre est une mission. HTML, CSS, JavaScript, React et 10 autres cursus.";
 
+/**
+ * Title of the landing page: the name people search for, then the words they
+ * type when they do not know it yet. Under 65 characters so Google shows it
+ * whole.
+ */
+export const HOME_TITLE = "La Forge du Code — Apprendre à coder en HTML, CSS, JS et React";
+
 /** Crest large enough for search engines (Google wants at least 112 px). */
 export const LOGO_IMAGE = { path: "/brand/fleet-crest-352.png", width: 352, height: 352 };
 
