@@ -4,7 +4,7 @@ export const chapter2: ChapterData = {
   slug: "chapitre-2",
   tag: "DOCK D'ORBITE : TRANSMISSIONS",
   title: "SYSTÈMES\nDE NAVIGATION",
-  subtitle: "Cree des liens et navigue à l'intérieur d'une même page",
+  subtitle: "Crée des liens et navigue à l'intérieur d'une même page",
   totalXp: 220,
   completionBadge: "🛰",
   completionBadgeLabel: "OPÉRATEUR DE RELAIS",

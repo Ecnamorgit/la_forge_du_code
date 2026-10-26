@@ -15,6 +15,16 @@ export const SITE_DESCRIPTION =
  */
 export const HOME_TITLE = "La Forge du Code — Apprendre à coder en HTML, CSS, JS et React";
 
+/**
+ * Title of a chapter page: the lesson subject first, in sentence case, then
+ * the site name. Chapter titles are stored in capitals with manual line
+ * breaks for the page header, which Google would show shouted.
+ */
+export function buildChapterTitle(chapterTitle: string): string {
+  const text = chapterTitle.replace(/\s+/g, " ").trim().toLocaleLowerCase("fr-FR");
+  return `${text.charAt(0).toLocaleUpperCase("fr-FR")}${text.slice(1)} — ${SITE_NAME}`;
+}
+
 /** Crest large enough for search engines (Google wants at least 112 px). */
 export const LOGO_IMAGE = { path: "/brand/fleet-crest-352.png", width: 352, height: 352 };
 
