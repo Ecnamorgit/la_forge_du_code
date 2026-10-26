@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import sitemap from "@/app/sitemap";
 
-import { buildHomeJsonLd, HOME_IMAGES, isSiteOrigin, LOGO_IMAGE, serializeJsonLd } from "./seo";
+import { buildChapterTitle, buildHomeJsonLd, HOME_IMAGES, isSiteOrigin, LOGO_IMAGE, serializeJsonLd } from "./seo";
 
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
 
@@ -73,5 +73,21 @@ describe("isSiteOrigin", () => {
 
   it("keeps the page indexable when the origin cannot be read", () => {
     expect(isSiteOrigin("", APP_URL)).toBe(true);
+  });
+});
+
+describe("buildChapterTitle", () => {
+  it("turns the shouted chapter title into a readable one on a single line", () => {
+    expect(buildChapterTitle("ÉTABLISSEMENT\nDE LA BASE LUNAIRE")).toBe(
+      "Établissement de la base lunaire — La Forge du Code",
+    );
+  });
+
+  it("stays under 65 characters for every HTML chapter", async () => {
+    const { getChapterData } = await import("@/lib/courses-registry");
+    for (const slug of ["chapitre-1", "chapitre-2", "chapitre-3"]) {
+      const data = await getChapterData("html", slug);
+      expect(buildChapterTitle(data!.title).length).toBeLessThanOrEqual(65);
+    }
   });
 });

@@ -4,7 +4,7 @@ export const chapter3: ChapterData = {
   slug: "chapitre-3",
   tag: "DOCK D'ORBITE : CAMÉRAS",
   title: "RÉSEAU DE CAPTEURS",
-  subtitle: "Capture, calibre et annote les images de la soute",
+  subtitle: "Capture, calibre et annote les images de la soute d'orbite en HTML",
   totalXp: 200,
   completionBadge: "📸",
   completionBadgeLabel: "ARCHIVISTE VISUEL",

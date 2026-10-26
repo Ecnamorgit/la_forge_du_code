@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getChapterData } from "@/lib/courses-registry";
+import { buildChapterTitle } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -15,9 +16,8 @@ export async function generateMetadata({
     };
   }
 
-  const cleanTitle = data.title.replace(/\n/g, " ");
   return {
-    title: `La Forge du Code — ${data.tag} : ${cleanTitle}`,
+    title: buildChapterTitle(data.title),
     description: data.subtitle,
     alternates: { canonical: `/learn/${course}/${chapter}` },
   };
