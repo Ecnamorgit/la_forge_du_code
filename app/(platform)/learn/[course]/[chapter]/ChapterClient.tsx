@@ -1,5 +1,6 @@
 "use client";
 
+import { buildChapterHeading } from "@/lib/seo";
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -469,13 +470,18 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
               <span>Étape {currentStep + 1} sur {chapter.steps.length}</span>
             </div>
 
-            <h1 className="mb-3 font-tech text-4xl leading-tight tracking-[0.1em] text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.25)]">
-              {"> "}{step.missionTtl}<span className="terminal-cursor">_</span>
+            {/* The page's h1 is the lesson subject, the same for every step. */}
+            <h1 className="mb-2 font-tech text-sm uppercase tracking-[0.18em] text-nebula-text-secondary">
+              {buildChapterHeading(chapter.title)}
             </h1>
 
-            <h2 className="mb-7 font-tech text-xl tracking-wide text-nebula-text/90">
-              {step.briefing.title}
+            <h2 className="mb-3 font-tech text-4xl leading-tight tracking-[0.1em] text-nebula-cyan [text-shadow:0_0_18px_rgba(0,240,255,0.25)]">
+              {"> "}{step.missionTtl}<span className="terminal-cursor">_</span>
             </h2>
+
+            <h3 className="mb-7 font-tech text-xl tracking-wide text-nebula-text/90">
+              {step.briefing.title}
+            </h3>
 
             {step.spectreTrap ? (
               <div className="mb-8 border-l-2 border-nebula-spectre/60 bg-nebula-spectre/10 px-5 py-4">

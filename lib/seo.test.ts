@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import sitemap from "@/app/sitemap";
 
-import { buildChapterTitle, buildHomeJsonLd, HOME_IMAGES, isSiteOrigin, LOGO_IMAGE, serializeJsonLd } from "./seo";
+import { buildChapterHeading, buildChapterTitle, buildHomeJsonLd, HOME_IMAGES, isSiteOrigin, LOGO_IMAGE, serializeJsonLd } from "./seo";
 
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
 
@@ -89,5 +89,19 @@ describe("buildChapterTitle", () => {
       const data = await getChapterData("html", slug);
       expect(buildChapterTitle(data!.title).length).toBeLessThanOrEqual(65);
     }
+  });
+});
+
+describe("buildChapterHeading", () => {
+  it("returns the lesson subject in sentence case on a single line", () => {
+    expect(buildChapterHeading("ÉTABLISSEMENT\nDE LA BASE LUNAIRE")).toBe(
+      "Établissement de la base lunaire",
+    );
+  });
+
+  it("is the chapter title without the site name", () => {
+    expect(buildChapterTitle("RÉSEAU DE CAPTEURS")).toBe(
+      `${buildChapterHeading("RÉSEAU DE CAPTEURS")} — La Forge du Code`,
+    );
   });
 });
