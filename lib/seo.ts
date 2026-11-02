@@ -21,8 +21,16 @@ export const HOME_TITLE = "La Forge du Code — Apprendre à coder en HTML, CSS,
  * breaks for the page header, which Google would show shouted.
  */
 export function buildChapterTitle(chapterTitle: string): string {
+  return `${buildChapterHeading(chapterTitle)} — ${SITE_NAME}`;
+}
+
+/**
+ * Lesson subject as shown in the page's `<h1>`: the stored chapter title in
+ * sentence case on a single line, so the heading says what the page teaches.
+ */
+export function buildChapterHeading(chapterTitle: string): string {
   const text = chapterTitle.replace(/\s+/g, " ").trim().toLocaleLowerCase("fr-FR");
-  return `${text.charAt(0).toLocaleUpperCase("fr-FR")}${text.slice(1)} — ${SITE_NAME}`;
+  return `${text.charAt(0).toLocaleUpperCase("fr-FR")}${text.slice(1)}`;
 }
 
 /** Crest large enough for search engines (Google wants at least 112 px). */
