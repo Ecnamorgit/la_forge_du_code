@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import sitemap from "@/app/sitemap";
 
-import { buildChapterHeading, buildChapterTitle, buildHomeJsonLd, HOME_IMAGES, isSiteOrigin, LOGO_IMAGE, serializeJsonLd } from "./seo";
+import { buildChapterHeading, buildChapterTitle, buildCourseJsonLd, buildCourseTitle, buildHomeJsonLd, HOME_IMAGES, isSiteOrigin, LOGO_IMAGE, serializeJsonLd } from "./seo";
 
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
 
@@ -103,5 +103,39 @@ describe("buildChapterHeading", () => {
     expect(buildChapterTitle("RÉSEAU DE CAPTEURS")).toBe(
       `${buildChapterHeading("RÉSEAU DE CAPTEURS")} — La Forge du Code`,
     );
+  });
+});
+
+describe("buildCourseTitle", () => {
+  it("leads with what people search for and fits a search result", () => {
+    const title = buildCourseTitle("HTML", "Structure des pages web");
+    expect(title).toBe("Cours HTML : Structure des pages web — La Forge du Code");
+    expect(title.length).toBeLessThanOrEqual(65);
+  });
+});
+
+describe("buildCourseJsonLd", () => {
+  const data = buildCourseJsonLd("https://laforgeducode.fr", {
+    slug: "html",
+    title: "HTML",
+    subtitle: "Structure des pages web",
+    description: "Maîtrise les fondations du web.",
+  });
+  const [course, breadcrumb] = data["@graph"];
+
+  it("describes the course and points to the organization of the home page", () => {
+    expect(course["@type"]).toBe("Course");
+    expect(course.url).toBe("https://laforgeducode.fr/learn/html");
+    expect(course.name).toBe("Cours HTML : Structure des pages web");
+    expect(course.provider["@id"]).toBe("https://laforgeducode.fr/#organization");
+  });
+
+  it("lists the home page then the course in the breadcrumb", () => {
+    expect(breadcrumb["@type"]).toBe("BreadcrumbList");
+    expect(breadcrumb.itemListElement.map((i) => i.item)).toEqual([
+      "https://laforgeducode.fr/",
+      "https://laforgeducode.fr/learn/html",
+    ]);
+    expect(breadcrumb.itemListElement.map((i) => i.position)).toEqual([1, 2]);
   });
 });

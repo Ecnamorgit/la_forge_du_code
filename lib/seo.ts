@@ -33,6 +33,14 @@ export function buildChapterHeading(chapterTitle: string): string {
   return `${text.charAt(0).toLocaleUpperCase("fr-FR")}${text.slice(1)}`;
 }
 
+/**
+ * Title of a course map page: "Cours HTML : …" first, because that is how
+ * people search, then the site name.
+ */
+export function buildCourseTitle(title: string, subtitle: string): string {
+  return `Cours ${title} : ${subtitle} — ${SITE_NAME}`;
+}
+
 /** Crest large enough for search engines (Google wants at least 112 px). */
 export const LOGO_IMAGE = { path: "/brand/fleet-crest-352.png", width: 352, height: 352 };
 
@@ -106,6 +114,35 @@ export function buildHomeJsonLd(base: string) {
     image: url("/opengraph-image"),
   };
   return { "@context": "https://schema.org", "@graph": [website, organization] as const };
+}
+
+/**
+ * Course + BreadcrumbList graph for a course map page. The provider points to
+ * the organization declared on the landing page.
+ */
+export function buildCourseJsonLd(
+  base: string,
+  info: { slug: string; title: string; subtitle: string; description: string },
+) {
+  const url = (path: string) => new URL(path, base).toString();
+  const courseUrl = url(`/learn/${info.slug}`);
+  const course = {
+    "@type": "Course",
+    "@id": `${courseUrl}#course`,
+    url: courseUrl,
+    name: `Cours ${info.title} : ${info.subtitle}`,
+    description: info.description,
+    inLanguage: "fr-FR",
+    provider: { "@id": url("/#organization") },
+  };
+  const breadcrumb = {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: url("/") },
+      { "@type": "ListItem", position: 2, name: `Cours ${info.title}`, item: courseUrl },
+    ],
+  };
+  return { "@context": "https://schema.org", "@graph": [course, breadcrumb] as const };
 }
 
 /**
