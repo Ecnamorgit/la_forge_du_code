@@ -11,6 +11,7 @@ import { getChaptersMeta } from "@/lib/courses-meta";
 import { getCourseInfo, getCourseStatus } from "@/lib/courses-catalog";
 import { TRIAL_COURSE } from "@/lib/public-routes";
 import NullProgressBar from "@/components/lesson/NullProgressBar";
+import { buildCourseJsonLd, buildCourseTitle, serializeJsonLd, siteUrl } from "@/lib/seo";
 
 const HTML_LEVELS: LevelNode[] = [
   {
@@ -610,7 +611,7 @@ export async function generateMetadata({
   const info = getCourseInfo(course);
   if (!info) return {};
   return {
-    title: `La Forge du Code — Cursus ${info.title} : ${info.subtitle}`,
+    title: buildCourseTitle(info.title, info.subtitle),
     description: info.description,
     alternates: { canonical: `/learn/${course}` },
   };
@@ -637,8 +638,17 @@ export default async function CourseMapPage({
   const playableSlugs = new Set(chaptersMeta.map((c) => c.slug));
   const isPreview = getCourseStatus(course) === "preview";
 
+  const info = getCourseInfo(course);
+
   return (
     <div className="relative h-full overflow-hidden">
+      {isTrialVisit && info && (
+        // Structured data for search engines: not executed, so the CSP does not apply.
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(buildCourseJsonLd(siteUrl(), info)) }}
+        />
+      )}
       <CourseCinematicsMount
         course={course}
         seenMode={isTrialVisit ? "local" : "server"}
