@@ -5,7 +5,7 @@ import PublicHeader from "@/components/ui/PublicHeader";
 import TrialCtaLink from "@/components/ui/TrialCtaLink";
 
 export const metadata: Metadata = {
-  title: "Codex — La Forge du Code",
+  title: "Codex : l'univers de la Coalition Nebula — La Forge du Code",
   description:
     "L'univers de la Coalition Nebula : la flotte, la menace Spectre et le rôle du Cadet-Ingénieur.",
   alternates: { canonical: "/codex" },
