@@ -26,3 +26,15 @@ describe("landing page title and description", () => {
     expect(String(homeMetadata.description)).toMatch(/HTML, CSS, JavaScript/);
   });
 });
+
+describe("codex title and description", () => {
+  it("says what the codex is about, short enough for Google to show whole", () => {
+    const title = String(codexMetadata.title);
+    expect(title).toMatch(/Coalition Nebula/);
+    expect(title).toMatch(/La Forge du Code$/);
+    expect(title.length).toBeLessThanOrEqual(65);
+    const description = String(codexMetadata.description);
+    expect(description.length).toBeGreaterThanOrEqual(50);
+    expect(description.length).toBeLessThanOrEqual(160);
+  });
+});

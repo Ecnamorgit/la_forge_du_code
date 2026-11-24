@@ -144,6 +144,8 @@ export default function LandingPage() {
             iconAlt="Terminal de mission vert en pixel art, symbole des cursus structurés"
             title="Cursus structurés"
             description="Des protocoles progressifs : HTML, CSS et JavaScript. Chaque chapitre est une mission."
+            href="/learn/html"
+            linkLabel="Voir le cursus HTML"
           />
           <FeatureCard
             icon="/feature-badges-v2.png"
@@ -156,6 +158,8 @@ export default function LandingPage() {
             iconAlt="Écran d'ordinateur affichant du code, symbole de l'éditeur intégré"
             title="Éditeur intégré"
             description="Code directement dans le navigateur avec un éditeur professionnel et un retour instantané."
+            href="/codex"
+            linkLabel="Découvrir l'univers du Codex"
           />
         </section>
 
@@ -172,12 +176,17 @@ function FeatureCard({
   iconAlt,
   title,
   description,
+  href,
+  linkLabel,
 }: {
   icon: string;
   /** Read by search engines; hidden from screen readers, the title says it already. */
   iconAlt: string;
   title: string;
   description: string;
+  /** Crawlable internal link to a public page, shown under the description. */
+  href?: string;
+  linkLabel?: string;
 }) {
   return (
     <article className="rounded-sm border border-nebula-cyan/30 bg-nebula-bg-panel/90 p-5 backdrop-blur-md shadow-[0_0_20px_rgba(0,240,255,0.06)] transition-colors hover:border-nebula-cyan/60 lg:p-6">
@@ -196,6 +205,14 @@ function FeatureCard({
       <p className="font-body text-sm leading-relaxed text-nebula-text-secondary">
         {description}
       </p>
+      {href && linkLabel && (
+        <Link
+          href={href}
+          className="mt-3 inline-block font-tech text-xs uppercase tracking-widest text-nebula-cyan underline underline-offset-4 hover:brightness-125"
+        >
+          {linkLabel}
+        </Link>
+      )}
     </article>
   );
 }
