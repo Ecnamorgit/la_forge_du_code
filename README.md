@@ -11,7 +11,8 @@ fait **valider en direct**, et gagne de l'XP et des badges au fil des missions.
 ## Fonctionnalités
 
 - **Authentification complète** : inscription, vérification d'email, connexion, mot de passe oublié / réinitialisation.
-- **4 cursus complets** (HTML, CSS, JavaScript, React) + **10 cursus en aperçu** — chapitre pilote (TypeScript, Git, SQL, Node.js, Tests, DevOps, MongoDB, Sécurité, Python, Algo), signalés « Aperçu » dans le catalogue.
+- **6 cursus complets** (HTML, CSS, JavaScript, React, Rust, Agent IA) + **10 cursus en aperçu** — chapitre pilote (TypeScript, Git, SQL, Node.js, Tests, DevOps, MongoDB, Sécurité, Python, Algo), signalés « Aperçu » dans le catalogue.
+- **Cursus Rust** : le code est analysé comme le ferait le compilateur (Rust ne s'exécute pas dans le navigateur). **Cursus Agent IA** : l'apprenant construit un agent (messages, outils, boucle, mémoire) réellement exécuté dans le bac à sable, face à un modèle simulé — sans clé d'API ni appel réseau.
 - **Éditeur de code intégré** (Monaco) avec **validation des exercices en direct**.
 - **Exécution sécurisée du code étudiant** dans des iframes `sandbox` servies depuis une origine dédiée (`/bac-a-sable`), ce qui laisse à l'application une CSP stricte à nonce.
 - **Gamification** : XP, niveaux, séries (streak), badges, classement.

@@ -68,11 +68,19 @@ const CASES: Case[] = [
     pass: "nom = 'Lia'\nniveau = 5\nactif = True\nprint(f\"Pilote {nom}\")",
   },
   { course: "algo", pass: "// O(1), O(n), O(n^2)" },
+  { course: "rust", pass: 'fn main() {\n    println!("Forge en ligne");\n}' },
+  {
+    course: "agent-ia",
+    pass:
+      'const messages = [{ role: "system", content: "Tu es ORBI." }, { role: "user", content: "Tu me reçois ?" }];\n' +
+      "console.log(messages.length);\nfor (const m of messages) console.log(m.role);",
+    passCtx: ctx(["2", "system", "user"]),
+  },
 ];
 
 describe("Chapitre-1 validators — coverage per course", () => {
-  it("covers the 14 courses", () => {
-    expect(CASES).toHaveLength(14);
+  it("covers the 16 courses", () => {
+    expect(CASES).toHaveLength(16);
   });
 
   describe.each(CASES)("course $course", ({ course, pass, passCtx }) => {

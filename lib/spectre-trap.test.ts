@@ -7,6 +7,8 @@ const TRAPS: Array<[string, string, number]> = [
   ["css", "chapitre-4", 0],
   ["javascript", "chapitre-1", 0],
   ["react", "chapitre-6", 0],
+  ["rust", "chapitre-2", 0],
+  ["agent-ia", "chapitre-2", 1],
 ];
 
 describe("Spectre trap steps", () => {

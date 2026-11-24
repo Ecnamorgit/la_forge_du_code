@@ -58,6 +58,8 @@ function getCourseSlugByBadgeId(id: string): string {
   if (id === "security-shield") return "security";
   if (id === "python-serpent") return "python";
   if (id === "algo-strategist") return "algo";
+  if (id.startsWith("rust-")) return "rust";
+  if (id.startsWith("agent-")) return "agent-ia";
   return "html";
 }
 
@@ -390,7 +392,7 @@ export default function ProfilePage() {
                       unlocked ? "" : "opacity-25 grayscale"
                     }`}
                   >
-                    {SPRITE_SHEETS_READY.badges ? (
+                    {SPRITE_SHEETS_READY.badges && badgeFrameById(badge.id) !== null ? (
                       <Sprite
                         sheet={BADGE_ICONS}
                         frame={badgeFrameById(badge.id) ?? 0}

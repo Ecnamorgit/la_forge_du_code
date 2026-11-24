@@ -37,6 +37,10 @@ export default function CourseWireframe({ slug, className = "" }: CourseWirefram
       return <PythonWireframe {...props} />;
     case "algo":
       return <AlgoWireframe {...props} />;
+    case "rust":
+      return <RustWireframe {...props} />;
+    case "agent-ia":
+      return <AgentIaWireframe {...props} />;
     default:
       return null;
   }
@@ -301,6 +305,52 @@ function AlgoWireframe(props: React.SVGProps<SVGSVGElement>) {
       <path d="M50,5 L50,95 M5,50 L95,50" strokeWidth="0.5" strokeDasharray="1 4" strokeOpacity="0.4" />
       <circle cx="50" cy="50" r="32" strokeWidth="0.5" strokeDasharray="3 3" />
       <circle cx="50" cy="50" r="44" strokeWidth="0.5" strokeDasharray="4 4" strokeOpacity="0.3" />
+    </svg>
+  );
+}
+
+// 15. Rust: gear, the language's cog emblem
+function RustWireframe(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      {/* Gear teeth */}
+      <path d="M50,8 L50,18 M50,82 L50,92 M8,50 L18,50 M82,50 L92,50 M20.3,20.3 L27.4,27.4 M72.6,72.6 L79.7,79.7 M20.3,79.7 L27.4,72.6 M72.6,27.4 L79.7,20.3" strokeWidth="3" />
+      {/* Outer ring */}
+      <circle cx="50" cy="50" r="32" />
+      {/* Inner ring */}
+      <circle cx="50" cy="50" r="24" strokeWidth="0.5" strokeDasharray="2 2" />
+      {/* Anvil at the hub */}
+      <path d="M36,44 L64,44 L60,50 L54,52 L54,58 L60,62 L40,62 L46,58 L46,52 L36,48 Z" strokeWidth="1.2" />
+      {/* Construction axes */}
+      <path d="M50,26 L50,74" strokeWidth="0.5" strokeDasharray="3 3" />
+      <path d="M26,50 L74,50" strokeWidth="0.5" strokeDasharray="3 3" />
+    </svg>
+  );
+}
+
+// 16. Agent IA: copilot head wired to its tools
+function AgentIaWireframe(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      {/* Antenna */}
+      <path d="M50,24 L50,12" />
+      <circle cx="50" cy="10" r="2.5" />
+      {/* Head */}
+      <rect x="26" y="24" width="48" height="36" rx="6" />
+      <rect x="31" y="29" width="38" height="26" rx="3" strokeWidth="0.5" strokeDasharray="2 2" />
+      {/* Eyes */}
+      <circle cx="40" cy="40" r="4" />
+      <circle cx="60" cy="40" r="4" />
+      {/* Mouth: signal */}
+      <path d="M38,51 L44,51 L47,47 L53,55 L56,51 L62,51" strokeWidth="1.2" />
+      {/* Decision loop */}
+      <path d="M50,60 L50,70" />
+      <path d="M30,78 C30,70 70,70 70,78 C70,90 30,90 30,78 Z" strokeWidth="0.5" strokeDasharray="3 3" />
+      {/* Tools */}
+      <circle cx="30" cy="78" r="3" />
+      <circle cx="50" cy="87" r="3" />
+      <circle cx="70" cy="78" r="3" />
+      <path d="M50,70 L30,75 M50,70 L50,84 M50,70 L70,75" strokeWidth="0.5" />
     </svg>
   );
 }

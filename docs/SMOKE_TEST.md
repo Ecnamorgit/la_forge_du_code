@@ -183,6 +183,9 @@ Tester pour chaque cours (au moins HTML, JS, React, et un mono-chapitre comme gi
 - [ ] `/learn/security` → 1 nœud
 - [ ] `/learn/python` → 1 nœud
 - [ ] `/learn/algo` → 1 nœud
+- [ ] `/learn/rust` → 4 nœuds ; onglet d'éditeur `main.rs`, panneau « Analyse de la forge » (pas d'aperçu HTML)
+- [ ] `/learn/agent-ia` → 4 nœuds ; onglet `script.js`, la sortie console affiche ce que l'agent a loggé
+- [ ] Rust et Agent IA s'affichent avec leur emoji (🦀, 🤖) tant que leurs sprites ne sont pas dessinés
 
 ---
 

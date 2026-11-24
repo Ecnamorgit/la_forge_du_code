@@ -33,6 +33,8 @@ export const MONGODB_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("mongodb
 export const SECURITY_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("security");
 export const PYTHON_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("python");
 export const ALGO_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("algo");
+export const RUST_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("rust");
+export const AGENT_IA_CHAPTERS_META: ChapterMetaFull[] = getChaptersMeta("agent-ia");
 
 /** Badge earned at the end of each chapter, per course. */
 const BADGE_BY_CHAPTER: Record<string, Record<string, string>> = {
@@ -92,6 +94,18 @@ const BADGE_BY_CHAPTER: Record<string, Record<string, string>> = {
   security: { "chapitre-1": "security-shield" },
   python: { "chapitre-1": "python-serpent" },
   algo: { "chapitre-1": "algo-strategist" },
+  rust: {
+    "chapitre-1": "rust-apprentice",
+    "chapitre-2": "rust-owner",
+    "chapitre-3": "rust-architect",
+    "chapitre-4": "rust-master",
+  },
+  "agent-ia": {
+    "chapitre-1": "agent-awakener",
+    "chapitre-2": "agent-toolsmith",
+    "chapitre-3": "agent-loop",
+    "chapitre-4": "agent-creator",
+  },
 };
 
 export function getBadgeForChapter(course: string, chapter: string): string | null {

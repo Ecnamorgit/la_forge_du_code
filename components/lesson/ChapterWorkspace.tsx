@@ -26,7 +26,7 @@ import {
 import { CHARACTERS } from "@/lib/characters";
 import type { CombatTheme } from "@/lib/combat-theme";
 
-type Language = "html" | "javascript" | "sql" | "react";
+type Language = "html" | "javascript" | "sql" | "react" | "rust";
 
 interface ChapterWorkspaceProps {
   step: Step;
@@ -86,8 +86,11 @@ export default function ChapterWorkspace({
   // validation stays static as in the other courses; the preview does not
   // judge.
   const isReact = language === "react";
+  // Rust: nothing can run it in the browser. The source is analysed by the
+  // static validators and the output panel says so instead of rendering.
+  const isRust = language === "rust";
   // HTML/CSS: the only course whose output is a rendered preview (iframe).
-  const isHtml = !isJs && !isSql && !isReact;
+  const isHtml = !isJs && !isSql && !isReact && !isRust;
   const [code, setCode] = useState(step.startCode);
   const [sqlView, setSqlView] = useState<SqlQueryResult | null>(null);
   const [feedback, setFeedback] = useState<{
@@ -181,7 +184,7 @@ export default function ChapterWorkspace({
     (newCode: string) => {
       setCode(newCode);
       latestCodeRef.current = newCode;
-      if (isJs || isSql) return;
+      if (isJs || isSql || isRust) return;
       clearTimeout(detectTimerRef.current);
       detectTimerRef.current = setTimeout(() => {
         const current = detectClosedTags(latestCodeRef.current);
@@ -200,7 +203,7 @@ export default function ChapterWorkspace({
         detectedTagsRef.current = current;
       }, 150);
     },
-    [onTeleportFlash, isJs, isSql]
+    [onTeleportFlash, isJs, isSql, isRust]
   );
 
   const runCode = useCallback(async () => {
@@ -236,6 +239,8 @@ export default function ChapterWorkspace({
         lastValue: undefined,
         sql: { result: run.result, verify: run.verify, error: run.error },
       });
+    } else if (isRust) {
+      result = validate(code);
     } else {
       // Loops in the learner's scripts are interrupted instead of
       // freezing the tab (audit EXE-02).
@@ -261,7 +266,7 @@ export default function ChapterWorkspace({
     playBreach();
     setEnemyState((prev) => ({ type: "fly", trigger: prev.trigger + 1 }));
     setShakeTrigger((p) => p + 1);
-  }, [code, isJs, isSql, isReact, sqlConfig, language, onDeploy, onStepSuccess, validate, posterHtml]);
+  }, [code, isJs, isSql, isReact, isRust, sqlConfig, language, onDeploy, onStepSuccess, validate, posterHtml]);
 
   const spectreTaunt =
     feedback.type === "err" ? getSpectreTaunt(failCount) : null;
@@ -272,9 +277,11 @@ export default function ChapterWorkspace({
       ? "query.sql"
       : isReact
         ? "App.jsx"
-        : "index.html";
+        : isRust
+          ? "main.rs"
+          : "index.html";
   // Monaco has no separate "jsx" mode: javascript highlights JSX correctly.
-  const editorLanguage = isJs || isReact ? "javascript" : isSql ? "sql" : "html";
+  const editorLanguage = isJs || isReact ? "javascript" : isSql ? "sql" : isRust ? "rust" : "html";
 
   return (
     <section className="flex min-h-0 flex-1 flex-col bg-nebula-bg-dark/30 backdrop-blur-md">
@@ -329,7 +336,9 @@ export default function ChapterWorkspace({
                     ? "Résultat"
                     : isReact
                       ? "Aperçu"
-                      : "Aperçu en direct"}
+                      : isRust
+                        ? "Analyse"
+                        : "Aperçu en direct"}
               </span>
               <span className="font-body text-sm italic text-nebula-text-dim">
                 — En attente du prochain déploiement<span className="terminal-cursor">_</span>
@@ -458,6 +467,20 @@ export default function ChapterWorkspace({
               ))}
             </ul>
           )}
+        </div>
+      ) : isRust ? (
+        <div
+          className={`flex-1 min-h-0 overflow-y-auto bg-nebula-bg-darkest/80 px-5 py-4 ${
+            mobilePanel === "editor" ? "hidden lg:block" : "block"
+          }`}
+        >
+          <div className="mb-2 font-tech text-[10px] uppercase tracking-[0.3em] text-nebula-text-dim">
+            {"> "}Analyse de la forge
+          </div>
+          <p className="font-tech text-xs italic leading-relaxed text-nebula-text-dim">
+            Rust se compile sur ta machine, pas dans le navigateur. Ici, la forge relit ton
+            code comme le ferait le compilateur : appuie sur DEPLOYER pour lancer l&apos;analyse.
+          </p>
         </div>
       ) : isReact ? (
         <ReactPreview

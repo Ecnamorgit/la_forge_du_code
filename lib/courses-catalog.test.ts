@@ -3,6 +3,8 @@ import {
   getCourseStatus,
   COURSE_COMPLETE_MIN_CHAPTERS,
   COURSES_CATALOG,
+  COURSE_ICON_FRAMES_DRAWN,
+  getCourseIconFrame,
 } from "./courses-catalog";
 import { CHAPTER_SUMMARIES } from "./chapter-summaries";
 
@@ -10,6 +12,11 @@ describe("getCourseStatus", () => {
   it("classifies a course with enough chapters as complete", () => {
     expect(getCourseStatus("html")).toBe("complete");
     expect(getCourseStatus("javascript")).toBe("complete");
+  });
+
+  it("classifies the four-chapter courses as complete, right at the threshold", () => {
+    expect(getCourseStatus("rust")).toBe("complete");
+    expect(getCourseStatus("agent-ia")).toBe("complete");
   });
 
   it("classifies a pilot course (few chapters) as preview", () => {
@@ -23,8 +30,8 @@ describe("getCourseStatus", () => {
 
   it("uses the exported threshold as the boundary (>= threshold => complete)", () => {
     expect(COURSE_COMPLETE_MIN_CHAPTERS).toBe(4);
-    // No course sits near the threshold: pilot courses (including typescript)
-    // have one chapter, complete courses (including react) at least eight.
+    // Pilot courses (including typescript) have one chapter; rust and
+    // agent-ia sit exactly on the threshold with four.
     expect(getCourseStatus("typescript")).toBe("preview");
     expect(getCourseStatus("react")).toBe("complete");
   });
@@ -33,6 +40,22 @@ describe("getCourseStatus", () => {
     const statuses = COURSES_CATALOG.map((c) => getCourseStatus(c.slug));
     expect(statuses).toContain("complete");
     expect(statuses).toContain("preview");
+  });
+});
+
+describe("getCourseIconFrame", () => {
+  it("gives a drawn course its frame, in catalog order", () => {
+    expect(getCourseIconFrame("html")).toBe(0);
+    expect(getCourseIconFrame("algo")).toBe(COURSE_ICON_FRAMES_DRAWN - 1);
+  });
+
+  it("returns null for a course whose icon is not drawn yet, so the emoji shows", () => {
+    expect(getCourseIconFrame("rust")).toBeNull();
+    expect(getCourseIconFrame("agent-ia")).toBeNull();
+  });
+
+  it("returns null for an unknown course instead of pointing at html's icon", () => {
+    expect(getCourseIconFrame("inconnu")).toBeNull();
   });
 });
 

@@ -73,15 +73,33 @@ export const BADGES: BadgeDef[] = [
   { id: "security-shield", icon: "🛡", label: "Officier Sécurité", description: "Sécurité et OWASP" },
   { id: "python-serpent", icon: "🐍", label: "Programmeur Python", description: "Python et fondamentaux" },
   { id: "algo-strategist", icon: "🧮", label: "Stratège Algorithmique", description: "Algorithmie et complexité" },
+  // Rust 1-4
+  { id: "rust-apprentice", icon: "🔥", label: "Apprenti Forgeron", description: "Premiers programmes Rust" },
+  { id: "rust-owner", icon: "🔑", label: "Gardien de la Mémoire", description: "Ownership, emprunts et slices" },
+  { id: "rust-architect", icon: "📐", label: "Architecte Naval", description: "Structs, enums et match" },
+  { id: "rust-master", icon: "⚒", label: "Maître Forgeron", description: "Option, Result et itérateurs" },
+  // Agent IA 1-4
+  { id: "agent-awakener", icon: "🤖", label: "Éveilleur de Copilote", description: "Messages, rôles et historique" },
+  { id: "agent-toolsmith", icon: "🧰", label: "Outilleur de Bord", description: "Outils et appels d'outils" },
+  { id: "agent-loop", icon: "🔁", label: "Maître de la Boucle", description: "Boucle d'agent et garde-fous" },
+  { id: "agent-creator", icon: "🧬", label: "Créateur d'Agent", description: "Mémoire et agent personnel" },
 ];
+
+/**
+ * Number of badges actually drawn in /sprites/badges.png (8 × 6 frames).
+ * Badges beyond it have no frame yet and show their emoji; raise it when the
+ * sheet gains a row.
+ */
+export const BADGE_FRAMES_DRAWN = 48;
 
 const FRAME_BY_ID: Record<string, number> = Object.fromEntries(
   BADGES.map((b, i) => [b.id, i])
 );
 
-/** Frame index of a badge, or null if it is unknown. */
+/** Frame index of a badge, or null if it is unknown or not drawn yet. */
 export function badgeFrameById(id: string): number | null {
-  return FRAME_BY_ID[id] ?? null;
+  const frame = FRAME_BY_ID[id];
+  return frame !== undefined && frame < BADGE_FRAMES_DRAWN ? frame : null;
 }
 
 export function getBadge(id: string): BadgeDef | undefined {
