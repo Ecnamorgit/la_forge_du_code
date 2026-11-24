@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { BADGES } from "./badges-catalog";
+import { BADGES, BADGE_FRAMES_DRAWN } from "./badges-catalog";
 import { CONDUCT_BADGES } from "./conduct-badges";
 import { EMBLEM_OPTIONS, getEmblem } from "./emblems";
 
@@ -14,10 +14,17 @@ describe("EMBLEM_OPTIONS", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("gives course badges a sprite frame", () => {
-    for (const b of BADGES) {
-      expect(getEmblem(b.id)?.frame).toBe(BADGES.indexOf(b));
-    }
+  it("gives course badges a sprite frame, once drawn in the sheet", () => {
+    BADGES.forEach((b, i) => {
+      // Badges past the drawn frames (rust, agent-ia) render as emoji until
+      // their pixel art joins /sprites/badges.png.
+      expect(getEmblem(b.id)?.frame).toBe(i < BADGE_FRAMES_DRAWN ? i : null);
+    });
+  });
+
+  it("has at least one badge still waiting for its sprite", () => {
+    expect(BADGES.length).toBeGreaterThan(BADGE_FRAMES_DRAWN);
+    expect(getEmblem("rust-master")?.frame).toBeNull();
   });
 
   it("leaves conduct badges without a frame — they render as emoji", () => {

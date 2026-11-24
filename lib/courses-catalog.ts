@@ -147,6 +147,24 @@ export const COURSES_CATALOG: CourseInfo[] = [
     description:
       "Big-O, recherche binaire, tris et récursion. La base des entretiens techniques.",
   },
+  {
+    slug: "rust",
+    title: "Rust",
+    subtitle: "Mémoire sûre & performance",
+    icon: "🦀",
+    color: "orange",
+    description:
+      "Forge une coque sans faille : ownership, emprunts, enums, Option et Result. La sûreté mémoire sans ramasse-miettes.",
+  },
+  {
+    slug: "agent-ia",
+    title: "Agent IA",
+    subtitle: "Crée ton copilote personnel",
+    icon: "🤖",
+    color: "cyan",
+    description:
+      "Construis ton agent IA pas à pas : messages, outils, boucle de décision, garde-fous et mémoire.",
+  },
 ];
 
 const BY_SLUG: Record<string, CourseInfo> = Object.fromEntries(
@@ -181,9 +199,18 @@ const ICON_FRAME_BY_SLUG: Record<string, number> = Object.fromEntries(
 );
 
 /**
- * Frame index of a course in /sprites/mission-icons-v2.png, in the order
- * of COURSES_CATALOG (docs/PIXEL_ART_GUIDE.md §3A).
+ * Number of course icons actually drawn in /sprites/mission-icons-v2.png.
+ * Courses beyond it (rust, agent-ia) have no frame yet and show their emoji;
+ * raise it when their icons are added to the sheet.
  */
-export function getCourseIconFrame(slug: string): number {
-  return ICON_FRAME_BY_SLUG[slug] ?? 0;
+export const COURSE_ICON_FRAMES_DRAWN = 14;
+
+/**
+ * Frame index of a course in /sprites/mission-icons-v2.png, in the order
+ * of COURSES_CATALOG (docs/PIXEL_ART_GUIDE.md §3A). Null when the course is
+ * unknown or its icon is not drawn yet: the caller shows the emoji instead.
+ */
+export function getCourseIconFrame(slug: string): number | null {
+  const frame = ICON_FRAME_BY_SLUG[slug];
+  return frame !== undefined && frame < COURSE_ICON_FRAMES_DRAWN ? frame : null;
 }

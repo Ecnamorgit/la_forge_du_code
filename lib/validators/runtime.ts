@@ -18,6 +18,8 @@ export const RUNTIME_CHAPTERS: ReadonlySet<string> = new Set<string>([
   ...Array.from({ length: 10 }, (_, i) => `javascript/chapitre-${i + 1}`),
   // sql: validated on the result of a real query (`ctx.sql`).
   "sql/chapitre-1",
+  // agent-ia: the agent runs against a simulated model, validated on `ctx.logs`.
+  ...Array.from({ length: 4 }, (_, i) => `agent-ia/chapitre-${i + 1}`),
 ]);
 
 export function isRuntimeChapter(course: string, chapter: string): boolean {

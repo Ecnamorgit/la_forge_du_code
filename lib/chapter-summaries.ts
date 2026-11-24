@@ -68,4 +68,16 @@ export const CHAPTER_SUMMARIES: Record<string, ChapterSummary[]> = {
   security: [{ slug: "chapitre-1", title: "SÉCURITÉ & OWASP", totalSteps: 4 }],
   python: [{ slug: "chapitre-1", title: "PYTHON & FONDAMENTAUX", totalSteps: 4 }],
   algo: [{ slug: "chapitre-1", title: "ALGORITHMIE & COMPLEXITÉ", totalSteps: 4 }],
+  rust: [
+    { slug: "chapitre-1", title: "ALLUMAGE DE LA FORGE", totalSteps: 4 },
+    { slug: "chapitre-2", title: "LOI DE PROPRIÉTÉ", totalSteps: 4 },
+    { slug: "chapitre-3", title: "PLANS DE CONSTRUCTION", totalSteps: 4 },
+    { slug: "chapitre-4", title: "ZÉRO PANNE", totalSteps: 4 },
+  ],
+  "agent-ia": [
+    { slug: "chapitre-1", title: "ÉVEIL DU COPILOTE", totalSteps: 4 },
+    { slug: "chapitre-2", title: "BOÎTE À OUTILS", totalSteps: 4 },
+    { slug: "chapitre-3", title: "BOUCLE DE DÉCISION", totalSteps: 4 },
+    { slug: "chapitre-4", title: "MÉMOIRE & IDENTITÉ", totalSteps: 4 },
+  ],
 };

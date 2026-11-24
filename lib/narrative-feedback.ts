@@ -79,7 +79,7 @@ export function inferToneFromError(error: string | null): ErrorTone | undefined 
  * JS and SQL stay generic.
  */
 const DEFAULT_TONE_BY_LANGUAGE: Record<
-  "html" | "javascript" | "sql" | "react",
+  "html" | "javascript" | "sql" | "react" | "rust",
   ErrorTone | undefined
 > = {
   html: "structure",
@@ -88,6 +88,8 @@ const DEFAULT_TONE_BY_LANGUAGE: Record<
   // React validators set an explicit tone when it matters; a `structure`
   // default would wrongly label logic errors.
   react: undefined,
+  // Rust validators set their own tone (structure, logic, syntax).
+  rust: undefined,
 };
 
 /**
@@ -97,7 +99,7 @@ const DEFAULT_TONE_BY_LANGUAGE: Record<
 export function resolveErrorTone(
   validatorTone: ErrorTone | undefined,
   jsError: string | null,
-  language: "html" | "javascript" | "sql" | "react",
+  language: "html" | "javascript" | "sql" | "react" | "rust",
 ): ErrorTone | undefined {
   return validatorTone ?? inferToneFromError(jsError) ?? DEFAULT_TONE_BY_LANGUAGE[language];
 }

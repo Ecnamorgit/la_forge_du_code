@@ -13,6 +13,8 @@ import { VALIDATORS_BY_CHAPTER as MONGODB_VALIDATORS } from "./mongodb";
 import { VALIDATORS_BY_CHAPTER as SECURITY_VALIDATORS } from "./security";
 import { VALIDATORS_BY_CHAPTER as PYTHON_VALIDATORS } from "./python";
 import { VALIDATORS_BY_CHAPTER as ALGO_VALIDATORS } from "./algo";
+import { VALIDATORS_BY_CHAPTER as RUST_VALIDATORS } from "./rust";
+import { VALIDATORS_BY_CHAPTER as AGENT_IA_VALIDATORS } from "./agent-ia";
 
 const REGISTRY: Record<string, Record<string, Validator[]>> = {
   html: HTML_VALIDATORS,
@@ -29,6 +31,8 @@ const REGISTRY: Record<string, Record<string, Validator[]>> = {
   security: SECURITY_VALIDATORS,
   python: PYTHON_VALIDATORS,
   algo: ALGO_VALIDATORS,
+  rust: RUST_VALIDATORS,
+  "agent-ia": AGENT_IA_VALIDATORS,
 };
 
 export function getValidators(course: string, chapterSlug: string): Validator[] {

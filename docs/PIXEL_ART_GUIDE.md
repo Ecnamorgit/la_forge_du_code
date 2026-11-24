@@ -56,7 +56,12 @@ Contrat défini dans `lib/sprite-config.ts`.
 | 5 | git | 12 | python |
 | 6 | sql | 13 | algo |
 
-Frames 14–31 = réserve (futurs cours). Remplace les emojis de `COURSES_CATALOG.icon`
+Frames **14 = rust** et **15 = agent-ia** : **à dessiner**. Tant qu'elles manquent, ces deux
+cours affichent leur emoji (🦀, 🤖) : `getCourseIconFrame` renvoie `null` au-delà de
+`COURSE_ICON_FRAMES_DRAWN` (`lib/courses-catalog.ts`). Une fois les deux frames ajoutées à
+la planche, passer cette constante de 14 à 16.
+
+Frames 16–31 = réserve (futurs cours). Remplace les emojis de `COURSES_CATALOG.icon`
 et de chaque chapitre (`missionIcon`).
 
 ### B) `banner-icons.png` — icônes de victoire (bannière de réussite)
@@ -84,6 +89,11 @@ et de chaque chapitre (`missionIcon`).
 - Cette liste doit rester synchronisée avec `BADGE_BY_CHAPTER`
   (`lib/courses-meta.ts`), qui *débloque* réellement les badges. Ajouter un badge
   dans l'un impose de l'ajouter dans l'autre, puis de dessiner sa frame dans cet ordre.
+- **À dessiner : une 7ᵉ ligne (frames 48–55)**, soit un canvas **512×448**, pour les badges
+  Rust (`rust-apprentice`, `rust-owner`, `rust-architect`, `rust-master`) puis Agent IA
+  (`agent-awakener`, `agent-toolsmith`, `agent-loop`, `agent-creator`). En attendant, ils
+  s'affichent en emoji : `badgeFrameById` renvoie `null` au-delà de `BADGE_FRAMES_DRAWN`
+  (`lib/badges-catalog.ts`). Une fois la ligne dessinée, passer cette constante de 48 à 56.
 
 ---
 
@@ -153,6 +163,8 @@ Le fallback emoji reste en place tant que le flag est `false` → zéro régress
 - [ ] Palette Nebula chargée dans l'éditeur, mode Indexed.
 - [x] `mission-icons-v2.png` (256×128, 14 cours dans l'ordre) → `public/sprites/`.
 - [x] `ALL_BADGES` figé + resynchronisé, puis `badges.png` (8 col) dans cet ordre.
+- [ ] Icônes de cours 14 (rust) et 15 (agent-ia), puis `COURSE_ICON_FRAMES_DRAWN = 16`.
+- [ ] 7ᵉ ligne de `badges.png` (8 badges Rust / Agent IA), puis `BADGE_FRAMES_DRAWN = 56`.
 - [x] `banner-icons.png` (192×192, 16 archétypes).
 - [x] Logo refait en pixel art (`PixelLogo.tsx`).
 - [ ] Planètes refaites (ou `pixelated` retiré des rasters lisses).

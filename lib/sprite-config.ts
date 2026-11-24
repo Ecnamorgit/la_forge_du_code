@@ -23,7 +23,9 @@ export const SPRITE_SHEETS_READY = {
  * Course icons. Frame order follows COURSES_CATALOG
  * (lib/courses-catalog.ts): 0=html, 1=css, 2=javascript, 3=react,
  * 4=typescript, 5=git, 6=sql, 7=nodejs, 8=tests, 9=devops, 10=mongodb,
- * 11=security, 12=python, 13=algo; frames 14 to 31 reserved.
+ * 11=security, 12=python, 13=algo. Frames 14 (rust) and 15 (agent-ia) are
+ * not drawn yet: those courses show their emoji until
+ * COURSE_ICON_FRAMES_DRAWN is raised. Frames 16 to 31 reserved.
  * Sheet: 8 columns × 4 rows of 32×32 = 256×128.
  */
 export const MISSION_ICONS: SpriteSheet = {

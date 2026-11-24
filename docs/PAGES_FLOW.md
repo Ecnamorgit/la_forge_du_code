@@ -156,7 +156,7 @@ Fichier : `app/(platform)/learn/page.tsx`
 - [ ] État « verrouillé » vs « disponible »
 
 **Tests fonctionnels**
-- [ ] Les 14 cours listés (HTML, CSS, JS, React, TS, Git, SQL, Node, Tests, DevOps, MongoDB, Security, Python, Algo)
+- [ ] Les 16 cours listés (HTML, CSS, JS, React, TS, Git, SQL, Node, Tests, DevOps, MongoDB, Security, Python, Algo, Rust, Agent IA)
 - [ ] Chaque carte → `/learn/[course]` ; nombre de chapitres correct
 - [ ] Retour `/dashboard`
 

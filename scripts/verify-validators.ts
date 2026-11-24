@@ -21,6 +21,7 @@ const TARGETS: Array<[string, string[]]> = [
   ["security", ["chapitre-1"]],
   ["python", ["chapitre-1"]],
   ["algo", ["chapitre-1"]],
+  ["rust", ["chapitre-1", "chapitre-2", "chapitre-3", "chapitre-4"]],
 ];
 
 let failures = 0;

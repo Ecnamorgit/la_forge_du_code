@@ -606,13 +606,17 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
               step={step}
               validate={validate}
               language={
-                course === "javascript"
+                // agent-ia is JavaScript run in the sandbox against a
+                // simulated model; rust is analysed, never executed.
+                course === "javascript" || course === "agent-ia"
                   ? "javascript"
                   : course === "sql"
                     ? "sql"
                     : course === "react"
                       ? "react"
-                      : "html"
+                      : course === "rust"
+                        ? "rust"
+                        : "html"
               }
               sqlConfig={
                 course === "sql" ? getSqlStepConfig(chapter.slug, currentStep) : undefined

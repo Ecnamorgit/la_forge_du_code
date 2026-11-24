@@ -9,6 +9,7 @@
 > - chaque étape du parcours est couverte par des tests de validateurs (ticket CF-18, voir [RAPPORT_VALIDATEURS.md](RAPPORT_VALIDATEURS.md)) ;
 > - le serveur rejoue le validateur avant d'accorder une étape, et vérifie l'ordre de progression ([EXE-01](audit-securite/corrections/EXE-01.md)) ;
 > - le cursus SQL exécute les requêtes avec sql.js dans le navigateur ([EXE-07](audit-securite/corrections/EXE-07.md)) ;
+> - deux cursus complets ajoutés (novembre 2026) : **Rust** (validation statique, mode d'éditeur `rust` sans aperçu) et **Agent IA** (JavaScript exécuté dans le bac à sable, validé sur `ctx.logs`, inscrit dans `lib/validators/runtime.ts`) ;
 > - les aperçus ne passent plus par `srcdoc` : ils sont servis depuis l'origine dédiée du bac à sable ([EXE-03](audit-securite/corrections/EXE-03.md)).
 
 ---
@@ -138,7 +139,9 @@ L'XP d'un chapitre est la somme sur les étapes complétées ; l'XP **maximale**
 **Limites**
 
 - La validation statique repose sur des **regex**, contournables par un apprenant déterminé (limite pédagogique, pas de sécurité).
-- **Couverture inégale** : 4 cursus réellement étoffés (JS, CSS, HTML, React), 10 cursus à 1 chapitre — donc peu de validateurs pour ces derniers.
+- **Couverture inégale** : 6 cursus réellement étoffés (JS, CSS, HTML, React, Rust, Agent IA), 10 cursus à 1 chapitre — donc peu de validateurs pour ces derniers.
+- **Rust n'est pas compilé** : aucun compilateur ne tourne dans le navigateur, la validation est statique. Les solutions de référence (`hint`) ont été compilées et exécutées avec `rustc` à l'écriture, mais un code d'apprenant qui passe les motifs peut ne pas compiler.
+- **Agent IA repose sur un modèle simulé** : le « noyau » fourni dans le code de départ est une fonction déterministe, pas un LLM. C'est ce qui rend la validation possible sur la sortie console ; l'apprenant n'appelle jamais de vrai modèle sur la plateforme.
 
 ---
 

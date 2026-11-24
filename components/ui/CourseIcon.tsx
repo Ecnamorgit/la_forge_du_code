@@ -4,7 +4,8 @@ import { getCourseIconFrame } from "@/lib/courses-catalog";
 
 /**
  * A course's pixel icon, taken from /sprites/mission-icons.png when the sheet
- * is ready (SPRITE_SHEETS_READY.mission), otherwise the emoji. `className` (for
+ * is ready (SPRITE_SHEETS_READY.mission) and holds this course's frame,
+ * otherwise the emoji. `className` (for
  * example a Tailwind text size) also applies to the emoji.
  */
 export default function CourseIcon({
@@ -18,11 +19,13 @@ export default function CourseIcon({
   size?: number;
   className?: string;
 }) {
-  if (SPRITE_SHEETS_READY.mission) {
+  // No frame: the course's icon is not drawn in the sheet yet.
+  const frame = getCourseIconFrame(slug);
+  if (SPRITE_SHEETS_READY.mission && frame !== null) {
     return (
       <Sprite
         sheet={MISSION_ICONS}
-        frame={getCourseIconFrame(slug)}
+        frame={frame}
         displaySize={size}
         title={slug}
         className={className}

@@ -46,6 +46,14 @@ import { chapter1 as mongodbCh1 } from "@/data/courses/mongodb/chapitre-1";
 import { chapter1 as securityCh1 } from "@/data/courses/security/chapitre-1";
 import { chapter1 as pythonCh1 } from "@/data/courses/python/chapitre-1";
 import { chapter1 as algoCh1 } from "@/data/courses/algo/chapitre-1";
+import { chapter1 as rustCh1 } from "@/data/courses/rust/chapitre-1";
+import { chapter2 as rustCh2 } from "@/data/courses/rust/chapitre-2";
+import { chapter3 as rustCh3 } from "@/data/courses/rust/chapitre-3";
+import { chapter4 as rustCh4 } from "@/data/courses/rust/chapitre-4";
+import { chapter1 as agentCh1 } from "@/data/courses/agent-ia/chapitre-1";
+import { chapter2 as agentCh2 } from "@/data/courses/agent-ia/chapitre-2";
+import { chapter3 as agentCh3 } from "@/data/courses/agent-ia/chapitre-3";
+import { chapter4 as agentCh4 } from "@/data/courses/agent-ia/chapitre-4";
 import type { ChapterData } from "@/data/courses/html/types";
 
 function toMap(chapters: ChapterData[]): Record<string, ChapterData> {
@@ -78,6 +86,8 @@ const REGISTRY: Record<string, Record<string, ChapterData>> = {
   security: toMap([securityCh1]),
   python: toMap([pythonCh1]),
   algo: toMap([algoCh1]),
+  rust: toMap([rustCh1, rustCh2, rustCh3, rustCh4]),
+  "agent-ia": toMap([agentCh1, agentCh2, agentCh3, agentCh4]),
 };
 
 export function getChapterData(course: string, chapter: string): ChapterData | null {
