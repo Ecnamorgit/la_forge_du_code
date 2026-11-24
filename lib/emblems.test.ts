@@ -16,15 +16,15 @@ describe("EMBLEM_OPTIONS", () => {
 
   it("gives course badges a sprite frame, once drawn in the sheet", () => {
     BADGES.forEach((b, i) => {
-      // Badges past the drawn frames (rust, agent-ia) render as emoji until
-      // their pixel art joins /sprites/badges.png.
+      // A badge past the drawn frames renders as emoji until its pixel art
+      // joins /sprites/badges.png.
       expect(getEmblem(b.id)?.frame).toBe(i < BADGE_FRAMES_DRAWN ? i : null);
     });
   });
 
-  it("has at least one badge still waiting for its sprite", () => {
-    expect(BADGES.length).toBeGreaterThan(BADGE_FRAMES_DRAWN);
-    expect(getEmblem("rust-master")?.frame).toBeNull();
+  it("has a drawn frame for every badge of the catalog", () => {
+    expect(BADGE_FRAMES_DRAWN).toBe(BADGES.length);
+    expect(getEmblem("rust-master")?.frame).toBe(BADGES.length - 5);
   });
 
   it("leaves conduct badges without a frame — they render as emoji", () => {

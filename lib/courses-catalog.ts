@@ -200,10 +200,10 @@ const ICON_FRAME_BY_SLUG: Record<string, number> = Object.fromEntries(
 
 /**
  * Number of course icons actually drawn in /sprites/mission-icons-v2.png.
- * Courses beyond it (rust, agent-ia) have no frame yet and show their emoji;
- * raise it when their icons are added to the sheet.
+ * A course added beyond it has no frame yet and shows its emoji; raise it
+ * when its icon joins the sheet.
  */
-export const COURSE_ICON_FRAMES_DRAWN = 14;
+export const COURSE_ICON_FRAMES_DRAWN = 16;
 
 /**
  * Frame index of a course in /sprites/mission-icons-v2.png, in the order

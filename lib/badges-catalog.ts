@@ -86,11 +86,12 @@ export const BADGES: BadgeDef[] = [
 ];
 
 /**
- * Number of badges actually drawn in /sprites/badges.png (8 × 6 frames).
- * Badges beyond it have no frame yet and show their emoji; raise it when the
- * sheet gains a row.
+ * Number of badges actually drawn in /sprites/badges.png (8 × 7 frames,
+ * BADGE_COUNT in scripts/generate_spritesheets.py). A badge added beyond it
+ * has no frame yet and shows its emoji; raise both when the sheet is
+ * regenerated.
  */
-export const BADGE_FRAMES_DRAWN = 48;
+export const BADGE_FRAMES_DRAWN = 56;
 
 const FRAME_BY_ID: Record<string, number> = Object.fromEntries(
   BADGES.map((b, i) => [b.id, i])

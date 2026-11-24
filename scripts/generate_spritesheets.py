@@ -79,6 +79,35 @@ def draw_icon(draw, icon_type, accent):
     elif icon_type == 13:  # Hourglass
         draw.polygon([(5, 5), (11, 5), (8, 8), (5, 11), (11, 11)], fill=accent)
         draw.point([(8, 6), (8, 10)], fill=WHITE)
+    elif icon_type == 14:  # Flame
+        draw.polygon([(8, 3), (10, 6), (11, 9), (10, 11), (8, 12), (6, 11), (5, 9), (6, 7)], fill=accent)
+        draw.polygon([(8, 8), (9, 10), (8, 11), (7, 10)], fill=WHITE)
+    elif icon_type == 15:  # Set square
+        draw.polygon([(6, 5), (6, 10), (11, 10)], fill=accent)
+        draw.point([(7, 8), (7, 9), (8, 9)], fill=DARK)
+    elif icon_type == 16:  # Hammer
+        draw.rectangle([5, 4, 11, 6], fill=accent)
+        draw.rectangle([7, 7, 8, 12], fill=accent)
+        draw.point([(5, 4), (11, 4)], fill=WHITE)
+    elif icon_type == 17:  # Robot head
+        draw.line([(8, 3), (8, 4)], fill=accent, width=1)
+        draw.rectangle([5, 5, 11, 11], fill=accent)
+        draw.point([(6, 7), (7, 7), (9, 7), (10, 7)], fill=DARK)
+        draw.line([(7, 10), (9, 10)], fill=DARK, width=1)
+        draw.point([(8, 3)], fill=WHITE)
+    elif icon_type == 18:  # Loop arrow: an open ring closed by an arrowhead
+        ring = [
+            (6, 6), (5, 7), (5, 8), (5, 9), (6, 10), (7, 11), (8, 11), (9, 11),
+            (10, 10), (11, 9), (11, 8), (11, 7),
+        ]
+        draw.point(ring, fill=accent)
+        draw.point([(7, 5), (8, 5), (9, 5), (8, 4), (8, 6), (9, 4), (9, 6), (10, 5)], fill=accent)
+    elif icon_type == 19:  # Double helix
+        strand_a = [(6, 3), (7, 4), (8, 5), (9, 6), (10, 7), (9, 8), (8, 9), (7, 10), (6, 11), (7, 12)]
+        strand_b = [(10, 3), (9, 4), (8, 5), (7, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 11), (9, 12)]
+        draw.point(strand_b, fill=WHITE)
+        draw.point(strand_a, fill=accent)
+        draw.point([(8, 7), (8, 11), (8, 3)], fill=accent)
 
 def draw_banner_glyph(draw, idx, color):
     """Draws the glyph of a banner icon on a 16x16 cell."""
@@ -153,14 +182,119 @@ def draw_banner_glyph(draw, idx, color):
         draw.line([(8, 10), (8, 13)], fill=color, width=1)
         draw.line([(6, 13), (10, 13)], fill=color, width=1)
 
+# Badges past the generic cycle: drawn to match their meaning rather than
+# their index. Keyed by frame, in the order of BADGES (lib/badges-catalog.ts):
+# (plate, primary, accent, glyph).
+THEMED_BADGES = {
+    48: (0, ORANGE, GOLD, 14),   # rust-apprentice: flame
+    49: (1, ORANGE, GOLD, 6),    # rust-owner: key
+    50: (2, ORANGE, GOLD, 15),   # rust-architect: set square
+    51: (3, GOLD, ORANGE, 16),   # rust-master: hammer
+    52: (0, CYAN, VERT, 17),     # agent-awakener: robot head
+    53: (1, CYAN, GOLD, 3),      # agent-toolsmith: gear
+    54: (2, CYAN, VERT, 18),     # agent-loop: loop arrow
+    55: (3, VIOLET, CYAN, 19),   # agent-creator: double helix
+}
+
+# One frame per entry of BADGES. Keep in sync with BADGE_FRAMES_DRAWN.
+BADGE_COUNT = 56
+
+# Course icons drawn by this script, at their frame in mission-icons-v2.png
+# (order of COURSES_CATALOG). The other frames of that sheet are hand-made
+# and left untouched.
+RUST_FRAME = 14
+AGENT_FRAME = 15
+
+RUST_DARK = (107, 45, 19, 255)
+RUST_MID = (200, 78, 28, 255)
+RUST_LIGHT = (255, 160, 102, 255)
+STEEL = (200, 214, 229, 255)
+STEEL_DIM = (107, 125, 153, 255)
+NAVY = (10, 22, 40, 255)
+CYAN_DIM = (0, 77, 85, 255)
+BLUE = (61, 126, 255, 255)
+BLUE_DIM = (26, 51, 102, 255)
+
+
+def draw_rust_icon(draw):
+    """Rust: an orange cog with an R at its hub, on a 32x32 cell."""
+    # Eight teeth, as blocks around the rim.
+    teeth = [
+        (14, 1, 17, 4), (14, 27, 17, 30), (1, 14, 4, 17), (27, 14, 30, 17),
+        (5, 5, 8, 8), (23, 5, 26, 8), (5, 23, 8, 26), (23, 23, 26, 26),
+    ]
+    for box in teeth:
+        draw.rectangle(box, fill=RUST_DARK)
+        draw.rectangle([box[0] + 1, box[1] + 1, box[2] - 1, box[3] - 1], fill=ORANGE)
+    # Rim: dark outline, mid tone, then the lit body.
+    draw.ellipse([3, 3, 28, 28], fill=RUST_DARK)
+    draw.ellipse([4, 4, 27, 27], fill=RUST_MID)
+    draw.ellipse([4, 4, 26, 26], fill=ORANGE)
+    # Highlight on the top-right, the light source of the set.
+    draw.arc([6, 6, 25, 25], start=285, end=345, fill=RUST_LIGHT, width=1)
+    # Hub.
+    draw.ellipse([8, 8, 23, 23], fill=RUST_DARK)
+    draw.ellipse([9, 9, 22, 22], fill=NAVY)
+    # The letter R, 6x8.
+    draw.rectangle([13, 12, 14, 19], fill=STEEL)
+    draw.rectangle([13, 12, 17, 13], fill=STEEL)
+    draw.rectangle([17, 13, 18, 15], fill=STEEL)
+    draw.rectangle([13, 16, 17, 16], fill=STEEL)
+    draw.point([(16, 17), (17, 17), (17, 18), (18, 18), (17, 19), (18, 19)], fill=STEEL)
+
+
+def draw_agent_icon(draw):
+    """Agent IA: a copilot robot head, on a 32x32 cell."""
+    # Antenna and its beacon.
+    draw.rectangle([15, 4, 16, 8], fill=STEEL_DIM)
+    draw.ellipse([13, 1, 18, 6], fill=RUST_DARK)
+    draw.ellipse([14, 2, 17, 5], fill=ORANGE)
+    draw.point([(16, 2)], fill=RUST_LIGHT)
+    # Ears.
+    draw.rectangle([2, 14, 4, 20], fill=BLUE_DIM)
+    draw.rectangle([27, 14, 29, 20], fill=BLUE_DIM)
+    draw.rectangle([3, 15, 4, 19], fill=BLUE)
+    draw.rectangle([27, 15, 28, 19], fill=BLUE)
+    # Head: outline, shaded body, lit top edge.
+    draw.rounded_rectangle([5, 8, 26, 27], radius=3, fill=BLUE_DIM)
+    draw.rounded_rectangle([6, 9, 25, 26], radius=2, fill=BLUE)
+    draw.rectangle([8, 9, 23, 9], fill=STEEL)
+    draw.rectangle([6, 24, 25, 26], fill=(40, 90, 200, 255))
+    # Visor.
+    draw.rounded_rectangle([8, 12, 23, 19], radius=2, fill=NAVY)
+    # Eyes, glowing.
+    draw.rectangle([10, 14, 13, 17], fill=CYAN_DIM)
+    draw.rectangle([18, 14, 21, 17], fill=CYAN_DIM)
+    draw.rectangle([11, 14, 13, 16], fill=CYAN)
+    draw.rectangle([19, 14, 21, 16], fill=CYAN)
+    draw.point([(13, 14), (21, 14)], fill=WHITE)
+    # Mouth grille.
+    draw.rectangle([11, 22, 20, 23], fill=NAVY)
+    draw.point([(12, 22), (14, 22), (16, 22), (18, 22), (12, 23), (14, 23), (16, 23), (18, 23)], fill=VERT)
+
+
+def draw_course_icons(sprites_dir):
+    """Draws the Rust and Agent IA icons into mission-icons-v2.png, in place."""
+    path = os.path.join(sprites_dir, "mission-icons-v2.png")
+    sheet = Image.open(path).convert("RGBA")
+    for frame, painter in ((RUST_FRAME, draw_rust_icon), (AGENT_FRAME, draw_agent_icon)):
+        cell = Image.new("RGBA", (32, 32), TRANSPARENT)
+        painter(ImageDraw.Draw(cell))
+        # paste without a mask: the cell replaces whatever was there, so a
+        # second run gives the same sheet.
+        sheet.paste(cell, ((frame % 8) * 32, (frame // 8) * 32))
+    sheet.save(path, "PNG")
+
+
 def main():
     sprites_dir = "public/sprites"
     os.makedirs(sprites_dir, exist_ok=True)
 
-    # Badges: drawn at 128x96, then scaled up 4x (512x384).
+    # Badges: drawn on a 16 px grid, 8 per row, then scaled up 4x.
     print("Generating badges.png...")
-    badges_small = Image.new("RGBA", (128, 96), TRANSPARENT)
-    for i in range(44):
+    rows = (BADGE_COUNT + 7) // 8
+    badges_small = Image.new("RGBA", (128, rows * 16), TRANSPARENT)
+    for i in range(BADGE_COUNT):
         # Cell position in the 16 px grid
         col = i % 8
         row = i // 8
@@ -170,11 +304,14 @@ def main():
         cell = Image.new("RGBA", (16, 16), TRANSPARENT)
         draw = ImageDraw.Draw(cell)
 
-        # Colors and base vary from one cell to the next
-        primary = PRIMARY_COLORS[i % len(PRIMARY_COLORS)]
-        accent = ACCENT_COLORS[i % len(ACCENT_COLORS)]
-        plate_type = (i // 5) % 4
-        icon_type = i % 14
+        if i in THEMED_BADGES:
+            plate_type, primary, accent, icon_type = THEMED_BADGES[i]
+        else:
+            # Colors and base vary from one cell to the next
+            primary = PRIMARY_COLORS[i % len(PRIMARY_COLORS)]
+            accent = ACCENT_COLORS[i % len(ACCENT_COLORS)]
+            plate_type = (i // 5) % 4
+            icon_type = i % 14
 
         draw_plate(draw, plate_type, primary)
         draw_icon(draw, icon_type, accent)
@@ -182,9 +319,12 @@ def main():
         badges_small.paste(cell, (x, y))
 
     # NEAREST keeps the pixels sharp.
-    badges_final = badges_small.resize((512, 384), Image.Resampling.NEAREST)
+    badges_final = badges_small.resize((512, rows * 64), Image.Resampling.NEAREST)
     badges_final.save(os.path.join(sprites_dir, "badges.png"), "PNG")
     print("Badges spritesheet saved successfully at public/sprites/badges.png!")
+
+    print("Drawing the Rust and Agent IA icons into mission-icons-v2.png...")
+    draw_course_icons(sprites_dir)
 
     # Banner icons: drawn at 64x64, then scaled up 3x (192x192).
     print("Generating banner-icons.png...")
