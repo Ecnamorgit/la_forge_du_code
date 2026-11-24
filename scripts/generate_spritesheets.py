@@ -286,6 +286,108 @@ def draw_course_icons(sprites_dir):
     sheet.save(path, "PNG")
 
 
+# Speakers of the cinematics and of the lesson panels, in the order of
+# CHARACTER_FRAMES (lib/characters.ts). Drawn on a 16 px grid like the badges,
+# then scaled up 2x: one 32x32 frame each.
+SKIN = (255, 200, 160, 255)
+SKIN_DIM = (214, 150, 112, 255)
+HAIR = (90, 50, 140, 255)
+RED = (255, 45, 85, 255)
+RED_DIM = (102, 18, 36, 255)
+
+
+def draw_system(draw):
+    """SYSTÈME: the station's relay satellite."""
+    # Solar panels.
+    draw.rectangle([0, 6, 4, 10], fill=BLUE_DIM)
+    draw.rectangle([11, 6, 15, 10], fill=BLUE_DIM)
+    draw.rectangle([1, 7, 3, 9], fill=BLUE)
+    draw.rectangle([12, 7, 14, 9], fill=BLUE)
+    draw.line([(2, 7), (2, 9)], fill=CYAN, width=1)
+    draw.line([(13, 7), (13, 9)], fill=CYAN, width=1)
+    # Body.
+    draw.rectangle([5, 5, 10, 11], fill=STEEL_DIM)
+    draw.rectangle([6, 6, 9, 10], fill=STEEL)
+    draw.rectangle([7, 7, 8, 8], fill=CYAN)
+    # Dish and its signal.
+    draw.line([(8, 4), (8, 2)], fill=STEEL_DIM, width=1)
+    draw.line([(6, 2), (10, 2)], fill=GOLD, width=1)
+    draw.point([(8, 1)], fill=WHITE)
+    draw.point([(7, 13), (8, 12), (8, 14)], fill=GOLD)
+
+
+def draw_kira(draw):
+    """Kira Vesper: chief engineer, cap and uniform."""
+    # Hair behind the face.
+    draw.rectangle([3, 5, 12, 11], fill=HAIR)
+    # Face.
+    draw.rectangle([5, 5, 10, 11], fill=SKIN)
+    draw.rectangle([4, 7, 4, 8], fill=SKIN_DIM)
+    # Cap with its insignia.
+    draw.rectangle([4, 2, 11, 4], fill=ORANGE)
+    draw.rectangle([3, 5, 12, 5], fill=RUST_DARK)
+    draw.point([(7, 3), (8, 3)], fill=GOLD)
+    # Eyes and mouth.
+    draw.point([(6, 8), (9, 8)], fill=NAVY)
+    draw.line([(7, 10), (8, 10)], fill=(200, 80, 90, 255), width=1)
+    # Uniform.
+    draw.rectangle([3, 12, 12, 15], fill=CYAN_DIM)
+    draw.rectangle([7, 12, 8, 12], fill=SKIN_DIM)
+    draw.line([(3, 12), (5, 12)], fill=CYAN, width=1)
+    draw.line([(10, 12), (12, 12)], fill=CYAN, width=1)
+    draw.point([(4, 14)], fill=GOLD)
+
+
+def draw_help(draw):
+    """H.E.L.P.: the assistance drone."""
+    draw.line([(8, 1), (8, 3)], fill=STEEL_DIM, width=1)
+    draw.point([(8, 1)], fill=VERT)
+    draw.rectangle([3, 4, 12, 12], fill=(0, 77, 40, 255))
+    draw.rectangle([4, 5, 11, 11], fill=VERT)
+    draw.rectangle([4, 5, 11, 5], fill=WHITE)
+    # Visor and eyes.
+    draw.rectangle([5, 7, 10, 9], fill=NAVY)
+    draw.point([(6, 8), (9, 8)], fill=CYAN)
+    # Side thrusters and hover light.
+    draw.rectangle([1, 7, 2, 9], fill=STEEL_DIM)
+    draw.rectangle([13, 7, 14, 9], fill=STEEL_DIM)
+    draw.line([(6, 14), (9, 14)], fill=CYAN, width=1)
+    draw.point([(7, 13), (8, 13)], fill=CYAN_DIM)
+
+
+def draw_spectre(draw):
+    """The Spectre: a corrupted signal, half ghost, half glitch."""
+    draw.rectangle([4, 3, 11, 12], fill=RED_DIM)
+    draw.rectangle([5, 2, 10, 2], fill=RED_DIM)
+    draw.rectangle([5, 3, 10, 11], fill=RED)
+    draw.rectangle([4, 5, 11, 10], fill=RED)
+    # Hollow eyes.
+    draw.rectangle([6, 5, 7, 7], fill=NAVY)
+    draw.rectangle([9, 5, 10, 7], fill=NAVY)
+    draw.point([(7, 6), (10, 6)], fill=WHITE)
+    # Ragged hem.
+    draw.point([(4, 13), (6, 13), (7, 13), (9, 13), (11, 13), (5, 14), (10, 14)], fill=RED)
+    draw.point([(5, 12), (8, 12), (10, 12)], fill=RED)
+    # Glitch: displaced slices.
+    draw.line([(1, 4), (3, 4)], fill=VIOLET, width=1)
+    draw.line([(12, 9), (14, 9)], fill=VIOLET, width=1)
+    draw.point([(2, 10), (13, 3)], fill=CYAN)
+
+
+CHARACTER_PAINTERS = [draw_system, draw_kira, draw_help, draw_spectre]
+
+
+def draw_characters(sprites_dir):
+    """Generates characters.png: one 32x32 frame per speaker."""
+    small = Image.new("RGBA", (16 * len(CHARACTER_PAINTERS), 16), TRANSPARENT)
+    for i, painter in enumerate(CHARACTER_PAINTERS):
+        cell = Image.new("RGBA", (16, 16), TRANSPARENT)
+        painter(ImageDraw.Draw(cell))
+        small.paste(cell, (i * 16, 0))
+    final = small.resize((small.width * 2, 32), Image.Resampling.NEAREST)
+    final.save(os.path.join(sprites_dir, "characters.png"), "PNG")
+
+
 def main():
     sprites_dir = "public/sprites"
     os.makedirs(sprites_dir, exist_ok=True)
@@ -325,6 +427,9 @@ def main():
 
     print("Drawing the Rust and Agent IA icons into mission-icons-v2.png...")
     draw_course_icons(sprites_dir)
+
+    print("Generating characters.png...")
+    draw_characters(sprites_dir)
 
     # Banner icons: drawn at 64x64, then scaled up 3x (192x192).
     print("Generating banner-icons.png...")

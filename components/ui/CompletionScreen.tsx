@@ -44,7 +44,14 @@ export default function CompletionScreen({
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-[rgba(3,6,13,0.97)] animate-overlay-in">
       <div className="max-w-[520px] max-h-[90vh] overflow-y-auto rounded-sm border border-nebula-cyan bg-nebula-bg-panel px-16 py-12 text-center shadow-[0_0_80px_rgba(0,240,255,0.15),0_0_160px_rgba(0,240,255,0.05)] animate-modal-pop-in">
-        <span className="mb-5 block text-7xl animate-orbit-spin">🛸</span>
+        {badgeFrame !== undefined ? (
+          // The badge just earned, at 6x its 16 px grid: crisp pixels.
+          <div className="mb-5 flex justify-center">
+            <Sprite sheet={BADGE_ICONS} frame={badgeFrame} displaySize={128} />
+          </div>
+        ) : (
+          <span className="mb-5 block text-7xl animate-orbit-spin">🛸</span>
+        )}
         <div className="mb-3.5 font-tech text-xl leading-relaxed tracking-widest text-nebula-cyan [text-shadow:0_0_30px_rgba(0,240,255,0.4)]">
           MISSION
           <br />

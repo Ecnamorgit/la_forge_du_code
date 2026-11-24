@@ -96,6 +96,15 @@ et de chaque chapitre (`missionIcon`).
   relever `BADGE_COUNT` dans le script et `BADGE_FRAMES_DRAWN` dans `lib/badges-catalog.ts`,
   puis relancer le script. Entre-temps il s'affiche en emoji.
 
+### D) `characters.png` — portraits des personnages
+- **Frame 32×32**, **4 colonnes**, 1 ligne → canvas **128×32**, générée par
+  `scripts/generate_spritesheets.py` (grille 16 px agrandie ×2).
+- **Ordre des frames = `CHARACTER_FRAMES`** (`lib/characters.ts`) : 0 = Système (satellite),
+  1 = Kira Vesper, 2 = H.E.L.P., 3 = Le Spectre.
+- Affichés par `components/ui/CharacterPortrait.tsx` dans les cinématiques, la boîte du
+  narrateur, les indices et les railleries du Spectre. Tant que
+  `SPRITE_SHEETS_READY.characters` est `false`, l'emoji du personnage sert de repli.
+
 ---
 
 ## 4. Palette

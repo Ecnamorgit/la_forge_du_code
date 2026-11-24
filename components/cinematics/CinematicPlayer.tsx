@@ -10,6 +10,8 @@ import {
 } from "@/lib/cinematics/types";
 import { typewriterSlice } from "@/lib/cinematics/typewriter";
 import { playDeployBip, playFanfare } from "@/lib/audio";
+import { sceneSound } from "@/lib/cinematics/scene-sound";
+import CharacterPortrait from "@/components/ui/CharacterPortrait";
 import { useModalOverlay } from "@/lib/use-modal-overlay";
 
 interface CinematicPlayerProps {
@@ -24,7 +26,7 @@ interface CinematicPlayerProps {
   finalCtaLabel?: string;
 }
 
-/** Speaker label and glyph ("system" is not in CHARACTERS). */
+/** Speaker label and fallback glyph ("system" is not in CHARACTERS). */
 function speakerLabel(scene: CinematicScene): { glyph: string; name: string; title: string } {
   if (scene.speaker === "system") {
     return { glyph: "🛰️", name: "SYSTÈME", title: "Station Nebula" };
@@ -102,9 +104,11 @@ export default function CinematicPlayer({
   // (setSoundEnabled in lib/audio).
   useEffect(() => {
     if (!open) return;
-    if (index === cinematic.scenes.length - 1) playFanfare();
+    const current = cinematic.scenes[index];
+    if (!current) return;
+    if (sceneSound(current) === "fanfare") playFanfare();
     else playDeployBip();
-  }, [open, index, cinematic.scenes.length]);
+  }, [open, index, cinematic.scenes]);
 
   useModalOverlay(dialogRef, { open, onClose: finish });
 
@@ -154,12 +158,13 @@ export default function CinematicPlayer({
           VISUAL_CLASSES[scene.visual]
         } ${reducedMotion ? "" : "animate-intro-scene-in"}`}
       >
-        <span aria-hidden className="text-6xl">{speaker.glyph}</span>
+        <CharacterPortrait speaker={scene.speaker} emoji={speaker.glyph} size={96} className="text-6xl" />
       </div>
 
       {/* Speaker + narration. */}
       <p className="mt-4 font-tech text-xs uppercase tracking-widest text-nebula-text-secondary">
-        {speaker.glyph} {speaker.name} — {speaker.title}
+        <CharacterPortrait speaker={scene.speaker} emoji={speaker.glyph} size={16} className="mr-1.5" />
+        {speaker.name} — {speaker.title}
       </p>
       <p
         aria-live="polite"

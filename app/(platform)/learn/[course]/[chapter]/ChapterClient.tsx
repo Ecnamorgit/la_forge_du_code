@@ -26,6 +26,7 @@ import TrialConversion from "@/components/lesson/TrialConversion";
 import { xpForStep } from "@/lib/xp";
 import { getChapterBackground, SPRITE_SHEETS_READY } from "@/lib/sprite-config";
 import { CHARACTERS } from "@/lib/characters";
+import CharacterPortrait from "@/components/ui/CharacterPortrait";
 import { getSqlStepConfig } from "@/lib/sandbox/sql-seeds";
 import { getBadgeForChapter } from "@/lib/courses-meta";
 import { combatThemeForCourse } from "@/lib/combat-theme";
@@ -486,7 +487,8 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
             {step.spectreTrap ? (
               <div className="mb-8 border-l-2 border-nebula-spectre/60 bg-nebula-spectre/10 px-5 py-4">
                 <div className="mb-1.5 font-tech text-[10px] uppercase tracking-widest text-nebula-spectre">
-                  {CHARACTERS.spectre.glyph} {CHARACTERS.spectre.title} {CHARACTERS.spectre.name}
+                  <CharacterPortrait speaker="spectre" emoji={CHARACTERS.spectre.glyph} size={16} className="mr-1.5" />
+                  {CHARACTERS.spectre.title} {CHARACTERS.spectre.name}
                 </div>
                 <p className="font-body text-base italic leading-relaxed text-nebula-text-secondary">
                   {step.spectreTrap}
@@ -495,7 +497,8 @@ export default function ChapterClient({ course, chapter, isLastChapter }: Chapte
             ) : (
               <div className="mb-8 border-l-2 border-nebula-cyan/40 bg-nebula-cyan-faint/40 px-5 py-4">
                 <div className="mb-1.5 font-tech text-[10px] uppercase tracking-widest text-nebula-cyan">
-                  {CHARACTERS.kira.glyph} {CHARACTERS.kira.title} {CHARACTERS.kira.name}
+                  <CharacterPortrait speaker="kira" emoji={CHARACTERS.kira.glyph} size={16} className="mr-1.5" />
+                  {CHARACTERS.kira.title} {CHARACTERS.kira.name}
                 </div>
                 <p className="font-body text-base italic leading-relaxed text-nebula-text-secondary">
                   {step.narrator}

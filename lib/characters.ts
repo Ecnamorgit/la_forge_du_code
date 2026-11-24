@@ -14,6 +14,15 @@ export interface Character {
   glyph: string;
 }
 
+/**
+ * Frame of each speaker in /sprites/characters.png, in the order of
+ * CHARACTER_PAINTERS (scripts/generate_spritesheets.py). "system" is the
+ * neutral voice of the cinematics: it has a portrait but is not a character.
+ */
+export const CHARACTER_FRAMES = { system: 0, kira: 1, help: 2, spectre: 3 } as const;
+
+export type SpeakerId = keyof typeof CHARACTER_FRAMES;
+
 export const CHARACTERS = {
   kira: { name: "Kira Vesper", title: "Ing. en chef", glyph: "👩‍✈️" },
   help: { name: "H.E.L.P.", title: "Assistant système", glyph: "🤖" },

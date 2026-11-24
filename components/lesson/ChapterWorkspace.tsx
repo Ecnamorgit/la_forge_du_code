@@ -24,6 +24,7 @@ import {
   type ErrorTone,
 } from "@/lib/narrative-feedback";
 import { CHARACTERS } from "@/lib/characters";
+import CharacterPortrait from "@/components/ui/CharacterPortrait";
 import type { CombatTheme } from "@/lib/combat-theme";
 
 type Language = "html" | "javascript" | "sql" | "react" | "rust";
@@ -372,7 +373,8 @@ export default function ChapterWorkspace({
                     className="font-tech text-xs tracking-widest text-nebula-spectre"
                     aria-hidden="true"
                   >
-                    {CHARACTERS.spectre.glyph} {CHARACTERS.spectre.name.toUpperCase()}
+                    <CharacterPortrait speaker="spectre" emoji={CHARACTERS.spectre.glyph} size={16} className="mr-1.5" />
+                    {CHARACTERS.spectre.name.toUpperCase()}
                   </span>
                   <span className="font-body text-sm italic text-nebula-spectre/80">
                     {spectreTaunt}
