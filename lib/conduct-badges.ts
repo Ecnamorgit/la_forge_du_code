@@ -3,7 +3,7 @@
  * lib/badges-catalog.ts reward completed chapters.
  *
  * Kept separate from BADGES, where position sets the frame index in
- * /sprites/badges.png (8×6 = 48): adding entries there would require a
+ * /sprites/badges.png (8×7 = 56): adding entries there would require a
  * new sheet. Emoji icons until a dedicated sheet exists.
  */
 

@@ -46,12 +46,12 @@ describe("getCourseStatus", () => {
 describe("getCourseIconFrame", () => {
   it("gives a drawn course its frame, in catalog order", () => {
     expect(getCourseIconFrame("html")).toBe(0);
-    expect(getCourseIconFrame("algo")).toBe(COURSE_ICON_FRAMES_DRAWN - 1);
+    expect(getCourseIconFrame("rust")).toBe(14);
+    expect(getCourseIconFrame("agent-ia")).toBe(15);
   });
 
-  it("returns null for a course whose icon is not drawn yet, so the emoji shows", () => {
-    expect(getCourseIconFrame("rust")).toBeNull();
-    expect(getCourseIconFrame("agent-ia")).toBeNull();
+  it("has a drawn icon for every course of the catalog", () => {
+    expect(COURSE_ICON_FRAMES_DRAWN).toBe(COURSES_CATALOG.length);
   });
 
   it("returns null for an unknown course instead of pointing at html's icon", () => {
